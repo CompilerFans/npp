@@ -152,8 +152,16 @@ def emit(row: dict) -> Optional[str]:
         if sct is None or dct is None:
             return None
         complex_types = COMPLEX_SHORT | {"Npp32fc", "Npp64fc"}
-        if sct in complex_types or s2ct in complex_types or dct in complex_types:
-            return None
+        is_complex = sct in complex_types or s2ct in complex_types or dct in complex_types
+        if is_complex:
+            allowed = op in {"Add", "Sub", "Mul", "Div", "AddC", "SubC", "SubCRev",
+                             "MulC", "DivC", "Sqr", "Sqrt"}
+            if not allowed:
+                return None
+            if kind == "binary" and not (sct == s2ct == dct):
+                return None
+            if kind == "unary" and not (sct == dct):
+                return None
         inplace = any(p.name == "pSrcDst" for p in params)
         # NPP's mixed-type Div kernel (16s/32s) produces operand-dependent
         # garbage on zero divisors; keep it out of the generated matrix.

@@ -79,11 +79,20 @@ struct SqrtOp {
   template <typename A, typename D> __device__ __host__ D applyF(const A& a) const {
     using C = ed::component_t_ty<D>;
     if constexpr (ed::is_complex_v<D>) {
-      double re = rp(a), im = ip(a);
-      double r = std::hypot(re, im);
-      double gamma = std::sqrt((r + re) / 2.0);
-      double delta = std::sqrt((r - re) / 2.0);
-      D d; d.re = (C)gamma; d.im = (C)(im < 0 ? -delta : delta); return d;
+      if constexpr (std::is_same_v<C, Npp32f>) {
+        // NPP evaluates the 32fc square root end-to-end in single precision.
+        const float re = (float)rp(a), im = (float)ip(a);
+        const float r = std::hypot(re, im);
+        const float gamma = std::sqrt((r + re) / 2.0f);
+        const float delta = std::sqrt((r - re) / 2.0f);
+        D d; d.re = gamma; d.im = (im < 0.0f ? -delta : delta); return d;
+      } else {
+        double re = rp(a), im = ip(a);
+        double r = std::hypot(re, im);
+        double gamma = std::sqrt((r + re) / 2.0);
+        double delta = std::sqrt((r - re) / 2.0);
+        D d; d.re = (C)gamma; d.im = (C)(im < 0 ? -delta : delta); return d;
+      }
     } else return (D)std::sqrt(rp(a));
   }
   template <typename A, typename D> __device__ __host__ D applyS(const A& a, int sf) const {
@@ -94,7 +103,9 @@ struct SqrtOp {
       double re = rp(a), im = ip(a);
       double r = std::hypot(re, im);
       double gamma = std::sqrt((r + re) / 2.0), delta = std::sqrt((r - re) / 2.0);
-      double gr = (im < 0 ? -delta : gamma), gi = (im < 0 ? gamma : delta);
+      // Principal square root: real part is gamma, imaginary part carries
+      // the sign of the input's imaginary component.
+      double gr = gamma, gi = (im < 0 ? -delta : delta);
       double s = (1ll << sf);
       D d; d.re = (C)(gr / s); d.im = (C)(gi / s); return d;
     } else {

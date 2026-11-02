@@ -178,16 +178,24 @@ struct DivCOp {
     if constexpr (ed::is_complex_v<D>) {
       if constexpr (std::is_floating_point_v<C>) {
         long double ar=ek::re_l(a), ai=ek::im_l(a), br=ek::re_l(b), bi=ek::im_l(b);
-        long double den = br*br + bi*bi; D c;
-        if (den == 0.0L) { c.re=(C)0; c.im=(C)0; }
-        else { c.re=(C)((ar*br + ai*bi)/den); c.im=(C)((ai*br - ar*bi)/den); }
+        const long double den = br*br + bi*bi; D c;
+        c.re=(C)((ar*br + ai*bi)/den); c.im=(C)((ai*br - ar*bi)/den);
         return c;
       } else {
-        long long ar=ek::re_ll(a), ai=ek::im_ll(a), br=ek::re_ll(b), bi=ek::im_ll(b);
-        long long den = (br*br + bi*bi) << sf;
+        const long long ar=ek::re_ll(a), ai=ek::im_ll(a), br=ek::re_ll(b), bi=ek::im_ll(b);
+        const long long d2 = br*br + bi*bi;
         D c;
-        if (den == 0) { c.re=(C)0; c.im=(C)0; }
-        else { c.re=(C)(div_round_even<C>(ar*br + ai*bi, den)); c.im=(C)(div_round_even<C>(ai*br - ar*bi, den)); }
+        if (d2 == 0) { c.re=(C)0; c.im=(C)0; return c; }
+        const double qre = (double)(ar*br + ai*bi) / (double)d2;
+        const double qim = (double)(ai*br - ar*bi) / (double)d2;
+        if (sf == 0) {
+          c.re = ek::sat_ll<C>((long long)std::trunc(qre));
+          c.im = ek::sat_ll<C>((long long)std::trunc(qim));
+        } else {
+          const double scale = (double)(1 << sf);
+          c.re = ek::sat_ll<C>(ek::round_even(qre / scale));
+          c.im = ek::sat_ll<C>(ek::round_even(qim / scale));
+        }
         return c;
       }
     } else {

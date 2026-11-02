@@ -2571,40 +2571,8 @@
   ]
  },
  "npps_arithmetic_and_logical_operations.h": {
-  "emitted": 251,
+  "emitted": 331,
   "skipped": [
-   {
-    "function": "nppsAddC_16sc_ISfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsAddC_16sc_Sfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsAddC_32fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsAddC_32fc_I_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsAddC_32sc_ISfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsAddC_32sc_Sfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsAddC_64fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsAddC_64fc_I_Ctx",
-    "reason": "unsupported"
-   },
    {
     "function": "nppsAddProductC_32f_Ctx",
     "reason": "unsupported"
@@ -2638,38 +2606,6 @@
     "reason": "unsupported"
    },
    {
-    "function": "nppsAdd_16sc_ISfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsAdd_16sc_Sfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsAdd_32fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsAdd_32fc_I_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsAdd_32sc_ISfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsAdd_32sc_Sfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsAdd_64fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsAdd_64fc_I_Ctx",
-    "reason": "unsupported"
-   },
-   {
     "function": "nppsCauchyDD2_32f_I_Ctx",
     "reason": "unsupported"
    },
@@ -2682,55 +2618,7 @@
     "reason": "unsupported"
    },
    {
-    "function": "nppsDivC_16sc_ISfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsDivC_16sc_Sfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsDivC_32fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsDivC_32fc_I_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsDivC_64fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsDivC_64fc_I_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsDiv_16sc_ISfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsDiv_16sc_Sfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsDiv_32fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsDiv_32fc_I_Ctx",
-    "reason": "unsupported"
-   },
-   {
     "function": "nppsDiv_32s16s_Sfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsDiv_64fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsDiv_64fc_I_Ctx",
     "reason": "unsupported"
    },
    {
@@ -2758,51 +2646,11 @@
     "reason": "unsupported"
    },
    {
-    "function": "nppsMulC_16sc_ISfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsMulC_16sc_Sfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsMulC_32fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsMulC_32fc_I_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsMulC_32sc_ISfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsMulC_32sc_Sfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
     "function": "nppsMulC_64f64s_ISfs_Ctx",
     "reason": "unsupported"
    },
    {
-    "function": "nppsMulC_64fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsMulC_64fc_I_Ctx",
-    "reason": "unsupported"
-   },
-   {
     "function": "nppsMulC_Low_32f16s_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsMul_16sc_ISfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsMul_16sc_Sfs_Ctx",
     "reason": "unsupported"
    },
    {
@@ -2814,35 +2662,11 @@
     "reason": "unsupported"
    },
    {
-    "function": "nppsMul_32fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsMul_32fc_I_Ctx",
-    "reason": "unsupported"
-   },
-   {
     "function": "nppsMul_32s32sc_ISfs_Ctx",
     "reason": "unsupported"
    },
    {
     "function": "nppsMul_32s32sc_Sfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsMul_32sc_ISfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsMul_32sc_Sfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsMul_64fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsMul_64fc_I_Ctx",
     "reason": "unsupported"
    },
    {
@@ -2871,150 +2695,6 @@
    },
    {
     "function": "nppsNormalize_64fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSqr_16sc_ISfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSqr_16sc_Sfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSqr_32fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSqr_32fc_I_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSqr_64fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSqr_64fc_I_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSqrt_16sc_ISfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSqrt_16sc_Sfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSqrt_32fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSqrt_32fc_I_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSqrt_64fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSqrt_64fc_I_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSubCRev_16sc_ISfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSubCRev_16sc_Sfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSubCRev_32fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSubCRev_32fc_I_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSubCRev_32sc_ISfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSubCRev_32sc_Sfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSubCRev_64fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSubCRev_64fc_I_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSubC_16sc_ISfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSubC_16sc_Sfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSubC_32fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSubC_32fc_I_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSubC_32sc_ISfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSubC_32sc_Sfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSubC_64fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSubC_64fc_I_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSub_16sc_ISfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSub_16sc_Sfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSub_32fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSub_32fc_I_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSub_32sc_ISfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSub_32sc_Sfs_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSub_64fc_Ctx",
-    "reason": "unsupported"
-   },
-   {
-    "function": "nppsSub_64fc_I_Ctx",
     "reason": "unsupported"
    },
    {

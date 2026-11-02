@@ -167,6 +167,16 @@ template <typename T> __device__ __host__ __forceinline__ T sat_ll(long long v) 
   else { return static_cast<T>(v); }
 }
 
+// Round to nearest, ties to even (double floor/ceil so it stays usable in
+// device code).  Complex integer division uses this for the Sfs step.
+__device__ __host__ __forceinline__ long long round_even(double v) {
+  const double lo = std::floor(v);
+  const long long i = static_cast<long long>(lo);
+  const double f = v - lo;
+  if (f > 0.5 || (f == 0.5 && (i & 1LL))) return i + 1;
+  return i;
+}
+
 // Default Sfs scaling: divide by 2^sf with round-half-to-even, then saturate.
 // (Validated against NVIDIA NPP 13.4: NPP rounds the .5 boundary to the
 // nearest even integer, i.e. banker's rounding.)
@@ -611,16 +621,30 @@ struct DivOp {
     if constexpr (is_complex_v<D>) {
       if constexpr (std::is_floating_point_v<C>) {
         long double ar=detail::re_l(a), ai=detail::im_l(a), br=detail::re_l(b), bi=detail::im_l(b);
-        long double den = br*br + bi*bi;
+        const long double den = br*br + bi*bi;
         D r;
-        if (den == 0.0L) { r.re=(C)0; r.im=(C)0; }
-        else { r.re = (C)((ar*br + ai*bi)/den); r.im = (C)((ai*br - ar*bi)/den); }
+        // IEEE semantics: a zero divisor produces NaN/inf components.
+        r.re = (C)((ar*br + ai*bi)/den);
+        r.im = (C)((ai*br - ar*bi)/den);
         return r;
       } else {
-        long long ar=detail::re_ll(a), ai=detail::im_ll(a), bv=detail::re_ll(b);
+        // Full complex quotient (pSrc2 / pSrc1).  Integer components truncate
+        // at sf == 0 and round half-to-even otherwise.
+        const long long nr = detail::re_ll(a), ni = detail::im_ll(a);
+        const long long dr = detail::re_ll(b), di = detail::im_ll(b);
+        const long long d2 = dr * dr + di * di;
         D r;
-        if (bv == 0) { r.re = (C)0; r.im = (C)0; }
-        else { r.re = (C)detail::scale_sat<C>(ar/bv, sf); r.im = (C)detail::scale_sat<C>(ai/bv, sf); }
+        if (d2 == 0) { r.re = (C)0; r.im = (C)0; return r; }
+        const double qre = (double)(nr * dr + ni * di) / (double)d2;
+        const double qim = (double)(ni * dr - nr * di) / (double)d2;
+        if (sf == 0) {
+          r.re = detail::sat_ll<C>((long long)std::trunc(qre));
+          r.im = detail::sat_ll<C>((long long)std::trunc(qim));
+        } else {
+          const double scale = (double)(1 << sf);
+          r.re = detail::sat_ll<C>(detail::round_even(qre / scale));
+          r.im = detail::sat_ll<C>(detail::round_even(qim / scale));
+        }
         return r;
       }
     } else {
