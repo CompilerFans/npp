@@ -3275,5 +3275,4882 @@
     "reason": "complex or unsupported"
    }
   ]
+ },
+ "nppi_statistics_functions.h": {
+  "emitted": 427,
+  "skipped": [
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_16s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_16sc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_16sc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_16sc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_16sc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_16u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32f_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32fc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32fc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32fc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32fc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32sc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32sc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32sc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32sc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_32u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_64f_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_8s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_8s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_8s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_8s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_8u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageErrorGetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_16s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_16sc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_16sc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_16sc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_16sc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_16u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_32f_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_32fc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_32fc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_32fc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_32fc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_32s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_32sc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_32sc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_32sc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_32sc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_32u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_64f_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_8s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageError_8u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_16s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_16sc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_16sc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_16sc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_16sc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_16u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32f_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32fc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32fc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32fc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32fc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32sc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32sc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32sc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32sc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_32u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_64f_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_8s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_8s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_8s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_8s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_8u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeErrorGetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_16s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_16sc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_16sc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_16sc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_16sc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_16u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_32f_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_32fc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_32fc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_32fc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_32fc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_32s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_32sc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_32sc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_32sc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_32sc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_32u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_64f_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_8s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiAverageRelativeError_8u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCircularRadialProfile_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCountInRangeGetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCountInRangeGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCountInRangeGetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCountInRangeGetBufferHostSize_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCountInRangeGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCountInRangeGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCountInRange_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCountInRange_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCountInRange_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCountInRange_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCountInRange_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCountInRange_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevelAdvanced_16u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevelAdvanced_16u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevelAdvanced_16u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevelAdvanced_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevelAdvanced_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevelAdvanced_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevelAdvanced_64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevelAdvanced_64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevelAdvanced_64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevelAdvanced_8s32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevelAdvanced_8s32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevelAdvanced_8s32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevelAdvanced_8u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevelAdvanced_8u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevelAdvanced_8u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_16u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_16u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_16u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_16u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_64f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_8s32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_8s32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_8s32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_8s32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_8u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_8u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_8u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_8u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_8u_AC4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_8u_C1RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_8u_C3RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_NormLevel_8u_C4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_16u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_16u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_16u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_16u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_64f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_8s32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_8s32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_8s32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_8s32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_8u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_8u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_8u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_8u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_8u_AC4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_8u_C1RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_8u_C3RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrFull_Norm_8u_C4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevelAdvanced_16u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevelAdvanced_16u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevelAdvanced_16u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevelAdvanced_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevelAdvanced_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevelAdvanced_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevelAdvanced_64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevelAdvanced_64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevelAdvanced_64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevelAdvanced_8s32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevelAdvanced_8s32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevelAdvanced_8s32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevelAdvanced_8u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevelAdvanced_8u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevelAdvanced_8u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_16u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_16u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_16u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_16u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_64f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_8s32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_8s32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_8s32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_8s32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_8u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_8u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_8u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_8u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_8u_AC4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_8u_C1RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_8u_C3RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_NormLevel_8u_C4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_16u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_16u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_16u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_16u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_64f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_8s32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_8s32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_8s32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_8s32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_8u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_8u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_8u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_8u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_8u_AC4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_8u_C1RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_8u_C3RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrSame_Norm_8u_C4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_16u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_8s32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_8u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevelAdvanced_16u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevelAdvanced_16u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevelAdvanced_16u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevelAdvanced_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevelAdvanced_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevelAdvanced_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevelAdvanced_64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevelAdvanced_64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevelAdvanced_64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevelAdvanced_8s32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevelAdvanced_8s32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevelAdvanced_8s32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevelAdvanced_8u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevelAdvanced_8u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevelAdvanced_8u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_16u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_16u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_16u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_16u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_64f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_8s32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_8s32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_8s32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_8s32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_8u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_8u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_8u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_8u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_8u_AC4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_8u_C1RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_8u_C3RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_NormLevel_8u_C4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_16u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_16u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_16u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_16u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_64f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_8s32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_8s32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_8s32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_8s32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_8u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_8u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_8u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_8u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_8u_AC4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_8u_C1RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_8u_C3RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiCrossCorrValid_Norm_8u_C4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_16s64f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_16s64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_16s64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_16s64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_16u64f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_16u64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_16u64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_16u64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_32f64f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_32f64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_32f64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_32f64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_32s64f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_32s64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_32s64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_32s64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_32u64f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_32u64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_32u64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_32u64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_8s64f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_8s64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_8s64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_8s64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_8u64f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_8u64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_8u64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiDotProdGetBufferHostSize_8u64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiEllipticalRadialProfile_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiEvenLevelsHost_32s_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_16u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_16u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_16u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_16u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_64f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_8s32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_8s32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_8s32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_8s32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_8u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_8u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_8u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_8u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_8u_AC4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_8u_C1RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_8u_C3RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiFullNormLevelGetBufferHostSize_8u_C4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEvenGetBufferSize_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEvenGetBufferSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEvenGetBufferSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEvenGetBufferSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEvenGetBufferSize_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEvenGetBufferSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEvenGetBufferSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEvenGetBufferSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEvenGetBufferSize_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEvenGetBufferSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEvenGetBufferSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEvenGetBufferSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEven_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEven_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEven_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEven_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEven_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEven_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEven_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEven_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEven_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEven_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEven_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramEven_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRangeGetBufferSize_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRangeGetBufferSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRangeGetBufferSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRangeGetBufferSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRangeGetBufferSize_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRangeGetBufferSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRangeGetBufferSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRangeGetBufferSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRangeGetBufferSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRangeGetBufferSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRangeGetBufferSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRangeGetBufferSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRangeGetBufferSize_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRangeGetBufferSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRangeGetBufferSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRangeGetBufferSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRange_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRange_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRange_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRange_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRange_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRange_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRange_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRange_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRange_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRange_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRange_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRange_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRange_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRange_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRange_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiHistogramRange_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiIntegral_8u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiIntegral_8u32s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMSEBatchGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMSEBatchGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMSEBatch_8u_C1R_Advanced_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMSEBatch_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMSEBatch_8u_C3R_Advanced_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMSEBatch_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMSEGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMSEGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMSE_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMSE_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMSSSIMGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMSSSIM_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxGetBufferHostSize_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxGetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxGetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxGetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxGetBufferHostSize_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxGetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxGetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxGetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxGetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxGetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxGetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxGetBufferHostSize_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxGetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxIndxGetBufferHostSize_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxIndxGetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxIndxGetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxIndxGetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxIndxGetBufferHostSize_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxIndxGetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxIndxGetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxIndxGetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxIndxGetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxIndxGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxIndxGetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxIndxGetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxIndxGetBufferHostSize_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxIndxGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxIndxGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaxIndxGetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_16s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_16sc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_16sc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_16sc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_16sc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_16u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32f_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32fc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32fc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32fc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32fc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32sc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32sc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32sc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32sc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_32u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_64f_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_8s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_8s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_8s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_8s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_8u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumErrorGetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_16s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_16sc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_16sc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_16sc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_16sc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_16u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_32f_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_32fc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_32fc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_32fc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_32fc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_32s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_32sc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_32sc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_32sc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_32sc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_32u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_64f_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_8s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumError_8u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_16s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_16sc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_16sc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_16sc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_16sc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_16u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32f_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32fc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32fc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32fc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32fc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32sc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32sc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32sc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32sc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_32u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_64f_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_8s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_8s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_8s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_8s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_8u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeErrorGetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_16s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_16sc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_16sc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_16sc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_16sc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_16u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_32f_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_32fc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_32fc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_32fc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_32fc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_32s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_32sc_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_32sc_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_32sc_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_32sc_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_32u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_64f_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_8s_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMaximumRelativeError_8u_C2R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanGetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanStdDevGetBufferHostSize_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanStdDevGetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanStdDevGetBufferHostSize_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanStdDevGetBufferHostSize_16u_C3CR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanStdDevGetBufferHostSize_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanStdDevGetBufferHostSize_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanStdDevGetBufferHostSize_32f_C3CR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanStdDevGetBufferHostSize_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanStdDevGetBufferHostSize_8s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanStdDevGetBufferHostSize_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanStdDevGetBufferHostSize_8s_C3CR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanStdDevGetBufferHostSize_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanStdDevGetBufferHostSize_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMeanStdDevGetBufferHostSize_8u_C3CR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMean_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMean_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMean_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMean_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMean_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMean_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMean_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMean_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMean_StdDev_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMean_StdDev_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMean_StdDev_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMean_StdDev_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMean_StdDev_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMean_StdDev_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMean_StdDev_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMean_StdDev_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinGetBufferHostSize_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinGetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinGetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinGetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinGetBufferHostSize_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinGetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinGetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinGetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinGetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinGetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinGetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinGetBufferHostSize_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinGetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinIndxGetBufferHostSize_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinIndxGetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinIndxGetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinIndxGetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinIndxGetBufferHostSize_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinIndxGetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinIndxGetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinIndxGetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinIndxGetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinIndxGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinIndxGetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinIndxGetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinIndxGetBufferHostSize_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinIndxGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinIndxGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinIndxGetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxGetBufferHostSize_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxGetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxGetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxGetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxGetBufferHostSize_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxGetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxGetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxGetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxGetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxGetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxGetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxGetBufferHostSize_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxGetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndxGetBufferHostSize_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndxGetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndxGetBufferHostSize_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndxGetBufferHostSize_16u_C3CR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndxGetBufferHostSize_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndxGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndxGetBufferHostSize_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndxGetBufferHostSize_32f_C3CR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndxGetBufferHostSize_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndxGetBufferHostSize_8s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndxGetBufferHostSize_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndxGetBufferHostSize_8s_C3CR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndxGetBufferHostSize_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndxGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndxGetBufferHostSize_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndxGetBufferHostSize_8u_C3CR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndx_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndx_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndx_16u_C3CR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndx_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndx_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndx_32f_C3CR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndx_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndx_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndx_8s_C3CR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndx_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndx_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiMinMaxIndx_8u_C3CR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffInfGetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL1GetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiffL2GetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_Inf_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_Inf_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_Inf_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_Inf_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_Inf_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_Inf_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_Inf_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_Inf_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_L1_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_L1_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_L1_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_L1_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_L1_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_L1_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_L1_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_L1_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_L2_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_L2_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_L2_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_L2_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_L2_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_L2_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_L2_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormDiff_L2_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_32s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormInfGetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL1GetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormL2GetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelInfGetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL1GetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRelL2GetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_Inf_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_Inf_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_Inf_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_Inf_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_Inf_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_Inf_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_Inf_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_Inf_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_L1_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_L1_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_L1_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_L1_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_L1_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_L1_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_L1_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_L1_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_L2_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_L2_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_L2_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_L2_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_L2_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_L2_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_L2_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNormRel_L2_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_Inf_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_Inf_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_Inf_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_Inf_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_Inf_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_Inf_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_Inf_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_Inf_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_L1_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_L1_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_L1_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_L1_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_L1_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_L1_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_L1_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_L1_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_L2_16u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_L2_16u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_L2_32f_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_L2_32f_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_L2_8s_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_L2_8s_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_L2_8u_C1MR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiNorm_L2_8u_C3CMR_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiPSNRBatchGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiPSNRBatchGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiPSNRBatch_8u_C1R_Advanced_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiPSNRBatch_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiPSNRBatch_8u_C3R_Advanced_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiPSNRBatch_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiPSNRGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiPSNRGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiPSNR_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiPSNR_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiQualityIndexGetBufferHostSize_16u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiQualityIndexGetBufferHostSize_16u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiQualityIndexGetBufferHostSize_16u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiQualityIndexGetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiQualityIndexGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiQualityIndexGetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiQualityIndexGetBufferHostSize_8u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiQualityIndexGetBufferHostSize_8u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiQualityIndexGetBufferHostSize_8u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiQualityIndex_16u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiQualityIndex_16u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiQualityIndex_16u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiQualityIndex_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiQualityIndex_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiQualityIndex_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiQualityIndex_8u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiQualityIndex_8u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiQualityIndex_8u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiRectStdDev_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiRectStdDev_32s32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiRectStdDev_32s_C1RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSSIMBatchGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSSIMBatchGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSSIMBatch_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSSIMBatch_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSSIMGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSSIMGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSSIM_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSSIM_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_16u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_16u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_16u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_16u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_64f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_8s32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_8s32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_8s32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_8s32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_8u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_8u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_8u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_8u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_8u_AC4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_8u_C1RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_8u_C3RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSameNormLevelGetBufferHostSize_8u_C4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_16u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_16u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_16u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_16u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_8s32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_8s32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_8s32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_8s32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_8u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_8u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_8u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_8u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_8u_AC4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_8u_C1RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_8u_C3RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceFull_Norm_8u_C4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_16u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_16u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_16u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_16u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_8s32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_8s32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_8s32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_8s32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_8u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_8u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_8u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_8u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_8u_AC4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_8u_C1RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_8u_C3RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceSame_Norm_8u_C4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_16u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_16u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_16u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_16u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_8s32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_8s32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_8s32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_8s32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_8u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_8u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_8u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_8u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_8u_AC4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_8u_C1RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_8u_C3RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrDistanceValid_Norm_8u_C4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrIntegral_8u32f64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrIntegral_8u32s64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSqrIntegral_8u32s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSumGetBufferHostSize_16s_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSumGetBufferHostSize_16s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSumGetBufferHostSize_16s_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSumGetBufferHostSize_16s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSumGetBufferHostSize_16u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSumGetBufferHostSize_16u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSumGetBufferHostSize_16u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSumGetBufferHostSize_16u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSumGetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSumGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSumGetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSumGetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSumGetBufferHostSize_8u64s_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSumGetBufferHostSize_8u64s_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSumGetBufferHostSize_8u_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSumGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSumGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiSumGetBufferHostSize_8u_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_16u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_16u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_16u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_16u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_64f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_64f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_64f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_64f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_8s32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_8s32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_8s32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_8s32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_8u32f_AC4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_8u32f_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_8u32f_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_8u32f_C4R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_8u_AC4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_8u_C1RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_8u_C3RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiValidNormLevelGetBufferHostSize_8u_C4RSfs_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiWMSSSIMBatchGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiWMSSSIMBatchGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiWMSSSIMBatch_8u_C1R_Advanced_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiWMSSSIMBatch_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiWMSSSIMBatch_8u_C3R_Advanced_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiWMSSSIMBatch_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiWMSSSIMGetBufferHostSize_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiWMSSSIMGetBufferHostSize_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiWMSSSIM_8u_C1R_Ctx",
+    "reason": "later batch / masked / complex"
+   },
+   {
+    "function": "nppiWMSSSIM_8u_C3R_Ctx",
+    "reason": "later batch / masked / complex"
+   }
+  ]
  }
 }

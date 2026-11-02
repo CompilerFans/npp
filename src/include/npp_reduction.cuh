@@ -672,6 +672,18 @@ __device__ __forceinline__ double normContribution(double raw) {
   return fabs(raw);
 }
 
+// Load a source value for a norm reduction.  NPP 13.4's 16s AC4 Norm_Inf
+// path compares raw 16-bit patterns as unsigned values (no sign/abs); mirror
+// that measured quirk for the plain (non-diff) norm.
+template <NormKind NT, typename D, int Channels, bool AlphaPreserve, bool Diff>
+__device__ __forceinline__ double normLoad(D v) {
+  if constexpr (!Diff && NT == NormKind::Inf && std::is_same_v<D, Npp16s> && Channels == 4 &&
+                AlphaPreserve) {
+    return static_cast<double>(static_cast<uint16_t>(static_cast<int16_t>(v)));
+  }
+  return static_cast<double>(v);
+}
+
 // Fold raw into acc: L1/L2 accumulate, Inf keeps the running maximum.
 template <NormKind NT>
 __device__ __forceinline__ void normAcc(double &acc, double raw) {
@@ -693,6 +705,17 @@ template <bool IsInf> __device__ double normBlockReduce(double val) {
     __syncthreads();
   }
   return shared[0];
+}
+
+// Denominator value for NormRel.  NPP 13.4's 16s AC4 NormRel_Inf path uses
+// the raw 16-bit pattern as an unsigned value for the denominator while the
+// numerator uses the normal signed absolute difference.
+template <NormKind NT, typename D, int Channels, bool AlphaPreserve>
+__device__ __forceinline__ double normRelDen(D v) {
+  if constexpr (NT == NormKind::Inf && std::is_same_v<D, Npp16s> && Channels == 4 && AlphaPreserve) {
+    return static_cast<double>(static_cast<uint16_t>(static_cast<int16_t>(v)));
+  }
+  return static_cast<double>(v);
 }
 
 // Multi-channel plain norm (Diff=false) or norm-diff (Diff=true).  vecPath
@@ -774,14 +797,15 @@ static __global__ void normPartialKernel(const D *pSrc, int nSrcStep, const D *p
           for (int c = 0; c < readCh; ++c) {
 #pragma unroll
             for (int m = 0; m < kVecElems<D>() / Channels; ++m)
-              normAcc<NT>(local[c], static_cast<double>(p.v[m * Channels + c]));
+              normAcc<NT>(local[c], normLoad<NT, D, Channels, AlphaPreserve, Diff>(p.v[m * Channels + c]));
           }
         };
         auto remFn = [&](int c, D v, int x, int y) {
-          if (c == 0) normAcc<NT>(local[0], static_cast<double>(v));
-          else if (c == 1) normAcc<NT>(local[1], static_cast<double>(v));
-          else if (c == 2) normAcc<NT>(local[2], static_cast<double>(v));
-          else if (!AlphaPreserve) normAcc<NT>(local[3], static_cast<double>(v));
+          const double dv = normLoad<NT, D, Channels, AlphaPreserve, Diff>(v);
+          if (c == 0) normAcc<NT>(local[0], dv);
+          else if (c == 1) normAcc<NT>(local[1], dv);
+          else if (c == 2) normAcc<NT>(local[2], dv);
+          else if (!AlphaPreserve) normAcc<NT>(local[3], dv);
         };
         walkVecPacks<Channels>(pSrc, nSrcStep, width, height, packFn, remFn);
       }
@@ -793,8 +817,8 @@ static __global__ void normPartialKernel(const D *pSrc, int nSrcStep, const D *p
       const D *row = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc) + y * nSrcStep);
       const D *row2 = Diff ? reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc2) + y * nSrc2Step) : nullptr;
       for (int c = 0; c < readCh; ++c) {
-        double v = static_cast<double>(row[x * Channels + c]);
-        if constexpr (Diff) v -= static_cast<double>(row2[x * Channels + c]);
+        double v = normLoad<NT, D, Channels, AlphaPreserve, Diff>(row[x * Channels + c]);
+        if constexpr (Diff) v -= normLoad<NT, D, Channels, AlphaPreserve, Diff>(row2[x * Channels + c]);
         normAcc<NT>(local[c], v);
       }
     }
@@ -921,7 +945,7 @@ static __global__ void normRelPartialKernel(const D *pSrc1, int nSrc1Step, const
       };
       auto remFn = [&](int c, D v1, D v2, int x, int y) {
         const double d = static_cast<double>(v1) - static_cast<double>(v2);
-        const double n = static_cast<double>(v2);
+        const double n = normRelDen<NT, D, Channels, AlphaPreserve>(v2);
         if (c == 0) {
           normAcc<NT>(dlocal[0], d);
           normAcc<NT>(nlocal[0], n);
@@ -943,13 +967,13 @@ static __global__ void normRelPartialKernel(const D *pSrc1, int nSrc1Step, const
             const double v1 = static_cast<double>(pa.v[m * Channels + c]);
             const double v2 = static_cast<double>(pb.v[m * Channels + c]);
             normAcc<NT>(dlocal[c], v1 - v2);
-            normAcc<NT>(nlocal[c], v2);
+            normAcc<NT>(nlocal[c], normRelDen<NT, D, Channels, AlphaPreserve>(pb.v[m * Channels + c]));
           }
         }
       };
       auto remFn = [&](int c, D v1, D v2, int x, int y) {
         const double d = static_cast<double>(v1) - static_cast<double>(v2);
-        const double n = static_cast<double>(v2);
+        const double n = normRelDen<NT, D, Channels, AlphaPreserve>(v2);
         if (c == 0) {
           normAcc<NT>(dlocal[0], d);
           normAcc<NT>(nlocal[0], n);
@@ -976,7 +1000,7 @@ static __global__ void normRelPartialKernel(const D *pSrc1, int nSrc1Step, const
         const double v1 = static_cast<double>(r1[x * Channels + c]);
         const double v2 = static_cast<double>(r2[x * Channels + c]);
         normAcc<NT>(dlocal[c], v1 - v2);
-        normAcc<NT>(nlocal[c], v2);
+        normAcc<NT>(nlocal[c], normRelDen<NT, D, Channels, AlphaPreserve>(r2[x * Channels + c]));
       }
     }
   }
@@ -1037,7 +1061,13 @@ static __global__ void normRelFinalizeKernel(const double *pDiff, const double *
         d = sqrt(d);
         n = sqrt(n);
       }
-      pOut[c] = (n > 0.0) ? d / n : ((d == 0.0) ? 0.0 : zeroDenomValue);
+      if constexpr (IsInf) {
+        // NPP's single-channel Inf NormRel returns the numerator when the
+        // denominator is 0; multi-channel variants return the dtype maximum.
+        pOut[c] = (n > 0.0) ? d / n : ((nch == 1) ? d : (d == 0.0 ? 0.0 : zeroDenomValue));
+      } else {
+        pOut[c] = (n > 0.0) ? d / n : ((d == 0.0) ? 0.0 : zeroDenomValue);
+      }
     }
     __syncthreads();
   }
@@ -1112,7 +1142,11 @@ static __global__ void normRelMaskedFinalizeKernel(const double *pDiff, const do
       d = sqrt(d);
       n = sqrt(n);
     }
-    pOut[0] = (n > 0.0) ? d / n : ((d == 0.0) ? 0.0 : zeroDenomValue);
+    if constexpr (IsInf) {
+      pOut[0] = (n > 0.0) ? d / n : d;
+    } else {
+      pOut[0] = (n > 0.0) ? d / n : ((d == 0.0) ? 0.0 : zeroDenomValue);
+    }
   }
 }
 
