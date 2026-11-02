@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 12302 (98.1%)
-- Stubs (NPP_NOT_IMPLEMENTED_ERROR): 84
-- Missing: 151
-- Tested: 8291 (66.1%)
-- Real and tested: 8169
+- Real implementations: 12458 (99.4%)
+- Stubs (NPP_NOT_IMPLEMENTED_ERROR): 0
+- Missing: 79
+- Tested: 8293 (66.1%)
+- Real and tested: 8249
 
 ## By module
 
@@ -15,7 +15,7 @@
 | nppi_color_conversion.h | 1074 | 1074 | 0 | 0 | 717 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
 | nppi_filtering_functions.h | 1896 | 1820 | 0 | 76 | 1004 |
-| nppi_geometry_transforms.h | 705 | 549 | 84 | 72 | 456 |
+| nppi_geometry_transforms.h | 705 | 705 | 0 | 0 | 458 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 292 | 0 | 0 | 163 |
 | nppi_statistics_functions.h | 3246 | 3243 | 0 | 3 | 1730 |
@@ -32,10 +32,6 @@
 
 | module | group | remaining | ctx |
 |---|---|---:|---:|
-| nppi_geometry_transforms.h | nppiWarpAffine | 60 | 30 |
-| nppi_geometry_transforms.h | nppiWarpAffineQuad | 48 | 24 |
-| nppi_geometry_transforms.h | nppiWarpAffineBack | 24 | 12 |
-| nppi_geometry_transforms.h | nppiWarpAffineBatch | 22 | 11 |
 | nppi_filtering_functions.h | nppiHistogramOfGradientsBorder | 17 | 8 |
 | nppi_filtering_functions.h | nppiDistanceTransformAbsPBA | 13 | 13 |
 | nppi_filtering_functions.h | nppiDistanceTransformPBA | 12 | 12 |
@@ -45,7 +41,6 @@
 | nppi_filtering_functions.h | nppiSignedDistanceTransformAbsPBA | 3 | 3 |
 | nppi_filtering_functions.h | nppiContoursImageMarchingSquaresInterpolation | 2 | 2 |
 | nppi_filtering_functions.h | nppiFilterHoughLineRegion | 2 | 1 |
-| nppi_geometry_transforms.h | nppiWarpAffineBatchInit | 2 | 1 |
 | nppi_statistics_functions.h | nppiMSSSIM | 2 | 1 |
 | nppi_filtering_functions.h | nppiCompressedMarkerLabelsUFContoursOutputGeometryLists_C1R | 1 | 0 |
 | nppi_filtering_functions.h | nppiFilterBoxBorderAdvancedGetDeviceBufferSize | 1 | 0 |

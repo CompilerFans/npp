@@ -1,8 +1,4 @@
 module,group,total,real,stub,missing,missing_ctx,missing_nonctx,tested,remaining
-nppi_geometry_transforms.h,nppiWarpAffine,66,6,60,0,30,30,36,60
-nppi_geometry_transforms.h,nppiWarpAffineQuad,48,0,0,48,24,24,24,48
-nppi_geometry_transforms.h,nppiWarpAffineBack,48,24,24,0,12,12,36,24
-nppi_geometry_transforms.h,nppiWarpAffineBatch,22,0,0,22,11,11,11,22
 nppi_filtering_functions.h,nppiHistogramOfGradientsBorder,17,0,0,17,8,9,8,17
 nppi_filtering_functions.h,nppiDistanceTransformAbsPBA,14,1,0,13,13,0,11,13
 nppi_filtering_functions.h,nppiDistanceTransformPBA,15,3,0,12,12,0,14,12
@@ -12,7 +8,6 @@ nppi_filtering_functions.h,nppiSegmentWatershed,6,3,0,3,1,2,4,3
 nppi_filtering_functions.h,nppiSignedDistanceTransformAbsPBA,3,0,0,3,3,0,3,3
 nppi_filtering_functions.h,nppiContoursImageMarchingSquaresInterpolation,2,0,0,2,2,0,0,2
 nppi_filtering_functions.h,nppiFilterHoughLineRegion,2,0,0,2,1,1,1,2
-nppi_geometry_transforms.h,nppiWarpAffineBatchInit,2,0,0,2,1,1,1,2
 nppi_statistics_functions.h,nppiMSSSIM,4,2,0,2,1,1,2,2
 nppi_filtering_functions.h,nppiCompressedMarkerLabelsUFContoursOutputGeometryLists_C1R,1,0,0,1,0,1,0,1
 nppi_filtering_functions.h,nppiFilterBoxBorderAdvancedGetDeviceBufferSize,1,0,0,1,0,1,0,1
@@ -335,6 +330,11 @@ nppi_geometry_transforms.h,nppiResizeAdvanced,1,1,0,0,0,0,1,0
 nppi_geometry_transforms.h,nppiResizeBatch,38,38,0,0,0,0,20,0
 nppi_geometry_transforms.h,nppiResizeSqrPixel,62,62,0,0,0,0,36,0
 nppi_geometry_transforms.h,nppiRotate,24,24,0,0,0,0,22,0
+nppi_geometry_transforms.h,nppiWarpAffine,66,66,0,0,0,0,37,0
+nppi_geometry_transforms.h,nppiWarpAffineBack,48,48,0,0,0,0,36,0
+nppi_geometry_transforms.h,nppiWarpAffineBatch,22,22,0,0,0,0,11,0
+nppi_geometry_transforms.h,nppiWarpAffineBatchInit,2,2,0,0,0,0,2,0
+nppi_geometry_transforms.h,nppiWarpAffineQuad,48,48,0,0,0,0,24,0
 nppi_geometry_transforms.h,nppiWarpPerspective,54,54,0,0,0,0,43,0
 nppi_geometry_transforms.h,nppiWarpPerspectiveBack,48,48,0,0,0,0,38,0
 nppi_geometry_transforms.h,nppiWarpPerspectiveBatch,22,22,0,0,0,0,13,0
