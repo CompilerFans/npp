@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 12509 (99.8%)
+- Real implementations: 12510 (99.8%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 0
-- Missing: 28
+- Missing: 27
 - Tested: 8303 (66.2%)
-- Real and tested: 8288
+- Real and tested: 8289
 
 ## By module
 
@@ -18,7 +18,7 @@
 | nppi_geometry_transforms.h | 705 | 705 | 0 | 0 | 458 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 292 | 0 | 0 | 163 |
-| nppi_statistics_functions.h | 3246 | 3243 | 0 | 3 | 1730 |
+| nppi_statistics_functions.h | 3246 | 3244 | 0 | 2 | 1730 |
 | nppi_support_functions.h | 31 | 31 | 0 | 0 | 16 |
 | nppi_threshold_and_compare_operations.h | 418 | 418 | 0 | 0 | 226 |
 | npps_arithmetic_and_logical_operations.h | 740 | 740 | 0 | 0 | 632 |
@@ -41,4 +41,3 @@
 | nppi_statistics_functions.h | nppiMSSSIM | 2 | 1 |
 | nppi_filtering_functions.h | nppiCompressedMarkerLabelsUFContoursOutputGeometryLists_C1R | 1 | 0 |
 | nppi_filtering_functions.h | nppiSignedDistanceTransformPBA | 1 | 1 |
-| nppi_statistics_functions.h | nppiEllipticalRadialProfile | 1 | 1 |
