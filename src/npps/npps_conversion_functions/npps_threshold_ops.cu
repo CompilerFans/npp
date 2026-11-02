@@ -27,6 +27,8 @@ __device__ __host__ __forceinline__ bool cmp(const T& s, L level, NppCmpOp op) {
     using CF = std::conditional_t<std::is_same_v<T, Npp64fc>, double, float>;
     const CF mag = sqrt((CF)s.re * (CF)s.re + (CF)s.im * (CF)s.im);
     const CF lv = (CF)level;
+    // NPP leaves zero samples untouched in every threshold variant.
+    if (mag == (CF)0) return false;
     switch (op) {
       case NPP_CMP_LESS:       return mag <  lv;
       case NPP_CMP_LESS_EQ:    return mag <= lv;
@@ -57,6 +59,8 @@ __device__ __host__ __forceinline__ T set_value(const T& s, L level, bool pass) 
     const F re = (F)s.re;
     const F im = (F)s.im;
     const F mag = sqrt(re * re + im * im);
+    // A zero sample has no direction to rescale; NPP leaves it untouched.
+    if (mag == (F)0) return s;
     const F f = (F)level / mag;
     T r{};
     r.re = (decltype(r.re))(re * f);

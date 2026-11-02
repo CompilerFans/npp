@@ -665,16 +665,20 @@ struct AddProductOp {
     using C = component_t_ty<D>;
     if constexpr (is_complex_v<D>) {
       if constexpr (std::is_floating_point_v<C>) {
-        long double ar=detail::re_l(a), ai=detail::im_l(a), br=detail::re_l(b), bi=detail::im_l(b);
-        D r; r.re = (C)(detail::re_l(d) + (ar*br - ai*bi));
-            r.im = (C)(detail::im_l(d) + (ar*bi + ai*br)); return r;
+        // Evaluate in the destination precision so float32 overflow to
+        // infinity matches NPP (long double intermediates would not).
+        const C ar=(C)detail::re_l(a), ai=(C)detail::im_l(a);
+        const C br=(C)detail::re_l(b), bi=(C)detail::im_l(b);
+        D r; r.re = (C)((C)detail::re_l(d) + (ar*br - ai*bi));
+            r.im = (C)((C)detail::im_l(d) + (ar*bi + ai*br)); return r;
       } else {
         long long ar=detail::re_ll(a), ai=detail::im_ll(a), br=detail::re_ll(b), bi=detail::im_ll(b);
         D r; r.re = (C)detail::scale_sat<C>(detail::re_ll(d) + (ar*br - ai*bi), sf);
             r.im = (C)detail::scale_sat<C>(detail::im_ll(d) + (ar*bi + ai*br), sf); return r;
       }
     } else {
-      if constexpr (std::is_floating_point_v<D>) return (D)(detail::re_l(d) + detail::re_l(a)*detail::re_l(b));
+      if constexpr (std::is_floating_point_v<D>)
+        return (D)((D)detail::re_l(d) + (D)detail::re_l(a) * (D)detail::re_l(b));
       else return detail::scale_sat<D>(detail::re_ll(d) + detail::re_ll(a)*detail::re_ll(b), sf);
     }
   }
@@ -698,13 +702,31 @@ struct DivRoundOp {
         return (D)(detail::re_l(dividend)/detail::re_l(divisor));
       }
     } else {
-      long long bv = detail::re_ll(divisor);
-      if (bv == 0) return detail::sat_ll<D>(std::numeric_limits<long long>::max());
-      long long num = detail::re_ll(dividend);
-      // integer division then scale+round. To preserve a sub-LSB precision we
-      // compute in fixed point: scale the dividend denominator by 2^sf.
-      long long q = num / bv;                 // integer quotient (may be 0)
-      return detail::scale_sat_r<D>(q, sf, mode);
+      const long long num = detail::re_ll(dividend);
+      const long long bv = detail::re_ll(divisor);
+      if (bv == 0) {
+        if (num == 0) return (D)0;
+        if constexpr (std::is_signed_v<D>)
+          return num < 0 ? (D)std::numeric_limits<D>::lowest()
+                         : (D)std::numeric_limits<D>::max();
+        else
+          return (D)std::numeric_limits<D>::max();
+      }
+      // Full-precision quotient num / (divisor * 2^sf), then the requested
+      // NPP rounding mode.  Dividing num/bv first would lose sub-LSB bits.
+      const long long den = bv * (1LL << sf);
+      long long q = num / den;
+      const long long r = num % den;
+      if (r != 0 && mode != NPP_RND_ZERO) {
+        const long long ar = r < 0 ? -r : r;
+        const long long ad = den < 0 ? -den : den;
+        const int sign = ((num < 0) ^ (den < 0)) ? -1 : 1;
+        const bool up = mode == NPP_RND_FINANCIAL
+                            ? ((ar << 1) >= ad)
+                            : ((ar << 1) > ad || ((ar << 1) == ad && (q & 1LL)));
+        if (up) q += sign;
+      }
+      return detail::sat_ll<D>(q);
     }
   }
 };

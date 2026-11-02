@@ -268,10 +268,19 @@ struct MulCF2I64Op {
 };
 
 struct MulCLowOp {
+  // NPP 13.4: float32 product rounded half away from zero, then saturated to
+  // int16; NaN maps to 0 and infinities saturate by sign.
   template <typename A, typename V, typename D>
   __device__ __host__ D apply(const A& a, const V& b, int sf) const {
     (void)sf;
-    return ek::sat_ll<D>(static_cast<long long>(llrint(static_cast<double>(ek::re_l(a) * ek::re_l(b)))));
+    const float v = (float)ek::re_l(a) * (float)ek::re_l(b);
+    if (std::isnan(v)) return (D)0;
+    if (std::isinf(v))
+      return v > 0 ? (D)std::numeric_limits<D>::max() : (D)std::numeric_limits<D>::lowest();
+    if (v > 1.0e18f) return (D)std::numeric_limits<D>::max();
+    if (v < -1.0e18f) return (D)std::numeric_limits<D>::lowest();
+    const long long i = (long long)(v >= 0.0f ? v + 0.5f : v - 0.5f);
+    return ek::sat_ll<D>(i);
   }
 };
 
@@ -281,25 +290,31 @@ struct NormalizeOp {
     using C = ed::component_t_ty<D>;
     if constexpr (std::is_floating_point_v<C>) {
       if constexpr (ed::is_complex_v<D>) {
-        long double dv = (long double)ek::re_l(vDiv);
-        D c; c.re=(C)((ek::re_l(x)-ek::re_l(vSub))/dv); c.im=(C)((ek::im_l(x)-ek::im_l(vSub))/dv); return c;
+        // NPP multiplies by the reciprocal in component precision: a denormal
+        // divisor overflows to infinity and 0 * inf yields NaN.
+        const C inv = (C)1 / (C)ek::re_l(vDiv);
+        D c; c.re=(C)(((C)ek::re_l(x)-(C)ek::re_l(vSub))*inv);
+            c.im=(C)(((C)ek::im_l(x)-(C)ek::im_l(vSub))*inv); return c;
       } else {
         return (A)((ek::re_l(x)-ek::re_l(vSub))/ek::re_l(vDiv));
       }
     } else {
-      long long num = ek::re_ll(x) - ek::re_ll(vSub);
-      long long den = (long long)ek::re_ll(vDiv) << sf;
-      auto cx_rt = [&](long long nn)->C {
-        long double vv = (long double)nn / (long double)den;
-        if (vv >= 0.0L) return (C)static_cast<long long>(vv + 0.5L);
-        return (C)static_cast<long long>(vv);  // trunc toward zero for negatives (NPP observed on 16sc)
+      // NPP divides by vDiv first (integer division truncates toward zero),
+      // then applies the Sfs step to that quotient.  16sc rounds half toward
+      // +infinity; real samples round half away from zero.
+      const long long divl = (long long)ek::re_ll(vDiv);
+      const long long qre = (ek::re_ll(x) - ek::re_ll(vSub)) / divl;
+      auto cx_rt = [&](long long q)->C {
+        if (sf == 0) return ek::sat_ll<C>(q);
+        const double vv = (double)q / (double)(1LL << sf);
+        return ek::sat_ll<C>((long long)std::floor(vv + 0.5));
       };
       if constexpr (ed::is_complex_v<D>) {
-        long long numi = ek::im_ll(x) - ek::im_ll(vSub);
-        D c; c.re=(C)cx_rt(num); c.im=(C)cx_rt(numi); return c;
+        const long long qim = (ek::im_ll(x) - ek::im_ll(vSub)) / divl;
+        D c; c.re = cx_rt(qre); c.im = cx_rt(qim); return c;
       } else {
-        // round-half-away-from-zero (NPP observed: -1506.5 -> -1507)
-        return div_round_away<D>(num, den);
+        if (sf == 0) return ek::sat_ll<D>(qre);
+        return div_round_away<D>(qre, 1LL << sf);
       }
     }
   }

@@ -8,6 +8,12 @@ TEST(NumGenNpps, nppsCopy_16s_Ctx) {
       [](const Npp16s *s, Npp16s *d, int n, NppStreamContext c) { (void)n; (void)c; return nppsCopy_16s_Ctx(s, d, n, c); });
 }
 
+TEST(NumGenNpps, nppsCopy_16sc_Ctx) {
+  num::run_npps_copy<Npp16sc>(
+      "nppsCopy_16sc_Ctx",
+      [](const Npp16sc *s, Npp16sc *d, int n, NppStreamContext c) { (void)n; (void)c; return nppsCopy_16sc_Ctx(s, d, n, c); });
+}
+
 TEST(NumGenNpps, nppsCopy_32f_Ctx) {
   num::run_npps_copy<Npp32f>(
       "nppsCopy_32f_Ctx",
@@ -26,6 +32,12 @@ TEST(NumGenNpps, nppsCopy_32s_Ctx) {
       [](const Npp32s *s, Npp32s *d, int n, NppStreamContext c) { (void)n; (void)c; return nppsCopy_32s_Ctx(s, d, n, c); });
 }
 
+TEST(NumGenNpps, nppsCopy_32sc_Ctx) {
+  num::run_npps_copy<Npp32sc>(
+      "nppsCopy_32sc_Ctx",
+      [](const Npp32sc *s, Npp32sc *d, int n, NppStreamContext c) { (void)n; (void)c; return nppsCopy_32sc_Ctx(s, d, n, c); });
+}
+
 TEST(NumGenNpps, nppsCopy_64fc_Ctx) {
   num::run_npps_copy<Npp64fc>(
       "nppsCopy_64fc_Ctx",
@@ -38,6 +50,12 @@ TEST(NumGenNpps, nppsCopy_64s_Ctx) {
       [](const Npp64s *s, Npp64s *d, int n, NppStreamContext c) { (void)n; (void)c; return nppsCopy_64s_Ctx(s, d, n, c); });
 }
 
+TEST(NumGenNpps, nppsCopy_64sc_Ctx) {
+  num::run_npps_copy<Npp64sc>(
+      "nppsCopy_64sc_Ctx",
+      [](const Npp64sc *s, Npp64sc *d, int n, NppStreamContext c) { (void)n; (void)c; return nppsCopy_64sc_Ctx(s, d, n, c); });
+}
+
 TEST(NumGenNpps, nppsCopy_8u_Ctx) {
   num::run_npps_copy<Npp8u>(
       "nppsCopy_8u_Ctx",
@@ -48,6 +66,12 @@ TEST(NumGenNpps, nppsSet_16s_Ctx) {
   num::run_npps_set<Npp16s>(
       "nppsSet_16s_Ctx",
       [](Npp16s value, Npp16s *d, int n, NppStreamContext c) { (void)n; (void)c; return nppsSet_16s_Ctx(value, d, n, c); });
+}
+
+TEST(NumGenNpps, nppsSet_16sc_Ctx) {
+  num::run_npps_set<Npp16sc>(
+      "nppsSet_16sc_Ctx",
+      [](Npp16sc value, Npp16sc *d, int n, NppStreamContext c) { (void)n; (void)c; return nppsSet_16sc_Ctx(value, d, n, c); });
 }
 
 TEST(NumGenNpps, nppsSet_16u_Ctx) {
@@ -74,6 +98,12 @@ TEST(NumGenNpps, nppsSet_32s_Ctx) {
       [](Npp32s value, Npp32s *d, int n, NppStreamContext c) { (void)n; (void)c; return nppsSet_32s_Ctx(value, d, n, c); });
 }
 
+TEST(NumGenNpps, nppsSet_32sc_Ctx) {
+  num::run_npps_set<Npp32sc>(
+      "nppsSet_32sc_Ctx",
+      [](Npp32sc value, Npp32sc *d, int n, NppStreamContext c) { (void)n; (void)c; return nppsSet_32sc_Ctx(value, d, n, c); });
+}
+
 TEST(NumGenNpps, nppsSet_32u_Ctx) {
   num::run_npps_set<Npp32u>(
       "nppsSet_32u_Ctx",
@@ -98,6 +128,12 @@ TEST(NumGenNpps, nppsSet_64s_Ctx) {
       [](Npp64s value, Npp64s *d, int n, NppStreamContext c) { (void)n; (void)c; return nppsSet_64s_Ctx(value, d, n, c); });
 }
 
+TEST(NumGenNpps, nppsSet_64sc_Ctx) {
+  num::run_npps_set<Npp64sc>(
+      "nppsSet_64sc_Ctx",
+      [](Npp64sc value, Npp64sc *d, int n, NppStreamContext c) { (void)n; (void)c; return nppsSet_64sc_Ctx(value, d, n, c); });
+}
+
 TEST(NumGenNpps, nppsSet_8s_Ctx) {
   num::run_npps_set<Npp8s>(
       "nppsSet_8s_Ctx",
@@ -114,6 +150,12 @@ TEST(NumGenNpps, nppsZero_16s_Ctx) {
   num::run_npps_zero<Npp16s>(
       "nppsZero_16s_Ctx",
       [](Npp16s *d, int n, NppStreamContext c) { (void)n; (void)c; return nppsZero_16s_Ctx(d, n, c); });
+}
+
+TEST(NumGenNpps, nppsZero_16sc_Ctx) {
+  num::run_npps_zero<Npp16sc>(
+      "nppsZero_16sc_Ctx",
+      [](Npp16sc *d, int n, NppStreamContext c) { (void)n; (void)c; return nppsZero_16sc_Ctx(d, n, c); });
 }
 
 TEST(NumGenNpps, nppsZero_32f_Ctx) {
@@ -134,6 +176,12 @@ TEST(NumGenNpps, nppsZero_32s_Ctx) {
       [](Npp32s *d, int n, NppStreamContext c) { (void)n; (void)c; return nppsZero_32s_Ctx(d, n, c); });
 }
 
+TEST(NumGenNpps, nppsZero_32sc_Ctx) {
+  num::run_npps_zero<Npp32sc>(
+      "nppsZero_32sc_Ctx",
+      [](Npp32sc *d, int n, NppStreamContext c) { (void)n; (void)c; return nppsZero_32sc_Ctx(d, n, c); });
+}
+
 TEST(NumGenNpps, nppsZero_64f_Ctx) {
   num::run_npps_zero<Npp64f>(
       "nppsZero_64f_Ctx",
@@ -150,6 +198,12 @@ TEST(NumGenNpps, nppsZero_64s_Ctx) {
   num::run_npps_zero<Npp64s>(
       "nppsZero_64s_Ctx",
       [](Npp64s *d, int n, NppStreamContext c) { (void)n; (void)c; return nppsZero_64s_Ctx(d, n, c); });
+}
+
+TEST(NumGenNpps, nppsZero_64sc_Ctx) {
+  num::run_npps_zero<Npp64sc>(
+      "nppsZero_64sc_Ctx",
+      [](Npp64sc *d, int n, NppStreamContext c) { (void)n; (void)c; return nppsZero_64sc_Ctx(d, n, c); });
 }
 
 TEST(NumGenNpps, nppsZero_8u_Ctx) {

@@ -192,211 +192,421 @@ TEST(NumGenNpps, nppsConvert_8u32f_Ctx) {
 }
 
 TEST(NumGenNpps, nppsThreshold_16s_Ctx) {
-  num::run_npps_threshold<Npp16s, num::ThrKind::Threshold>(
+  num::run_npps_threshold<Npp16s, Npp16s, num::ThrKind::Threshold>(
       "nppsThreshold_16s_Ctx",
       [](const Npp16s *s, Npp16s *d, int n, Npp16s level, Npp16s value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_16s_Ctx(s, d, n, level, static_cast<NppCmpOp>(op), c); },
       false);
 }
 
 TEST(NumGenNpps, nppsThreshold_16s_I_Ctx) {
-  num::run_npps_threshold<Npp16s, num::ThrKind::Threshold>(
+  num::run_npps_threshold<Npp16s, Npp16s, num::ThrKind::Threshold>(
       "nppsThreshold_16s_I_Ctx",
       [](const Npp16s *s, Npp16s *d, int n, Npp16s level, Npp16s value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_16s_I_Ctx(d, n, level, static_cast<NppCmpOp>(op), c); },
       true);
 }
 
+TEST(NumGenNpps, nppsThreshold_16sc_Ctx) {
+  num::run_npps_threshold<Npp16sc, Npp16s, num::ThrKind::Threshold>(
+      "nppsThreshold_16sc_Ctx",
+      [](const Npp16sc *s, Npp16sc *d, int n, Npp16s level, Npp16sc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_16sc_Ctx(s, d, n, level, static_cast<NppCmpOp>(op), c); },
+      false);
+}
+
+TEST(NumGenNpps, nppsThreshold_16sc_I_Ctx) {
+  num::run_npps_threshold<Npp16sc, Npp16s, num::ThrKind::Threshold>(
+      "nppsThreshold_16sc_I_Ctx",
+      [](const Npp16sc *s, Npp16sc *d, int n, Npp16s level, Npp16sc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_16sc_I_Ctx(d, n, level, static_cast<NppCmpOp>(op), c); },
+      true);
+}
+
 TEST(NumGenNpps, nppsThreshold_32f_Ctx) {
-  num::run_npps_threshold<Npp32f, num::ThrKind::Threshold>(
+  num::run_npps_threshold<Npp32f, Npp32f, num::ThrKind::Threshold>(
       "nppsThreshold_32f_Ctx",
       [](const Npp32f *s, Npp32f *d, int n, Npp32f level, Npp32f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_32f_Ctx(s, d, n, level, static_cast<NppCmpOp>(op), c); },
       false);
 }
 
 TEST(NumGenNpps, nppsThreshold_32f_I_Ctx) {
-  num::run_npps_threshold<Npp32f, num::ThrKind::Threshold>(
+  num::run_npps_threshold<Npp32f, Npp32f, num::ThrKind::Threshold>(
       "nppsThreshold_32f_I_Ctx",
       [](const Npp32f *s, Npp32f *d, int n, Npp32f level, Npp32f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_32f_I_Ctx(d, n, level, static_cast<NppCmpOp>(op), c); },
       true);
 }
 
+TEST(NumGenNpps, nppsThreshold_32fc_Ctx) {
+  num::run_npps_threshold<Npp32fc, Npp32f, num::ThrKind::Threshold>(
+      "nppsThreshold_32fc_Ctx",
+      [](const Npp32fc *s, Npp32fc *d, int n, Npp32f level, Npp32fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_32fc_Ctx(s, d, n, level, static_cast<NppCmpOp>(op), c); },
+      false);
+}
+
+TEST(NumGenNpps, nppsThreshold_32fc_I_Ctx) {
+  num::run_npps_threshold<Npp32fc, Npp32f, num::ThrKind::Threshold>(
+      "nppsThreshold_32fc_I_Ctx",
+      [](const Npp32fc *s, Npp32fc *d, int n, Npp32f level, Npp32fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_32fc_I_Ctx(d, n, level, static_cast<NppCmpOp>(op), c); },
+      true);
+}
+
 TEST(NumGenNpps, nppsThreshold_64f_Ctx) {
-  num::run_npps_threshold<Npp64f, num::ThrKind::Threshold>(
+  num::run_npps_threshold<Npp64f, Npp64f, num::ThrKind::Threshold>(
       "nppsThreshold_64f_Ctx",
       [](const Npp64f *s, Npp64f *d, int n, Npp64f level, Npp64f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_64f_Ctx(s, d, n, level, static_cast<NppCmpOp>(op), c); },
       false);
 }
 
 TEST(NumGenNpps, nppsThreshold_64f_I_Ctx) {
-  num::run_npps_threshold<Npp64f, num::ThrKind::Threshold>(
+  num::run_npps_threshold<Npp64f, Npp64f, num::ThrKind::Threshold>(
       "nppsThreshold_64f_I_Ctx",
       [](const Npp64f *s, Npp64f *d, int n, Npp64f level, Npp64f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_64f_I_Ctx(d, n, level, static_cast<NppCmpOp>(op), c); },
       true);
 }
 
+TEST(NumGenNpps, nppsThreshold_64fc_Ctx) {
+  num::run_npps_threshold<Npp64fc, Npp64f, num::ThrKind::Threshold>(
+      "nppsThreshold_64fc_Ctx",
+      [](const Npp64fc *s, Npp64fc *d, int n, Npp64f level, Npp64fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_64fc_Ctx(s, d, n, level, static_cast<NppCmpOp>(op), c); },
+      false);
+}
+
+TEST(NumGenNpps, nppsThreshold_64fc_I_Ctx) {
+  num::run_npps_threshold<Npp64fc, Npp64f, num::ThrKind::Threshold>(
+      "nppsThreshold_64fc_I_Ctx",
+      [](const Npp64fc *s, Npp64fc *d, int n, Npp64f level, Npp64fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_64fc_I_Ctx(d, n, level, static_cast<NppCmpOp>(op), c); },
+      true);
+}
+
 TEST(NumGenNpps, nppsThreshold_GTVal_16s_Ctx) {
-  num::run_npps_threshold<Npp16s, num::ThrKind::GTVal>(
+  num::run_npps_threshold<Npp16s, Npp16s, num::ThrKind::GTVal>(
       "nppsThreshold_GTVal_16s_Ctx",
       [](const Npp16s *s, Npp16s *d, int n, Npp16s level, Npp16s value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GTVal_16s_Ctx(s, d, n, level, value, c); },
       false);
 }
 
 TEST(NumGenNpps, nppsThreshold_GTVal_16s_I_Ctx) {
-  num::run_npps_threshold<Npp16s, num::ThrKind::GTVal>(
+  num::run_npps_threshold<Npp16s, Npp16s, num::ThrKind::GTVal>(
       "nppsThreshold_GTVal_16s_I_Ctx",
       [](const Npp16s *s, Npp16s *d, int n, Npp16s level, Npp16s value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GTVal_16s_I_Ctx(d, n, level, value, c); },
       true);
 }
 
+TEST(NumGenNpps, nppsThreshold_GTVal_16sc_Ctx) {
+  num::run_npps_threshold<Npp16sc, Npp16s, num::ThrKind::GTVal>(
+      "nppsThreshold_GTVal_16sc_Ctx",
+      [](const Npp16sc *s, Npp16sc *d, int n, Npp16s level, Npp16sc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GTVal_16sc_Ctx(s, d, n, level, value, c); },
+      false);
+}
+
+TEST(NumGenNpps, nppsThreshold_GTVal_16sc_I_Ctx) {
+  num::run_npps_threshold<Npp16sc, Npp16s, num::ThrKind::GTVal>(
+      "nppsThreshold_GTVal_16sc_I_Ctx",
+      [](const Npp16sc *s, Npp16sc *d, int n, Npp16s level, Npp16sc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GTVal_16sc_I_Ctx(d, n, level, value, c); },
+      true);
+}
+
 TEST(NumGenNpps, nppsThreshold_GTVal_32f_Ctx) {
-  num::run_npps_threshold<Npp32f, num::ThrKind::GTVal>(
+  num::run_npps_threshold<Npp32f, Npp32f, num::ThrKind::GTVal>(
       "nppsThreshold_GTVal_32f_Ctx",
       [](const Npp32f *s, Npp32f *d, int n, Npp32f level, Npp32f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GTVal_32f_Ctx(s, d, n, level, value, c); },
       false);
 }
 
 TEST(NumGenNpps, nppsThreshold_GTVal_32f_I_Ctx) {
-  num::run_npps_threshold<Npp32f, num::ThrKind::GTVal>(
+  num::run_npps_threshold<Npp32f, Npp32f, num::ThrKind::GTVal>(
       "nppsThreshold_GTVal_32f_I_Ctx",
       [](const Npp32f *s, Npp32f *d, int n, Npp32f level, Npp32f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GTVal_32f_I_Ctx(d, n, level, value, c); },
       true);
 }
 
+TEST(NumGenNpps, nppsThreshold_GTVal_32fc_Ctx) {
+  num::run_npps_threshold<Npp32fc, Npp32f, num::ThrKind::GTVal>(
+      "nppsThreshold_GTVal_32fc_Ctx",
+      [](const Npp32fc *s, Npp32fc *d, int n, Npp32f level, Npp32fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GTVal_32fc_Ctx(s, d, n, level, value, c); },
+      false);
+}
+
+TEST(NumGenNpps, nppsThreshold_GTVal_32fc_I_Ctx) {
+  num::run_npps_threshold<Npp32fc, Npp32f, num::ThrKind::GTVal>(
+      "nppsThreshold_GTVal_32fc_I_Ctx",
+      [](const Npp32fc *s, Npp32fc *d, int n, Npp32f level, Npp32fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GTVal_32fc_I_Ctx(d, n, level, value, c); },
+      true);
+}
+
 TEST(NumGenNpps, nppsThreshold_GTVal_64f_Ctx) {
-  num::run_npps_threshold<Npp64f, num::ThrKind::GTVal>(
+  num::run_npps_threshold<Npp64f, Npp64f, num::ThrKind::GTVal>(
       "nppsThreshold_GTVal_64f_Ctx",
       [](const Npp64f *s, Npp64f *d, int n, Npp64f level, Npp64f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GTVal_64f_Ctx(s, d, n, level, value, c); },
       false);
 }
 
 TEST(NumGenNpps, nppsThreshold_GTVal_64f_I_Ctx) {
-  num::run_npps_threshold<Npp64f, num::ThrKind::GTVal>(
+  num::run_npps_threshold<Npp64f, Npp64f, num::ThrKind::GTVal>(
       "nppsThreshold_GTVal_64f_I_Ctx",
       [](const Npp64f *s, Npp64f *d, int n, Npp64f level, Npp64f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GTVal_64f_I_Ctx(d, n, level, value, c); },
       true);
 }
 
+TEST(NumGenNpps, nppsThreshold_GTVal_64fc_Ctx) {
+  num::run_npps_threshold<Npp64fc, Npp64f, num::ThrKind::GTVal>(
+      "nppsThreshold_GTVal_64fc_Ctx",
+      [](const Npp64fc *s, Npp64fc *d, int n, Npp64f level, Npp64fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GTVal_64fc_Ctx(s, d, n, level, value, c); },
+      false);
+}
+
+TEST(NumGenNpps, nppsThreshold_GTVal_64fc_I_Ctx) {
+  num::run_npps_threshold<Npp64fc, Npp64f, num::ThrKind::GTVal>(
+      "nppsThreshold_GTVal_64fc_I_Ctx",
+      [](const Npp64fc *s, Npp64fc *d, int n, Npp64f level, Npp64fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GTVal_64fc_I_Ctx(d, n, level, value, c); },
+      true);
+}
+
 TEST(NumGenNpps, nppsThreshold_GT_16s_Ctx) {
-  num::run_npps_threshold<Npp16s, num::ThrKind::GT>(
+  num::run_npps_threshold<Npp16s, Npp16s, num::ThrKind::GT>(
       "nppsThreshold_GT_16s_Ctx",
       [](const Npp16s *s, Npp16s *d, int n, Npp16s level, Npp16s value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GT_16s_Ctx(s, d, n, level, c); },
       false);
 }
 
 TEST(NumGenNpps, nppsThreshold_GT_16s_I_Ctx) {
-  num::run_npps_threshold<Npp16s, num::ThrKind::GT>(
+  num::run_npps_threshold<Npp16s, Npp16s, num::ThrKind::GT>(
       "nppsThreshold_GT_16s_I_Ctx",
       [](const Npp16s *s, Npp16s *d, int n, Npp16s level, Npp16s value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GT_16s_I_Ctx(d, n, level, c); },
       true);
 }
 
+TEST(NumGenNpps, nppsThreshold_GT_16sc_Ctx) {
+  num::run_npps_threshold<Npp16sc, Npp16s, num::ThrKind::GT>(
+      "nppsThreshold_GT_16sc_Ctx",
+      [](const Npp16sc *s, Npp16sc *d, int n, Npp16s level, Npp16sc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GT_16sc_Ctx(s, d, n, level, c); },
+      false);
+}
+
+TEST(NumGenNpps, nppsThreshold_GT_16sc_I_Ctx) {
+  num::run_npps_threshold<Npp16sc, Npp16s, num::ThrKind::GT>(
+      "nppsThreshold_GT_16sc_I_Ctx",
+      [](const Npp16sc *s, Npp16sc *d, int n, Npp16s level, Npp16sc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GT_16sc_I_Ctx(d, n, level, c); },
+      true);
+}
+
 TEST(NumGenNpps, nppsThreshold_GT_32f_Ctx) {
-  num::run_npps_threshold<Npp32f, num::ThrKind::GT>(
+  num::run_npps_threshold<Npp32f, Npp32f, num::ThrKind::GT>(
       "nppsThreshold_GT_32f_Ctx",
       [](const Npp32f *s, Npp32f *d, int n, Npp32f level, Npp32f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GT_32f_Ctx(s, d, n, level, c); },
       false);
 }
 
 TEST(NumGenNpps, nppsThreshold_GT_32f_I_Ctx) {
-  num::run_npps_threshold<Npp32f, num::ThrKind::GT>(
+  num::run_npps_threshold<Npp32f, Npp32f, num::ThrKind::GT>(
       "nppsThreshold_GT_32f_I_Ctx",
       [](const Npp32f *s, Npp32f *d, int n, Npp32f level, Npp32f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GT_32f_I_Ctx(d, n, level, c); },
       true);
 }
 
+TEST(NumGenNpps, nppsThreshold_GT_32fc_Ctx) {
+  num::run_npps_threshold<Npp32fc, Npp32f, num::ThrKind::GT>(
+      "nppsThreshold_GT_32fc_Ctx",
+      [](const Npp32fc *s, Npp32fc *d, int n, Npp32f level, Npp32fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GT_32fc_Ctx(s, d, n, level, c); },
+      false);
+}
+
+TEST(NumGenNpps, nppsThreshold_GT_32fc_I_Ctx) {
+  num::run_npps_threshold<Npp32fc, Npp32f, num::ThrKind::GT>(
+      "nppsThreshold_GT_32fc_I_Ctx",
+      [](const Npp32fc *s, Npp32fc *d, int n, Npp32f level, Npp32fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GT_32fc_I_Ctx(d, n, level, c); },
+      true);
+}
+
 TEST(NumGenNpps, nppsThreshold_GT_64f_Ctx) {
-  num::run_npps_threshold<Npp64f, num::ThrKind::GT>(
+  num::run_npps_threshold<Npp64f, Npp64f, num::ThrKind::GT>(
       "nppsThreshold_GT_64f_Ctx",
       [](const Npp64f *s, Npp64f *d, int n, Npp64f level, Npp64f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GT_64f_Ctx(s, d, n, level, c); },
       false);
 }
 
 TEST(NumGenNpps, nppsThreshold_GT_64f_I_Ctx) {
-  num::run_npps_threshold<Npp64f, num::ThrKind::GT>(
+  num::run_npps_threshold<Npp64f, Npp64f, num::ThrKind::GT>(
       "nppsThreshold_GT_64f_I_Ctx",
       [](const Npp64f *s, Npp64f *d, int n, Npp64f level, Npp64f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GT_64f_I_Ctx(d, n, level, c); },
       true);
 }
 
+TEST(NumGenNpps, nppsThreshold_GT_64fc_Ctx) {
+  num::run_npps_threshold<Npp64fc, Npp64f, num::ThrKind::GT>(
+      "nppsThreshold_GT_64fc_Ctx",
+      [](const Npp64fc *s, Npp64fc *d, int n, Npp64f level, Npp64fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GT_64fc_Ctx(s, d, n, level, c); },
+      false);
+}
+
+TEST(NumGenNpps, nppsThreshold_GT_64fc_I_Ctx) {
+  num::run_npps_threshold<Npp64fc, Npp64f, num::ThrKind::GT>(
+      "nppsThreshold_GT_64fc_I_Ctx",
+      [](const Npp64fc *s, Npp64fc *d, int n, Npp64f level, Npp64fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_GT_64fc_I_Ctx(d, n, level, c); },
+      true);
+}
+
 TEST(NumGenNpps, nppsThreshold_LTVal_16s_Ctx) {
-  num::run_npps_threshold<Npp16s, num::ThrKind::LTVal>(
+  num::run_npps_threshold<Npp16s, Npp16s, num::ThrKind::LTVal>(
       "nppsThreshold_LTVal_16s_Ctx",
       [](const Npp16s *s, Npp16s *d, int n, Npp16s level, Npp16s value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LTVal_16s_Ctx(s, d, n, level, value, c); },
       false);
 }
 
 TEST(NumGenNpps, nppsThreshold_LTVal_16s_I_Ctx) {
-  num::run_npps_threshold<Npp16s, num::ThrKind::LTVal>(
+  num::run_npps_threshold<Npp16s, Npp16s, num::ThrKind::LTVal>(
       "nppsThreshold_LTVal_16s_I_Ctx",
       [](const Npp16s *s, Npp16s *d, int n, Npp16s level, Npp16s value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LTVal_16s_I_Ctx(d, n, level, value, c); },
       true);
 }
 
+TEST(NumGenNpps, nppsThreshold_LTVal_16sc_Ctx) {
+  num::run_npps_threshold<Npp16sc, Npp16s, num::ThrKind::LTVal>(
+      "nppsThreshold_LTVal_16sc_Ctx",
+      [](const Npp16sc *s, Npp16sc *d, int n, Npp16s level, Npp16sc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LTVal_16sc_Ctx(s, d, n, level, value, c); },
+      false);
+}
+
+TEST(NumGenNpps, nppsThreshold_LTVal_16sc_I_Ctx) {
+  num::run_npps_threshold<Npp16sc, Npp16s, num::ThrKind::LTVal>(
+      "nppsThreshold_LTVal_16sc_I_Ctx",
+      [](const Npp16sc *s, Npp16sc *d, int n, Npp16s level, Npp16sc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LTVal_16sc_I_Ctx(d, n, level, value, c); },
+      true);
+}
+
 TEST(NumGenNpps, nppsThreshold_LTVal_32f_Ctx) {
-  num::run_npps_threshold<Npp32f, num::ThrKind::LTVal>(
+  num::run_npps_threshold<Npp32f, Npp32f, num::ThrKind::LTVal>(
       "nppsThreshold_LTVal_32f_Ctx",
       [](const Npp32f *s, Npp32f *d, int n, Npp32f level, Npp32f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LTVal_32f_Ctx(s, d, n, level, value, c); },
       false);
 }
 
 TEST(NumGenNpps, nppsThreshold_LTVal_32f_I_Ctx) {
-  num::run_npps_threshold<Npp32f, num::ThrKind::LTVal>(
+  num::run_npps_threshold<Npp32f, Npp32f, num::ThrKind::LTVal>(
       "nppsThreshold_LTVal_32f_I_Ctx",
       [](const Npp32f *s, Npp32f *d, int n, Npp32f level, Npp32f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LTVal_32f_I_Ctx(d, n, level, value, c); },
       true);
 }
 
+TEST(NumGenNpps, nppsThreshold_LTVal_32fc_Ctx) {
+  num::run_npps_threshold<Npp32fc, Npp32f, num::ThrKind::LTVal>(
+      "nppsThreshold_LTVal_32fc_Ctx",
+      [](const Npp32fc *s, Npp32fc *d, int n, Npp32f level, Npp32fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LTVal_32fc_Ctx(s, d, n, level, value, c); },
+      false);
+}
+
+TEST(NumGenNpps, nppsThreshold_LTVal_32fc_I_Ctx) {
+  num::run_npps_threshold<Npp32fc, Npp32f, num::ThrKind::LTVal>(
+      "nppsThreshold_LTVal_32fc_I_Ctx",
+      [](const Npp32fc *s, Npp32fc *d, int n, Npp32f level, Npp32fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LTVal_32fc_I_Ctx(d, n, level, value, c); },
+      true);
+}
+
 TEST(NumGenNpps, nppsThreshold_LTVal_64f_Ctx) {
-  num::run_npps_threshold<Npp64f, num::ThrKind::LTVal>(
+  num::run_npps_threshold<Npp64f, Npp64f, num::ThrKind::LTVal>(
       "nppsThreshold_LTVal_64f_Ctx",
       [](const Npp64f *s, Npp64f *d, int n, Npp64f level, Npp64f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LTVal_64f_Ctx(s, d, n, level, value, c); },
       false);
 }
 
 TEST(NumGenNpps, nppsThreshold_LTVal_64f_I_Ctx) {
-  num::run_npps_threshold<Npp64f, num::ThrKind::LTVal>(
+  num::run_npps_threshold<Npp64f, Npp64f, num::ThrKind::LTVal>(
       "nppsThreshold_LTVal_64f_I_Ctx",
       [](const Npp64f *s, Npp64f *d, int n, Npp64f level, Npp64f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LTVal_64f_I_Ctx(d, n, level, value, c); },
       true);
 }
 
+TEST(NumGenNpps, nppsThreshold_LTVal_64fc_Ctx) {
+  num::run_npps_threshold<Npp64fc, Npp64f, num::ThrKind::LTVal>(
+      "nppsThreshold_LTVal_64fc_Ctx",
+      [](const Npp64fc *s, Npp64fc *d, int n, Npp64f level, Npp64fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LTVal_64fc_Ctx(s, d, n, level, value, c); },
+      false);
+}
+
+TEST(NumGenNpps, nppsThreshold_LTVal_64fc_I_Ctx) {
+  num::run_npps_threshold<Npp64fc, Npp64f, num::ThrKind::LTVal>(
+      "nppsThreshold_LTVal_64fc_I_Ctx",
+      [](const Npp64fc *s, Npp64fc *d, int n, Npp64f level, Npp64fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LTVal_64fc_I_Ctx(d, n, level, value, c); },
+      true);
+}
+
 TEST(NumGenNpps, nppsThreshold_LT_16s_Ctx) {
-  num::run_npps_threshold<Npp16s, num::ThrKind::LT>(
+  num::run_npps_threshold<Npp16s, Npp16s, num::ThrKind::LT>(
       "nppsThreshold_LT_16s_Ctx",
       [](const Npp16s *s, Npp16s *d, int n, Npp16s level, Npp16s value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LT_16s_Ctx(s, d, n, level, c); },
       false);
 }
 
 TEST(NumGenNpps, nppsThreshold_LT_16s_I_Ctx) {
-  num::run_npps_threshold<Npp16s, num::ThrKind::LT>(
+  num::run_npps_threshold<Npp16s, Npp16s, num::ThrKind::LT>(
       "nppsThreshold_LT_16s_I_Ctx",
       [](const Npp16s *s, Npp16s *d, int n, Npp16s level, Npp16s value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LT_16s_I_Ctx(d, n, level, c); },
       true);
 }
 
+TEST(NumGenNpps, nppsThreshold_LT_16sc_Ctx) {
+  num::run_npps_threshold<Npp16sc, Npp16s, num::ThrKind::LT>(
+      "nppsThreshold_LT_16sc_Ctx",
+      [](const Npp16sc *s, Npp16sc *d, int n, Npp16s level, Npp16sc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LT_16sc_Ctx(s, d, n, level, c); },
+      false);
+}
+
+TEST(NumGenNpps, nppsThreshold_LT_16sc_I_Ctx) {
+  num::run_npps_threshold<Npp16sc, Npp16s, num::ThrKind::LT>(
+      "nppsThreshold_LT_16sc_I_Ctx",
+      [](const Npp16sc *s, Npp16sc *d, int n, Npp16s level, Npp16sc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LT_16sc_I_Ctx(d, n, level, c); },
+      true);
+}
+
 TEST(NumGenNpps, nppsThreshold_LT_32f_Ctx) {
-  num::run_npps_threshold<Npp32f, num::ThrKind::LT>(
+  num::run_npps_threshold<Npp32f, Npp32f, num::ThrKind::LT>(
       "nppsThreshold_LT_32f_Ctx",
       [](const Npp32f *s, Npp32f *d, int n, Npp32f level, Npp32f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LT_32f_Ctx(s, d, n, level, c); },
       false);
 }
 
 TEST(NumGenNpps, nppsThreshold_LT_32f_I_Ctx) {
-  num::run_npps_threshold<Npp32f, num::ThrKind::LT>(
+  num::run_npps_threshold<Npp32f, Npp32f, num::ThrKind::LT>(
       "nppsThreshold_LT_32f_I_Ctx",
       [](const Npp32f *s, Npp32f *d, int n, Npp32f level, Npp32f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LT_32f_I_Ctx(d, n, level, c); },
       true);
 }
 
+TEST(NumGenNpps, nppsThreshold_LT_32fc_Ctx) {
+  num::run_npps_threshold<Npp32fc, Npp32f, num::ThrKind::LT>(
+      "nppsThreshold_LT_32fc_Ctx",
+      [](const Npp32fc *s, Npp32fc *d, int n, Npp32f level, Npp32fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LT_32fc_Ctx(s, d, n, level, c); },
+      false);
+}
+
+TEST(NumGenNpps, nppsThreshold_LT_32fc_I_Ctx) {
+  num::run_npps_threshold<Npp32fc, Npp32f, num::ThrKind::LT>(
+      "nppsThreshold_LT_32fc_I_Ctx",
+      [](const Npp32fc *s, Npp32fc *d, int n, Npp32f level, Npp32fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LT_32fc_I_Ctx(d, n, level, c); },
+      true);
+}
+
 TEST(NumGenNpps, nppsThreshold_LT_64f_Ctx) {
-  num::run_npps_threshold<Npp64f, num::ThrKind::LT>(
+  num::run_npps_threshold<Npp64f, Npp64f, num::ThrKind::LT>(
       "nppsThreshold_LT_64f_Ctx",
       [](const Npp64f *s, Npp64f *d, int n, Npp64f level, Npp64f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LT_64f_Ctx(s, d, n, level, c); },
       false);
 }
 
 TEST(NumGenNpps, nppsThreshold_LT_64f_I_Ctx) {
-  num::run_npps_threshold<Npp64f, num::ThrKind::LT>(
+  num::run_npps_threshold<Npp64f, Npp64f, num::ThrKind::LT>(
       "nppsThreshold_LT_64f_I_Ctx",
       [](const Npp64f *s, Npp64f *d, int n, Npp64f level, Npp64f value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LT_64f_I_Ctx(d, n, level, c); },
+      true);
+}
+
+TEST(NumGenNpps, nppsThreshold_LT_64fc_Ctx) {
+  num::run_npps_threshold<Npp64fc, Npp64f, num::ThrKind::LT>(
+      "nppsThreshold_LT_64fc_Ctx",
+      [](const Npp64fc *s, Npp64fc *d, int n, Npp64f level, Npp64fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LT_64fc_Ctx(s, d, n, level, c); },
+      false);
+}
+
+TEST(NumGenNpps, nppsThreshold_LT_64fc_I_Ctx) {
+  num::run_npps_threshold<Npp64fc, Npp64f, num::ThrKind::LT>(
+      "nppsThreshold_LT_64fc_I_Ctx",
+      [](const Npp64fc *s, Npp64fc *d, int n, Npp64f level, Npp64fc value, int op, NppStreamContext c) { (void)n; (void)level; (void)value; (void)op; (void)c; return nppsThreshold_LT_64fc_I_Ctx(d, n, level, c); },
       true);
 }
