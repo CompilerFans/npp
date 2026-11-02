@@ -78,8 +78,6 @@ def emit(row: dict) -> Optional[str]:
     params = G.parse_params(row["params"])
     if params is None:
         return None
-    if has_complex(params):
-        return None
     name = re.sub(r"\W", "_", fn)
     lam_head = "      "
 

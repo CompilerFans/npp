@@ -68,16 +68,24 @@ enum class Op {
 };
 
 template <typename T> struct is_complex_num : std::false_type {};
+template <> struct is_complex_num<Npp8uc> : std::true_type {};
+template <> struct is_complex_num<Npp16uc> : std::true_type {};
 template <> struct is_complex_num<Npp16sc> : std::true_type {};
+template <> struct is_complex_num<Npp32uc> : std::true_type {};
 template <> struct is_complex_num<Npp32sc> : std::true_type {};
 template <> struct is_complex_num<Npp32fc> : std::true_type {};
+template <> struct is_complex_num<Npp64sc> : std::true_type {};
 template <> struct is_complex_num<Npp64fc> : std::true_type {};
 template <typename T> inline constexpr bool is_complex_num_v = is_complex_num<T>::value;
 
 template <typename T> struct complex_part { using type = T; };
+template <> struct complex_part<Npp8uc> { using type = Npp8u; };
+template <> struct complex_part<Npp16uc> { using type = Npp16u; };
 template <> struct complex_part<Npp16sc> { using type = Npp16s; };
+template <> struct complex_part<Npp32uc> { using type = Npp32u; };
 template <> struct complex_part<Npp32sc> { using type = Npp32s; };
 template <> struct complex_part<Npp32fc> { using type = Npp32f; };
+template <> struct complex_part<Npp64sc> { using type = Npp64s; };
 template <> struct complex_part<Npp64fc> { using type = Npp64f; };
 template <typename T> using complex_part_t = typename complex_part<T>::type;
 

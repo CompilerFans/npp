@@ -684,6 +684,7 @@ inline D npps_const_ref(Op op, S a, CT c, int sf) {
 // ---------------------------------------------------------------------------
 enum class StatKind {
   Sum, Mean, StdDev, NormL1, NormL2, NormL2Sqr, NormInf,
+  NormDiffL1, NormDiffL2, NormDiffInf, NormRelL1, NormRelL2, NormRelInf,
   DotProd, MaxAbsErr, AvgAbsErr, MaxRelErr, AvgRelErr
 };
 
@@ -708,10 +709,64 @@ template <typename D> inline D npps_scale_from_double(double x, int sf) {
   if constexpr (std::is_floating_point_v<D>) return (D)x;
   else return sat_rint<D>(x);
 }
+template <typename T> inline double npps_cre(const T &v) { return (double)v.re; }
+template <typename T> inline double npps_cim(const T &v) { return (double)v.im; }
+template <typename T> inline double npps_cabs(const T &v) {
+  return std::hypot((double)v.re, (double)v.im);
+}
 
 template <typename S, typename D, StatKind K>
 inline D npps_stat1_ref(const S *p, int n, int sf) {
-  if constexpr (std::is_integral_v<S>) {
+  if constexpr (is_complex_num_v<S> || is_complex_num_v<D>) {
+    if constexpr (is_complex_num_v<D>) {
+      using C = complex_part_t<D>;
+      if constexpr (K == StatKind::Sum || K == StatKind::Mean) {
+        double re = 0.0, im = 0.0;
+        for (int i = 0; i < n; ++i) {
+          re += (double)p[i].re;
+          im += (double)p[i].im;
+        }
+        if constexpr (K == StatKind::Mean) {
+          re /= (double)n;
+          im /= (double)n;
+        }
+        D r;
+        if constexpr (K == StatKind::Sum && std::is_integral_v<S> && std::is_integral_v<C>) {
+          long long lr = 0, li = 0;
+          for (int i = 0; i < n; ++i) { lr += (long long)p[i].re; li += (long long)p[i].im; }
+          r.re = npps_scale_ll<C>(lr, sf);
+          r.im = npps_scale_ll<C>(li, sf);
+        } else if constexpr (K == StatKind::Mean) {
+          if constexpr (std::is_integral_v<C>) {
+            r.re = npps_scale_ll<C>((long long)std::rint(re), sf);
+            r.im = npps_scale_ll<C>((long long)std::rint(im), sf);
+          } else {
+            r.re = (C)std::ldexp(re, -sf);
+            r.im = (C)std::ldexp(im, -sf);
+          }
+        } else {
+          r.re = npps_scale_from_double<C>(re, sf);
+          r.im = npps_scale_from_double<C>(im, sf);
+        }
+        return r;
+      }
+    } else {
+      double acc = 0.0, mx = 0.0;
+      for (int i = 0; i < n; ++i) {
+        const double re = (double)p[i].re, im = (double)p[i].im;
+        if constexpr (K == StatKind::NormL1) {
+          acc += std::hypot(re, im);
+        } else if constexpr (K == StatKind::NormL2) {
+          acc += re * re + im * im;
+        } else {
+          mx = std::max(mx, std::hypot(re, im));
+        }
+      }
+      if constexpr (K == StatKind::NormL2) acc = std::sqrt(acc);
+      if constexpr (K == StatKind::NormInf) acc = mx;
+      return npps_scale_from_double<D>(acc, sf);
+    }
+  } else if constexpr (std::is_integral_v<S>) {
     if constexpr (K == StatKind::Sum) {
       long long s = 0;
       for (int i = 0; i < n; ++i) s += (long long)p[i];
@@ -840,7 +895,83 @@ inline D npps_stat1_ref(const S *p, int n, int sf) {
 
 template <typename S1, typename S2, typename D, StatKind K>
 inline D npps_stat2_ref(const S1 *a, const S2 *b, int n, int sf) {
-  if constexpr (K == StatKind::MaxAbsErr || K == StatKind::AvgAbsErr ||
+  if constexpr (is_complex_num_v<S1> || is_complex_num_v<S2> || is_complex_num_v<D>) {
+    if constexpr (K == StatKind::MaxAbsErr || K == StatKind::AvgAbsErr ||
+                  K == StatKind::MaxRelErr || K == StatKind::AvgRelErr) {
+      double mx = -std::numeric_limits<double>::infinity();
+      for (int i = 0; i < n; ++i) {
+        double d = 0.0, ma = 0.0, mb = 0.0;
+        if constexpr (is_complex_num_v<S1> && is_complex_num_v<S2>) {
+          const double dre = (double)a[i].re - (double)b[i].re;
+          const double dim = (double)a[i].im - (double)b[i].im;
+          d = std::hypot(dre, dim);
+          ma = std::hypot((double)a[i].re, (double)a[i].im);
+          mb = std::hypot((double)b[i].re, (double)b[i].im);
+        } else if constexpr (is_complex_num_v<S1>) {
+          const double dre = (double)a[i].re - (double)b[i];
+          const double dim = (double)a[i].im;
+          d = std::hypot(dre, dim);
+          ma = std::hypot((double)a[i].re, (double)a[i].im);
+          mb = std::fabs((double)b[i]);
+        } else {
+          const double dre = (double)a[i] - (double)b[i].re;
+          const double dim = (double)b[i].im;
+          d = std::hypot(dre, dim);
+          ma = std::fabs((double)a[i]);
+          mb = std::hypot((double)b[i].re, (double)b[i].im);
+        }
+        double e = d;
+        if constexpr (K == StatKind::MaxRelErr || K == StatKind::AvgRelErr) {
+          const double den = std::max(ma, mb);
+          e = den > 0.0 ? d / den : 0.0;
+        }
+        if (e > mx) mx = e;
+      }
+      if constexpr (K == StatKind::AvgAbsErr || K == StatKind::AvgRelErr) return (D)(mx / (double)n);
+      else return (D)mx;
+    } else if constexpr (K == StatKind::DotProd) {
+      using C = complex_part_t<D>;
+      double re = 0.0, im = 0.0;
+      for (int i = 0; i < n; ++i) {
+        if constexpr (is_complex_num_v<S1> && is_complex_num_v<S2>) {
+          const double ar = (double)a[i].re, ai = (double)a[i].im;
+          const double br = (double)b[i].re, bi = (double)b[i].im;
+          re += ar * br - ai * bi;
+          im += ar * bi + ai * br;
+        } else if constexpr (is_complex_num_v<S2>) {
+          const double av = (double)a[i];
+          re += av * (double)b[i].re;
+          im += av * (double)b[i].im;
+        } else {
+          const double bv = (double)b[i];
+          re += bv * (double)a[i].re;
+          im += bv * (double)a[i].im;
+        }
+      }
+      D r;
+      r.re = npps_fin_round<C>(re, sf);
+      r.im = npps_fin_round<C>(im, sf);
+      return r;
+    } else {
+      double acc = 0.0, mx = 0.0;
+      for (int i = 0; i < n; ++i) {
+        const double dre = (double)a[i].re - (double)b[i].re;
+        const double dim = (double)a[i].im - (double)b[i].im;
+        if constexpr (K == StatKind::NormL1) {
+          acc += std::hypot(dre, dim);
+        } else if constexpr (K == StatKind::NormL2) {
+          acc += dre * dre + dim * dim;
+        } else {
+          mx = std::max(mx, std::hypot(dre, dim));
+        }
+      }
+      double val = acc;
+      if constexpr (K == StatKind::NormL2) val = std::sqrt(acc);
+      if constexpr (K == StatKind::NormInf) val = mx;
+      return npps_scale_from_double<D>(val, sf);
+    }
+    return D{};
+  } else if constexpr (K == StatKind::MaxAbsErr || K == StatKind::AvgAbsErr ||
                 K == StatKind::MaxRelErr || K == StatKind::AvgRelErr) {
     double mx = -std::numeric_limits<double>::infinity();
     for (int i = 0; i < n; ++i) {
@@ -1020,14 +1151,17 @@ template <typename S> inline void npps_stat_clamp_inputs(Buf<S> &b) {
 // API, mode and shape coverage is unchanged.
 template <typename A, typename B>
 inline void npps_dotprod_clamp_inputs(Buf<A> &a, Buf<B> &b) {
-  if constexpr ((std::is_integral_v<A> && sizeof(A) >= 4) ||
-                (std::is_integral_v<B> && sizeof(B) >= 4)) {
+  if constexpr (!is_complex_num_v<A> && std::is_integral_v<A> && sizeof(A) >= 4) {
     for (int i = 0; i < a.bw; ++i) {
       if (a.hptr()[i] > A(10000)) a.hptr()[i] = A(10000);
       if constexpr (std::is_signed_v<A>) {
         if (a.hptr()[i] < A(-10000)) a.hptr()[i] = A(-10000);
       }
     }
+  } else {
+    (void)a;
+  }
+  if constexpr (!is_complex_num_v<B> && std::is_integral_v<B> && sizeof(B) >= 4) {
     for (int i = 0; i < b.bw; ++i) {
       if (b.hptr()[i] > B(10000)) b.hptr()[i] = B(10000);
       if constexpr (std::is_signed_v<B>) {
@@ -1035,19 +1169,32 @@ inline void npps_dotprod_clamp_inputs(Buf<A> &a, Buf<B> &b) {
       }
     }
   } else {
+    (void)b;
+  }
+  if constexpr (false) {
     (void)a;
     (void)b;
   }
 }
 
 template <typename D> inline void npps_stat_tol(double &rtol, double &atol) {
-  if constexpr (std::is_same_v<D, Npp32f>) { rtol = 1e-5; atol = 1e-4; }
+  if constexpr (is_complex_num_v<D>) {
+    using C = complex_part_t<D>;
+    if constexpr (std::is_same_v<C, Npp32f>) { rtol = 1e-5; atol = 1e-5; }
+    else if constexpr (std::is_same_v<C, Npp64f>) { rtol = 1e-9; atol = 1e-6; }
+    else { rtol = 0; atol = 0; }
+  } else if constexpr (std::is_same_v<D, Npp32f>) { rtol = 1e-5; atol = 1e-4; }
   else if constexpr (std::is_same_v<D, Npp64f>) { rtol = 1e-10; atol = 1e-5; }
   else { rtol = 0; atol = 0; }
 }
 
 template <typename D> inline void npps_tol(double &rtol, double &atol) {
-  if constexpr (std::is_same_v<D, Npp16f>) { rtol = 2e-3; atol = 2e-3; }
+  if constexpr (is_complex_num_v<D>) {
+    using C = complex_part_t<D>;
+    if constexpr (std::is_same_v<C, Npp32f>) { rtol = 1e-5; atol = 1e-5; }
+    else if constexpr (std::is_same_v<C, Npp64f>) { rtol = 1e-9; atol = 1e-6; }
+    else { rtol = 0; atol = 0; }
+  } else if constexpr (std::is_same_v<D, Npp16f>) { rtol = 2e-3; atol = 2e-3; }
   else if constexpr (std::is_same_v<D, Npp32f>) { rtol = 1e-5; atol = 1e-6; }
   else if constexpr (std::is_same_v<D, Npp64f>) { rtol = 1e-12; atol = 1e-14; }
   else { rtol = 0; atol = 0; }
@@ -1315,6 +1462,10 @@ void run_npps_stat1(const char *id, Call call, const std::vector<int> &sfs) {
   std::string first;
   double rtol, atol;
   npps_stat_tol<D>(rtol, atol);
+  if constexpr (is_complex_num_v<S> && std::is_floating_point_v<complex_part_t<S>> &&
+                !is_complex_num_v<D> && std::is_floating_point_v<D>) {
+    rtol = 1e-5; atol = 1e-3;
+  }
   Buf<uint8_t> scratch(kNppsStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S>;
@@ -1370,6 +1521,10 @@ void run_npps_stat2(const char *id, Call call, const std::vector<int> &sfs) {
   std::string first;
   double rtol, atol;
   npps_stat_tol<D>(rtol, atol);
+  if constexpr ((is_complex_num_v<S1> && std::is_floating_point_v<complex_part_t<S1>>) ||
+                (is_complex_num_v<S2> && std::is_floating_point_v<complex_part_t<S2>>)) {
+    if constexpr (!is_complex_num_v<D> && std::is_floating_point_v<D>) { rtol = 1e-5; atol = 1e-3; }
+  }
   Buf<uint8_t> scratch(kNppsStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S1> || std::is_floating_point_v<S2>;
@@ -1409,6 +1564,7 @@ void run_npps_stat2(const char *id, Call call, const std::vector<int> &sfs) {
         std::snprintf(buf, sizeof(buf), "[%s] %s sf=%d mismatch: got=%s want=%s", id,
                       c.id().c_str(), sf, dbg_elem<D>(out.host.data()).c_str(),
                       dbg_elem<D>(wp).c_str());
+
         if (first.empty()) first = buf;
         EXPECT_TRUE(false) << buf;
         ++cnt.mismatched;

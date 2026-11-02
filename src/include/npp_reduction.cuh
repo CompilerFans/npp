@@ -18,6 +18,7 @@
 // header; the statistics executor converts between the two.
 
 #include "npp.h"
+#include <cstdint>
 
 #include <cmath>
 #include <cuda_runtime.h>

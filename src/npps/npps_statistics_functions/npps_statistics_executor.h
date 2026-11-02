@@ -348,8 +348,14 @@ struct FinMean {
     const double dn = static_cast<double>(n);
     if constexpr (is_complex_v<O>) {
       using C = component_t_ty<O>;
-      out->re = fin_round<C>(static_cast<double>(v.re) / dn, sf);
-      out->im = fin_round<C>(static_cast<double>(v.im) / dn, sf);
+      if constexpr (std::is_integral_v<C>) {
+        // Complex integer means round each component to an integer first.
+        out->re = scale_sat<C>(static_cast<long long>(rint(static_cast<double>(v.re) / dn)), sf);
+        out->im = scale_sat<C>(static_cast<long long>(rint(static_cast<double>(v.im) / dn)), sf);
+      } else {
+        out->re = fin_round<C>(static_cast<double>(v.re) / dn, sf);
+        out->im = fin_round<C>(static_cast<double>(v.im) / dn, sf);
+      }
     } else if constexpr (std::is_floating_point_v<O>) {
       *out = fin_round<O>(static_cast<double>(v) / dn, sf);
     } else {

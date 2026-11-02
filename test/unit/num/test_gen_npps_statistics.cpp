@@ -205,6 +205,13 @@ TEST(NumGenNppsStats, nppsAverageError_16s_Ctx) {
       {0});
 }
 
+TEST(NumGenNppsStats, nppsAverageError_16sc_Ctx) {
+  num::run_npps_stat2<Npp16sc, Npp16sc, Npp64f, num::StatKind::AvgAbsErr>(
+      "nppsAverageError_16sc_Ctx",
+      [](const Npp16sc *a, const Npp16sc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsAverageError_16sc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsAverageError_16u_Ctx) {
   num::run_npps_stat2<Npp16u, Npp16u, Npp64f, num::StatKind::AvgAbsErr>(
       "nppsAverageError_16u_Ctx",
@@ -219,10 +226,24 @@ TEST(NumGenNppsStats, nppsAverageError_32f_Ctx) {
       {0});
 }
 
+TEST(NumGenNppsStats, nppsAverageError_32fc_Ctx) {
+  num::run_npps_stat2<Npp32fc, Npp32fc, Npp64f, num::StatKind::AvgAbsErr>(
+      "nppsAverageError_32fc_Ctx",
+      [](const Npp32fc *a, const Npp32fc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsAverageError_32fc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsAverageError_32s_Ctx) {
   num::run_npps_stat2<Npp32s, Npp32s, Npp64f, num::StatKind::AvgAbsErr>(
       "nppsAverageError_32s_Ctx",
       [](const Npp32s *a, const Npp32s *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsAverageError_32s_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsAverageError_32sc_Ctx) {
+  num::run_npps_stat2<Npp32sc, Npp32sc, Npp64f, num::StatKind::AvgAbsErr>(
+      "nppsAverageError_32sc_Ctx",
+      [](const Npp32sc *a, const Npp32sc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsAverageError_32sc_Ctx(a, b, n, o, buf, c); },
       {0});
 }
 
@@ -240,10 +261,24 @@ TEST(NumGenNppsStats, nppsAverageError_64f_Ctx) {
       {0});
 }
 
+TEST(NumGenNppsStats, nppsAverageError_64fc_Ctx) {
+  num::run_npps_stat2<Npp64fc, Npp64fc, Npp64f, num::StatKind::AvgAbsErr>(
+      "nppsAverageError_64fc_Ctx",
+      [](const Npp64fc *a, const Npp64fc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsAverageError_64fc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsAverageError_64s_Ctx) {
   num::run_npps_stat2<Npp64s, Npp64s, Npp64f, num::StatKind::AvgAbsErr>(
       "nppsAverageError_64s_Ctx",
       [](const Npp64s *a, const Npp64s *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsAverageError_64s_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsAverageError_64sc_Ctx) {
+  num::run_npps_stat2<Npp64sc, Npp64sc, Npp64f, num::StatKind::AvgAbsErr>(
+      "nppsAverageError_64sc_Ctx",
+      [](const Npp64sc *a, const Npp64sc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsAverageError_64sc_Ctx(a, b, n, o, buf, c); },
       {0});
 }
 
@@ -464,6 +499,13 @@ TEST(NumGenNppsStats, nppsAverageRelativeError_16s_Ctx) {
       {0});
 }
 
+TEST(NumGenNppsStats, nppsAverageRelativeError_16sc_Ctx) {
+  num::run_npps_stat2<Npp16sc, Npp16sc, Npp64f, num::StatKind::AvgRelErr>(
+      "nppsAverageRelativeError_16sc_Ctx",
+      [](const Npp16sc *a, const Npp16sc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsAverageRelativeError_16sc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsAverageRelativeError_16u_Ctx) {
   num::run_npps_stat2<Npp16u, Npp16u, Npp64f, num::StatKind::AvgRelErr>(
       "nppsAverageRelativeError_16u_Ctx",
@@ -478,10 +520,24 @@ TEST(NumGenNppsStats, nppsAverageRelativeError_32f_Ctx) {
       {0});
 }
 
+TEST(NumGenNppsStats, nppsAverageRelativeError_32fc_Ctx) {
+  num::run_npps_stat2<Npp32fc, Npp32fc, Npp64f, num::StatKind::AvgRelErr>(
+      "nppsAverageRelativeError_32fc_Ctx",
+      [](const Npp32fc *a, const Npp32fc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsAverageRelativeError_32fc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsAverageRelativeError_32s_Ctx) {
   num::run_npps_stat2<Npp32s, Npp32s, Npp64f, num::StatKind::AvgRelErr>(
       "nppsAverageRelativeError_32s_Ctx",
       [](const Npp32s *a, const Npp32s *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsAverageRelativeError_32s_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsAverageRelativeError_32sc_Ctx) {
+  num::run_npps_stat2<Npp32sc, Npp32sc, Npp64f, num::StatKind::AvgRelErr>(
+      "nppsAverageRelativeError_32sc_Ctx",
+      [](const Npp32sc *a, const Npp32sc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsAverageRelativeError_32sc_Ctx(a, b, n, o, buf, c); },
       {0});
 }
 
@@ -499,10 +555,24 @@ TEST(NumGenNppsStats, nppsAverageRelativeError_64f_Ctx) {
       {0});
 }
 
+TEST(NumGenNppsStats, nppsAverageRelativeError_64fc_Ctx) {
+  num::run_npps_stat2<Npp64fc, Npp64fc, Npp64f, num::StatKind::AvgRelErr>(
+      "nppsAverageRelativeError_64fc_Ctx",
+      [](const Npp64fc *a, const Npp64fc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsAverageRelativeError_64fc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsAverageRelativeError_64s_Ctx) {
   num::run_npps_stat2<Npp64s, Npp64s, Npp64f, num::StatKind::AvgRelErr>(
       "nppsAverageRelativeError_64s_Ctx",
       [](const Npp64s *a, const Npp64s *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsAverageRelativeError_64s_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsAverageRelativeError_64sc_Ctx) {
+  num::run_npps_stat2<Npp64sc, Npp64sc, Npp64f, num::StatKind::AvgRelErr>(
+      "nppsAverageRelativeError_64sc_Ctx",
+      [](const Npp64sc *a, const Npp64sc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsAverageRelativeError_64sc_Ctx(a, b, n, o, buf, c); },
       {0});
 }
 
@@ -890,6 +960,34 @@ TEST(NumGenNppsStats, nppsDotProdGetBufferSize_64fc_Ctx) {
       });
 }
 
+TEST(NumGenNppsStats, nppsDotProd_16s16sc32fc_Ctx) {
+  num::run_npps_stat2<Npp16s, Npp16sc, Npp32fc, num::StatKind::DotProd>(
+      "nppsDotProd_16s16sc32fc_Ctx",
+      [](const Npp16s *a, const Npp16sc *b, Npp32fc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsDotProd_16s16sc32fc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsDotProd_16s16sc32sc_Sfs_Ctx) {
+  num::run_npps_stat2<Npp16s, Npp16sc, Npp32sc, num::StatKind::DotProd>(
+      "nppsDotProd_16s16sc32sc_Sfs_Ctx",
+      [](const Npp16s *a, const Npp16sc *b, Npp32sc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsDotProd_16s16sc32sc_Sfs_Ctx(a, b, n, o, sf, buf, c); },
+      {0, 1, 2});
+}
+
+TEST(NumGenNppsStats, nppsDotProd_16s16sc64sc_Ctx) {
+  num::run_npps_stat2<Npp16s, Npp16sc, Npp64sc, num::StatKind::DotProd>(
+      "nppsDotProd_16s16sc64sc_Ctx",
+      [](const Npp16s *a, const Npp16sc *b, Npp64sc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsDotProd_16s16sc64sc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsDotProd_16s16sc_Sfs_Ctx) {
+  num::run_npps_stat2<Npp16s, Npp16sc, Npp16sc, num::StatKind::DotProd>(
+      "nppsDotProd_16s16sc_Sfs_Ctx",
+      [](const Npp16s *a, const Npp16sc *b, Npp16sc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsDotProd_16s16sc_Sfs_Ctx(a, b, n, o, sf, buf, c); },
+      {0, 1, 2});
+}
+
 TEST(NumGenNppsStats, nppsDotProd_16s32f_Ctx) {
   num::run_npps_stat2<Npp16s, Npp16s, Npp32f, num::StatKind::DotProd>(
       "nppsDotProd_16s32f_Ctx",
@@ -925,6 +1023,48 @@ TEST(NumGenNppsStats, nppsDotProd_16s_Sfs_Ctx) {
       {0, 1, 2});
 }
 
+TEST(NumGenNppsStats, nppsDotProd_16sc32fc_Ctx) {
+  num::run_npps_stat2<Npp16sc, Npp16sc, Npp32fc, num::StatKind::DotProd>(
+      "nppsDotProd_16sc32fc_Ctx",
+      [](const Npp16sc *a, const Npp16sc *b, Npp32fc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsDotProd_16sc32fc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsDotProd_16sc32sc_Sfs_Ctx) {
+  num::run_npps_stat2<Npp16sc, Npp16sc, Npp32sc, num::StatKind::DotProd>(
+      "nppsDotProd_16sc32sc_Sfs_Ctx",
+      [](const Npp16sc *a, const Npp16sc *b, Npp32sc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsDotProd_16sc32sc_Sfs_Ctx(a, b, n, o, sf, buf, c); },
+      {0, 1, 2});
+}
+
+TEST(NumGenNppsStats, nppsDotProd_16sc64sc_Ctx) {
+  num::run_npps_stat2<Npp16sc, Npp16sc, Npp64sc, num::StatKind::DotProd>(
+      "nppsDotProd_16sc64sc_Ctx",
+      [](const Npp16sc *a, const Npp16sc *b, Npp64sc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsDotProd_16sc64sc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsDotProd_16sc_Sfs_Ctx) {
+  num::run_npps_stat2<Npp16sc, Npp16sc, Npp16sc, num::StatKind::DotProd>(
+      "nppsDotProd_16sc_Sfs_Ctx",
+      [](const Npp16sc *a, const Npp16sc *b, Npp16sc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsDotProd_16sc_Sfs_Ctx(a, b, n, o, sf, buf, c); },
+      {0, 1, 2});
+}
+
+TEST(NumGenNppsStats, nppsDotProd_32f32fc64fc_Ctx) {
+  num::run_npps_stat2<Npp32f, Npp32fc, Npp64fc, num::StatKind::DotProd>(
+      "nppsDotProd_32f32fc64fc_Ctx",
+      [](const Npp32f *a, const Npp32fc *b, Npp64fc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsDotProd_32f32fc64fc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsDotProd_32f32fc_Ctx) {
+  num::run_npps_stat2<Npp32f, Npp32fc, Npp32fc, num::StatKind::DotProd>(
+      "nppsDotProd_32f32fc_Ctx",
+      [](const Npp32f *a, const Npp32fc *b, Npp32fc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsDotProd_32f32fc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsDotProd_32f64f_Ctx) {
   num::run_npps_stat2<Npp32f, Npp32f, Npp64f, num::StatKind::DotProd>(
       "nppsDotProd_32f64f_Ctx",
@@ -939,6 +1079,27 @@ TEST(NumGenNppsStats, nppsDotProd_32f_Ctx) {
       {0});
 }
 
+TEST(NumGenNppsStats, nppsDotProd_32fc64fc_Ctx) {
+  num::run_npps_stat2<Npp32fc, Npp32fc, Npp64fc, num::StatKind::DotProd>(
+      "nppsDotProd_32fc64fc_Ctx",
+      [](const Npp32fc *a, const Npp32fc *b, Npp64fc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsDotProd_32fc64fc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsDotProd_32fc_Ctx) {
+  num::run_npps_stat2<Npp32fc, Npp32fc, Npp32fc, num::StatKind::DotProd>(
+      "nppsDotProd_32fc_Ctx",
+      [](const Npp32fc *a, const Npp32fc *b, Npp32fc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsDotProd_32fc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsDotProd_32s32sc_Sfs_Ctx) {
+  num::run_npps_stat2<Npp32s, Npp32sc, Npp32sc, num::StatKind::DotProd>(
+      "nppsDotProd_32s32sc_Sfs_Ctx",
+      [](const Npp32s *a, const Npp32sc *b, Npp32sc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsDotProd_32s32sc_Sfs_Ctx(a, b, n, o, sf, buf, c); },
+      {0, 1, 2});
+}
+
 TEST(NumGenNppsStats, nppsDotProd_32s_Sfs_Ctx) {
   num::run_npps_stat2<Npp32s, Npp32s, Npp32s, num::StatKind::DotProd>(
       "nppsDotProd_32s_Sfs_Ctx",
@@ -946,10 +1107,31 @@ TEST(NumGenNppsStats, nppsDotProd_32s_Sfs_Ctx) {
       {0, 1, 2});
 }
 
+TEST(NumGenNppsStats, nppsDotProd_32sc_Sfs_Ctx) {
+  num::run_npps_stat2<Npp32sc, Npp32sc, Npp32sc, num::StatKind::DotProd>(
+      "nppsDotProd_32sc_Sfs_Ctx",
+      [](const Npp32sc *a, const Npp32sc *b, Npp32sc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsDotProd_32sc_Sfs_Ctx(a, b, n, o, sf, buf, c); },
+      {0, 1, 2});
+}
+
+TEST(NumGenNppsStats, nppsDotProd_64f64fc_Ctx) {
+  num::run_npps_stat2<Npp64f, Npp64fc, Npp64fc, num::StatKind::DotProd>(
+      "nppsDotProd_64f64fc_Ctx",
+      [](const Npp64f *a, const Npp64fc *b, Npp64fc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsDotProd_64f64fc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsDotProd_64f_Ctx) {
   num::run_npps_stat2<Npp64f, Npp64f, Npp64f, num::StatKind::DotProd>(
       "nppsDotProd_64f_Ctx",
       [](const Npp64f *a, const Npp64f *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsDotProd_64f_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsDotProd_64fc_Ctx) {
+  num::run_npps_stat2<Npp64fc, Npp64fc, Npp64fc, num::StatKind::DotProd>(
+      "nppsDotProd_64fc_Ctx",
+      [](const Npp64fc *a, const Npp64fc *b, Npp64fc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsDotProd_64fc_Ctx(a, b, n, o, buf, c); },
       {0});
 }
 
@@ -1426,6 +1608,13 @@ TEST(NumGenNppsStats, nppsMaximumError_16s_Ctx) {
       {0});
 }
 
+TEST(NumGenNppsStats, nppsMaximumError_16sc_Ctx) {
+  num::run_npps_stat2<Npp16sc, Npp16sc, Npp64f, num::StatKind::MaxAbsErr>(
+      "nppsMaximumError_16sc_Ctx",
+      [](const Npp16sc *a, const Npp16sc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsMaximumError_16sc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsMaximumError_16u_Ctx) {
   num::run_npps_stat2<Npp16u, Npp16u, Npp64f, num::StatKind::MaxAbsErr>(
       "nppsMaximumError_16u_Ctx",
@@ -1440,10 +1629,24 @@ TEST(NumGenNppsStats, nppsMaximumError_32f_Ctx) {
       {0});
 }
 
+TEST(NumGenNppsStats, nppsMaximumError_32fc_Ctx) {
+  num::run_npps_stat2<Npp32fc, Npp32fc, Npp64f, num::StatKind::MaxAbsErr>(
+      "nppsMaximumError_32fc_Ctx",
+      [](const Npp32fc *a, const Npp32fc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsMaximumError_32fc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsMaximumError_32s_Ctx) {
   num::run_npps_stat2<Npp32s, Npp32s, Npp64f, num::StatKind::MaxAbsErr>(
       "nppsMaximumError_32s_Ctx",
       [](const Npp32s *a, const Npp32s *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsMaximumError_32s_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsMaximumError_32sc_Ctx) {
+  num::run_npps_stat2<Npp32sc, Npp32sc, Npp64f, num::StatKind::MaxAbsErr>(
+      "nppsMaximumError_32sc_Ctx",
+      [](const Npp32sc *a, const Npp32sc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsMaximumError_32sc_Ctx(a, b, n, o, buf, c); },
       {0});
 }
 
@@ -1461,10 +1664,24 @@ TEST(NumGenNppsStats, nppsMaximumError_64f_Ctx) {
       {0});
 }
 
+TEST(NumGenNppsStats, nppsMaximumError_64fc_Ctx) {
+  num::run_npps_stat2<Npp64fc, Npp64fc, Npp64f, num::StatKind::MaxAbsErr>(
+      "nppsMaximumError_64fc_Ctx",
+      [](const Npp64fc *a, const Npp64fc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsMaximumError_64fc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsMaximumError_64s_Ctx) {
   num::run_npps_stat2<Npp64s, Npp64s, Npp64f, num::StatKind::MaxAbsErr>(
       "nppsMaximumError_64s_Ctx",
       [](const Npp64s *a, const Npp64s *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsMaximumError_64s_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsMaximumError_64sc_Ctx) {
+  num::run_npps_stat2<Npp64sc, Npp64sc, Npp64f, num::StatKind::MaxAbsErr>(
+      "nppsMaximumError_64sc_Ctx",
+      [](const Npp64sc *a, const Npp64sc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsMaximumError_64sc_Ctx(a, b, n, o, buf, c); },
       {0});
 }
 
@@ -1685,6 +1902,13 @@ TEST(NumGenNppsStats, nppsMaximumRelativeError_16s_Ctx) {
       {0});
 }
 
+TEST(NumGenNppsStats, nppsMaximumRelativeError_16sc_Ctx) {
+  num::run_npps_stat2<Npp16sc, Npp16sc, Npp64f, num::StatKind::MaxRelErr>(
+      "nppsMaximumRelativeError_16sc_Ctx",
+      [](const Npp16sc *a, const Npp16sc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsMaximumRelativeError_16sc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsMaximumRelativeError_16u_Ctx) {
   num::run_npps_stat2<Npp16u, Npp16u, Npp64f, num::StatKind::MaxRelErr>(
       "nppsMaximumRelativeError_16u_Ctx",
@@ -1699,10 +1923,24 @@ TEST(NumGenNppsStats, nppsMaximumRelativeError_32f_Ctx) {
       {0});
 }
 
+TEST(NumGenNppsStats, nppsMaximumRelativeError_32fc_Ctx) {
+  num::run_npps_stat2<Npp32fc, Npp32fc, Npp64f, num::StatKind::MaxRelErr>(
+      "nppsMaximumRelativeError_32fc_Ctx",
+      [](const Npp32fc *a, const Npp32fc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsMaximumRelativeError_32fc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsMaximumRelativeError_32s_Ctx) {
   num::run_npps_stat2<Npp32s, Npp32s, Npp64f, num::StatKind::MaxRelErr>(
       "nppsMaximumRelativeError_32s_Ctx",
       [](const Npp32s *a, const Npp32s *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsMaximumRelativeError_32s_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsMaximumRelativeError_32sc_Ctx) {
+  num::run_npps_stat2<Npp32sc, Npp32sc, Npp64f, num::StatKind::MaxRelErr>(
+      "nppsMaximumRelativeError_32sc_Ctx",
+      [](const Npp32sc *a, const Npp32sc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsMaximumRelativeError_32sc_Ctx(a, b, n, o, buf, c); },
       {0});
 }
 
@@ -1720,10 +1958,24 @@ TEST(NumGenNppsStats, nppsMaximumRelativeError_64f_Ctx) {
       {0});
 }
 
+TEST(NumGenNppsStats, nppsMaximumRelativeError_64fc_Ctx) {
+  num::run_npps_stat2<Npp64fc, Npp64fc, Npp64f, num::StatKind::MaxRelErr>(
+      "nppsMaximumRelativeError_64fc_Ctx",
+      [](const Npp64fc *a, const Npp64fc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsMaximumRelativeError_64fc_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsMaximumRelativeError_64s_Ctx) {
   num::run_npps_stat2<Npp64s, Npp64s, Npp64f, num::StatKind::MaxRelErr>(
       "nppsMaximumRelativeError_64s_Ctx",
       [](const Npp64s *a, const Npp64s *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsMaximumRelativeError_64s_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsMaximumRelativeError_64sc_Ctx) {
+  num::run_npps_stat2<Npp64sc, Npp64sc, Npp64f, num::StatKind::MaxRelErr>(
+      "nppsMaximumRelativeError_64sc_Ctx",
+      [](const Npp64sc *a, const Npp64sc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsMaximumRelativeError_64sc_Ctx(a, b, n, o, buf, c); },
       {0});
 }
 
@@ -1930,10 +2182,24 @@ TEST(NumGenNppsStats, nppsMean_16s_Sfs_Ctx) {
       {0, 1, 2});
 }
 
+TEST(NumGenNppsStats, nppsMean_16sc_Sfs_Ctx) {
+  num::run_npps_stat1<Npp16sc, Npp16sc, num::StatKind::Mean>(
+      "nppsMean_16sc_Sfs_Ctx",
+      [](const Npp16sc *a, Npp16sc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsMean_16sc_Sfs_Ctx(a, n, o, sf, buf, c); },
+      {0, 1, 2});
+}
+
 TEST(NumGenNppsStats, nppsMean_32f_Ctx) {
   num::run_npps_stat1<Npp32f, Npp32f, num::StatKind::Mean>(
       "nppsMean_32f_Ctx",
       [](const Npp32f *a, Npp32f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsMean_32f_Ctx(a, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsMean_32fc_Ctx) {
+  num::run_npps_stat1<Npp32fc, Npp32fc, num::StatKind::Mean>(
+      "nppsMean_32fc_Ctx",
+      [](const Npp32fc *a, Npp32fc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsMean_32fc_Ctx(a, n, o, buf, c); },
       {0});
 }
 
@@ -1948,6 +2214,13 @@ TEST(NumGenNppsStats, nppsMean_64f_Ctx) {
   num::run_npps_stat1<Npp64f, Npp64f, num::StatKind::Mean>(
       "nppsMean_64f_Ctx",
       [](const Npp64f *a, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsMean_64f_Ctx(a, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsMean_64fc_Ctx) {
+  num::run_npps_stat1<Npp64fc, Npp64fc, num::StatKind::Mean>(
+      "nppsMean_64fc_Ctx",
+      [](const Npp64fc *a, Npp64fc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsMean_64fc_Ctx(a, n, o, buf, c); },
       {0});
 }
 
@@ -2808,10 +3081,24 @@ TEST(NumGenNppsStats, nppsNormDiff_Inf_32f_Ctx) {
       {0});
 }
 
+TEST(NumGenNppsStats, nppsNormDiff_Inf_32fc32f_Ctx) {
+  num::run_npps_stat2<Npp32fc, Npp32fc, Npp32f, num::StatKind::NormInf>(
+      "nppsNormDiff_Inf_32fc32f_Ctx",
+      [](const Npp32fc *a, const Npp32fc *b, Npp32f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsNormDiff_Inf_32fc32f_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsNormDiff_Inf_64f_Ctx) {
   num::run_npps_stat2<Npp64f, Npp64f, Npp64f, num::StatKind::NormInf>(
       "nppsNormDiff_Inf_64f_Ctx",
       [](const Npp64f *a, const Npp64f *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsNormDiff_Inf_64f_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsNormDiff_Inf_64fc64f_Ctx) {
+  num::run_npps_stat2<Npp64fc, Npp64fc, Npp64f, num::StatKind::NormInf>(
+      "nppsNormDiff_Inf_64fc64f_Ctx",
+      [](const Npp64fc *a, const Npp64fc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsNormDiff_Inf_64fc64f_Ctx(a, b, n, o, buf, c); },
       {0});
 }
 
@@ -2843,10 +3130,24 @@ TEST(NumGenNppsStats, nppsNormDiff_L1_32f_Ctx) {
       {0});
 }
 
+TEST(NumGenNppsStats, nppsNormDiff_L1_32fc64f_Ctx) {
+  num::run_npps_stat2<Npp32fc, Npp32fc, Npp64f, num::StatKind::NormL1>(
+      "nppsNormDiff_L1_32fc64f_Ctx",
+      [](const Npp32fc *a, const Npp32fc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsNormDiff_L1_32fc64f_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsNormDiff_L1_64f_Ctx) {
   num::run_npps_stat2<Npp64f, Npp64f, Npp64f, num::StatKind::NormL1>(
       "nppsNormDiff_L1_64f_Ctx",
       [](const Npp64f *a, const Npp64f *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsNormDiff_L1_64f_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsNormDiff_L1_64fc64f_Ctx) {
+  num::run_npps_stat2<Npp64fc, Npp64fc, Npp64f, num::StatKind::NormL1>(
+      "nppsNormDiff_L1_64fc64f_Ctx",
+      [](const Npp64fc *a, const Npp64fc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsNormDiff_L1_64fc64f_Ctx(a, b, n, o, buf, c); },
       {0});
 }
 
@@ -2878,10 +3179,24 @@ TEST(NumGenNppsStats, nppsNormDiff_L2_32f_Ctx) {
       {0});
 }
 
+TEST(NumGenNppsStats, nppsNormDiff_L2_32fc64f_Ctx) {
+  num::run_npps_stat2<Npp32fc, Npp32fc, Npp64f, num::StatKind::NormL2>(
+      "nppsNormDiff_L2_32fc64f_Ctx",
+      [](const Npp32fc *a, const Npp32fc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsNormDiff_L2_32fc64f_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsNormDiff_L2_64f_Ctx) {
   num::run_npps_stat2<Npp64f, Npp64f, Npp64f, num::StatKind::NormL2>(
       "nppsNormDiff_L2_64f_Ctx",
       [](const Npp64f *a, const Npp64f *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsNormDiff_L2_64f_Ctx(a, b, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsNormDiff_L2_64fc64f_Ctx) {
+  num::run_npps_stat2<Npp64fc, Npp64fc, Npp64f, num::StatKind::NormL2>(
+      "nppsNormDiff_L2_64fc64f_Ctx",
+      [](const Npp64fc *a, const Npp64fc *b, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsNormDiff_L2_64fc64f_Ctx(a, b, n, o, buf, c); },
       {0});
 }
 
@@ -3186,10 +3501,24 @@ TEST(NumGenNppsStats, nppsNorm_Inf_32f_Ctx) {
       {0});
 }
 
+TEST(NumGenNppsStats, nppsNorm_Inf_32fc32f_Ctx) {
+  num::run_npps_stat1<Npp32fc, Npp32f, num::StatKind::NormInf>(
+      "nppsNorm_Inf_32fc32f_Ctx",
+      [](const Npp32fc *a, Npp32f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsNorm_Inf_32fc32f_Ctx(a, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsNorm_Inf_64f_Ctx) {
   num::run_npps_stat1<Npp64f, Npp64f, num::StatKind::NormInf>(
       "nppsNorm_Inf_64f_Ctx",
       [](const Npp64f *a, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsNorm_Inf_64f_Ctx(a, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsNorm_Inf_64fc64f_Ctx) {
+  num::run_npps_stat1<Npp64fc, Npp64f, num::StatKind::NormInf>(
+      "nppsNorm_Inf_64fc64f_Ctx",
+      [](const Npp64fc *a, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsNorm_Inf_64fc64f_Ctx(a, n, o, buf, c); },
       {0});
 }
 
@@ -3221,10 +3550,24 @@ TEST(NumGenNppsStats, nppsNorm_L1_32f_Ctx) {
       {0});
 }
 
+TEST(NumGenNppsStats, nppsNorm_L1_32fc64f_Ctx) {
+  num::run_npps_stat1<Npp32fc, Npp64f, num::StatKind::NormL1>(
+      "nppsNorm_L1_32fc64f_Ctx",
+      [](const Npp32fc *a, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsNorm_L1_32fc64f_Ctx(a, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsNorm_L1_64f_Ctx) {
   num::run_npps_stat1<Npp64f, Npp64f, num::StatKind::NormL1>(
       "nppsNorm_L1_64f_Ctx",
       [](const Npp64f *a, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsNorm_L1_64f_Ctx(a, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsNorm_L1_64fc64f_Ctx) {
+  num::run_npps_stat1<Npp64fc, Npp64f, num::StatKind::NormL1>(
+      "nppsNorm_L1_64fc64f_Ctx",
+      [](const Npp64fc *a, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsNorm_L1_64fc64f_Ctx(a, n, o, buf, c); },
       {0});
 }
 
@@ -3256,10 +3599,24 @@ TEST(NumGenNppsStats, nppsNorm_L2_32f_Ctx) {
       {0});
 }
 
+TEST(NumGenNppsStats, nppsNorm_L2_32fc64f_Ctx) {
+  num::run_npps_stat1<Npp32fc, Npp64f, num::StatKind::NormL2>(
+      "nppsNorm_L2_32fc64f_Ctx",
+      [](const Npp32fc *a, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsNorm_L2_32fc64f_Ctx(a, n, o, buf, c); },
+      {0});
+}
+
 TEST(NumGenNppsStats, nppsNorm_L2_64f_Ctx) {
   num::run_npps_stat1<Npp64f, Npp64f, num::StatKind::NormL2>(
       "nppsNorm_L2_64f_Ctx",
       [](const Npp64f *a, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsNorm_L2_64f_Ctx(a, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsNorm_L2_64fc64f_Ctx) {
+  num::run_npps_stat1<Npp64fc, Npp64f, num::StatKind::NormL2>(
+      "nppsNorm_L2_64fc64f_Ctx",
+      [](const Npp64fc *a, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsNorm_L2_64fc64f_Ctx(a, n, o, buf, c); },
       {0});
 }
 
@@ -3487,10 +3844,31 @@ TEST(NumGenNppsStats, nppsSum_16s_Sfs_Ctx) {
       {0, 1, 2});
 }
 
+TEST(NumGenNppsStats, nppsSum_16sc32sc_Sfs_Ctx) {
+  num::run_npps_stat1<Npp16sc, Npp32sc, num::StatKind::Sum>(
+      "nppsSum_16sc32sc_Sfs_Ctx",
+      [](const Npp16sc *a, Npp32sc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsSum_16sc32sc_Sfs_Ctx(a, n, o, sf, buf, c); },
+      {0, 1, 2});
+}
+
+TEST(NumGenNppsStats, nppsSum_16sc_Sfs_Ctx) {
+  num::run_npps_stat1<Npp16sc, Npp16sc, num::StatKind::Sum>(
+      "nppsSum_16sc_Sfs_Ctx",
+      [](const Npp16sc *a, Npp16sc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsSum_16sc_Sfs_Ctx(a, n, o, sf, buf, c); },
+      {0, 1, 2});
+}
+
 TEST(NumGenNppsStats, nppsSum_32f_Ctx) {
   num::run_npps_stat1<Npp32f, Npp32f, num::StatKind::Sum>(
       "nppsSum_32f_Ctx",
       [](const Npp32f *a, Npp32f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsSum_32f_Ctx(a, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsSum_32fc_Ctx) {
+  num::run_npps_stat1<Npp32fc, Npp32fc, num::StatKind::Sum>(
+      "nppsSum_32fc_Ctx",
+      [](const Npp32fc *a, Npp32fc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsSum_32fc_Ctx(a, n, o, buf, c); },
       {0});
 }
 
@@ -3505,6 +3883,13 @@ TEST(NumGenNppsStats, nppsSum_64f_Ctx) {
   num::run_npps_stat1<Npp64f, Npp64f, num::StatKind::Sum>(
       "nppsSum_64f_Ctx",
       [](const Npp64f *a, Npp64f *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsSum_64f_Ctx(a, n, o, buf, c); },
+      {0});
+}
+
+TEST(NumGenNppsStats, nppsSum_64fc_Ctx) {
+  num::run_npps_stat1<Npp64fc, Npp64fc, num::StatKind::Sum>(
+      "nppsSum_64fc_Ctx",
+      [](const Npp64fc *a, Npp64fc *o, int n, int sf, Npp8u *buf, NppStreamContext c) { (void)n; (void)sf; (void)buf; (void)c; return nppsSum_64fc_Ctx(a, n, o, buf, c); },
       {0});
 }
 

@@ -100,7 +100,9 @@ template <typename T> inline T regime_value(Rng &rng, Regime r, size_t index) {
     }
     return npp_diff::to_npp16f(v);
   } else if constexpr (std::is_same_v<T, Npp32fc> || std::is_same_v<T, Npp64fc> ||
-                       std::is_same_v<T, Npp16sc> || std::is_same_v<T, Npp32sc>) {
+                       std::is_same_v<T, Npp16sc> || std::is_same_v<T, Npp32sc> ||
+                       std::is_same_v<T, Npp64sc> || std::is_same_v<T, Npp8uc> ||
+                       std::is_same_v<T, Npp16uc> || std::is_same_v<T, Npp32uc>) {
     using R = decltype(T{}.re);
     T v;
     Rng r2((uint64_t)index * 0x9e3779b97f4a7c15ull ^ (uint64_t)r);
