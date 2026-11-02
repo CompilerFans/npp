@@ -3,6 +3,7 @@
 #include "npp.h"
 #include <cuda_fp16.h>
 #include <cuda_runtime.h>
+#include <cstdint>
 #include <limits>
 #include <type_traits>
 
@@ -90,7 +91,10 @@ template <typename T> __device__ __host__ inline T saturate_cast_complex(double 
 // even neighbour: (0+1)/2 -> 0, (189+205)/2 -> 197, (-3+0)/2 -> -2.
 template <typename T> __device__ __host__ inline T scale_sfs(double value, int scaleFactor) {
   if (scaleFactor > 0) value /= static_cast<double>(1ll << scaleFactor);
-  return saturate_cast<T>(value);
+  // Round half-to-even before the saturating cast.  Npp32s is the one type
+  // whose saturating cast truncates, so make the rounding explicit instead of
+  // relying on the cast's conversion.
+  return saturate_cast<T>(std::rint(value));
 }
 
 template <typename T>
@@ -101,6 +105,26 @@ __device__ __host__ inline T scale_sfs_complex(double re, double im, int scaleFa
     im /= divisor;
   }
   return saturate_cast_complex<T>(re, im);
+}
+
+template <typename T> __device__ __host__ inline T int_min_value() {
+  if constexpr (std::is_same_v<T, Npp8u>) return T(0);
+  else if constexpr (std::is_same_v<T, Npp8s>) return T(-128);
+  else if constexpr (std::is_same_v<T, Npp16u>) return T(0);
+  else if constexpr (std::is_same_v<T, Npp16s>) return T(-32768);
+  else if constexpr (std::is_same_v<T, Npp32u>) return T(0);
+  else if constexpr (std::is_same_v<T, Npp32s>) return T(-2147483647 - 1);
+  else return T(0);
+}
+
+template <typename T> __device__ __host__ inline T int_max_value() {
+  if constexpr (std::is_same_v<T, Npp8u>) return T(255);
+  else if constexpr (std::is_same_v<T, Npp8s>) return T(127);
+  else if constexpr (std::is_same_v<T, Npp16u>) return T(65535);
+  else if constexpr (std::is_same_v<T, Npp16s>) return T(32767);
+  else if constexpr (std::is_same_v<T, Npp32u>) return T(0xFFFFFFFFu);
+  else if constexpr (std::is_same_v<T, Npp32s>) return T(2147483647);
+  else return T(0);
 }
 
 // ============================================================================
@@ -201,15 +225,18 @@ template <typename T> struct DivOp {
       return scale_sfs_complex<T>(re, im, scaleFactor);
     } else if constexpr (std::is_integral_v<T>) {
       if (a == T(0)) {
-        // NPP integer division by zero saturates; the sign follows pSrc2 for
-        // signed types (0 / -5 -> type minimum), otherwise the maximum.
-        if constexpr (std::is_signed_v<T>) {
-          using U = std::make_unsigned_t<T>;
-          const T maxv = static_cast<T>((static_cast<U>(1) << (sizeof(T) * 8 - 1)) - 1);
-          const T minv = static_cast<T>(static_cast<U>(1) << (sizeof(T) * 8 - 1));
-          return b < T(0) ? minv : maxv;
-        } else {
-          return static_cast<T>(~static_cast<T>(0));
+        // 0/0 is 0; a non-zero numerator saturates with its sign (for signed
+        // types) or to the maximum (unsigned).
+        if (b == T(0)) return T(0);
+        if constexpr (std::is_signed_v<T>) return b < T(0) ? int_min_value<T>() : int_max_value<T>();
+        else return int_max_value<T>();
+      }
+      if constexpr (std::is_same_v<T, Npp32s>) {
+        if (scaleFactor == 0) {
+          // INT_MIN / -1 overflows; NPP saturates to INT_MAX.  Check it
+          // explicitly: the MACA back-end wraps even the 64-bit division.
+          if (b == T(-2147483647 - 1) && a == T(-1)) return T(2147483647);
+          return static_cast<T>(b / a);
         }
       }
       return scale_sfs<T>(static_cast<double>(b) / static_cast<double>(a), scaleFactor);
@@ -259,8 +286,8 @@ template <typename T> struct AbsDiffOp {
       return half_to_npp16f(result);
     } else {
       double result = std::abs(static_cast<double>(a) - static_cast<double>(b));
-      if (scaleFactor > 0 && std::is_integral_v<T>) {
-        result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      if constexpr (std::is_integral_v<T>) {
+        return scale_sfs<T>(result, scaleFactor);
       }
       return saturate_cast<T>(result);
     }
@@ -309,6 +336,10 @@ template <typename T> struct AbsOp {
     if constexpr (is_16f_v<T>) {
       __half ha = npp16f_to_half(a);
       return half_to_npp16f(__habs(ha));
+    } else if constexpr (std::is_integral_v<T> && std::is_signed_v<T>) {
+      // abs(type minimum) saturates to the maximum (probe: abs(-32768) -> 32767).
+      if (a == int_min_value<T>()) return int_max_value<T>();
+      return a < T(0) ? static_cast<T>(-a) : a;
     } else {
       return std::abs(a);
     }
@@ -320,10 +351,21 @@ template <typename T> struct SqrOp {
     if constexpr (is_16f_v<T>) {
       __half ha = npp16f_to_half(a);
       return half_to_npp16f(__hmul(ha, ha));
+    } else if constexpr (std::is_same_v<T, Npp8u>) {
+      // The 5090's 8u kernel multiplies in 16 bits for sf == 0 (inputs >= 182
+      // wrap negative and clamp to 0) and in a wider type for sf > 0.
+      if (scaleFactor == 0) {
+        const int product = static_cast<int>(a) * static_cast<int>(a);
+        const int16_t wrapped = static_cast<int16_t>(static_cast<uint16_t>(product));
+        return wrapped < 0 ? T(0) : static_cast<T>(wrapped > 255 ? 255 : wrapped);
+      }
+      int product = static_cast<int>(a) * static_cast<int>(a);
+      product >>= scaleFactor;
+      return static_cast<T>(product > 255 ? 255 : product);
     } else {
       double result = static_cast<double>(a) * static_cast<double>(a);
-      if (scaleFactor > 0 && std::is_integral_v<T>) {
-        result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      if constexpr (std::is_integral_v<T>) {
+        return scale_sfs<T>(result, scaleFactor);
       }
       return saturate_cast<T>(result);
     }
@@ -336,15 +378,12 @@ template <typename T> struct SqrtOp {
       __half ha = npp16f_to_half(a);
       return half_to_npp16f(hsqrt(ha));
     } else {
-      double result = std::sqrt(static_cast<double>(a));
-      if (scaleFactor > 0 && std::is_integral_v<T>) {
-        // NVIDIA NPP uses truncation for scale factors
-        result = result / (1 << scaleFactor);
-      } else if (std::is_integral_v<T>) {
-        // For no scaling, use floor(result + 0.5) for round-half-up
-        result = floor(result + 0.5);
+      if constexpr (std::is_integral_v<T>) {
+        if (a < T(0)) return T(0);
+        // The 5090 rounds sqrt to nearest (half-even) before/after scaling.
+        return scale_sfs<T>(std::sqrt(static_cast<double>(a)), scaleFactor);
       }
-      return saturate_cast<T>(result);
+      return saturate_cast<T>(std::sqrt(static_cast<double>(a)));
     }
   }
 };
@@ -352,8 +391,15 @@ template <typename T> struct SqrtOp {
 template <typename T> struct ExpOp {
   __device__ __host__ T operator()(T a, T = T(0), int scaleFactor = 0) const {
     double result = std::exp(static_cast<double>(a));
-    if (scaleFactor > 0 && std::is_integral_v<T>) {
-      result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+    if constexpr (std::is_integral_v<T>) {
+      return scale_sfs<T>(result, scaleFactor);
+    } else if constexpr (std::is_same_v<T, Npp32f>) {
+      // NPP clamps to the normal float range (NaN maps to the low end).
+      const float lo = std::numeric_limits<float>::min();
+      const float hi = std::numeric_limits<float>::max();
+      if (result != result) return lo;  // NaN
+      const double clamped = result < (double)lo ? (double)lo : (result > (double)hi ? (double)hi : result);
+      return static_cast<T>(clamped);
     }
     return saturate_cast<T>(result);
   }
@@ -373,15 +419,17 @@ template <typename T> struct LnOp {
       }
       return std::log(a);
     } else {
-      // For integer types
-      if (a <= T(0)) {
-        return T(0);
+      // For integer types: log(0) saturates to the minimum for signed types;
+      // negative inputs saturate only at sf == 0 and otherwise map to 0.
+      if (a == T(0)) {
+        if constexpr (std::is_signed_v<T>) return int_min_value<T>();
+        else return T(0);
       }
-      double result = std::log(static_cast<double>(a));
-      if (scaleFactor > 0) {
-        result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      if (a < T(0)) {
+        if constexpr (std::is_signed_v<T>) return scaleFactor == 0 ? int_min_value<T>() : T(0);
+        else return T(0);
       }
-      return saturate_cast<T>(result);
+      return scale_sfs<T>(std::log(static_cast<double>(a)), scaleFactor);
     }
   }
 };
@@ -517,18 +565,13 @@ public:
     if constexpr (is_complex_v<T>) {
       double re = static_cast<double>(a.re) + static_cast<double>(constant.re);
       double im = static_cast<double>(a.im) + static_cast<double>(constant.im);
-      if (scaleFactor > 0) {
-        double scale = 1.0 / (1 << scaleFactor);
-        re = (re + (1 << (scaleFactor - 1))) * scale;
-        im = (im + (1 << (scaleFactor - 1))) * scale;
-      }
-      return saturate_cast_complex<T>(re, im);
+      return scale_sfs_complex<T>(re, im, scaleFactor);
     } else {
       double result = static_cast<double>(a) + static_cast<double>(constant);
-      if (scaleFactor > 0 && std::is_integral_v<T>) {
-        result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      if constexpr (std::is_integral_v<T>) {
+        return scale_sfs<T>(result, scaleFactor);
       }
-      return saturate_cast<T>(result);
+      return static_cast<T>(result);
     }
   }
 };
@@ -544,18 +587,13 @@ public:
     if constexpr (is_complex_v<T>) {
       double re = static_cast<double>(a.re) - static_cast<double>(constant.re);
       double im = static_cast<double>(a.im) - static_cast<double>(constant.im);
-      if (scaleFactor > 0) {
-        double scale = 1.0 / (1 << scaleFactor);
-        re = (re + (1 << (scaleFactor - 1))) * scale;
-        im = (im + (1 << (scaleFactor - 1))) * scale;
-      }
-      return saturate_cast_complex<T>(re, im);
+      return scale_sfs_complex<T>(re, im, scaleFactor);
     } else {
       double result = static_cast<double>(a) - static_cast<double>(constant);
-      if (scaleFactor > 0 && std::is_integral_v<T>) {
-        result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      if constexpr (std::is_integral_v<T>) {
+        return scale_sfs<T>(result, scaleFactor);
       }
-      return saturate_cast<T>(result);
+      return static_cast<T>(result);
     }
   }
 };
@@ -575,18 +613,13 @@ public:
                   static_cast<double>(a.im) * static_cast<double>(constant.im);
       double im = static_cast<double>(a.re) * static_cast<double>(constant.im) +
                   static_cast<double>(a.im) * static_cast<double>(constant.re);
-      if (scaleFactor > 0) {
-        double scale = 1.0 / (1 << scaleFactor);
-        re = (re + (1 << (scaleFactor - 1))) * scale;
-        im = (im + (1 << (scaleFactor - 1))) * scale;
-      }
-      return saturate_cast_complex<T>(re, im);
+      return scale_sfs_complex<T>(re, im, scaleFactor);
     } else {
       double result = static_cast<double>(a) * static_cast<double>(constant);
-      if (scaleFactor > 0 && std::is_integral_v<T>) {
-        result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      if constexpr (std::is_integral_v<T>) {
+        return scale_sfs<T>(result, scaleFactor);
       }
-      return saturate_cast<T>(result);
+      return static_cast<T>(result);
     }
   }
 };
@@ -645,11 +678,10 @@ public:
 
   __device__ __host__ T operator()(T a, T = T(0), int scaleFactor = 0) const {
     double result = std::abs(static_cast<double>(a) - static_cast<double>(constant));
-    if (scaleFactor > 0 && std::is_integral_v<T>) {
-      // Use floor after adding 0.5 for rounding (round-half-up), then saturate
-      result = floor((result + (1 << (scaleFactor - 1))) / (1 << scaleFactor));
+    if constexpr (std::is_integral_v<T>) {
+      return scale_sfs<T>(result, scaleFactor);
     }
-    return saturate_cast<T>(result);
+    return static_cast<T>(result);
   }
 };
 
@@ -703,10 +735,10 @@ template <typename T> struct AddProductOp {
     // Result = a + (b * c)
     double product = static_cast<double>(b) * static_cast<double>(c);
     double result = static_cast<double>(a) + product;
-    if (scaleFactor > 0 && std::is_integral_v<T>) {
-      result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+    if constexpr (std::is_integral_v<T>) {
+      return scale_sfs<T>(result, scaleFactor);
     }
-    return saturate_cast<T>(result);
+    return static_cast<T>(result);
   }
 };
 
@@ -715,10 +747,10 @@ template <typename T> struct AddSquareOp {
     // Result = a + (b * b)
     double square = static_cast<double>(b) * static_cast<double>(b);
     double result = static_cast<double>(a) + square;
-    if (scaleFactor > 0 && std::is_integral_v<T>) {
-      result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+    if constexpr (std::is_integral_v<T>) {
+      return scale_sfs<T>(result, scaleFactor);
     }
-    return saturate_cast<T>(result);
+    return static_cast<T>(result);
   }
 };
 
@@ -733,10 +765,10 @@ public:
     // Result = alpha1 * a + alpha2 * b
     double result =
         static_cast<double>(alpha1) * static_cast<double>(a) + static_cast<double>(alpha2) * static_cast<double>(b);
-    if (scaleFactor > 0 && std::is_integral_v<T>) {
-      result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+    if constexpr (std::is_integral_v<T>) {
+      return scale_sfs<T>(result, scaleFactor);
     }
-    return saturate_cast<T>(result);
+    return static_cast<T>(result);
   }
 };
 
@@ -925,42 +957,43 @@ public:
       double cim = static_cast<double>(constant.im);
       double denom = cre * cre + cim * cim;
       if (denom == 0.0) {
-        T result;
-        result.re = 0;
-        result.im = 0;
-        return result;
+        // The 5090's floating complex kernels follow IEEE here (0/0 -> NaN);
+        // integer complex types keep the neutral value.
+        if constexpr (std::is_floating_point_v<complex_component_t<T>>) {
+          using R = complex_component_t<T>;
+          T result;
+          result.re = std::numeric_limits<R>::quiet_NaN();
+          result.im = std::numeric_limits<R>::quiet_NaN();
+          return result;
+        } else {
+          return T{};
+        }
       }
       double are = static_cast<double>(a.re);
       double aim = static_cast<double>(a.im);
       double re = (are * cre + aim * cim) / denom;
       double im = (aim * cre - are * cim) / denom;
-      if (scaleFactor > 0) {
-        double scale = 1.0 / (1 << scaleFactor);
-        re = (re + (1 << (scaleFactor - 1))) * scale;
-        im = (im + (1 << (scaleFactor - 1))) * scale;
-      }
-      return saturate_cast_complex<T>(re, im);
+      return scale_sfs_complex<T>(re, im, scaleFactor);
     } else {
       if (constant == T(0)) {
-        // Division by zero: return maximum value for the type
+        // 0/0 -> 0; non-zero numerators saturate by sign (signed) or to max.
         if constexpr (std::is_integral_v<T>) {
-          if constexpr (std::is_signed_v<T>) {
-            return (a >= T(0)) ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min();
-          } else {
-            return std::numeric_limits<T>::max();
-          }
+          if (a == T(0)) return T(0);
+          if constexpr (std::is_signed_v<T>) return a < T(0) ? int_min_value<T>() : int_max_value<T>();
+          else return int_max_value<T>();
         } else {
           return (a >= T(0)) ? std::numeric_limits<T>::infinity() : -std::numeric_limits<T>::infinity();
         }
       }
 
-      double result = static_cast<double>(a) / static_cast<double>(constant);
-
-      if (scaleFactor > 0 && std::is_integral_v<T>) {
-        // For division, NPP uses right shift (truncation), not rounding division
-        result = result / (1 << scaleFactor);
+      if constexpr (std::is_same_v<T, Npp32s>) {
+        if (scaleFactor == 0) {
+          if (a == T(-2147483647 - 1) && constant == T(-1)) return T(2147483647);
+          return static_cast<T>(a / constant);
+        }
       }
-
+      double result = static_cast<double>(a) / static_cast<double>(constant);
+      if (scaleFactor > 0 && std::is_integral_v<T>) result = result / (1 << scaleFactor);
       return saturate_cast<T>(result);
     }
   }

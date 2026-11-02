@@ -95,7 +95,7 @@ TEST_F(NppiAbsDiffDeviceCTest, AbsDiffDeviceC_8u_C1RSfs_WithScaling) {
   std::vector<Npp8u> hostSrc = {100, 150, 200, 50, 75, 125};
   Npp8u hostConstant = 100;
   int scaleFactor = 1;                                   // Divide by 2 after absolute difference
-  std::vector<Npp8u> expected = {0, 25, 50, 25, 13, 13}; // |src - 100| / 2 (rounded)
+  std::vector<Npp8u> expected = {0, 25, 50, 25, 12, 12}; // |src - 100| / 2 (round half to even)
 
   // Allocate GPU memory
   int step;
