@@ -1,6 +1,4 @@
 module,group,total,real,stub,missing,missing_ctx,missing_nonctx,tested,remaining
-nppi_filtering_functions.h,nppiContoursImageMarchingSquaresInterpolation,2,0,0,2,2,0,0,2
-nppi_filtering_functions.h,nppiCompressedMarkerLabelsUFContoursOutputGeometryLists_C1R,1,0,0,1,0,1,0,1
 nppi_arithmetic_and_logical_operations.h,nppiAbs,44,44,0,0,0,0,44,0
 nppi_arithmetic_and_logical_operations.h,nppiAbsDiff,12,12,0,0,0,0,12,0
 nppi_arithmetic_and_logical_operations.h,nppiAbsDiffC,6,6,0,0,0,0,6,0
@@ -207,10 +205,12 @@ nppi_filtering_functions.h,nppiCompressMarkerLabels,1,1,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiCompressMarkerLabelsUF,2,2,0,0,0,0,2,0
 nppi_filtering_functions.h,nppiCompressMarkerLabelsUFBatch,4,4,0,0,0,0,3,0
 nppi_filtering_functions.h,nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R,1,1,0,0,0,0,1,0
+nppi_filtering_functions.h,nppiCompressedMarkerLabelsUFContoursOutputGeometryLists_C1R,1,1,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiCompressedMarkerLabelsUFGetContoursBlockSegmentListSize_C1R,1,1,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiCompressedMarkerLabelsUFGetGeometryListsSize_C1R,1,1,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiCompressedMarkerLabelsUFGetInfoListSize,1,1,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiCompressedMarkerLabelsUFInfo,1,1,0,0,0,0,1,0
+nppi_filtering_functions.h,nppiContoursImageMarchingSquaresInterpolation,2,2,0,0,0,0,2,0
 nppi_filtering_functions.h,nppiDistanceTransformAbsPBA,14,14,0,0,0,0,11,0
 nppi_filtering_functions.h,nppiDistanceTransformPBA,15,15,0,0,0,0,14,0
 nppi_filtering_functions.h,nppiDistanceTransformPBAGetAntialiasingBufferSize,1,1,0,0,0,0,1,0
