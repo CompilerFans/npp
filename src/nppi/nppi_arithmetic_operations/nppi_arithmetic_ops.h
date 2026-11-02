@@ -84,6 +84,25 @@ template <typename T> __device__ __host__ inline T saturate_cast_complex(double 
   return result;
 }
 
+// NPP 13.4 scale-factor semantics (calibrated against the 5090 reference):
+// the exact result is divided by 2^sf and then rounded half-to-even by the
+// saturating cast.  There is no pre-added half, so half-way values keep the
+// even neighbour: (0+1)/2 -> 0, (189+205)/2 -> 197, (-3+0)/2 -> -2.
+template <typename T> __device__ __host__ inline T scale_sfs(double value, int scaleFactor) {
+  if (scaleFactor > 0) value /= static_cast<double>(1ll << scaleFactor);
+  return saturate_cast<T>(value);
+}
+
+template <typename T>
+__device__ __host__ inline T scale_sfs_complex(double re, double im, int scaleFactor) {
+  if (scaleFactor > 0) {
+    const double divisor = static_cast<double>(1ll << scaleFactor);
+    re /= divisor;
+    im /= divisor;
+  }
+  return saturate_cast_complex<T>(re, im);
+}
+
 // ============================================================================
 // Binary Operation Functors
 // ============================================================================
@@ -98,18 +117,13 @@ template <typename T> struct AddOp {
       // Complex addition: (a.re + a.im*i) + (b.re + b.im*i)
       double re = static_cast<double>(a.re) + static_cast<double>(b.re);
       double im = static_cast<double>(a.im) + static_cast<double>(b.im);
-      if (scaleFactor > 0) {
-        double scale = 1.0 / (1 << scaleFactor);
-        re = (re + (1 << (scaleFactor - 1))) * scale;
-        im = (im + (1 << (scaleFactor - 1))) * scale;
-      }
-      return saturate_cast_complex<T>(re, im);
+      return scale_sfs_complex<T>(re, im, scaleFactor);
     } else {
       double result = static_cast<double>(a) + static_cast<double>(b);
-      if (scaleFactor > 0 && std::is_integral_v<T>) {
-        result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      if constexpr (std::is_integral_v<T>) {
+        return scale_sfs<T>(result, scaleFactor);
       }
-      return saturate_cast<T>(result);
+      return static_cast<T>(result);
     }
   }
 };
@@ -125,18 +139,13 @@ template <typename T> struct SubOp {
       // Complex subtraction: (b.re + b.im*i) - (a.re + a.im*i)
       double re = static_cast<double>(b.re) - static_cast<double>(a.re);
       double im = static_cast<double>(b.im) - static_cast<double>(a.im);
-      if (scaleFactor > 0) {
-        double scale = 1.0 / (1 << scaleFactor);
-        re = (re + (1 << (scaleFactor - 1))) * scale;
-        im = (im + (1 << (scaleFactor - 1))) * scale;
-      }
-      return saturate_cast_complex<T>(re, im);
+      return scale_sfs_complex<T>(re, im, scaleFactor);
     } else {
       double result = static_cast<double>(b) - static_cast<double>(a);
-      if (scaleFactor > 0 && std::is_integral_v<T>) {
-        result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      if constexpr (std::is_integral_v<T>) {
+        return scale_sfs<T>(result, scaleFactor);
       }
-      return saturate_cast<T>(result);
+      return static_cast<T>(result);
     }
   }
 };
@@ -154,18 +163,13 @@ template <typename T> struct MulOp {
           static_cast<double>(a.re) * static_cast<double>(b.re) - static_cast<double>(a.im) * static_cast<double>(b.im);
       double im =
           static_cast<double>(a.re) * static_cast<double>(b.im) + static_cast<double>(a.im) * static_cast<double>(b.re);
-      if (scaleFactor > 0) {
-        double scale = 1.0 / (1 << scaleFactor);
-        re = (re + (1 << (scaleFactor - 1))) * scale;
-        im = (im + (1 << (scaleFactor - 1))) * scale;
-      }
-      return saturate_cast_complex<T>(re, im);
+      return scale_sfs_complex<T>(re, im, scaleFactor);
     } else {
       double result = static_cast<double>(a) * static_cast<double>(b);
-      if (scaleFactor > 0 && std::is_integral_v<T>) {
-        result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      if constexpr (std::is_integral_v<T>) {
+        return scale_sfs<T>(result, scaleFactor);
       }
-      return saturate_cast<T>(result);
+      return static_cast<T>(result);
     }
   }
 };
@@ -194,29 +198,25 @@ template <typename T> struct DivOp {
       double im = (static_cast<double>(b.im) * static_cast<double>(a.re) -
                    static_cast<double>(b.re) * static_cast<double>(a.im)) /
                   denom;
-      if (scaleFactor > 0) {
-        double scale = 1.0 / (1 << scaleFactor);
-        re = (re + (1 << (scaleFactor - 1))) * scale;
-        im = (im + (1 << (scaleFactor - 1))) * scale;
-      }
-      return saturate_cast_complex<T>(re, im);
-    } else {
+      return scale_sfs_complex<T>(re, im, scaleFactor);
+    } else if constexpr (std::is_integral_v<T>) {
       if (a == T(0)) {
-        // Division by zero - saturate to maximum value for integers
-        if constexpr (std::is_same_v<T, Npp8u>)
-          return T(255);
-        else if constexpr (std::is_same_v<T, Npp16u>)
-          return T(65535);
-        else if constexpr (std::is_same_v<T, Npp16s>)
-          return T(32767);
-        else
-          return T(0);
+        // NPP integer division by zero saturates; the sign follows pSrc2 for
+        // signed types (0 / -5 -> type minimum), otherwise the maximum.
+        if constexpr (std::is_signed_v<T>) {
+          using U = std::make_unsigned_t<T>;
+          const T maxv = static_cast<T>((static_cast<U>(1) << (sizeof(T) * 8 - 1)) - 1);
+          const T minv = static_cast<T>(static_cast<U>(1) << (sizeof(T) * 8 - 1));
+          return b < T(0) ? minv : maxv;
+        } else {
+          return static_cast<T>(~static_cast<T>(0));
+        }
       }
-      double result = static_cast<double>(b) / static_cast<double>(a);
-      if (scaleFactor > 0 && std::is_integral_v<T>) {
-        result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
-      }
-      return saturate_cast<T>(result);
+      return scale_sfs<T>(static_cast<double>(b) / static_cast<double>(a), scaleFactor);
+    } else {
+      // Floating point follows IEEE-754 (0/-0 -> NaN, 1/0 -> inf); NPP does
+      // not clamp zero divisors for float types.
+      return b / a;
     }
   }
 };
