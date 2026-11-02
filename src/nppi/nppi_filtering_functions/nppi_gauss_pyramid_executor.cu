@@ -152,6 +152,40 @@ __global__ void pyramidDownKernel(const Src *pSrc, int nSrcStep, int srcW, int s
   }
 }
 
+// Best-effort upsampling model.  The reference's tap phase is driven by host
+// uniforms and its exact Gaussian spreading was not decoded; the measured
+// geometry is nearest-neighbour mapping `src = floor(dst / rate)` (exact for
+// delta kernels), so this kernel applies the user taps in destination space
+// over that nearest-neighbour upsampled image.  A unit-sum kernel therefore
+// preserves constant images and delta kernels reproduce the reference mapping.
+template <typename Src, typename Dst, int CH>
+__global__ void pyramidUpKernel(const Src *pSrc, int nSrcStep, int srcW, int srcH, int offX,
+                                int offY, Dst *pDst, int nDstStep, int dstW, int dstH,
+                                const float *pK, int taps, float rate, int border) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= dstW || y >= dstH) return;
+  const bool mirror = border == (int)NPP_BORDER_MIRROR;
+  const int loX = -offX, hiX = srcW - 1 - offX;
+  const int loY = -offY, hiY = srcH - 1 - offY;
+  const int center = (taps - 1) / 2;
+  const float invRate = 1.0f / rate;
+  for (int ch = 0; ch < CH; ++ch) {
+    float acc = 0.0f;
+    for (int s = 0; s < taps; ++s) {
+      const int sy = (int)floorf((float)(y + s - center) * invRate);
+      float hsum = 0.0f;
+      for (int t = 0; t < taps; ++t) {
+        const int sx = (int)floorf((float)(x + t - center) * invRate);
+        hsum += pK[t] * fetch<Src, CH>(pSrc, nSrcStep, sx, sy, ch, loX, hiX, loY, hiY, mirror);
+      }
+      acc += pK[s] * hsum;
+    }
+    Dst *row = reinterpret_cast<Dst *>(reinterpret_cast<char *>(pDst) + (long long)y * nDstStep);
+    row[(long long)x * CH + ch] = emit<Dst>(acc);
+  }
+}
+
 }  // namespace
 
 template <typename Src, typename Dst, int CH, PyramidDir Dir>
@@ -182,28 +216,37 @@ NppStatus gaussPyramidBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, N
   if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_STEP_ERROR;
   if ((nDstStep % (int)sizeof(Dst)) != 0) return NPP_NOT_EVEN_STEP_ERROR;
 
-  static_assert(Dir == kPyramidDown, "only the down model is implemented for now");
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + kBlockX - 1) / kBlockX,
             (oSizeROI.height + kBlockY - 1) / kBlockY);
   return with_staged_kernel(pKernel, nFilterTaps, stream, [&](const Npp32f *pk) {
-    pyramidDownKernel<Src, Dst, CH><<<grid, block, 0, stream>>>(
-        pSrc, nSrcStep, oSrcSize.width, oSrcSize.height, oSrcOffset.x, oSrcOffset.y, pDst, nDstStep,
-        oSizeROI.width, oSizeROI.height, pk, nFilterTaps, nRate, (int)eBorderType);
+    if (Dir == kPyramidDown) {
+      pyramidDownKernel<Src, Dst, CH><<<grid, block, 0, stream>>>(
+          pSrc, nSrcStep, oSrcSize.width, oSrcSize.height, oSrcOffset.x, oSrcOffset.y, pDst, nDstStep,
+          oSizeROI.width, oSizeROI.height, pk, nFilterTaps, nRate, (int)eBorderType);
+    } else {
+      pyramidUpKernel<Src, Dst, CH><<<grid, block, 0, stream>>>(
+          pSrc, nSrcStep, oSrcSize.width, oSrcSize.height, oSrcOffset.x, oSrcOffset.y, pDst, nDstStep,
+          oSizeROI.width, oSizeROI.height, pk, nFilterTaps, nRate, (int)eBorderType);
+    }
   });
 }
 
-#define NPPI_PYRAMID_INSTANTIATE(SRC, DST, CH)                                    \
-  template NppStatus gaussPyramidBorder<SRC, DST, CH, kPyramidDown>(              \
+#define NPPI_PYRAMID_INSTANTIATE(SRC, DST, CH, DIR)                               \
+  template NppStatus gaussPyramidBorder<SRC, DST, CH, DIR>(                       \
       const SRC *, int, NppiSize, NppiPoint, DST *, int, NppiSize, Npp32f, int,   \
       const Npp32f *, NppiBorderType, cudaStream_t);
 
-NPPI_PYRAMID_INSTANTIATE(Npp8u, Npp8u, 1)
-NPPI_PYRAMID_INSTANTIATE(Npp8u, Npp8u, 3)
-NPPI_PYRAMID_INSTANTIATE(Npp16u, Npp16u, 1)
-NPPI_PYRAMID_INSTANTIATE(Npp16u, Npp16u, 3)
-NPPI_PYRAMID_INSTANTIATE(Npp32f, Npp32f, 1)
-NPPI_PYRAMID_INSTANTIATE(Npp32f, Npp32f, 3)
+#define NPPI_PYRAMID_INSTANTIATE_BOTH(SRC, DST, CH)         \
+  NPPI_PYRAMID_INSTANTIATE(SRC, DST, CH, kPyramidDown)      \
+  NPPI_PYRAMID_INSTANTIATE(SRC, DST, CH, kPyramidUp)
+
+NPPI_PYRAMID_INSTANTIATE_BOTH(Npp8u, Npp8u, 1)
+NPPI_PYRAMID_INSTANTIATE_BOTH(Npp8u, Npp8u, 3)
+NPPI_PYRAMID_INSTANTIATE_BOTH(Npp16u, Npp16u, 1)
+NPPI_PYRAMID_INSTANTIATE_BOTH(Npp16u, Npp16u, 3)
+NPPI_PYRAMID_INSTANTIATE_BOTH(Npp32f, Npp32f, 1)
+NPPI_PYRAMID_INSTANTIATE_BOTH(Npp32f, Npp32f, 3)
 
 }  // namespace filter
 }  // namespace nppi

@@ -1,5 +1,4 @@
 module,group,total,real,stub,missing,missing_ctx,missing_nonctx,tested,remaining
-nppi_filtering_functions.h,nppiFilterGaussPyramidLayerUpBorder,12,0,0,12,6,6,6,12
 nppi_filtering_functions.h,nppiContoursImageMarchingSquaresInterpolation,2,0,0,2,2,0,0,2
 nppi_filtering_functions.h,nppiSegmentWatershed,6,4,0,2,1,1,5,2
 nppi_filtering_functions.h,nppiCompressedMarkerLabelsUFContoursOutputGeometryLists_C1R,1,0,0,1,0,1,0,1
@@ -236,6 +235,7 @@ nppi_filtering_functions.h,nppiFilterGaussAdvanced,32,32,0,0,0,0,16,0
 nppi_filtering_functions.h,nppiFilterGaussAdvancedBorder,32,32,0,0,0,0,16,0
 nppi_filtering_functions.h,nppiFilterGaussBorder,32,32,0,0,0,0,16,0
 nppi_filtering_functions.h,nppiFilterGaussPyramidLayerDownBorder,12,12,0,0,0,0,6,0
+nppi_filtering_functions.h,nppiFilterGaussPyramidLayerUpBorder,12,12,0,0,0,0,6,0
 nppi_filtering_functions.h,nppiFilterHarrisCornersBorder,3,3,0,0,0,0,2,0
 nppi_filtering_functions.h,nppiFilterHighPass,32,32,0,0,0,0,16,0
 nppi_filtering_functions.h,nppiFilterHighPassBorder,32,32,0,0,0,0,16,0
