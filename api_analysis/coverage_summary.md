@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 12468 (99.4%)
+- Real implementations: 12493 (99.6%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 0
-- Missing: 69
+- Missing: 44
 - Tested: 8303 (66.2%)
-- Real and tested: 8259
+- Real and tested: 8280
 
 ## By module
 
@@ -14,7 +14,7 @@
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
 | nppi_color_conversion.h | 1074 | 1074 | 0 | 0 | 717 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
-| nppi_filtering_functions.h | 1896 | 1830 | 0 | 66 | 1014 |
+| nppi_filtering_functions.h | 1896 | 1855 | 0 | 41 | 1014 |
 | nppi_geometry_transforms.h | 705 | 705 | 0 | 0 | 458 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 292 | 0 | 0 | 163 |
@@ -33,8 +33,6 @@
 | module | group | remaining | ctx |
 |---|---|---:|---:|
 | nppi_filtering_functions.h | nppiHistogramOfGradientsBorder | 16 | 8 |
-| nppi_filtering_functions.h | nppiDistanceTransformAbsPBA | 13 | 13 |
-| nppi_filtering_functions.h | nppiDistanceTransformPBA | 12 | 12 |
 | nppi_filtering_functions.h | nppiFilterGaussPyramidLayerUpBorder | 12 | 6 |
 | nppi_filtering_functions.h | nppiSignedDistanceTransformAbsPBA | 3 | 3 |
 | nppi_filtering_functions.h | nppiContoursImageMarchingSquaresInterpolation | 2 | 2 |

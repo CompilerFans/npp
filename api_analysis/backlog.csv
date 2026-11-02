@@ -1,7 +1,5 @@
 module,group,total,real,stub,missing,missing_ctx,missing_nonctx,tested,remaining
 nppi_filtering_functions.h,nppiHistogramOfGradientsBorder,17,1,0,16,8,8,9,16
-nppi_filtering_functions.h,nppiDistanceTransformAbsPBA,14,1,0,13,13,0,11,13
-nppi_filtering_functions.h,nppiDistanceTransformPBA,15,3,0,12,12,0,14,12
 nppi_filtering_functions.h,nppiFilterGaussPyramidLayerUpBorder,12,0,0,12,6,6,6,12
 nppi_filtering_functions.h,nppiSignedDistanceTransformAbsPBA,3,0,0,3,3,0,3,3
 nppi_filtering_functions.h,nppiContoursImageMarchingSquaresInterpolation,2,0,0,2,2,0,0,2
@@ -222,6 +220,8 @@ nppi_filtering_functions.h,nppiCompressedMarkerLabelsUFGetContoursBlockSegmentLi
 nppi_filtering_functions.h,nppiCompressedMarkerLabelsUFGetGeometryListsSize_C1R,1,1,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiCompressedMarkerLabelsUFGetInfoListSize,1,1,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiCompressedMarkerLabelsUFInfo,1,1,0,0,0,0,1,0
+nppi_filtering_functions.h,nppiDistanceTransformAbsPBA,14,14,0,0,0,0,11,0
+nppi_filtering_functions.h,nppiDistanceTransformPBA,15,15,0,0,0,0,14,0
 nppi_filtering_functions.h,nppiDistanceTransformPBAGetAntialiasingBufferSize,1,1,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiFilter,36,36,0,0,0,0,18,0
 nppi_filtering_functions.h,nppiFilter32f,66,66,0,0,0,0,33,0
