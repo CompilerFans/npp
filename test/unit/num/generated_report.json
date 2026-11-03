@@ -1,231 +1,56 @@
 {
  "nppi_arithmetic_and_logical_operations.h": {
-  "emitted": 1117,
+  "emitted": 1152,
   "skipped": [
    {
     "function": "nppiAlphaCompC_16s_C1R_Ctx",
     "family": "nppiAlphaCompC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaCompC_16u_AC4R_Ctx",
-    "family": "nppiAlphaCompC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaCompC_16u_C1R_Ctx",
-    "family": "nppiAlphaCompC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaCompC_16u_C3R_Ctx",
-    "family": "nppiAlphaCompC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaCompC_16u_C4R_Ctx",
-    "family": "nppiAlphaCompC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaCompC_32f_C1R_Ctx",
-    "family": "nppiAlphaCompC",
-    "reason": "no family spec"
+    "reason": "unsupported signature/type"
    },
    {
     "function": "nppiAlphaCompC_32s_C1R_Ctx",
     "family": "nppiAlphaCompC",
-    "reason": "no family spec"
+    "reason": "unsupported signature/type"
    },
    {
     "function": "nppiAlphaCompC_32u_C1R_Ctx",
     "family": "nppiAlphaCompC",
-    "reason": "no family spec"
+    "reason": "unsupported signature/type"
    },
    {
     "function": "nppiAlphaCompC_8s_C1R_Ctx",
     "family": "nppiAlphaCompC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaCompC_8u_AC4R_Ctx",
-    "family": "nppiAlphaCompC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaCompC_8u_C1R_Ctx",
-    "family": "nppiAlphaCompC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaCompC_8u_C3R_Ctx",
-    "family": "nppiAlphaCompC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaCompC_8u_C4R_Ctx",
-    "family": "nppiAlphaCompC",
-    "reason": "no family spec"
+    "reason": "unsupported signature/type"
    },
    {
     "function": "nppiAlphaComp_16s_AC1R_Ctx",
     "family": "nppiAlphaComp",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaComp_16u_AC1R_Ctx",
-    "family": "nppiAlphaComp",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaComp_16u_AC4R_Ctx",
-    "family": "nppiAlphaComp",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaComp_32f_AC1R_Ctx",
-    "family": "nppiAlphaComp",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaComp_32f_AC4R_Ctx",
-    "family": "nppiAlphaComp",
-    "reason": "no family spec"
+    "reason": "unsupported signature/type"
    },
    {
     "function": "nppiAlphaComp_32s_AC1R_Ctx",
     "family": "nppiAlphaComp",
-    "reason": "no family spec"
+    "reason": "unsupported signature/type"
    },
    {
     "function": "nppiAlphaComp_32s_AC4R_Ctx",
     "family": "nppiAlphaComp",
-    "reason": "no family spec"
+    "reason": "unsupported signature/type"
    },
    {
     "function": "nppiAlphaComp_32u_AC1R_Ctx",
     "family": "nppiAlphaComp",
-    "reason": "no family spec"
+    "reason": "unsupported signature/type"
    },
    {
     "function": "nppiAlphaComp_32u_AC4R_Ctx",
     "family": "nppiAlphaComp",
-    "reason": "no family spec"
+    "reason": "unsupported signature/type"
    },
    {
     "function": "nppiAlphaComp_8s_AC1R_Ctx",
     "family": "nppiAlphaComp",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaComp_8u_AC1R_Ctx",
-    "family": "nppiAlphaComp",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaComp_8u_AC4R_Ctx",
-    "family": "nppiAlphaComp",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremulC_16u_AC4IR_Ctx",
-    "family": "nppiAlphaPremulC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremulC_16u_AC4R_Ctx",
-    "family": "nppiAlphaPremulC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremulC_16u_C1IR_Ctx",
-    "family": "nppiAlphaPremulC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremulC_16u_C1R_Ctx",
-    "family": "nppiAlphaPremulC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremulC_16u_C3IR_Ctx",
-    "family": "nppiAlphaPremulC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremulC_16u_C3R_Ctx",
-    "family": "nppiAlphaPremulC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremulC_16u_C4IR_Ctx",
-    "family": "nppiAlphaPremulC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremulC_16u_C4R_Ctx",
-    "family": "nppiAlphaPremulC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremulC_8u_AC4IR_Ctx",
-    "family": "nppiAlphaPremulC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremulC_8u_AC4R_Ctx",
-    "family": "nppiAlphaPremulC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremulC_8u_C1IR_Ctx",
-    "family": "nppiAlphaPremulC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremulC_8u_C1R_Ctx",
-    "family": "nppiAlphaPremulC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremulC_8u_C3IR_Ctx",
-    "family": "nppiAlphaPremulC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremulC_8u_C3R_Ctx",
-    "family": "nppiAlphaPremulC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremulC_8u_C4IR_Ctx",
-    "family": "nppiAlphaPremulC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremulC_8u_C4R_Ctx",
-    "family": "nppiAlphaPremulC",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremul_16u_AC4IR_Ctx",
-    "family": "nppiAlphaPremul",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremul_16u_AC4R_Ctx",
-    "family": "nppiAlphaPremul",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremul_8u_AC4IR_Ctx",
-    "family": "nppiAlphaPremul",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiAlphaPremul_8u_AC4R_Ctx",
-    "family": "nppiAlphaPremul",
-    "reason": "no family spec"
+    "reason": "unsupported signature/type"
    }
   ]
  },

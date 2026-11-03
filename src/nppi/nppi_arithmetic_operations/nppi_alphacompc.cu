@@ -17,104 +17,31 @@ public:
   __device__ __host__ AlphaCompOpExecutor(T a1, T a2, NppiAlphaOp op) : alpha1(a1), alpha2(a2), alphaOp(op) {}
 
   __device__ __host__ T operator()(T src1, T src2, int = 0) const {
-    double result = 0.0;
-    double s1 = static_cast<double>(src1);
-    double s2 = static_cast<double>(src2);
-    double a1, a2;
-
-    // Normalize alpha values based on data type
-    if constexpr (std::is_same_v<T, Npp8u>) {
-      a1 = static_cast<double>(alpha1) / 255.0;
-      a2 = static_cast<double>(alpha2) / 255.0;
-      s1 = s1 / 255.0;
-      s2 = s2 / 255.0;
-    } else if constexpr (std::is_same_v<T, Npp16u>) {
-      a1 = static_cast<double>(alpha1) / 65535.0;
-      a2 = static_cast<double>(alpha2) / 65535.0;
-      s1 = s1 / 65535.0;
-      s2 = s2 / 65535.0;
-    } else if constexpr (std::is_same_v<T, Npp32f>) {
-      a1 = static_cast<double>(alpha1);
-      a2 = static_cast<double>(alpha2);
-      // For float, assume values are already normalized [0,1]
-    } else {
-      // For signed types, handle carefully
-      a1 = static_cast<double>(alpha1);
-      a2 = static_cast<double>(alpha2);
-    }
-
-    switch (alphaOp) {
-    case NPPI_OP_ALPHA_OVER:
-      // Standard alpha blending: result = s1*a1 + s2*a2*(1-a1)
-      result = s1 * a1 + s2 * a2 * (1.0 - a1);
-      break;
-    case NPPI_OP_ALPHA_IN:
-      // Source inside destination: Based on NVIDIA behavior, appears to be s1 * (a1 * 3/4)
-      if constexpr (std::is_same_v<T, Npp8u>) {
-        // For 8u: Use integer arithmetic to match NVIDIA exactly
-        double modified_alpha = static_cast<double>(alpha1) * 3.0 / 4.0 / 255.0;
-        result = s1 * modified_alpha;
-      } else {
-        result = s1 * a1;
-      }
-      break;
-    case NPPI_OP_ALPHA_OUT:
-      // Source outside destination: result = s1 * (1 - a2)
-      result = s1 * (1.0 - a2);
-      break;
-    case NPPI_OP_ALPHA_ATOP:
-      // Source atop destination: result = s1*a2 + s2*(1-a1)
-      result = s1 * a2 + s2 * (1.0 - a1);
-      break;
-    case NPPI_OP_ALPHA_XOR:
-      // Source XOR destination: result = s1*(1-a2) + s2*(1-a1)
-      result = s1 * (1.0 - a2) + s2 * (1.0 - a1);
-      break;
-    case NPPI_OP_ALPHA_PLUS:
-      // Source plus destination: result = s1*a1 + s2*a2
-      result = s1 * a1 + s2 * a2;
-      break;
-    // Premultiplied alpha operations
-    case NPPI_OP_ALPHA_OVER_PREMUL:
-      // Premultiplied over: result = s1 + s2*(1-a1)
-      result = s1 + s2 * (1.0 - a1);
-      break;
-    case NPPI_OP_ALPHA_IN_PREMUL:
-      // Premultiplied in: result = s1 * a2
-      result = s1 * a2;
-      break;
-    case NPPI_OP_ALPHA_OUT_PREMUL:
-      // Premultiplied out: result = s1 * (1 - a2)
-      result = s1 * (1.0 - a2);
-      break;
-    case NPPI_OP_ALPHA_ATOP_PREMUL:
-      // Premultiplied atop: result = s1*a2 + s2*(1-a1)
-      result = s1 * a2 + s2 * (1.0 - a1);
-      break;
-    case NPPI_OP_ALPHA_XOR_PREMUL:
-      // Premultiplied XOR: result = s1*(1-a2) + s2*(1-a1)
-      result = s1 * (1.0 - a2) + s2 * (1.0 - a1);
-      break;
-    case NPPI_OP_ALPHA_PLUS_PREMUL:
-      // Premultiplied plus: result = s1 + s2
-      result = s1 + s2;
-      break;
-    default:
-      // Unsupported operation, return src1
-      result = s1;
-      break;
-    }
-
-    // Convert back to original range
-    if constexpr (std::is_same_v<T, Npp8u>) {
-      result = result * 255.0;
-    } else if constexpr (std::is_same_v<T, Npp16u>) {
-      result = result * 65535.0;
-    }
-
-    return saturate_cast<T>(result);
+    return alpha_ref::color<T>(alphaOp, src1, src2, alpha1, alpha2);
   }
 };
+
+// AC4 constant-alpha composition: only channels 0..2 are composed.  NPP
+// leaves the destination alpha untouched for every operator except PREMUL,
+// which writes the first constant alpha.
+template <typename T>
+__global__ void alphaCompConstAC4Kernel(const T *pSrc1, int nSrc1Step, T alpha1, const T *pSrc2, int nSrc2Step,
+                                        T alpha2, T *pDst, int nDstStep, int width, int height,
+                                        NppiAlphaOp alphaOp) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const T *src1Row = (const T *)((const char *)pSrc1 + y * nSrc1Step);
+    const T *src2Row = (const T *)((const char *)pSrc2 + y * nSrc2Step);
+    T *dstRow = (T *)((char *)pDst + y * nDstStep);
+
+    AlphaCompOpExecutor<T> op(alpha1, alpha2, alphaOp);
+    const int idx = x * 4;
+    for (int c = 0; c < 3; ++c) dstRow[idx + c] = op(src1Row[idx + c], src2Row[idx + c]);
+    if (alphaOp == NPPI_OP_ALPHA_PREMUL) dstRow[idx + 3] = alpha1;
+  }
+}
 
 // Custom kernel for AlphaComp operation
 template <typename T, int Channels>
@@ -331,7 +258,7 @@ NppStatus nppiAlphaCompC_8u_AC4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, Npp8u nA
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  alphaCompConstKernel<Npp8u, 4><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+  alphaCompConstAC4Kernel<Npp8u><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI.width, oSizeROI.height, eAlphaOp);
 
   return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
@@ -455,7 +382,7 @@ NppStatus nppiAlphaCompC_16u_AC4R_Ctx(const Npp16u *pSrc1, int nSrc1Step, Npp16u
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  alphaCompConstKernel<Npp16u, 4><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+  alphaCompConstAC4Kernel<Npp16u><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI.width, oSizeROI.height, eAlphaOp);
 
   return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;

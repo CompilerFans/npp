@@ -826,43 +826,267 @@ public:
 // Alpha Composition Operations
 // ============================================================================
 
-template <typename T> struct AlphaCompOp {
-  __device__ __host__ T operator()(T src1, T alpha1, T src2, T alpha2, int = 0) const {
-    // Standard alpha composition: result = src1 * alpha1 + src2 * alpha2 * (1 - alpha1)
-    if constexpr (std::is_same_v<T, Npp8u>) {
-      double a1 = static_cast<double>(alpha1) / 255.0;
-      double a2 = static_cast<double>(alpha2) / 255.0;
-      double result = static_cast<double>(src1) * a1 + static_cast<double>(src2) * a2 * (1.0 - a1);
-      return saturate_cast<T>(result);
-    } else if constexpr (std::is_same_v<T, Npp32f>) {
-      double result = static_cast<double>(src1) * static_cast<double>(alpha1) +
-                      static_cast<double>(src2) * static_cast<double>(alpha2) * (1.0 - static_cast<double>(alpha1));
-      return static_cast<T>(result);
-    }
-    return src1; // Fallback
-  }
+// Fixed-point alpha compositing model measured on the RTX 5090 (NPP 13.4).
+// Integer alphas live on a (max+1) scale: alpha == max means 1.0, the
+// complement of 0 is max+1 and the complement of max is 0.  Every alpha
+// application (source x alpha or alpha x alpha) is
+//     mul(x, e) = (x * e + max/2) >> log2(max+1),
+// which also reproduces NPP's 255/65535 "opaque" fast path through norm().
+namespace alpha_ref {
+
+template <typename T> struct Fp;
+template <> struct Fp<Npp8u> {
+  static constexpr int64_t kMax = 255;
+  static constexpr int kShift = 8;
+  static constexpr int64_t kRound = 127;
+};
+template <> struct Fp<Npp16u> {
+  static constexpr int64_t kMax = 65535;
+  static constexpr int kShift = 16;
+  static constexpr int64_t kRound = 32767;
 };
 
-template <typename T> class AlphaCompConstOp {
-private:
-  T constant_alpha;
+// Alpha application used by the composition operators: a plain
+// (max+1)-scale multiply.  alpha == max arrives as max+1 and is opaque.
+template <typename T> __device__ __host__ inline int64_t mul(int64_t x, int64_t e) {
+  return (x * e + Fp<T>::kRound) >> Fp<T>::kShift;
+}
 
-public:
-  __device__ __host__ AlphaCompConstOp(T alpha) : constant_alpha(alpha) {}
-
-  __device__ __host__ T operator()(T src1, T src2, int = 0) const {
-    if constexpr (std::is_same_v<T, Npp8u>) {
-      double alpha = static_cast<double>(constant_alpha) / 255.0;
-      double result = static_cast<double>(src1) * alpha + static_cast<double>(src2) * (1.0 - alpha);
-      return saturate_cast<T>(result);
-    } else if constexpr (std::is_same_v<T, Npp32f>) {
-      double alpha = static_cast<double>(constant_alpha);
-      double result = static_cast<double>(src1) * alpha + static_cast<double>(src2) * (1.0 - alpha);
-      return static_cast<T>(result);
+// Premultiplication uses a slightly different primitive for 16u: multipliers
+// at or above 0xFF80 round through /65535 instead of the 2^16 shift
+// (measured on the 5090).  The product fits in 32 bits except for the
+// alpha == max operand.
+template <typename T> __device__ __host__ inline int64_t mul_premul(int64_t x, int64_t e) {
+  if constexpr (std::is_same_v<T, Npp16u>) {
+    if (e >= 65408 && e <= 65534) {
+      if (x <= 65535) {
+        const uint32_t p = (uint32_t)x * (uint32_t)e;
+        return (int64_t)((p + 32767u) / 65535u);
+      }
+      return e + 1;
     }
-    return src1; // Fallback
+    if (e == 65536) return x;
   }
-};
+  return (x * e + Fp<T>::kRound) >> Fp<T>::kShift;
+}
+
+// Alpha as a (max+1)-scale multiplier (255/65535 become 1.0).
+template <typename T> __device__ __host__ inline int64_t norm(int64_t a) {
+  return a == Fp<T>::kMax ? Fp<T>::kMax + 1 : a;
+}
+
+// (1 - alpha) on the same scale.
+template <typename T> __device__ __host__ inline int64_t comp(int64_t a) {
+  return a == 0 ? Fp<T>::kMax + 1 : (a == Fp<T>::kMax ? 0 : Fp<T>::kMax + 1 - a);
+}
+
+template <typename T> __device__ __host__ inline T sat(int64_t v) {
+  return v < 0 ? T(0) : (v > Fp<T>::kMax ? T(Fp<T>::kMax) : T(v));
+}
+
+// Legacy double-precision path kept for the signed / 32-bit integer types
+// that have not been re-measured yet.  It reproduces the previous in-tree
+// behaviour for those types.
+template <typename T>
+__device__ __host__ inline T legacy_color(NppiAlphaOp op, T c1, T c2, T a1, T a2) {
+  double s1 = static_cast<double>(c1);
+  double s2 = static_cast<double>(c2);
+  double x1, x2;
+  if constexpr (std::is_same_v<T, Npp32s>) {
+    x1 = static_cast<double>(a1) / 255.0;
+    x2 = static_cast<double>(a2) / 255.0;
+    s1 /= 255.0;
+    s2 /= 255.0;
+  } else {
+    x1 = static_cast<double>(a1);
+    x2 = static_cast<double>(a2);
+  }
+  double r = s1;
+  switch (op) {
+  case NPPI_OP_ALPHA_OVER: r = s1 * x1 + s2 * x2 * (1.0 - x1); break;
+  case NPPI_OP_ALPHA_IN: r = s1 * x1; break;
+  case NPPI_OP_ALPHA_OUT: r = s1 * (1.0 - x2); break;
+  case NPPI_OP_ALPHA_ATOP: r = s1 * x2 + s2 * (1.0 - x1); break;
+  case NPPI_OP_ALPHA_XOR: r = s1 * (1.0 - x2) + s2 * (1.0 - x1); break;
+  case NPPI_OP_ALPHA_PLUS: r = s1 * x1 + s2 * x2; break;
+  case NPPI_OP_ALPHA_OVER_PREMUL: r = s1 + s2 * (1.0 - x1); break;
+  case NPPI_OP_ALPHA_IN_PREMUL: r = s1 * x2; break;
+  case NPPI_OP_ALPHA_OUT_PREMUL: r = s1 * (1.0 - x2); break;
+  case NPPI_OP_ALPHA_ATOP_PREMUL: r = s1 * x2 + s2 * (1.0 - x1); break;
+  case NPPI_OP_ALPHA_XOR_PREMUL: r = s1 * (1.0 - x2) + s2 * (1.0 - x1); break;
+  case NPPI_OP_ALPHA_PLUS_PREMUL: r = s1 + s2; break;
+  default: r = s1 * x1; break;
+  }
+  if constexpr (std::is_same_v<T, Npp32s>) r *= 255.0;
+  return saturate_cast<T>(r);
+}
+
+template <typename T>
+__device__ __host__ inline T legacy_alpha(NppiAlphaOp, T a1, T a2) {
+  double x1, x2;
+  if constexpr (std::is_same_v<T, Npp32s>) {
+    x1 = static_cast<double>(a1) / 255.0;
+    x2 = static_cast<double>(a2) / 255.0;
+  } else {
+    x1 = static_cast<double>(a1);
+    x2 = static_cast<double>(a2);
+  }
+  double r = x1 + x2 * (1.0 - x1);
+  if constexpr (std::is_same_v<T, Npp32s>) r *= 255.0;
+  return saturate_cast<T>(r);
+}
+
+// One composed color channel for the 13 NppiAlphaOp operators.
+template <typename T>
+__device__ __host__ inline T color(NppiAlphaOp op, T c1, T c2, T a1, T a2) {
+  if constexpr (!std::is_same_v<T, Npp32f> && !std::is_same_v<T, Npp8u> &&
+                !std::is_same_v<T, Npp16u>) {
+    return legacy_color<T>(op, c1, c2, a1, a2);
+  } else if constexpr (std::is_same_v<T, Npp32f>) {
+    const double s1 = static_cast<double>(c1);
+    const double s2 = static_cast<double>(c2);
+    const double x1 = static_cast<double>(a1);
+    const double x2 = static_cast<double>(a2);
+    switch (op) {
+    case NPPI_OP_ALPHA_OVER: return static_cast<T>(s1 * x1 + s2 * x2 * (1.0 - x1));
+    case NPPI_OP_ALPHA_IN: return static_cast<T>(s1 * x1 * x2);
+    case NPPI_OP_ALPHA_OUT: return static_cast<T>(s1 * x1 * (1.0 - x2));
+    case NPPI_OP_ALPHA_ATOP: return static_cast<T>(s1 * x1 * x2 + s2 * x2 * (1.0 - x1));
+    case NPPI_OP_ALPHA_XOR:
+      return static_cast<T>(s1 * x1 * (1.0 - x2) + s2 * x2 * (1.0 - x1));
+    case NPPI_OP_ALPHA_PLUS: return static_cast<T>(s1 * x1 + s2 * x2);
+    case NPPI_OP_ALPHA_OVER_PREMUL: return static_cast<T>(s1 + s2 * (1.0 - x1));
+    case NPPI_OP_ALPHA_IN_PREMUL: return static_cast<T>(s1 * x2);
+    case NPPI_OP_ALPHA_OUT_PREMUL: return static_cast<T>(s1 * (1.0 - x2));
+    case NPPI_OP_ALPHA_ATOP_PREMUL: return static_cast<T>(s1 * x2 + s2 * (1.0 - x1));
+    case NPPI_OP_ALPHA_XOR_PREMUL:
+      return static_cast<T>(s1 * (1.0 - x2) + s2 * (1.0 - x1));
+    case NPPI_OP_ALPHA_PLUS_PREMUL: return static_cast<T>(s1 + s2);
+    default: return static_cast<T>(s1 * x1);
+    }
+  } else {
+    const int64_t A1 = norm<T>(a1);
+    const int64_t A2 = norm<T>(a2);
+    const int64_t C1 = comp<T>(a1);
+    const int64_t C2 = comp<T>(a2);
+    int64_t t1 = 0, t2 = 0;
+    switch (op) {
+    case NPPI_OP_ALPHA_OVER:
+      t1 = mul<T>(c1, A1);
+      t2 = mul<T>(c2, mul<T>(A2, C1));
+      break;
+    case NPPI_OP_ALPHA_IN: t1 = mul<T>(c1, mul<T>(A1, A2)); break;
+    case NPPI_OP_ALPHA_OUT: t1 = mul<T>(c1, mul<T>(A1, C2)); break;
+    case NPPI_OP_ALPHA_ATOP:
+      t1 = mul<T>(mul<T>(c1, A1), A2);
+      t2 = mul<T>(c2, mul<T>(A2, C1));
+      break;
+    case NPPI_OP_ALPHA_XOR:
+      t1 = mul<T>(c1, mul<T>(A1, C2));
+      t2 = mul<T>(c2, mul<T>(a2, C1));
+      break;
+    case NPPI_OP_ALPHA_PLUS:
+      t1 = mul<T>(c1, A1);
+      t2 = mul<T>(c2, A2);
+      break;
+    case NPPI_OP_ALPHA_OVER_PREMUL:
+      t1 = c1;
+      t2 = mul<T>(c2, C1);
+      break;
+    case NPPI_OP_ALPHA_IN_PREMUL: t1 = mul<T>(c1, A2); break;
+    case NPPI_OP_ALPHA_OUT_PREMUL: t1 = mul<T>(c1, C2); break;
+    case NPPI_OP_ALPHA_ATOP_PREMUL:
+      t1 = mul<T>(c1, A2);
+      t2 = mul<T>(c2, C1);
+      break;
+    case NPPI_OP_ALPHA_XOR_PREMUL:
+      t1 = mul<T>(c1, C2);
+      t2 = mul<T>(c2, C1);
+      break;
+    case NPPI_OP_ALPHA_PLUS_PREMUL:
+      t1 = c1;
+      t2 = c2;
+      break;
+    default: t1 = mul<T>(c1, A1); break;
+    }
+    return sat<T>(t1 + t2);
+  }
+}
+
+// Composed alpha channel for pixel-alpha composition: NPP uses the
+// premultiplied forms of the same operators on the alpha values.
+template <typename T> __device__ __host__ inline T alpha_out(NppiAlphaOp op, T a1, T a2) {
+  if constexpr (!std::is_same_v<T, Npp32f> && !std::is_same_v<T, Npp8u> &&
+                !std::is_same_v<T, Npp16u>) {
+    return legacy_alpha<T>(op, a1, a2);
+  } else if constexpr (std::is_same_v<T, Npp32f>) {
+    const double x1 = static_cast<double>(a1);
+    const double x2 = static_cast<double>(a2);
+    double r;
+    switch (op) {
+    case NPPI_OP_ALPHA_OVER:
+    case NPPI_OP_ALPHA_OVER_PREMUL: r = x1 + x2 * (1.0 - x1); break;
+    case NPPI_OP_ALPHA_IN:
+    case NPPI_OP_ALPHA_IN_PREMUL: r = x1 * x2; break;
+    case NPPI_OP_ALPHA_OUT:
+    case NPPI_OP_ALPHA_OUT_PREMUL: r = x1 * (1.0 - x2); break;
+    case NPPI_OP_ALPHA_ATOP:
+    case NPPI_OP_ALPHA_ATOP_PREMUL: r = x2; break;
+    case NPPI_OP_ALPHA_XOR:
+    case NPPI_OP_ALPHA_XOR_PREMUL: r = x1 * (1.0 - x2) + x2 * (1.0 - x1); break;
+    case NPPI_OP_ALPHA_PLUS:
+    case NPPI_OP_ALPHA_PLUS_PREMUL: r = x1 + x2; break;
+    default: r = x1; break;
+    }
+    // NPP clamps the composed alpha to [0,1] for float images.
+    return static_cast<T>(r < 0.0 ? 0.0 : (r > 1.0 ? 1.0 : r));
+  } else {
+    const int64_t A1 = norm<T>(a1);
+    const int64_t A2 = norm<T>(a2);
+    const int64_t C1 = comp<T>(a1);
+    const int64_t C2 = comp<T>(a2);
+    int64_t t1 = 0, t2 = 0;
+    switch (op) {
+    case NPPI_OP_ALPHA_OVER:
+    case NPPI_OP_ALPHA_OVER_PREMUL:
+      t1 = a1;
+      t2 = mul<T>(a2, C1);
+      break;
+    case NPPI_OP_ALPHA_IN:
+    case NPPI_OP_ALPHA_IN_PREMUL: t1 = mul<T>(a1, A2); break;
+    case NPPI_OP_ALPHA_OUT:
+    case NPPI_OP_ALPHA_OUT_PREMUL: t1 = mul<T>(a1, C2); break;
+    case NPPI_OP_ALPHA_ATOP:
+    case NPPI_OP_ALPHA_ATOP_PREMUL:
+      t1 = mul<T>(a1, A2);
+      t2 = mul<T>(a2, C1);
+      break;
+    case NPPI_OP_ALPHA_XOR:
+    case NPPI_OP_ALPHA_XOR_PREMUL:
+      t1 = mul<T>(a1, C2);
+      t2 = mul<T>(a2, C1);
+      break;
+    case NPPI_OP_ALPHA_PLUS:
+    case NPPI_OP_ALPHA_PLUS_PREMUL:
+      t1 = a1;
+      t2 = a2;
+      break;
+    default: t1 = a1; break;
+    }
+    return sat<T>(t1 + t2);
+  }
+}
+
+// src * alpha with the opaque (alpha == max) fast path.
+template <typename T> __device__ __host__ inline T premul(T src, T alpha) {
+  if constexpr (std::is_same_v<T, Npp32f>) {
+    return static_cast<T>(static_cast<double>(src) * static_cast<double>(alpha));
+  } else {
+    return sat<T>(mul_premul<T>(src, norm<T>(alpha)));
+  }
+}
+
+} // namespace alpha_ref
 
 template <typename T> struct AlphaPremulOp {
   __device__ __host__ T operator()(T src, T alpha, int = 0) const {
@@ -1198,29 +1422,13 @@ template <typename SrcType, typename DstType> struct AddWeightedInplaceOp {
 
 // Pixel alpha premul (AC4 format): result = src * alpha >> 8 (for 8u)
 template <typename T> struct AlphaPremulPixelOp {
-  __device__ __host__ T operator()(T src, T alpha) const {
-    if constexpr (std::is_same_v<T, Npp8u>) {
-      return static_cast<T>((static_cast<int>(src) * static_cast<int>(alpha)) >> 8);
-    } else if constexpr (std::is_same_v<T, Npp16u>) {
-      return static_cast<T>((static_cast<int64_t>(src) * static_cast<int64_t>(alpha)) / 65535);
-    } else {
-      return static_cast<T>(src * alpha);
-    }
-  }
+  __device__ __host__ T operator()(T src, T alpha) const { return alpha_ref::premul<T>(src, alpha); }
 };
 
-// Const alpha premul (for AlphaPremulC): result = src * alpha / max_value
-// Uses division (not right shift) to match NVIDIA NPP behavior
+// Const alpha premul (for AlphaPremulC): result = src * alpha with NPP's
+// round-half-up fixed-point scaling (alpha == max is opaque).
 template <typename T> struct AlphaPremulConstSimpleOp {
-  __device__ __host__ T operator()(T src, T alpha) const {
-    if constexpr (std::is_same_v<T, Npp8u>) {
-      return static_cast<T>((static_cast<int>(src) * static_cast<int>(alpha)) / 255);
-    } else if constexpr (std::is_same_v<T, Npp16u>) {
-      return static_cast<T>((static_cast<int64_t>(src) * static_cast<int64_t>(alpha)) / 65535);
-    } else {
-      return static_cast<T>(src * alpha);
-    }
-  }
+  __device__ __host__ T operator()(T src, T alpha) const { return alpha_ref::premul<T>(src, alpha); }
 };
 
 } // namespace arithmetic

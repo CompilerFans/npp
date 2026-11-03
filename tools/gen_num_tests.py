@@ -108,7 +108,85 @@ SPECS: Dict[str, dict] = {
     "nppiMulScale": dict(kind="mulscale"),
     "nppiMulCScale": dict(kind="mulcscale"),
     "nppiMulDeviceCScale": dict(kind="mulcscale"),
+    "nppiAlphaCompC": dict(kind="alphacomp_c"),
+    "nppiAlphaComp": dict(kind="alphacomp"),
+    "nppiAlphaPremulC": dict(kind="alphapremul_c"),
+    "nppiAlphaPremul": dict(kind="alphapremul"),
 }
+
+# Alpha composition layouts: (channels per pixel, colour channels, has alpha).
+ALPHA_LAYOUT = {
+    "AC4": (4, 3, True),
+    "AC1": (2, 1, True),
+    "C1": (1, 1, False),
+    "C3": (3, 3, False),
+    "C4": (4, 4, False),
+}
+
+
+def emit_alpha(row: dict, spec: dict) -> Optional[str]:
+    """AlphaComp / AlphaPremul entry points (measured fixed-point contract)."""
+    fn = row["function_name"]
+    base = re.sub(r"_Ctx$", "", fn)
+    m = re.search(r"_(AC4I|AC1I|C1I|C3I|C4I|AC4|AC1|C1|C3|C4)R$", base)
+    if m is None:
+        return None
+    tok = m.group(1)
+    inplace = tok.endswith("I")
+    layout_tok = tok[:-1] if inplace else tok
+    if layout_tok not in ALPHA_LAYOUT:
+        return None
+    C, A, ac = ALPHA_LAYOUT[layout_tok]
+    dtype = row["dtype"]
+    if dtype not in ("8u", "16u", "32f"):
+        return None
+    S = DTYPE_CTYPE[dtype]
+    kind = spec["kind"]
+    if kind == "alphacomp_c" and layout_tok not in ("C1", "C3", "C4", "AC4"):
+        return None
+    if kind == "alphacomp" and layout_tok not in ("AC1", "AC4"):
+        return None
+    if kind == "alphapremul_c" and layout_tok not in ("C1", "C3", "C4", "AC4"):
+        return None
+    if kind == "alphapremul" and layout_tok not in ("AC4",):
+        return None
+    const = kind.endswith("_c")
+    test_name = re.sub(r"\W", "_", fn)
+    if kind == "alphacomp_c":
+        lam = (f"[](const {S} *s1, int ss1, {S} a1, const {S} *s2, int ss2, {S} a2, "
+               f"{S} *d, int ds, NppiSize r, NppiAlphaOp op, NppStreamContext c) "
+               f"{{ return {fn}(s1, ss1, a1, s2, ss2, a2, d, ds, r, op, c); }}")
+        prefix = f"num::run_alphacomp_c<{S}, {C}, {A}, {str(ac).lower()}>"
+        return (f"TEST(NumGen, {test_name}) {{\n  {prefix}(\n      \"{fn}\",\n"
+                f"      {lam});\n}}\n")
+    if kind == "alphacomp":
+        lam = (f"[](const {S} *s1, int ss1, const {S} *s2, int ss2, {S} *d, int ds, "
+               f"NppiSize r, NppiAlphaOp op, NppStreamContext c) "
+               f"{{ return {fn}(s1, ss1, s2, ss2, d, ds, r, op, c); }}")
+        prefix = f"num::run_alphacomp_pixel<{S}, {C}, {A}>"
+        return (f"TEST(NumGen, {test_name}) {{\n  {prefix}(\n      \"{fn}\",\n"
+                f"      {lam});\n}}\n")
+    # AlphaPremul families
+    const_tok = "true" if const else "false"
+    inplace_tok = "true" if inplace else "false"
+    prefix = (f"num::run_alphapremul<{S}, {C}, {A}, {const_tok}, {str(ac).lower()}, "
+              f"{inplace_tok}>")
+    if const:
+        if inplace:
+            lam = (f"[]({S} a, {S} *sd, int st, NppiSize r, NppStreamContext c) "
+                   f"{{ return {fn}(a, sd, st, r, c); }}")
+        else:
+            lam = (f"[](const {S} *s, int ss, {S} a, {S} *d, int ds, NppiSize r, "
+                   f"NppStreamContext c) {{ return {fn}(s, ss, a, d, ds, r, c); }}")
+    else:
+        if inplace:
+            lam = (f"[]({S}, {S} *sd, int st, NppiSize r, NppStreamContext c) "
+                   f"{{ return {fn}(sd, st, r, c); }}")
+        else:
+            lam = (f"[](const {S} *s, int ss, {S}, {S} *d, int ds, NppiSize r, "
+                   f"NppStreamContext c) {{ return {fn}(s, ss, d, ds, r, c); }}")
+    return (f"TEST(NumGen, {test_name}) {{\n  {prefix}(\n      \"{fn}\",\n"
+            f"      {lam});\n}}\n")
 
 THR_TWO_INTERVALS = {"nppiThreshold_LTValGTVal"}
 
@@ -283,6 +361,8 @@ def swap_layout(fn: str):
 def emit_test(row: dict, spec: dict) -> Optional[str]:
     fn = row["function_name"]
     fam = row["family"]
+    if spec["kind"].startswith("alpha"):
+        return emit_alpha(row, spec)
     par = layout(fn)
     if par is None:
         if spec["kind"] in ("copy", "set", "transpose", "dup", "swap"):

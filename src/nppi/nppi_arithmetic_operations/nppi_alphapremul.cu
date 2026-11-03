@@ -3,6 +3,22 @@
 
 using namespace nppi::arithmetic;
 
+// Constant-alpha AC4 premultiplication: NPP scales channels 0..2 and writes
+// the constant alpha into the destination alpha channel (the source alpha
+// channel is ignored).
+template <typename T>
+__global__ void alphaPremulConstAC4Kernel(const T *pSrc, int nSrcStep, T alpha, T *pDst, int nDstStep,
+                                          int width, int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= width || y >= height) return;
+  const T *src = (const T *)((const char *)pSrc + y * nSrcStep);
+  T *dst = (T *)((char *)pDst + y * nDstStep);
+  const int idx = x * 4;
+  for (int c = 0; c < 3; ++c) dst[idx + c] = alpha_ref::premul<T>(src[idx + c], alpha);
+  dst[idx + 3] = alpha;
+}
+
 // ============================================================================
 // AlphaPremul Implementation
 // nppiAlphaPremulC: Alpha premultiplication with constant alpha value
@@ -83,11 +99,16 @@ NppStatus nppiAlphaPremulC_8u_C4IR(Npp8u nAlpha1, Npp8u *pSrcDst, int nSrcDstSte
   return nppiAlphaPremulC_8u_C4IR_Ctx(nAlpha1, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
 }
 
-// 8u AC4 versions (same as C4 for constant alpha - alpha channel not involved)
+// 8u AC4 versions: scale RGB with the constant and write it into alpha
 NppStatus nppiAlphaPremulC_8u_AC4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlpha1, Npp8u *pDst, int nDstStep,
                                        NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return AlphaPremulConstExecutor<Npp8u, 4, AlphaPremulConstSimpleOp<Npp8u>>::execute(
-      pSrc1, nSrc1Step, pDst, nDstStep, oSizeROI, nAlpha1, nppStreamCtx.hStream);
+  if (!pSrc1 || !pDst) return NPP_NULL_POINTER_ERROR;
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  alphaPremulConstAC4Kernel<Npp8u><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc1, nSrc1Step, nAlpha1, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
+  return checkCudaKernelError();
 }
 
 NppStatus nppiAlphaPremulC_8u_AC4R(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlpha1, Npp8u *pDst, int nDstStep,
@@ -97,8 +118,13 @@ NppStatus nppiAlphaPremulC_8u_AC4R(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlp
 
 NppStatus nppiAlphaPremulC_8u_AC4IR_Ctx(Npp8u nAlpha1, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                         NppStreamContext nppStreamCtx) {
-  return AlphaPremulConstExecutor<Npp8u, 4, AlphaPremulConstSimpleOp<Npp8u>>::executeInplace(
-      pSrcDst, nSrcDstStep, oSizeROI, nAlpha1, nppStreamCtx.hStream);
+  if (!pSrcDst || !pSrcDst) return NPP_NULL_POINTER_ERROR;
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  alphaPremulConstAC4Kernel<Npp8u><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrcDst, nSrcDstStep, nAlpha1, pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height);
+  return checkCudaKernelError();
 }
 
 NppStatus nppiAlphaPremulC_8u_AC4IR(Npp8u nAlpha1, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
@@ -174,8 +200,13 @@ NppStatus nppiAlphaPremulC_16u_C4IR(Npp16u nAlpha1, Npp16u *pSrcDst, int nSrcDst
 
 NppStatus nppiAlphaPremulC_16u_AC4R_Ctx(const Npp16u *pSrc1, int nSrc1Step, Npp16u nAlpha1, Npp16u *pDst, int nDstStep,
                                         NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return AlphaPremulConstExecutor<Npp16u, 4, AlphaPremulConstSimpleOp<Npp16u>>::execute(
-      pSrc1, nSrc1Step, pDst, nDstStep, oSizeROI, nAlpha1, nppStreamCtx.hStream);
+  if (!pSrc1 || !pDst) return NPP_NULL_POINTER_ERROR;
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  alphaPremulConstAC4Kernel<Npp16u><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc1, nSrc1Step, nAlpha1, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
+  return checkCudaKernelError();
 }
 
 NppStatus nppiAlphaPremulC_16u_AC4R(const Npp16u *pSrc1, int nSrc1Step, Npp16u nAlpha1, Npp16u *pDst, int nDstStep,
@@ -185,8 +216,13 @@ NppStatus nppiAlphaPremulC_16u_AC4R(const Npp16u *pSrc1, int nSrc1Step, Npp16u n
 
 NppStatus nppiAlphaPremulC_16u_AC4IR_Ctx(Npp16u nAlpha1, Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                          NppStreamContext nppStreamCtx) {
-  return AlphaPremulConstExecutor<Npp16u, 4, AlphaPremulConstSimpleOp<Npp16u>>::executeInplace(
-      pSrcDst, nSrcDstStep, oSizeROI, nAlpha1, nppStreamCtx.hStream);
+  if (!pSrcDst || !pSrcDst) return NPP_NULL_POINTER_ERROR;
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  alphaPremulConstAC4Kernel<Npp16u><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrcDst, nSrcDstStep, nAlpha1, pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height);
+  return checkCudaKernelError();
 }
 
 NppStatus nppiAlphaPremulC_16u_AC4IR(Npp16u nAlpha1, Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {

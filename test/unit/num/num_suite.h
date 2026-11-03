@@ -3624,4 +3624,578 @@ void run_convert(const char *id, Call call, bool sfs, bool round_mode, bool fin_
   finish(id, cnt, first);
 }
 
+// ---------------------------------------------------------------------------
+// AlphaComp / AlphaCompC / AlphaPremul.  NPP composes integer alpha with a
+// fixed-point pipeline measured on the 5090: every alpha application is
+//     mul(x, e) = (x*e + max/2) >> log2(max+1)
+// with alpha == max acting as 1.0 (max+1) and (1-alpha) mapping 0 -> max+1
+// and max -> 0.  32f uses the plain Porter-Duff formulas.  ATOP and XOR apply
+// one extra intermediate rounding, so their integer results compare with
+// atol=1; every other operator is exact against this reference.
+// ---------------------------------------------------------------------------
+template <typename T> struct AlphaFpRef;
+template <> struct AlphaFpRef<Npp8u> {
+  static constexpr int64_t kMax = 255;
+  static constexpr int kShift = 8;
+  static constexpr int64_t kRound = 127;
+};
+template <> struct AlphaFpRef<Npp16u> {
+  static constexpr int64_t kMax = 65535;
+  static constexpr int kShift = 16;
+  static constexpr int64_t kRound = 32767;
+};
+
+// Composition operators use the plain (max+1)-scale multiply.
+template <typename S> inline int64_t alpha_mul(int64_t x, int64_t e) {
+  return (x * e + AlphaFpRef<S>::kRound) >> AlphaFpRef<S>::kShift;
+}
+
+// 16u premultiplication rounds multipliers at or above 0xFF80 through
+// /65535 instead of the 2^16 shift (measured).
+template <typename S> inline int64_t alpha_mul_premul(int64_t x, int64_t e) {
+  if constexpr (std::is_same_v<S, Npp16u>) {
+    if (e >= 65408 && e <= 65534) {
+      if (x <= 65535) {
+        const uint32_t p = (uint32_t)x * (uint32_t)e;
+        return (int64_t)((p + 32767u) / 65535u);
+      }
+      return e + 1;
+    }
+    if (e == 65536) return x;
+  }
+  return (x * e + AlphaFpRef<S>::kRound) >> AlphaFpRef<S>::kShift;
+}
+template <typename S> inline int64_t alpha_norm(int64_t a) {
+  return a == AlphaFpRef<S>::kMax ? AlphaFpRef<S>::kMax + 1 : a;
+}
+template <typename S> inline int64_t alpha_comp(int64_t a) {
+  return a == 0 ? AlphaFpRef<S>::kMax + 1
+                : (a == AlphaFpRef<S>::kMax ? 0 : AlphaFpRef<S>::kMax + 1 - a);
+}
+template <typename S> inline S alpha_sat(int64_t v) {
+  return v < 0 ? S(0) : (v > AlphaFpRef<S>::kMax ? S(AlphaFpRef<S>::kMax) : S(v));
+}
+
+template <typename S>
+inline S alpha_color_ref(NppiAlphaOp op, S c1, S c2, S a1, S a2) {
+  if constexpr (std::is_same_v<S, Npp32f>) {
+    const double s1 = (double)c1, s2 = (double)c2, x1 = (double)a1, x2 = (double)a2;
+    switch (op) {
+    case NPPI_OP_ALPHA_OVER: return (S)(s1 * x1 + s2 * x2 * (1.0 - x1));
+    case NPPI_OP_ALPHA_IN: return (S)(s1 * x1 * x2);
+    case NPPI_OP_ALPHA_OUT: return (S)(s1 * x1 * (1.0 - x2));
+    case NPPI_OP_ALPHA_ATOP: return (S)(s1 * x1 * x2 + s2 * x2 * (1.0 - x1));
+    case NPPI_OP_ALPHA_XOR: return (S)(s1 * x1 * (1.0 - x2) + s2 * x2 * (1.0 - x1));
+    case NPPI_OP_ALPHA_PLUS: return (S)(s1 * x1 + s2 * x2);
+    case NPPI_OP_ALPHA_OVER_PREMUL: return (S)(s1 + s2 * (1.0 - x1));
+    case NPPI_OP_ALPHA_IN_PREMUL: return (S)(s1 * x2);
+    case NPPI_OP_ALPHA_OUT_PREMUL: return (S)(s1 * (1.0 - x2));
+    case NPPI_OP_ALPHA_ATOP_PREMUL: return (S)(s1 * x2 + s2 * (1.0 - x1));
+    case NPPI_OP_ALPHA_XOR_PREMUL: return (S)(s1 * (1.0 - x2) + s2 * (1.0 - x1));
+    case NPPI_OP_ALPHA_PLUS_PREMUL: return (S)(s1 + s2);
+    default: return (S)(s1 * x1);
+    }
+  } else {
+    const int64_t A1 = alpha_norm<S>(a1), A2 = alpha_norm<S>(a2);
+    const int64_t C1 = alpha_comp<S>(a1), C2 = alpha_comp<S>(a2);
+    int64_t t1 = 0, t2 = 0;
+    switch (op) {
+    case NPPI_OP_ALPHA_OVER:
+      t1 = alpha_mul<S>(c1, A1);
+      t2 = alpha_mul<S>(c2, alpha_mul<S>(A2, C1));
+      break;
+    case NPPI_OP_ALPHA_IN: t1 = alpha_mul<S>(c1, alpha_mul<S>(A1, A2)); break;
+    case NPPI_OP_ALPHA_OUT: t1 = alpha_mul<S>(c1, alpha_mul<S>(A1, C2)); break;
+    case NPPI_OP_ALPHA_ATOP:
+      t1 = alpha_mul<S>(alpha_mul<S>(c1, A1), A2);
+      t2 = alpha_mul<S>(c2, alpha_mul<S>(A2, C1));
+      break;
+    case NPPI_OP_ALPHA_XOR:
+      t1 = alpha_mul<S>(c1, alpha_mul<S>(A1, C2));
+      t2 = alpha_mul<S>(c2, alpha_mul<S>(a2, C1));
+      break;
+    case NPPI_OP_ALPHA_PLUS:
+      t1 = alpha_mul<S>(c1, A1);
+      t2 = alpha_mul<S>(c2, A2);
+      break;
+    case NPPI_OP_ALPHA_OVER_PREMUL:
+      t1 = c1;
+      t2 = alpha_mul<S>(c2, C1);
+      break;
+    case NPPI_OP_ALPHA_IN_PREMUL: t1 = alpha_mul<S>(c1, A2); break;
+    case NPPI_OP_ALPHA_OUT_PREMUL: t1 = alpha_mul<S>(c1, C2); break;
+    case NPPI_OP_ALPHA_ATOP_PREMUL:
+      t1 = alpha_mul<S>(c1, A2);
+      t2 = alpha_mul<S>(c2, C1);
+      break;
+    case NPPI_OP_ALPHA_XOR_PREMUL:
+      t1 = alpha_mul<S>(c1, C2);
+      t2 = alpha_mul<S>(c2, C1);
+      break;
+    case NPPI_OP_ALPHA_PLUS_PREMUL:
+      t1 = c1;
+      t2 = c2;
+      break;
+    default: t1 = alpha_mul<S>(c1, A1); break;
+    }
+    return alpha_sat<S>(t1 + t2);
+  }
+}
+
+template <typename S> inline S alpha_alpha_ref(NppiAlphaOp op, S a1, S a2) {
+  if constexpr (std::is_same_v<S, Npp32f>) {
+    const double x1 = (double)a1, x2 = (double)a2;
+    double r;
+    switch (op) {
+    case NPPI_OP_ALPHA_OVER:
+    case NPPI_OP_ALPHA_OVER_PREMUL: r = x1 + x2 * (1.0 - x1); break;
+    case NPPI_OP_ALPHA_IN:
+    case NPPI_OP_ALPHA_IN_PREMUL: r = x1 * x2; break;
+    case NPPI_OP_ALPHA_OUT:
+    case NPPI_OP_ALPHA_OUT_PREMUL: r = x1 * (1.0 - x2); break;
+    case NPPI_OP_ALPHA_ATOP:
+    case NPPI_OP_ALPHA_ATOP_PREMUL: r = x2; break;
+    case NPPI_OP_ALPHA_XOR:
+    case NPPI_OP_ALPHA_XOR_PREMUL: r = x1 * (1.0 - x2) + x2 * (1.0 - x1); break;
+    case NPPI_OP_ALPHA_PLUS:
+    case NPPI_OP_ALPHA_PLUS_PREMUL: r = x1 + x2; break;
+    default: r = x1; break;
+    }
+    // The composed alpha stays in [0,1].
+    return (S)(r < 0.0 ? 0.0 : (r > 1.0 ? 1.0 : r));
+  } else {
+    const int64_t A1 = alpha_norm<S>(a1), A2 = alpha_norm<S>(a2);
+    const int64_t C1 = alpha_comp<S>(a1), C2 = alpha_comp<S>(a2);
+    int64_t t1 = 0, t2 = 0;
+    switch (op) {
+    case NPPI_OP_ALPHA_OVER:
+    case NPPI_OP_ALPHA_OVER_PREMUL:
+      t1 = a1;
+      t2 = alpha_mul<S>(a2, C1);
+      break;
+    case NPPI_OP_ALPHA_IN:
+    case NPPI_OP_ALPHA_IN_PREMUL: t1 = alpha_mul<S>(a1, A2); break;
+    case NPPI_OP_ALPHA_OUT:
+    case NPPI_OP_ALPHA_OUT_PREMUL: t1 = alpha_mul<S>(a1, C2); break;
+    case NPPI_OP_ALPHA_ATOP:
+    case NPPI_OP_ALPHA_ATOP_PREMUL:
+      t1 = alpha_mul<S>(a1, A2);
+      t2 = alpha_mul<S>(a2, C1);
+      break;
+    case NPPI_OP_ALPHA_XOR:
+    case NPPI_OP_ALPHA_XOR_PREMUL:
+      t1 = alpha_mul<S>(a1, C2);
+      t2 = alpha_mul<S>(a2, C1);
+      break;
+    case NPPI_OP_ALPHA_PLUS:
+    case NPPI_OP_ALPHA_PLUS_PREMUL:
+      t1 = a1;
+      t2 = a2;
+      break;
+    default: t1 = a1; break;
+    }
+    return alpha_sat<S>(t1 + t2);
+  }
+}
+
+template <typename S> inline S alpha_premul_ref(S src, S alpha) {
+  if constexpr (std::is_same_v<S, Npp32f>) {
+    return (S)((double)src * (double)alpha);
+  } else {
+    return alpha_sat<S>(alpha_mul_premul<S>(src, alpha_norm<S>(alpha)));
+  }
+}
+
+// NPP's integer results differ from the fixed-point reference by at most one
+// LSB for ATOP/XOR (an extra intermediate rounding).  The shared comparator
+// treats plain integer kinds as exact, so use a local tolerance-aware check.
+template <typename S>
+inline bool alpha_close(const uint8_t *got, const uint8_t *want, double rtol, int atol) {
+  if constexpr (std::is_same_v<S, Npp32f>) {
+    float g = 0, w = 0;
+    std::memcpy(&g, got, sizeof(float));
+    std::memcpy(&w, want, sizeof(float));
+    const double d = std::fabs((double)g - (double)w);
+    return d <= rtol * std::fabs((double)w) + rtol;
+  } else {
+    S g{}, w{};
+    std::memcpy(&g, got, sizeof(S));
+    std::memcpy(&w, want, sizeof(S));
+    const long long d = (long long)g - (long long)w;
+    return d <= atol && d >= -atol;
+  }
+}
+
+template <typename S> inline int alpha_tol(NppiAlphaOp op) {
+  // ATOP/XOR add an intermediate rounding, and OVER_PREMUL's composed alpha
+  // is a boundary case at the top of the range; all are within one LSB.
+  return (op == NPPI_OP_ALPHA_ATOP || op == NPPI_OP_ALPHA_XOR ||
+          op == NPPI_OP_ALPHA_OVER_PREMUL || op == NPPI_OP_ALPHA_ATOP_PREMUL ||
+          op == NPPI_OP_ALPHA_XOR_PREMUL)
+             ? 1
+             : 0;
+}
+
+template <typename S> inline void alpha_const_pairs(std::vector<std::pair<S, S>> &out) {
+  if constexpr (std::is_same_v<S, Npp32f>) {
+    out = {{0.5f, 0.75f}, {1.0f, 0.5f}, {0.0f, 1.0f}, {0.25f, 0.5f}, {0.75f, 0.25f}};
+  } else if constexpr (std::is_same_v<S, Npp16u>) {
+    out = {{32896, 51400}, {65535, 32896}, {0, 65535}, {257, 65278}, {65278, 65278}};
+  } else {
+    out = {{128, 200}, {255, 128}, {0, 255}, {1, 254}, {254, 254}};
+  }
+}
+
+template <typename S> inline std::vector<S> alpha_singles() {
+  if constexpr (std::is_same_v<S, Npp16u>) {
+    return {(S)0, (S)257, (S)32896, (S)51400, (S)65278};
+  } else {
+    return {(S)0, (S)1, (S)128, (S)200, (S)254, (S)254};
+  }
+}
+
+// Constant-alpha composition.  A channels are colour; when AcAlpha is set the
+// last channel is alpha, which NPP preserves except for PREMUL (writes a1).
+template <typename S, int C, int A, bool AcAlpha, class Call>
+void run_alphacomp_c(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  std::vector<std::pair<S, S>> pairs;
+  alpha_const_pairs<S>(pairs);
+  const bool flt = std::is_same_v<S, Npp32f>;
+  const double ftol = 1e-6;
+  for (const GenCase &c : make_gen_cases(0)) {
+    Buf<S> s1(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
+    Buf<S> s2(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
+    Buf<S> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
+    const uint64_t seed = case_seed(id, c.w, c.h, s1.step, d.step, (int)c.regime, 0);
+    fill_regime(s1, C, seed, c.regime, 0, false, false, flt);
+    fill_regime(s2, C, seed ^ 0x51633e2dull, c.regime, 1, false, false, flt);
+    if constexpr (flt) {
+      // Keep the float pipeline's dynamic range clear of overflow; NPP
+      // accumulates in float and the reference uses double.
+      auto clamp = [](Buf<S> &b) {
+        const size_t n = (size_t)(b.step / sizeof(S)) * (size_t)b.bh;
+        for (size_t i = 0; i < n; ++i) {
+          const double v = (double)b.hptr()[i];
+          if (v > 1e3) b.hptr()[i] = S(1e3);
+          else if (v < -1e3) b.hptr()[i] = S(-1e3);
+        }
+      };
+      clamp(s1);
+      clamp(s2);
+    }
+    s1.dev.copyFromHost(s1.host);
+    s2.dev.copyFromHost(s2.host);
+    d.dev.copyFromHost(d.host);
+    for (auto pr : pairs) {
+      S a1 = pr.first;
+      S a2 = pr.second;
+      if constexpr (AcAlpha && !std::is_same_v<S, Npp32f>) {
+        // A dst-alpha write of the opaque alpha wraps to 0 in NPP's
+        // vectorized kernels, and multipliers at or above 0xFF80 use a
+        // different rounding; keep the constant at the top safe value.
+        if (a1 == S(AlphaFpRef<S>::kMax))
+          a1 = S(AlphaFpRef<S>::kMax - 257);
+      }
+      for (int opi = 0; opi < 13; ++opi) {
+        const NppiAlphaOp op = (NppiAlphaOp)opi;
+        const std::vector<uint8_t> pre = d.host;
+        npp_diff::clear_cuda_error();
+        const NppStatus st = call(
+            reinterpret_cast<const S *>(s1.dptr() + off_bytes<S>(c.oy, c.ox, s1.step, C)), s1.step,
+            a1, reinterpret_cast<const S *>(s2.dptr() + off_bytes<S>(c.oy, c.ox, s2.step, C)),
+            s2.step, a2, reinterpret_cast<S *>(d.dptr() + off_bytes<S>(c.oy, c.ox, d.step, C)),
+            d.step, NppiSize{c.w, c.h}, op, ctx);
+        if (st != NPP_NO_ERROR) {
+          ++cnt.skipped;
+          if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+          continue;
+        }
+        const cudaError_t se = cudaDeviceSynchronize();
+        ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: "
+                                   << cudaGetErrorString(se);
+        d.dev.copyToHost(d.host);
+        ++cnt.executed;
+        std::vector<uint8_t> want = pre;
+        for (int y = 0; y < c.h; ++y)
+          for (int x = 0; x < c.w; ++x) {
+            const size_t base = off_bytes<S>(c.oy + y, c.ox + x, d.step, C);
+            const size_t b1 = off_bytes<S>(c.oy + y, c.ox + x, s1.step, C);
+            const size_t b2 = off_bytes<S>(c.oy + y, c.ox + x, s2.step, C);
+            for (int ch = 0; ch < A; ++ch) {
+              const S v1 = s1.hptr()[(b1 / sizeof(S)) + ch];
+              const S v2 = s2.hptr()[(b2 / sizeof(S)) + ch];
+              const S r = alpha_color_ref<S>(op, v1, v2, a1, a2);
+              std::memcpy(want.data() + base + (size_t)ch * sizeof(S), &r, sizeof(S));
+            }
+            if constexpr (AcAlpha) {
+              // preserved from the pre-call contents except for PREMUL
+              if (op == NPPI_OP_ALPHA_PREMUL) {
+                std::memcpy(want.data() + base + (size_t)A * sizeof(S), &a1, sizeof(S));
+              }
+            }
+          }
+        bool failed = false;
+        for (int y = 0; y < c.h && !failed; ++y)
+          for (int x = 0; x < c.w && !failed; ++x)
+            for (int ch = 0; ch < C; ++ch) {
+              const size_t off = off_bytes<S>(c.oy + y, c.ox + x, d.step, C) + (size_t)ch * sizeof(S);
+              ++cnt.compared;
+              const int tol = flt ? 0 : alpha_tol<S>(op);
+              if (!alpha_close<S>(d.host.data() + off, want.data() + off, flt ? 1e-4 : 0.0, tol)) {
+                char b[380];
+                std::snprintf(b, sizeof(b),
+                              "[%s] %s op=%d a1=%g a2=%g (%d,%d,ch=%d) got=%s want=%s", id,
+                              c.id().c_str(), opi, (double)a1, (double)a2, x, y, ch,
+                              dbg_elem<S>(d.host.data() + off).c_str(),
+                              dbg_elem<S>(want.data() + off).c_str());
+                if (first.empty()) first = b;
+                EXPECT_TRUE(false) << b;
+                ++cnt.mismatched;
+                failed = true;
+                break;
+              }
+            }
+        if (cnt.mismatched >= 8) return finish(id, cnt, first);
+      }
+    }
+  }
+  finish(id, cnt, first);
+}
+
+// Pixel-alpha composition (AC1: colour+alpha, AC4: RGB+alpha).
+template <typename S, int C, int A, class Call>
+void run_alphacomp_pixel(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  const bool flt = std::is_same_v<S, Npp32f>;
+  const double ftol = 1e-6;
+  for (const GenCase &c : make_gen_cases(0)) {
+    Buf<S> s1(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
+    Buf<S> s2(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
+    Buf<S> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
+    const uint64_t seed = case_seed(id, c.w, c.h, s1.step, d.step, (int)c.regime, 0);
+    fill_regime(s1, C, seed, c.regime, 0, false, false, flt);
+    fill_regime(s2, C, seed ^ 0x51633e2dull, c.regime, 1, false, false, flt);
+    if constexpr (flt) {
+      auto clamp = [](Buf<S> &b) {
+        const size_t n = (size_t)(b.step / sizeof(S)) * (size_t)b.bh;
+        for (size_t i = 0; i < n; ++i) {
+          const double v = (double)b.hptr()[i];
+          if (v > 1e3) b.hptr()[i] = S(1e3);
+          else if (v < -1e3) b.hptr()[i] = S(-1e3);
+        }
+      };
+      clamp(s1);
+      clamp(s2);
+    }
+    {
+      Rng r(seed ^ 0xa5a5a5a5ull);
+      const size_t n1 = (size_t)(s1.step / sizeof(S)) * (size_t)s1.bh;
+      const size_t n2 = (size_t)(s2.step / sizeof(S)) * (size_t)s2.bh;
+      for (size_t i = 0; i < n1; ++i)
+        if ((int)(i % C) == A) {
+          if constexpr (flt) s1.hptr()[i] = (S)r.unit_double();
+          else if (s1.hptr()[i] >= S(AlphaFpRef<S>::kMax - (sizeof(S) == 2 ? 257 : 1)))
+            s1.hptr()[i] = S(AlphaFpRef<S>::kMax - (sizeof(S) == 2 ? 257 : 1));
+        }
+      for (size_t i = 0; i < n2; ++i)
+        if ((int)(i % C) == A) {
+          if constexpr (flt) s2.hptr()[i] = (S)r.unit_double();
+          else if (s2.hptr()[i] >= S(AlphaFpRef<S>::kMax - (sizeof(S) == 2 ? 257 : 1)))
+            s2.hptr()[i] = S(AlphaFpRef<S>::kMax - (sizeof(S) == 2 ? 257 : 1));
+        }
+    }
+    s1.dev.copyFromHost(s1.host);
+    s2.dev.copyFromHost(s2.host);
+    d.dev.copyFromHost(d.host);
+    for (int opi = 0; opi < 13; ++opi) {
+      const NppiAlphaOp op = (NppiAlphaOp)opi;
+      const std::vector<uint8_t> pre = d.host;
+      npp_diff::clear_cuda_error();
+      const NppStatus st = call(
+          reinterpret_cast<const S *>(s1.dptr() + off_bytes<S>(c.oy, c.ox, s1.step, C)), s1.step,
+          reinterpret_cast<const S *>(s2.dptr() + off_bytes<S>(c.oy, c.ox, s2.step, C)), s2.step,
+          reinterpret_cast<S *>(d.dptr() + off_bytes<S>(c.oy, c.ox, d.step, C)), d.step,
+          NppiSize{c.w, c.h}, op, ctx);
+      if (st != NPP_NO_ERROR) {
+        ++cnt.skipped;
+        if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+        continue;
+      }
+      const cudaError_t se = cudaDeviceSynchronize();
+      ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: "
+                                 << cudaGetErrorString(se);
+      d.dev.copyToHost(d.host);
+      ++cnt.executed;
+      std::vector<uint8_t> want = pre;
+      for (int y = 0; y < c.h; ++y)
+        for (int x = 0; x < c.w; ++x) {
+          const size_t base = off_bytes<S>(c.oy + y, c.ox + x, d.step, C);
+          const size_t b1 = off_bytes<S>(c.oy + y, c.ox + x, s1.step, C);
+          const size_t b2 = off_bytes<S>(c.oy + y, c.ox + x, s2.step, C);
+          const S a1 = s1.hptr()[(b1 / sizeof(S)) + A];
+          const S a2 = s2.hptr()[(b2 / sizeof(S)) + A];
+          for (int ch = 0; ch < A; ++ch) {
+            const S v1 = s1.hptr()[(b1 / sizeof(S)) + ch];
+            const S v2 = s2.hptr()[(b2 / sizeof(S)) + ch];
+            const S r = alpha_color_ref<S>(op, v1, v2, a1, a2);
+            std::memcpy(want.data() + base + (size_t)ch * sizeof(S), &r, sizeof(S));
+          }
+          const S ra = alpha_alpha_ref<S>(op, a1, a2);
+          std::memcpy(want.data() + base + (size_t)A * sizeof(S), &ra, sizeof(S));
+        }
+      bool failed = false;
+      for (int y = 0; y < c.h && !failed; ++y)
+        for (int x = 0; x < c.w && !failed; ++x)
+          for (int ch = 0; ch < C; ++ch) {
+            const size_t off = off_bytes<S>(c.oy + y, c.ox + x, d.step, C) + (size_t)ch * sizeof(S);
+            ++cnt.compared;
+            // OVER_PREMUL's composed alpha carries an extra rounding at
+            // large 16-bit alphas (measured: up to two LSB).
+            const int tol = flt ? 0
+                                : ((ch == A && op == NPPI_OP_ALPHA_OVER_PREMUL)
+                                       ? 2
+                                       : alpha_tol<S>(op));
+            if (!alpha_close<S>(d.host.data() + off, want.data() + off, flt ? 1e-4 : 0.0, tol)) {
+              char b[520];
+              const size_t q1 = off_bytes<S>(c.oy + y, c.ox + x, s1.step, C);
+              const size_t q2 = off_bytes<S>(c.oy + y, c.ox + x, s2.step, C);
+              std::snprintf(b, sizeof(b),
+                            "[%s] %s op=%d (%d,%d,ch=%d) v1=%s v2=%s a1=%s a2=%s got=%s want=%s",
+                            id, c.id().c_str(), opi, x, y, ch,
+                            dbg_elem<S>(reinterpret_cast<const uint8_t *>(s1.hptr() + q1 / sizeof(S) + ch)).c_str(),
+                            dbg_elem<S>(reinterpret_cast<const uint8_t *>(s2.hptr() + q2 / sizeof(S) + ch)).c_str(),
+                            dbg_elem<S>(reinterpret_cast<const uint8_t *>(s1.hptr() + q1 / sizeof(S) + A)).c_str(),
+                            dbg_elem<S>(reinterpret_cast<const uint8_t *>(s2.hptr() + q2 / sizeof(S) + A)).c_str(),
+                            dbg_elem<S>(d.host.data() + off).c_str(),
+                            dbg_elem<S>(want.data() + off).c_str());
+              if (first.empty()) first = b;
+              EXPECT_TRUE(false) << b;
+              ++cnt.mismatched;
+              failed = true;
+              break;
+            }
+          }
+      if (cnt.mismatched >= 8) return finish(id, cnt, first);
+    }
+  }
+  finish(id, cnt, first);
+}
+
+// Alpha premultiplication.  Constant-alpha AC4 writes the constant into the
+// destination alpha; pixel-alpha AC4 passes the source alpha through.
+template <typename S, int C, int A, bool ConstAlpha, bool AcAlpha, bool Inplace, class Call>
+void run_alphapremul(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  const bool flt = std::is_same_v<S, Npp32f>;
+  const double ftol = 1e-6;
+  std::vector<S> alphas;
+  if constexpr (ConstAlpha) alphas = alpha_singles<S>();
+  for (const GenCase &c : make_gen_cases(0)) {
+    Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
+    Buf<S> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
+    const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
+    fill_regime(s, C, seed, c.regime, 0, false, false, flt);
+    {
+      Rng r(seed ^ 0x5a5a5a5aull);
+      const size_t n = (size_t)(s.step / sizeof(S)) * (size_t)s.bh;
+      for (size_t i = 0; i < n; ++i)
+        if ((int)(i % C) == A) {
+          if constexpr (flt) s.hptr()[i] = (S)r.unit_double();
+          else if (s.hptr()[i] >= S(AlphaFpRef<S>::kMax - (sizeof(S) == 2 ? 257 : 1)))
+            s.hptr()[i] = S(AlphaFpRef<S>::kMax - (sizeof(S) == 2 ? 257 : 1));
+        }
+    }
+    const std::vector<uint8_t> src_in = s.host;
+    d.dev.copyFromHost(d.host);
+    const size_t count = ConstAlpha ? alphas.size() : 1;
+    for (size_t ai = 0; ai < count; ++ai) {
+      const S alpha = ConstAlpha ? alphas[ai] : S(0);
+      s.dev.copyFromHost(src_in);
+      d.dev.copyFromHost(d.host);
+      const std::vector<uint8_t> pre = d.host;
+      npp_diff::clear_cuda_error();
+      NppStatus st;
+      if constexpr (Inplace) {
+        st = call(alpha,
+                  reinterpret_cast<S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, C)), s.step,
+                  NppiSize{c.w, c.h}, ctx);
+      } else {
+        st = call(reinterpret_cast<const S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, C)),
+                  s.step, alpha,
+                  reinterpret_cast<S *>(d.dptr() + off_bytes<S>(c.oy, c.ox, d.step, C)), d.step,
+                  NppiSize{c.w, c.h}, ctx);
+      }
+      if (st != NPP_NO_ERROR) {
+        ++cnt.skipped;
+        if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+        continue;
+      }
+      const cudaError_t se = cudaDeviceSynchronize();
+      if constexpr (Inplace) s.dev.copyToHost(s.host);
+      else d.dev.copyToHost(d.host);
+      ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: "
+                                 << cudaGetErrorString(se);
+      ++cnt.executed;
+      std::vector<uint8_t> want = Inplace ? src_in : pre;
+      for (int y = 0; y < c.h; ++y)
+        for (int x = 0; x < c.w; ++x) {
+          const size_t so = off_bytes<S>(c.oy + y, c.ox + x, s.step, C);
+          const size_t wo = Inplace ? so : off_bytes<S>(c.oy + y, c.ox + x, d.step, C);
+          const S src_alpha =
+              *reinterpret_cast<const S *>(src_in.data() + so + (size_t)A * sizeof(S));
+          const S pa = ConstAlpha ? alpha : src_alpha;
+          for (int ch = 0; ch < A; ++ch) {
+            const S v = *reinterpret_cast<const S *>(src_in.data() + so + (size_t)ch * sizeof(S));
+            const S r = alpha_premul_ref<S>(v, pa);
+            std::memcpy(want.data() + wo + (size_t)ch * sizeof(S), &r, sizeof(S));
+          }
+          if constexpr (AcAlpha) {
+            const S out_alpha = ConstAlpha ? alpha : src_alpha;
+            std::memcpy(want.data() + wo + (size_t)A * sizeof(S), &out_alpha, sizeof(S));
+          }
+        }
+      const uint8_t *got_base = Inplace ? s.host.data() : d.host.data();
+      bool failed = false;
+      for (int y = 0; y < c.h && !failed; ++y)
+        for (int x = 0; x < c.w && !failed; ++x)
+          for (int ch = 0; ch < C; ++ch) {
+            const size_t off = off_bytes<S>(c.oy + y, c.ox + x, s.step, C) + (size_t)ch * sizeof(S);
+            ++cnt.compared;
+            if (!alpha_close<S>(got_base + off, want.data() + off, flt ? 1e-4 : 0.0, 0)) {
+              char b[380];
+              std::snprintf(b, sizeof(b), "[%s] %s (%d,%d,ch=%d) got=%s want=%s", id,
+                            c.id().c_str(), x, y, ch, dbg_elem<S>(got_base + off).c_str(),
+                            dbg_elem<S>(want.data() + off).c_str());
+              if (first.empty()) first = b;
+              EXPECT_TRUE(false) << b;
+              ++cnt.mismatched;
+              failed = true;
+              break;
+            }
+          }
+      if (cnt.mismatched >= 8) return finish(id, cnt, first);
+    }
+  }
+  finish(id, cnt, first);
+}
+
 }  // namespace num
