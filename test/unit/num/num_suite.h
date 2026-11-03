@@ -4198,4 +4198,69 @@ void run_alphapremul(const char *id, Call call) {
   finish(id, cnt, first);
 }
 
+// ---------------------------------------------------------------------------
+// Magnitude / MagnitudeSqr: complex (re, im) to real, computed in float32.
+// Magnitude is sqrtf(re*re + im*im), so large components overflow to inf
+// instead of using a hypot-style scaled computation.
+// ---------------------------------------------------------------------------
+template <bool Sqr, class Call>
+void run_magnitude(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  for (const GenCase &c : make_gen_cases(0)) {
+    Buf<Npp32fc> s(c.w + c.ox, c.h + c.oy, 1, c.pad, 0);
+    Buf<Npp32f> d(c.w + c.ox, c.h + c.oy, 1, c.pad, 0x5A);
+    const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
+    fill_regime(s, 1, seed, c.regime, 0);
+    s.dev.copyFromHost(s.host);
+    d.dev.copyFromHost(d.host);
+    npp_diff::clear_cuda_error();
+    const NppStatus st = call(
+        reinterpret_cast<const Npp32fc *>(s.dptr() + off_bytes<Npp32fc>(c.oy, c.ox, s.step, 1)),
+        s.step, reinterpret_cast<Npp32f *>(d.dptr() + off_bytes<Npp32f>(c.oy, c.ox, d.step, 1)),
+        d.step, NppiSize{c.w, c.h}, ctx);
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    const cudaError_t se = cudaDeviceSynchronize();
+    ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: "
+                               << cudaGetErrorString(se);
+    d.dev.copyToHost(d.host);
+    ++cnt.executed;
+    bool failed = false;
+    for (int y = 0; y < c.h && !failed; ++y)
+      for (int x = 0; x < c.w && !failed; ++x) {
+        const Npp32fc v = s.hptr()[(size_t)(c.oy + y) * (s.step / 8) + (c.ox + x)];
+        const float sq = v.re * v.re + v.im * v.im;
+        const float want = Sqr ? sq : std::sqrt(sq);
+        const size_t off = off_bytes<Npp32f>(c.oy + y, c.ox + x, d.step, 1);
+        ++cnt.compared;
+        float got = 0.0f;
+        std::memcpy(&got, d.host.data() + off, sizeof(float));
+        const bool ok = std::isinf(want)
+                            ? (std::isinf(got) && std::signbit(got) == std::signbit(want))
+                            : std::fabs((double)got - (double)want) <=
+                                  1e-5 * std::fabs((double)want) + 1e-6;
+        if (!ok) {
+          char b[320];
+          std::snprintf(b, sizeof(b), "[%s] %s (%d,%d) got=%.9g want=%.9g", id, c.id().c_str(), x,
+                        y, (double)got, (double)want);
+          if (first.empty()) first = b;
+          EXPECT_TRUE(false) << b;
+          ++cnt.mismatched;
+          failed = true;
+        }
+      }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
 }  // namespace num

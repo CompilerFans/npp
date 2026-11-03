@@ -112,6 +112,8 @@ SPECS: Dict[str, dict] = {
     "nppiAlphaComp": dict(kind="alphacomp"),
     "nppiAlphaPremulC": dict(kind="alphapremul_c"),
     "nppiAlphaPremul": dict(kind="alphapremul"),
+    "nppiMagnitude": dict(kind="magnitude", sqr=False),
+    "nppiMagnitudeSqr": dict(kind="magnitude", sqr=True),
 }
 
 # Alpha composition layouts: (channels per pixel, colour channels, has alpha).
@@ -363,6 +365,21 @@ def emit_test(row: dict, spec: dict) -> Optional[str]:
     fam = row["family"]
     if spec["kind"].startswith("alpha"):
         return emit_alpha(row, spec)
+    if spec["kind"] == "magnitude":
+        params = G.parse_params(row["params"])
+        if params is None:
+            return None
+        Si = ctype_of(params, "pSrc")
+        Di = ctype_of(params, "pDst")
+        if Si is None or Di is None:
+            return None
+        lam = (f"[](const {Si} *a, int sa, {Di} *d, int ds, NppiSize r, "
+               f"NppStreamContext c) {{ (void)sa; (void)ds; (void)r; (void)c; "
+               f"return {fn}(a, sa, d, ds, r, c); }}")
+        test_name = re.sub(r"\W", "_", fn)
+        sqr = str(spec["sqr"]).lower()
+        return (f"TEST(NumGen, {test_name}) {{\n  num::run_magnitude<{sqr}>(\n"
+                f"      \"{fn}\",\n      {lam});\n}}\n")
     par = layout(fn)
     if par is None:
         if spec["kind"] in ("copy", "set", "transpose", "dup", "swap"):

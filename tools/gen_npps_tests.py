@@ -103,6 +103,19 @@ def emit(row: dict) -> Optional[str]:
             return "sf"
         raise KeyError(n)
 
+    if fam == "nppsIntegral":
+        t = ctype_of(params, "pSrc")
+        dct = ctype_of(params, "pDst")
+        if t is None or dct is None:
+            return None
+        amap = {"pSrc": "s", "pDst": "d", "nLength": "n", "pDeviceBuffer": "buf",
+                "nppStreamCtx": "c"}
+        call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+        lam = (f"[](const {t} *s, {dct} *d, int n, Npp8u *buf, NppStreamContext c) "
+               f"{{ (void)n; (void)buf; (void)c; return {call}; }}")
+        test_name = re.sub(r"\W", "_", fn)
+        return (f"TEST(NumGenNpps, {test_name}) {{\n  num::run_npps_integral(\n"
+                f"      \"{fn}\",\n      {lam});\n}}\n")
     if fam == "nppsCopy":
         t = ctype_of(params, "pSrc")
         if t is None:

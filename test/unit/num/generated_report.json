@@ -142,5 +142,13 @@
     "reason": "later batch / masked / complex"
    }
   ]
+ },
+ "nppi_linear_transforms.h": {
+  "emitted": 2,
+  "skipped": []
+ },
+ "npps_filtering_functions.h": {
+  "emitted": 1,
+  "skipped": []
  }
 }

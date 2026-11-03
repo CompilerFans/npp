@@ -3045,4 +3045,64 @@ void run_npps_buffer_size(const char *id, Call call) {
   finish(id, cnt, first);
 }
 
+// ---------------------------------------------------------------------------
+// nppsIntegral_32s: EXCLUSIVE prefix sum, dst[i] = sum(src[0..i-1]) with
+// dst[0] = 0, using 32-bit wraparound.
+// ---------------------------------------------------------------------------
+template <class Call>
+void run_npps_integral(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  Buf<uint8_t> scratch(kNppsStatScratch, 1, 1, 0, 0);
+  scratch.dev.copyFromHost(scratch.host);
+  for (const NppsCase &c : make_npps_cases(0)) {
+    Buf<Npp32s> a(c.n, 1, 1, 0, 0);
+    Buf<Npp32s> d(c.n, 1, 1, 0, 0x5A);
+    const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, 0);
+    fill_npps(a, seed, c.regime, 0);
+    a.dev.copyFromHost(a.host);
+    d.dev.copyFromHost(d.host);
+    npp_diff::clear_cuda_error();
+    const NppStatus st = call(
+        reinterpret_cast<const Npp32s *>(a.dptr()), reinterpret_cast<Npp32s *>(d.dptr()), c.n,
+        reinterpret_cast<Npp8u *>(scratch.dptr()), ctx);
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    const cudaError_t se = cudaDeviceSynchronize();
+    ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: "
+                               << cudaGetErrorString(se);
+    d.dev.copyToHost(d.host);
+    ++cnt.executed;
+    std::vector<Npp32s> want((size_t)c.n);
+    uint32_t acc = 0;
+    for (int i = 0; i < c.n; ++i) {
+      want[(size_t)i] = (Npp32s)acc;
+      acc += (uint32_t)a.hptr()[i];
+    }
+    bool failed = false;
+    for (int i = 0; i < c.n && !failed; ++i) {
+      ++cnt.compared;
+      if (d.hptr()[i] != want[(size_t)i]) {
+        char b[300];
+        std::snprintf(b, sizeof(b), "[%s] %s i=%d got=%d want=%d", id, c.id().c_str(), i,
+                      (int)d.hptr()[i], (int)want[(size_t)i]);
+        if (first.empty()) first = b;
+        EXPECT_TRUE(false) << b;
+        ++cnt.mismatched;
+        failed = true;
+      }
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
 }  // namespace num
