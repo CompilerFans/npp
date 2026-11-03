@@ -100,6 +100,57 @@ def emit(row: dict) -> Optional[str]:
     if params is None:
         return None
     name = re.sub(r"\W", "_", fn)
+    # --- circular radial profile ----------------------------------------
+    if row["family"] == "nppiCircularRadialProfile":
+        if row["dtype"] != "32f":
+            return None
+        lam = ("[](const Npp32f *p, int st, NppiSize roi, NppiPoint32f ctr, "
+               "NppiProfileData *out, Npp16u samples, NppStreamContext c) { "
+               "(void)st; (void)roi; (void)ctr; (void)out; (void)samples; (void)c; return "
+               + fn + "(p, st, roi, ctr, out, samples, c); }")
+        return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                f"  num::run_nppi_circular_radial_profile(\n      \"{fn}\",\n"
+                f"      {lam});\n}}\n")
+    # --- elliptical radial profile --------------------------------------
+    if row["family"] == "nppiEllipticalRadialProfile":
+        if row["dtype"] != "32f":
+            return None
+        lam = ("[](const Npp32f *p, int st, NppiSize roi, NppiPoint32f ctr, Npp32f ratio, "
+               "Npp32f orient, NppiProfileData *out, Npp16u samples, NppStreamContext c) { "
+               "(void)st; (void)roi; (void)ctr; (void)ratio; (void)orient; (void)out; "
+               "(void)samples; (void)c; return " + fn +
+               "(p, st, roi, ctr, ratio, orient, out, samples, c); }")
+        return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                f"  num::run_nppi_elliptical_radial_profile(\n      \"{fn}\",\n"
+                f"      {lam});\n}}\n")
+    # --- even histogram levels (host-side) -------------------------------
+    if row["family"] == "nppiEvenLevelsHost":
+        plain = re.sub(r"_Ctx$", "", fn)
+        lam = ("[](Npp32s *lv, int n, Npp32s lo, Npp32s hi, NppStreamContext c) {\n"
+               "#ifdef USE_NVIDIA_NPP_TESTS\n"
+               "        (void)c;\n"
+               f"        return {plain}(lv, n, lo, hi);\n"
+               "#else\n"
+               f"        return {fn}(lv, n, lo, hi, c);\n"
+               "#endif\n"
+               "      }")
+        return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                f"  num::run_nppi_even_levels_host(\n      \"{fn}\",\n      {lam});\n}}\n")
+    # --- batch image quality metrics ------------------------------------
+    if row["family"] in ("nppiMSEBatch", "nppiPSNRBatch"):
+        m = re.search(r"_8u_C([13])R(_Advanced)?_Ctx$", fn)
+        if m is None:
+            return None
+        C = int(m.group(1))
+        adv = m.group(2) is not None
+        psnr = row["family"] == "nppiPSNRBatch"
+        lam = ("[](const NppiImageDescriptor *a, const NppiImageDescriptor *b, int nb, "
+               "NppiSize r, Npp32f *o, NppiBufferDescriptor *buf, NppStreamContext c) "
+               "{ (void)r; (void)buf; (void)c; return " + fn + "(a, b, nb, r, o, buf, c); }")
+        prefix = (f"num::run_nppi_metric_batch<{C}, {str(psnr).lower()}, "
+                  f"{str(adv).lower()}>")
+        return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                f"  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
     # --- GetBufferHostSize smoke test ------------------------------------
     if "GetBufferHostSize" in fn:
         lam = (
@@ -491,6 +542,13 @@ def emit(row: dict) -> Optional[str]:
 
     # --- MinMaxIndx -------------------------------------------------------
     if fn.startswith("nppiMinMaxIndx_"):
+        if any(p.name == "nCOI" for p in params):
+            lam = (f"[](const {S} *p, int step, NppiSize roi, int coi, {S} *mn, {S} *mx, "
+                   f"NppiPoint *pi, NppiPoint *qi, Npp8u *buf, NppStreamContext c) "
+                   f"{{ (void)buf; (void)c; return {fn}(p, step, roi, coi, mn, mx, pi, qi, buf, c); }}")
+            return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                    f"  num::run_nppi_minmaxindx_coi<{S}, {C}>(\n      \"{fn}\",\n"
+                    f"      {lam});\n}}\n")
         if rest != "R":
             return None
         lam = (f"[](const {S} *p, int step, NppiSize roi, {S} *mn, {S} *mx, NppiPoint *pi, "

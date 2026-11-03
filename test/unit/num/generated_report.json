@@ -95,70 +95,10 @@
   "skipped": []
  },
  "nppi_statistics_functions.h": {
-  "emitted": 1619,
+  "emitted": 1634,
   "skipped": [
    {
-    "function": "nppiCircularRadialProfile_32f_C1R_Ctx",
-    "reason": "later batch / masked / complex"
-   },
-   {
-    "function": "nppiEllipticalRadialProfile_32f_C1R_Ctx",
-    "reason": "later batch / masked / complex"
-   },
-   {
-    "function": "nppiEvenLevelsHost_32s_Ctx",
-    "reason": "later batch / masked / complex"
-   },
-   {
-    "function": "nppiMSEBatch_8u_C1R_Advanced_Ctx",
-    "reason": "later batch / masked / complex"
-   },
-   {
-    "function": "nppiMSEBatch_8u_C1R_Ctx",
-    "reason": "later batch / masked / complex"
-   },
-   {
-    "function": "nppiMSEBatch_8u_C3R_Advanced_Ctx",
-    "reason": "later batch / masked / complex"
-   },
-   {
-    "function": "nppiMSEBatch_8u_C3R_Ctx",
-    "reason": "later batch / masked / complex"
-   },
-   {
     "function": "nppiMSSSIM_8u_C1R_Ctx",
-    "reason": "later batch / masked / complex"
-   },
-   {
-    "function": "nppiMinMaxIndx_16u_C3CR_Ctx",
-    "reason": "later batch / masked / complex"
-   },
-   {
-    "function": "nppiMinMaxIndx_32f_C3CR_Ctx",
-    "reason": "later batch / masked / complex"
-   },
-   {
-    "function": "nppiMinMaxIndx_8s_C3CR_Ctx",
-    "reason": "later batch / masked / complex"
-   },
-   {
-    "function": "nppiMinMaxIndx_8u_C3CR_Ctx",
-    "reason": "later batch / masked / complex"
-   },
-   {
-    "function": "nppiPSNRBatch_8u_C1R_Advanced_Ctx",
-    "reason": "later batch / masked / complex"
-   },
-   {
-    "function": "nppiPSNRBatch_8u_C1R_Ctx",
-    "reason": "later batch / masked / complex"
-   },
-   {
-    "function": "nppiPSNRBatch_8u_C3R_Advanced_Ctx",
-    "reason": "later batch / masked / complex"
-   },
-   {
-    "function": "nppiPSNRBatch_8u_C3R_Ctx",
     "reason": "later batch / masked / complex"
    },
    {

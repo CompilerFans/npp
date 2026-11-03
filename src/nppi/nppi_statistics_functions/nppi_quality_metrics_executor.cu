@@ -611,9 +611,17 @@ NppStatus runRectStdDevS32(const Npp32s *pSrc, int nSrcStep, const Npp32s *pSqr,
 NppStatus evenLevelsHost(Npp32s *hpLevels, int nLevels, Npp32s nLowerLevel, Npp32s nUpperLevel) {
   if (!hpLevels) return NPP_NULL_POINTER_ERROR;
   if (nLevels < 2) return NPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR;
-  for (int i = 0; i < nLevels; ++i) {
-    const double ratio = (double)i / (double)(nLevels - 1);
-    hpLevels[i] = (Npp32s)(nLowerLevel + ratio * (nUpperLevel - nLowerLevel));
+  // NPP walks from the lower level, adding ceil(remaining_gap / remaining
+  // steps) at each step.  The division is unsigned 32-bit, so a reversed
+  // range wraps exactly like the reference (measured).
+  Npp32s v = nLowerLevel;
+  hpLevels[0] = v;
+  for (int i = 1; i < nLevels; ++i) {
+    const Npp32u num = (Npp32u)(nUpperLevel - v);
+    const Npp32u den = (Npp32u)(nLevels - i);
+    const Npp32u delta = num / den + (num % den ? 1u : 0u);
+    v = (Npp32s)((Npp32u)v + delta);
+    hpLevels[i] = v;
   }
   return NPP_NO_ERROR;
 }

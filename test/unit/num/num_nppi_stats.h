@@ -645,6 +645,80 @@ void run_nppi_minmaxindx(const char *id, Call call) {
   finish(id, cnt, first);
 }
 
+// MinMaxIndx with a channel-of-interest index (C3C layouts).
+template <typename S, int C, class Call>
+void run_nppi_minmaxindx_coi(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  Buf<uint8_t> scratch(kNppiStatScratch, 1, 1, 0, 0);
+  scratch.dev.copyFromHost(scratch.host);
+  const bool finite = std::is_floating_point_v<S>;
+  for (const GenCase &c : make_gen_cases(0)) {
+    if (c.w * c.h < 2) continue;
+    Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
+    const uint64_t seed = case_seed(id, c.w, c.h, s.step, 0, (int)c.regime, 0);
+    fill_regime(s, C, seed, c.regime, 0, false, false, finite);
+    nppi_fill_unique_extrema<S, C>(s, c, C);
+    s.dev.copyFromHost(s.host);
+    bool stop = false;
+    for (int coi = 0; coi < C && !stop; ++coi) {
+      Buf<S> mn(4, 1, 1, 0, 0x5A), mx(4, 1, 1, 0, 0x5A);
+      Buf<Npp32s> pi(8, 1, 1, 0, 0x5A), qi(8, 1, 1, 0, 0x5A);
+      mn.dev.copyFromHost(mn.host); mx.dev.copyFromHost(mx.host);
+      pi.dev.copyFromHost(pi.host); qi.dev.copyFromHost(qi.host);
+      npp_diff::clear_cuda_error();
+      NppStatus st = call(
+          reinterpret_cast<const S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, C)), s.step,
+          NppiSize{c.w, c.h}, coi, reinterpret_cast<S *>(mn.dptr()),
+          reinterpret_cast<S *>(mx.dptr()), reinterpret_cast<NppiPoint *>(pi.dptr()),
+          reinterpret_cast<NppiPoint *>(qi.dptr()), reinterpret_cast<Npp8u *>(scratch.dptr()), ctx);
+      if (st != NPP_NO_ERROR) {
+        ++cnt.skipped;
+        if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+        continue;
+      }
+      const cudaError_t se = cudaDeviceSynchronize();
+      ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: "
+                                 << cudaGetErrorString(se);
+      mn.dev.copyToHost(mn.host); mx.dev.copyToHost(mx.host);
+      pi.dev.copyToHost(pi.host); qi.dev.copyToHost(qi.host);
+      ++cnt.executed;
+      const S v0 = nppi_roi_at<S, C>(s, c, 0, 0, coi);
+      S vmin = v0, vmax = v0;
+      int minx = 0, miny = 0, maxx = 0, maxy = 0;
+      for (int y = 0; y < c.h; ++y)
+        for (int x = 0; x < c.w; ++x) {
+          const S v = nppi_roi_at<S, C>(s, c, x, y, coi);
+          if (v < vmin) { vmin = v; minx = x; miny = y; }
+          if (v > vmax) { vmax = v; maxx = x; maxy = y; }
+        }
+      const NppiPoint *gp = reinterpret_cast<const NppiPoint *>(pi.host.data());
+      const NppiPoint *gq = reinterpret_cast<const NppiPoint *>(qi.host.data());
+      ++cnt.compared;
+      if (!equal_elem<S>(mn.host.data(), reinterpret_cast<const uint8_t *>(&vmin), 0, 0) ||
+          !equal_elem<S>(mx.host.data(), reinterpret_cast<const uint8_t *>(&vmax), 0, 0) ||
+          gp->x != minx || gp->y != miny || gq->x != maxx || gq->y != maxy) {
+        char b[400];
+        std::snprintf(b, sizeof(b),
+                      "[%s] %s coi=%d got=(%d@%d,%d,%d@%d,%d) want=(%d@%d,%d,%d@%d,%d)", id,
+                      c.id().c_str(), coi, (int)mn.host[0], gp->x, gp->y, (int)mx.host[0], gq->x,
+                      gq->y, (int)vmin, minx, miny, (int)vmax, maxx, maxy);
+        if (first.empty()) first = b;
+        EXPECT_TRUE(false) << b;
+        ++cnt.mismatched;
+        stop = true;
+      }
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
 template <typename S, int C, int A, bool IsMax, class Call>
 void run_nppi_every(const char *id, Call call) {
   NppStreamContext ctx{};
@@ -739,6 +813,347 @@ void run_nppi_buffer_size(const char *id, Call call) {
   finish(id, cnt, first);
 }
 
+
+// ---------------------------------------------------------------------------
+// nppiEvenLevelsHost: NPP walks from the lower level and adds
+// ceil(remaining_gap / remaining_steps) each step using unsigned 32-bit
+// arithmetic; a reversed range therefore wraps like the reference.
+// ---------------------------------------------------------------------------
+template <class Call>
+void run_nppi_even_levels_host(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  struct Cfg {
+    int n;
+    Npp32s lo, hi;
+  };
+  static const Cfg cfgs[] = {
+      {2, 0, 255},     {3, 0, 255},     {4, -10, 10},    {5, 0, 10},
+      {6, -100, 100},  {9, -100, 100},  {17, -100, 100}, {33, -100, 100},
+      {17, 0, 100},    {256, 0, 65535}, {3, -32768, 32767}, {2, 100, 100},
+      {7, 100, -100},  {9, 100, -100},  {1, 0, 255},     {0, 0, 255}};
+  for (const Cfg &cfg : cfgs) {
+    std::vector<Npp32s> levels((size_t)std::max(cfg.n, 1) + 4, (Npp32s)0x5A5A5A5A);
+    npp_diff::clear_cuda_error();
+    const NppStatus st = call(levels.data(), cfg.n, cfg.lo, cfg.hi, ctx);
+    if (cfg.n < 2) {
+      ++cnt.executed;
+      ++cnt.compared;
+      if (st != NPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR) {
+        char b[240];
+        std::snprintf(b, sizeof(b), "[%s] n=%d expected NPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR got %d",
+                      id, cfg.n, (int)st);
+        if (first.empty()) first = b;
+        EXPECT_TRUE(false) << b;
+        ++cnt.mismatched;
+      }
+      continue;
+    }
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    ++cnt.executed;
+    std::vector<Npp32s> want((size_t)cfg.n);
+    Npp32s v = cfg.lo;
+    want[0] = v;
+    for (int i = 1; i < cfg.n; ++i) {
+      const Npp32u num = (Npp32u)(cfg.hi - v);
+      const Npp32u den = (Npp32u)(cfg.n - i);
+      const Npp32u delta = num / den + (num % den ? 1u : 0u);
+      v = (Npp32s)((Npp32u)v + delta);
+      want[(size_t)i] = v;
+    }
+    bool failed = false;
+    for (int i = 0; i < cfg.n && !failed; ++i) {
+      ++cnt.compared;
+      if (levels[(size_t)i] != want[(size_t)i]) {
+        char b[260];
+        std::snprintf(b, sizeof(b), "[%s] n=%d lo=%d hi=%d level[%d]=%d want=%d", id, cfg.n,
+                      (int)cfg.lo, (int)cfg.hi, i, (int)levels[(size_t)i],
+                      (int)want[(size_t)i]);
+        if (first.empty()) first = b;
+        EXPECT_TRUE(false) << b;
+        ++cnt.mismatched;
+        failed = true;
+      }
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+// ---------------------------------------------------------------------------
+// nppiCircularRadialProfile: ring 0 samples the pixels within one unit of the
+// centre; ring k samples, for each row |dy| <= k, the pixels at
+// floor(cx - sqrt(k^2-dy^2)) and ceil(cx + sqrt(k^2-dy^2)) (one sample when
+// both coincide).  NppiProfileData is a HOST array; the entries hold the
+// sample count, mean and population standard deviation.
+// ---------------------------------------------------------------------------
+template <class Call>
+void run_nppi_circular_radial_profile(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  struct Cfg {
+    int w, h;
+    float cx, cy;
+    int samples;
+  };
+  static const std::vector<Cfg> cfgs = [] {
+    std::vector<Cfg> v;
+    const int sizes[][2] = {{17, 17}, {33, 17}, {64, 48}, {257, 129}, {9, 9}};
+    for (auto &s : sizes) {
+      const float cx = (float)(s[0] / 2), cy = (float)(s[1] / 2);
+      v.push_back({s[0], s[1], cx, cy, 6});
+      v.push_back({s[0], s[1], cx + 0.5f, cy + 0.5f, 6});
+      v.push_back({s[0], s[1], 2.5f, 3.25f, 5});
+      v.push_back({s[0], s[1], cx, cy, 1});
+      v.push_back({s[0], s[1], cx, cy, 12});
+    }
+    return v;
+  }();
+  for (const Cfg &c : cfgs) {
+    Buf<Npp32f> s(c.w, c.h, 1, 0, 0);
+    const uint64_t seed = case_seed(id, c.w, c.h, s.step, 0, 0, c.samples);
+    fill_regime(s, 1, seed, kWide, 0, false, false, true);
+    s.dev.copyFromHost(s.host);
+    std::vector<NppiProfileData> out((size_t)c.samples + 2);
+    for (auto &o : out) {
+      o.nPixels = -7;
+      o.nMeanIntensity = -7.0f;
+      o.nStdDevIntensity = -7.0f;
+    }
+    npp_diff::clear_cuda_error();
+    const NppStatus st = call(
+        reinterpret_cast<const Npp32f *>(s.dptr()), s.step, NppiSize{c.w, c.h},
+        NppiPoint32f{c.cx, c.cy}, out.data(), (Npp16u)c.samples, ctx);
+
+    {
+      const cudaError_t se = cudaDeviceSynchronize();
+      ASSERT_EQ(se, cudaSuccess) << "[" << id << "] sync: " << cudaGetErrorString(se);
+    }    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    ++cnt.executed;
+    std::vector<double> sum((size_t)c.samples, 0.0), sq((size_t)c.samples, 0.0);
+    std::vector<int> n((size_t)c.samples, 0);
+    // ring 0
+    {
+      const int x0 = std::max((int)std::floor(c.cx) - 1, 0);
+      const int y0 = std::max((int)std::floor(c.cy) - 1, 0);
+      const int x1 = std::min((int)std::ceil(c.cx) + 1, c.w - 1);
+      const int y1 = std::min((int)std::ceil(c.cy) + 1, c.h - 1);
+      for (int y = y0; y <= y1; ++y)
+        for (int x = x0; x <= x1; ++x) {
+          const double dx = (double)x - (double)c.cx;
+          const double dy = (double)y - (double)c.cy;
+          if (dx * dx + dy * dy >= 1.0) continue;
+          const double v = (double)s.hptr()[(size_t)y * (s.step / 4) + x];
+          sum[0] += v;
+          sq[0] += v * v;
+          ++n[0];
+        }
+    }
+    for (int k = 1; k < c.samples; ++k) {
+      const int ylo = std::max((int)std::ceil((double)c.cy - k), 0);
+      const int yhi = std::min((int)std::floor((double)c.cy + k), c.h - 1);
+      for (int y = ylo; y <= yhi; ++y) {
+        const double dy = (double)y - (double)c.cy;
+        if (std::fabs(dy) > k) continue;
+        const double v = std::sqrt(std::max(0.0, (double)k * k - dy * dy));
+        const int xl = (int)std::floor((double)c.cx - v);
+        const int xr = (int)std::ceil((double)c.cx + v);
+        const auto add = [&](int x) {
+          if (x < 0 || x >= c.w) return;
+          const double p = (double)s.hptr()[(size_t)y * (s.step / 4) + x];
+          sum[(size_t)k] += p;
+          sq[(size_t)k] += p * p;
+          ++n[(size_t)k];
+        };
+        add(xl);
+        if (xr != xl) add(xr);
+      }
+    }
+    bool failed = false;
+    for (int k = 0; k < c.samples && !failed; ++k) {
+      ++cnt.compared;
+      double mean = 0.0, sd = 0.0;
+      if (n[(size_t)k] > 0) {
+        mean = sum[(size_t)k] / n[(size_t)k];
+        const double var = sq[(size_t)k] / n[(size_t)k] - mean * mean;
+        sd = std::sqrt(var > 0.0 ? var : 0.0);
+      }
+      const NppiProfileData &g = out[(size_t)k];
+      // NPP accumulates the moments in single precision, so a one-sample
+      // ring comes back with a tiny non-zero standard deviation.
+      const double sd_tol =
+          1e-5 + 1e-3 * std::max(std::fabs(mean), std::fabs((double)g.nMeanIntensity));
+      if (g.nPixels != n[(size_t)k] ||
+          std::fabs((double)g.nMeanIntensity - mean) > 1e-5 * std::fabs(mean) + 1e-5 ||
+          std::fabs((double)g.nStdDevIntensity - sd) > sd_tol) {
+        char b[360];
+        std::snprintf(b, sizeof(b),
+                      "[%s] %dx%d c=(%g,%g) s=%d ring=%d got=(n=%d m=%.9g s=%.9g) "
+                      "want=(n=%d m=%.9g s=%.9g)",
+                      id, c.w, c.h, (double)c.cx, (double)c.cy, c.samples, k, g.nPixels,
+                      (double)g.nMeanIntensity, (double)g.nStdDevIntensity, n[(size_t)k], mean, sd);
+        if (first.empty()) first = b;
+        EXPECT_TRUE(false) << b;
+        ++cnt.mismatched;
+        failed = true;
+      }
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+// ---------------------------------------------------------------------------
+// nppiEllipticalRadialProfile: ring k is the dense band
+//   k^2 <= t^2 < (k+1)^2,
+//   t^2 = u^2/ratio^2 + v^2,  u = dx*f1 + (-dy)*f0,  v = dx*f0 - (-dy)*f1,
+// with f0 = cos(orientation), f1 = -sin(orientation), evaluated in float32
+// FMA order.  Each ring scans only rows [floor(cy-k*ratio),
+// +ceil(2*(k+1)*ratio)] and columns [floor(cx-k*ratio), ceil(cx+k*ratio)]
+// (the NPP 13.4 scan crop), then reports count/mean/population stddev.
+// ---------------------------------------------------------------------------
+template <class Call>
+void run_nppi_elliptical_radial_profile(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  struct Cfg {
+    int w, h;
+    float cx, cy, ratio, orient;
+    int samples;
+  };
+  static const std::vector<Cfg> cfgs = [] {
+    std::vector<Cfg> v;
+    const int sizes[][2] = {{9, 9}, {33, 17}, {64, 48}, {257, 129}};
+    const float ratios[] = {1.0f, 1.5f, 2.0f, 3.7f};
+    const float orients[] = {0.0f, 0.3f, 1.2f};
+    for (auto &s : sizes) {
+      const float cx = (float)(s[0] / 2), cy = (float)(s[1] / 2);
+      v.push_back({s[0], s[1], cx, cy, 2.0f, 0.3f, 4});
+      v.push_back({s[0], s[1], cx + 0.5f, cy + 0.5f, 1.5f, 1.2f, 6});
+      v.push_back({s[0], s[1], 2.5f, 3.25f, 3.7f, 0.0f, 5});
+      for (float r : ratios) v.push_back({s[0], s[1], cx, cy, r, orients[(int)(r * 10) % 3], 8});
+      v.push_back({s[0], s[1], cx, cy, 2.0f, 0.5f, 1});
+    }
+    return v;
+  }();
+  for (const Cfg &c : cfgs) {
+    Buf<Npp32f> s(c.w, c.h, 1, 0, 0);
+    const uint64_t seed = case_seed(id, c.w, c.h, s.step, 0, 1, c.samples);
+    fill_regime(s, 1, seed, kWide, 0, false, false, true);
+    s.dev.copyFromHost(s.host);
+    std::vector<NppiProfileData> out((size_t)c.samples + 2);
+    for (auto &o : out) {
+      o.nPixels = -7;
+      o.nMeanIntensity = -7.0f;
+      o.nStdDevIntensity = -7.0f;
+    }
+    npp_diff::clear_cuda_error();
+    const NppStatus st = call(
+        reinterpret_cast<const Npp32f *>(s.dptr()), s.step, NppiSize{c.w, c.h},
+        NppiPoint32f{c.cx, c.cy}, c.ratio, c.orient, out.data(), (Npp16u)c.samples, ctx);
+
+    {
+      const cudaError_t se = cudaDeviceSynchronize();
+      ASSERT_EQ(se, cudaSuccess) << "[" << id << "] sync: " << cudaGetErrorString(se);
+    }    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    ++cnt.executed;
+    const float f0 = std::cos(c.orient);
+    const float f1 = -std::sin(c.orient);
+    const float ratio2 = c.ratio * c.ratio;
+    const float invRatio2 = 1.0f / ratio2;
+    bool failed = false;
+    for (int ring = 0; ring < c.samples && !failed; ++ring) {
+      const float kf = (float)ring;
+      const float k1f = (float)(ring + 1);
+      const float k2 = kf * kf;
+      const float k12 = k1f * k1f;
+      const float xloF = std::fma(-kf, c.ratio, c.cx);
+      const float xhiF = std::fma(kf, c.ratio, c.cx);
+      const float ystartF = std::fma(-kf, c.ratio, c.cy);
+      const float yspanF = (float)(2 * (ring + 1)) * c.ratio;
+      const int xlo = std::max((int)std::floor(xloF), 0);
+      const int xhi = std::min((int)std::ceil(xhiF), c.w - 1);
+      const long long ystart = (long long)(int)std::floor(ystartF);
+      const long long yspan = (long long)(int)std::ceil(yspanF);
+      const long long ylo = std::max(0LL, ystart);
+      const long long yhi = std::min((long long)c.h - 1, ystart + yspan);
+      double sum = 0.0, sq = 0.0;
+      int count = 0;
+      for (long long yy = ylo; yy <= yhi; ++yy) {
+        const int y = (int)yy;
+        const float b = c.cy - (float)y;
+        const float bf0 = b * f0;
+        const float bf1 = b * f1;
+        for (int x = xlo; x <= xhi; ++x) {
+          const float a = c.cx - (float)x;
+          const float u = std::fma(a, f1, bf0);
+          const float v = std::fma(a, f0, -bf1);
+          const float t2 = std::fma(v, v, (u * u) * invRatio2);
+          if (t2 >= k2 && t2 < k12) {
+            const double p = (double)s.hptr()[(size_t)y * (s.step / 4) + x];
+            sum += p;
+            sq += p * p;
+            ++count;
+          }
+        }
+      }
+      double mean = 0.0, sd = 0.0;
+      if (count > 0) {
+        mean = sum / count;
+        const double var = sq / count - mean * mean;
+        sd = std::sqrt(var > 0.0 ? var : 0.0);
+      }
+      const NppiProfileData &g = out[(size_t)ring];
+      ++cnt.compared;
+      const double sd_tol =
+          1e-5 + 1e-3 * std::max(std::fabs(mean), std::fabs((double)g.nMeanIntensity));
+      if (g.nPixels != count ||
+          std::fabs((double)g.nMeanIntensity - mean) > 1e-5 * std::fabs(mean) + 1e-5 ||
+          std::fabs((double)g.nStdDevIntensity - sd) > sd_tol) {
+        char b[400];
+        std::snprintf(b, sizeof(b),
+                      "[%s] %dx%d c=(%g,%g) ratio=%g orient=%g s=%d ring=%d "
+                      "got=(n=%d m=%.9g s=%.9g) want=(n=%d m=%.9g s=%.9g)",
+                      id, c.w, c.h, (double)c.cx, (double)c.cy, (double)c.ratio,
+                      (double)c.orient, c.samples, ring, g.nPixels,
+                      (double)g.nMeanIntensity, (double)g.nStdDevIntensity, count, mean, sd);
+        if (first.empty()) first = b;
+        EXPECT_TRUE(false) << b;
+        ++cnt.mismatched;
+        failed = true;
+      }
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
 
 // ---------------------------------------------------------------------------
 // Histograms (Even / Range).  NPP histograms have nLevels-1 bins per active
@@ -1296,6 +1711,147 @@ void run_nppi_mse(const char *id, Call call) {
         break;
       }
     }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+// ---------------------------------------------------------------------------
+// MSEBatch / PSNRBatch.  Batch lists are device arrays of NppiImageDescriptor
+// (data pointer, step, per-image size) and NppiBufferDescriptor.  The normal
+// entry points apply the shared oSizeROI to every image; the Advanced
+// variants use each descriptor's oSize and take oMaxSizeROI.  Output is one
+// value per image and channel; PSNR is 10*log10(255^2/MSE) and +inf when the
+// images are identical.
+// ---------------------------------------------------------------------------
+template <int C, bool Psnr, bool Advanced, class Call>
+void run_nppi_metric_batch(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  struct BatchCfg {
+    int w, h, batch, pad;
+  };
+  static const BatchCfg cfgs[] = {{7, 5, 3, 0}, {33, 17, 4, 0}, {257, 129, 2, 0},
+                                  {64, 48, 3, 16}, {1, 1, 1, 0}, {3, 2, 2, 8}};
+  for (const BatchCfg &cfg : cfgs) {
+    const int B = cfg.batch;
+    std::vector<Buf<uint8_t> *> bufs;
+    std::vector<int> ws(B), hs(B);
+    std::vector<std::vector<uint8_t>> src1_host(B), src2_host(B);
+    for (int i = 0; i < B; ++i) {
+      if constexpr (Advanced) {
+        ws[i] = std::max(1, cfg.w >> i);
+        hs[i] = std::max(1, cfg.h >> i);
+      } else {
+        ws[i] = cfg.w;
+        hs[i] = cfg.h;
+      }
+    }
+    auto make_img = [&](int i, uint64_t seed, bool clone_first) {
+      Buf<uint8_t> *a = new Buf<uint8_t>(ws[i], hs[i], C, cfg.pad, 0);
+      Buf<uint8_t> *b = new Buf<uint8_t>(ws[i], hs[i], C, cfg.pad, 0);
+      fill_regime(*a, C, seed, (i & 1) ? kWide : kSmall, i);
+      if (clone_first && i == 0) {
+        b->host = a->host;
+      } else {
+        fill_regime(*b, C, seed ^ 0x51633e2dull, (i & 1) ? kSmall : kWide, i + 7);
+      }
+      a->dev.copyFromHost(a->host);
+      b->dev.copyFromHost(b->host);
+      src1_host[(size_t)i] = a->host;
+      src2_host[(size_t)i] = b->host;
+      bufs.push_back(a);
+      bufs.push_back(b);
+    };
+    const uint64_t seed = case_seed(id, cfg.w, cfg.h, cfg.pad, B, 0, 0);
+    for (int i = 0; i < B; ++i) make_img(i, seed ^ mix64((uint64_t)i), true);
+
+    std::vector<NppiImageDescriptor> h1(B), h2(B);
+    for (int i = 0; i < B; ++i) {
+      // image buffers are stored as [a,b] pairs in bufs
+      Buf<uint8_t> *a = bufs[(size_t)i * 2];
+      Buf<uint8_t> *b = bufs[(size_t)i * 2 + 1];
+      h1[i] = {(void *)a->dptr(), a->step, NppiSize{ws[i], hs[i]}};
+      h2[i] = {(void *)b->dptr(), b->step, NppiSize{ws[i], hs[i]}};
+    }
+    Buf<uint8_t> d1(sizeof(NppiImageDescriptor) * B, 1, 1, 0, 0);
+    Buf<uint8_t> d2(sizeof(NppiImageDescriptor) * B, 1, 1, 0, 0);
+    std::memcpy(d1.host.data(), h1.data(), sizeof(NppiImageDescriptor) * B);
+    std::memcpy(d2.host.data(), h2.data(), sizeof(NppiImageDescriptor) * B);
+    d1.dev.copyFromHost(d1.host);
+    d2.dev.copyFromHost(d2.host);
+    std::vector<NppiBufferDescriptor> hbuf(B);
+    std::vector<Buf<uint8_t> *> scratch(B);
+    for (int i = 0; i < B; ++i) {
+      scratch[(size_t)i] = new Buf<uint8_t>(1 << 16, 1, 1, 0, 0);
+      scratch[(size_t)i]->dev.copyFromHost(scratch[(size_t)i]->host);
+      hbuf[i] = {(void *)scratch[(size_t)i]->dptr(), 1 << 16};
+    }
+    Buf<uint8_t> dbuf(sizeof(NppiBufferDescriptor) * B, 1, 1, 0, 0);
+    std::memcpy(dbuf.host.data(), hbuf.data(), sizeof(NppiBufferDescriptor) * B);
+    dbuf.dev.copyFromHost(dbuf.host);
+    Buf<Npp32f> out(B * C, 1, 1, 0, 0);
+    out.dev.copyFromHost(out.host);
+    npp_diff::clear_cuda_error();
+    const NppStatus st = call(
+        reinterpret_cast<const NppiImageDescriptor *>(d1.dptr()),
+        reinterpret_cast<const NppiImageDescriptor *>(d2.dptr()), B,
+        NppiSize{cfg.w, cfg.h}, reinterpret_cast<Npp32f *>(out.dptr()),
+        reinterpret_cast<NppiBufferDescriptor *>(dbuf.dptr()), ctx);
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      for (auto *p : bufs) delete p;
+      for (auto *p : scratch) delete p;
+      continue;
+    }
+    const cudaError_t se = cudaDeviceSynchronize();
+    ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << cfg.w << "x" << cfg.h
+                               << " sync: " << cudaGetErrorString(se);
+    out.dev.copyToHost(out.host);
+    ++cnt.executed;
+    bool failed = false;
+    for (int i = 0; i < B && !failed; ++i) {
+      const int step1 = (int)bufs[(size_t)i * 2]->step;
+      const int step2 = (int)bufs[(size_t)i * 2 + 1]->step;
+      for (int ch = 0; ch < C && !failed; ++ch) {
+        double acc = 0.0;
+        for (int y = 0; y < hs[i]; ++y)
+          for (int x = 0; x < ws[i]; ++x) {
+            const int a = src1_host[(size_t)i][(size_t)y * step1 + (size_t)x * C + ch];
+            const int b = src2_host[(size_t)i][(size_t)y * step2 + (size_t)x * C + ch];
+            acc += (double)(a - b) * (double)(a - b);
+          }
+        const double mse = acc / ((double)ws[i] * (double)hs[i]);
+        const float want = Psnr ? (float)(mse <= 0.0 ? INFINITY : 10.0 * std::log10(65025.0 / mse))
+                                : (float)mse;
+        const float got = out.hptr()[(size_t)i * C + ch];
+        ++cnt.compared;
+        bool ok;
+        if (std::isinf(want)) {
+          ok = std::isinf((double)got) && ((got > 0) == (want > 0));
+        } else {
+          ok = std::fabs((double)got - (double)want) <= 1e-4 * std::fabs((double)want) + 1e-4;
+        }
+        if (!ok) {
+          char b[360];
+          std::snprintf(b, sizeof(b),
+                        "[%s] batch=%d w=%d h=%d img=%d ch=%d got=%.9g want=%.9g", id, B,
+                        cfg.w, cfg.h, i, ch, (double)got, (double)want);
+          if (first.empty()) first = b;
+          EXPECT_TRUE(false) << b;
+          ++cnt.mismatched;
+          failed = true;
+        }
+      }
+    }
+    for (auto *p : bufs) delete p;
+    for (auto *p : scratch) delete p;
     if (cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);

@@ -1850,6 +1850,12 @@ TEST(NumGenNppiStats, nppiAverageRelativeError_8u_C4R_Ctx) {
       [](const Npp8u *p, int step, const Npp8u *p2, int step2, NppiSize roi, Npp64f *o, Npp8u *buf, NppStreamContext c) { (void)buf; (void)c; return nppiAverageRelativeError_8u_C4R_Ctx(p, step, p2, step2, roi, o, buf, c); });
 }
 
+TEST(NumGenNppiStats, nppiCircularRadialProfile_32f_C1R_Ctx) {
+  num::run_nppi_circular_radial_profile(
+      "nppiCircularRadialProfile_32f_C1R_Ctx",
+      [](const Npp32f *p, int st, NppiSize roi, NppiPoint32f ctr, NppiProfileData *out, Npp16u samples, NppStreamContext c) { (void)st; (void)roi; (void)ctr; (void)out; (void)samples; (void)c; return nppiCircularRadialProfile_32f_C1R_Ctx(p, st, roi, ctr, out, samples, c); });
+}
+
 TEST(NumGenNppiStats, nppiCountInRangeGetBufferHostSize_32f_AC4R_Ctx) {
   num::run_nppi_buffer_size(
       "nppiCountInRangeGetBufferHostSize_32f_AC4R_Ctx",
@@ -3728,6 +3734,25 @@ TEST(NumGenNppiStats, nppiDotProd_8u64f_C4R_Ctx) {
       [](const Npp8u *p, int step, const Npp8u *p2, int step2, NppiSize roi, Npp64f *o, Npp8u *buf, NppStreamContext c) { (void)buf; (void)c; return nppiDotProd_8u64f_C4R_Ctx(p, step, p2, step2, roi, o, buf, c); });
 }
 
+TEST(NumGenNppiStats, nppiEllipticalRadialProfile_32f_C1R_Ctx) {
+  num::run_nppi_elliptical_radial_profile(
+      "nppiEllipticalRadialProfile_32f_C1R_Ctx",
+      [](const Npp32f *p, int st, NppiSize roi, NppiPoint32f ctr, Npp32f ratio, Npp32f orient, NppiProfileData *out, Npp16u samples, NppStreamContext c) { (void)st; (void)roi; (void)ctr; (void)ratio; (void)orient; (void)out; (void)samples; (void)c; return nppiEllipticalRadialProfile_32f_C1R_Ctx(p, st, roi, ctr, ratio, orient, out, samples, c); });
+}
+
+TEST(NumGenNppiStats, nppiEvenLevelsHost_32s_Ctx) {
+  num::run_nppi_even_levels_host(
+      "nppiEvenLevelsHost_32s_Ctx",
+      [](Npp32s *lv, int n, Npp32s lo, Npp32s hi, NppStreamContext c) {
+#ifdef USE_NVIDIA_NPP_TESTS
+        (void)c;
+        return nppiEvenLevelsHost_32s(lv, n, lo, hi);
+#else
+        return nppiEvenLevelsHost_32s_Ctx(lv, n, lo, hi, c);
+#endif
+      });
+}
+
 TEST(NumGenNppiStats, nppiFullNormLevelGetBufferHostSize_16u32f_AC4R_Ctx) {
   num::run_nppi_buffer_size(
       "nppiFullNormLevelGetBufferHostSize_16u32f_AC4R_Ctx",
@@ -4716,6 +4741,30 @@ TEST(NumGenNppiStats, nppiMSEBatchGetBufferHostSize_8u_C3R_Ctx) {
         return nppiMSEBatchGetBufferHostSize_8u_C3R_Ctx(roi, sz, c);
 #endif
       });
+}
+
+TEST(NumGenNppiStats, nppiMSEBatch_8u_C1R_Advanced_Ctx) {
+  num::run_nppi_metric_batch<1, false, true>(
+      "nppiMSEBatch_8u_C1R_Advanced_Ctx",
+      [](const NppiImageDescriptor *a, const NppiImageDescriptor *b, int nb, NppiSize r, Npp32f *o, NppiBufferDescriptor *buf, NppStreamContext c) { (void)r; (void)buf; (void)c; return nppiMSEBatch_8u_C1R_Advanced_Ctx(a, b, nb, r, o, buf, c); });
+}
+
+TEST(NumGenNppiStats, nppiMSEBatch_8u_C1R_Ctx) {
+  num::run_nppi_metric_batch<1, false, false>(
+      "nppiMSEBatch_8u_C1R_Ctx",
+      [](const NppiImageDescriptor *a, const NppiImageDescriptor *b, int nb, NppiSize r, Npp32f *o, NppiBufferDescriptor *buf, NppStreamContext c) { (void)r; (void)buf; (void)c; return nppiMSEBatch_8u_C1R_Ctx(a, b, nb, r, o, buf, c); });
+}
+
+TEST(NumGenNppiStats, nppiMSEBatch_8u_C3R_Advanced_Ctx) {
+  num::run_nppi_metric_batch<3, false, true>(
+      "nppiMSEBatch_8u_C3R_Advanced_Ctx",
+      [](const NppiImageDescriptor *a, const NppiImageDescriptor *b, int nb, NppiSize r, Npp32f *o, NppiBufferDescriptor *buf, NppStreamContext c) { (void)r; (void)buf; (void)c; return nppiMSEBatch_8u_C3R_Advanced_Ctx(a, b, nb, r, o, buf, c); });
+}
+
+TEST(NumGenNppiStats, nppiMSEBatch_8u_C3R_Ctx) {
+  num::run_nppi_metric_batch<3, false, false>(
+      "nppiMSEBatch_8u_C3R_Ctx",
+      [](const NppiImageDescriptor *a, const NppiImageDescriptor *b, int nb, NppiSize r, Npp32f *o, NppiBufferDescriptor *buf, NppStreamContext c) { (void)r; (void)buf; (void)c; return nppiMSEBatch_8u_C3R_Ctx(a, b, nb, r, o, buf, c); });
 }
 
 TEST(NumGenNppiStats, nppiMSEGetBufferHostSize_8u_C1R_Ctx) {
@@ -9405,6 +9454,12 @@ TEST(NumGenNppiStats, nppiMinMaxIndx_16u_C3CMR_Ctx) {
       [](const Npp16u *a, int sa, const Npp8u *mk, int ms, NppiSize r, int coi, Npp16u *mn, Npp16u *mx, NppiPoint *pi, NppiPoint *qi, Npp8u *buf, NppStreamContext c) { (void)sa; (void)ms; (void)r; (void)coi; (void)buf; (void)c; return nppiMinMaxIndx_16u_C3CMR_Ctx(a, sa, mk, ms, r, coi, mn, mx, pi, qi, buf, c); });
 }
 
+TEST(NumGenNppiStats, nppiMinMaxIndx_16u_C3CR_Ctx) {
+  num::run_nppi_minmaxindx_coi<Npp16u, 3>(
+      "nppiMinMaxIndx_16u_C3CR_Ctx",
+      [](const Npp16u *p, int step, NppiSize roi, int coi, Npp16u *mn, Npp16u *mx, NppiPoint *pi, NppiPoint *qi, Npp8u *buf, NppStreamContext c) { (void)buf; (void)c; return nppiMinMaxIndx_16u_C3CR_Ctx(p, step, roi, coi, mn, mx, pi, qi, buf, c); });
+}
+
 TEST(NumGenNppiStats, nppiMinMaxIndx_32f_C1MR_Ctx) {
   num::run_nppi_minmaxindx_masked<Npp32f, 1, false>(
       "nppiMinMaxIndx_32f_C1MR_Ctx",
@@ -9421,6 +9476,12 @@ TEST(NumGenNppiStats, nppiMinMaxIndx_32f_C3CMR_Ctx) {
   num::run_nppi_minmaxindx_masked<Npp32f, 3, true>(
       "nppiMinMaxIndx_32f_C3CMR_Ctx",
       [](const Npp32f *a, int sa, const Npp8u *mk, int ms, NppiSize r, int coi, Npp32f *mn, Npp32f *mx, NppiPoint *pi, NppiPoint *qi, Npp8u *buf, NppStreamContext c) { (void)sa; (void)ms; (void)r; (void)coi; (void)buf; (void)c; return nppiMinMaxIndx_32f_C3CMR_Ctx(a, sa, mk, ms, r, coi, mn, mx, pi, qi, buf, c); });
+}
+
+TEST(NumGenNppiStats, nppiMinMaxIndx_32f_C3CR_Ctx) {
+  num::run_nppi_minmaxindx_coi<Npp32f, 3>(
+      "nppiMinMaxIndx_32f_C3CR_Ctx",
+      [](const Npp32f *p, int step, NppiSize roi, int coi, Npp32f *mn, Npp32f *mx, NppiPoint *pi, NppiPoint *qi, Npp8u *buf, NppStreamContext c) { (void)buf; (void)c; return nppiMinMaxIndx_32f_C3CR_Ctx(p, step, roi, coi, mn, mx, pi, qi, buf, c); });
 }
 
 TEST(NumGenNppiStats, nppiMinMaxIndx_8s_C1MR_Ctx) {
@@ -9441,6 +9502,12 @@ TEST(NumGenNppiStats, nppiMinMaxIndx_8s_C3CMR_Ctx) {
       [](const Npp8s *a, int sa, const Npp8u *mk, int ms, NppiSize r, int coi, Npp8s *mn, Npp8s *mx, NppiPoint *pi, NppiPoint *qi, Npp8u *buf, NppStreamContext c) { (void)sa; (void)ms; (void)r; (void)coi; (void)buf; (void)c; return nppiMinMaxIndx_8s_C3CMR_Ctx(a, sa, mk, ms, r, coi, mn, mx, pi, qi, buf, c); });
 }
 
+TEST(NumGenNppiStats, nppiMinMaxIndx_8s_C3CR_Ctx) {
+  num::run_nppi_minmaxindx_coi<Npp8s, 3>(
+      "nppiMinMaxIndx_8s_C3CR_Ctx",
+      [](const Npp8s *p, int step, NppiSize roi, int coi, Npp8s *mn, Npp8s *mx, NppiPoint *pi, NppiPoint *qi, Npp8u *buf, NppStreamContext c) { (void)buf; (void)c; return nppiMinMaxIndx_8s_C3CR_Ctx(p, step, roi, coi, mn, mx, pi, qi, buf, c); });
+}
+
 TEST(NumGenNppiStats, nppiMinMaxIndx_8u_C1MR_Ctx) {
   num::run_nppi_minmaxindx_masked<Npp8u, 1, false>(
       "nppiMinMaxIndx_8u_C1MR_Ctx",
@@ -9457,6 +9524,12 @@ TEST(NumGenNppiStats, nppiMinMaxIndx_8u_C3CMR_Ctx) {
   num::run_nppi_minmaxindx_masked<Npp8u, 3, true>(
       "nppiMinMaxIndx_8u_C3CMR_Ctx",
       [](const Npp8u *a, int sa, const Npp8u *mk, int ms, NppiSize r, int coi, Npp8u *mn, Npp8u *mx, NppiPoint *pi, NppiPoint *qi, Npp8u *buf, NppStreamContext c) { (void)sa; (void)ms; (void)r; (void)coi; (void)buf; (void)c; return nppiMinMaxIndx_8u_C3CMR_Ctx(a, sa, mk, ms, r, coi, mn, mx, pi, qi, buf, c); });
+}
+
+TEST(NumGenNppiStats, nppiMinMaxIndx_8u_C3CR_Ctx) {
+  num::run_nppi_minmaxindx_coi<Npp8u, 3>(
+      "nppiMinMaxIndx_8u_C3CR_Ctx",
+      [](const Npp8u *p, int step, NppiSize roi, int coi, Npp8u *mn, Npp8u *mx, NppiPoint *pi, NppiPoint *qi, Npp8u *buf, NppStreamContext c) { (void)buf; (void)c; return nppiMinMaxIndx_8u_C3CR_Ctx(p, step, roi, coi, mn, mx, pi, qi, buf, c); });
 }
 
 TEST(NumGenNppiStats, nppiMinMax_16s_AC4R_Ctx) {
@@ -14236,6 +14309,30 @@ TEST(NumGenNppiStats, nppiPSNRBatchGetBufferHostSize_8u_C3R_Ctx) {
         return nppiPSNRBatchGetBufferHostSize_8u_C3R_Ctx(roi, sz, c);
 #endif
       });
+}
+
+TEST(NumGenNppiStats, nppiPSNRBatch_8u_C1R_Advanced_Ctx) {
+  num::run_nppi_metric_batch<1, true, true>(
+      "nppiPSNRBatch_8u_C1R_Advanced_Ctx",
+      [](const NppiImageDescriptor *a, const NppiImageDescriptor *b, int nb, NppiSize r, Npp32f *o, NppiBufferDescriptor *buf, NppStreamContext c) { (void)r; (void)buf; (void)c; return nppiPSNRBatch_8u_C1R_Advanced_Ctx(a, b, nb, r, o, buf, c); });
+}
+
+TEST(NumGenNppiStats, nppiPSNRBatch_8u_C1R_Ctx) {
+  num::run_nppi_metric_batch<1, true, false>(
+      "nppiPSNRBatch_8u_C1R_Ctx",
+      [](const NppiImageDescriptor *a, const NppiImageDescriptor *b, int nb, NppiSize r, Npp32f *o, NppiBufferDescriptor *buf, NppStreamContext c) { (void)r; (void)buf; (void)c; return nppiPSNRBatch_8u_C1R_Ctx(a, b, nb, r, o, buf, c); });
+}
+
+TEST(NumGenNppiStats, nppiPSNRBatch_8u_C3R_Advanced_Ctx) {
+  num::run_nppi_metric_batch<3, true, true>(
+      "nppiPSNRBatch_8u_C3R_Advanced_Ctx",
+      [](const NppiImageDescriptor *a, const NppiImageDescriptor *b, int nb, NppiSize r, Npp32f *o, NppiBufferDescriptor *buf, NppStreamContext c) { (void)r; (void)buf; (void)c; return nppiPSNRBatch_8u_C3R_Advanced_Ctx(a, b, nb, r, o, buf, c); });
+}
+
+TEST(NumGenNppiStats, nppiPSNRBatch_8u_C3R_Ctx) {
+  num::run_nppi_metric_batch<3, true, false>(
+      "nppiPSNRBatch_8u_C3R_Ctx",
+      [](const NppiImageDescriptor *a, const NppiImageDescriptor *b, int nb, NppiSize r, Npp32f *o, NppiBufferDescriptor *buf, NppStreamContext c) { (void)r; (void)buf; (void)c; return nppiPSNRBatch_8u_C3R_Ctx(a, b, nb, r, o, buf, c); });
 }
 
 TEST(NumGenNppiStats, nppiPSNRGetBufferHostSize_8u_C1R_Ctx) {

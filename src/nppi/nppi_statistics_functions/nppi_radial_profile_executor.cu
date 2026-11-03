@@ -110,10 +110,21 @@ NppStatus runCircularRadialProfile(const Npp32f *pSrc, int nSrcStep, NppiSize oS
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if (nProfileSamples == 0) return NPP_NO_ERROR;
 
+  // NPP returns the profile through HOST memory; stage it on the device and
+  // copy back before returning.
+  NppiProfileData *dProfile = nullptr;
+  if (cudaMalloc(&dProfile, sizeof(NppiProfileData) * (size_t)nProfileSamples) != cudaSuccess) {
+    return NPP_MEMORY_ALLOCATION_ERR;
+  }
   radialProfileKernel<<<nProfileSamples, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height,
                                                               oCenter.x, oCenter.y, (int)nProfileSamples,
-                                                              pProfileData);
-  const cudaError_t err = cudaGetLastError();
+                                                              dProfile);
+  cudaError_t err = cudaGetLastError();
+  if (err == cudaSuccess) {
+    err = cudaMemcpy(pProfileData, dProfile, sizeof(NppiProfileData) * (size_t)nProfileSamples,
+                     cudaMemcpyDeviceToHost);
+  }
+  cudaFree(dProfile);
   if (err != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
 }
@@ -239,10 +250,21 @@ NppStatus runEllipticalRadialProfile(const Npp32f *pSrc, int nSrcStep, NppiSize 
   // so the trig is evaluated on the host as well.
   const float f0 = cosf(nOrientationRadians);
   const float f1 = -sinf(nOrientationRadians);
+  // Host-memory result, staged through the device like the reference.
+  NppiProfileData *dProfile = nullptr;
+  if (cudaMalloc(&dProfile, sizeof(NppiProfileData) * (size_t)nProfileSamples) != cudaSuccess) {
+    return NPP_MEMORY_ALLOCATION_ERR;
+  }
   ellipticalProfileKernel<<<nProfileSamples, kBlock, 0, stream>>>(
       pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, oCenter.x, oCenter.y, nAstigmatismRatio, f0, f1,
-      pProfileData);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+      dProfile);
+  cudaError_t err = cudaGetLastError();
+  if (err == cudaSuccess) {
+    err = cudaMemcpy(pProfileData, dProfile, sizeof(NppiProfileData) * (size_t)nProfileSamples,
+                     cudaMemcpyDeviceToHost);
+  }
+  cudaFree(dProfile);
+  return err == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 }  // namespace statistics
