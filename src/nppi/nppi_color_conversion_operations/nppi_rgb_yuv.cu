@@ -108,8 +108,7 @@ __global__ void rgb_to_yuv_ac4_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pD
     pDstRow[idx + 0] = yv;
     pDstRow[idx + 1] = uv;
     pDstRow[idx + 2] = vv;
-    // Match NVIDIA NPP: packed AC4 output clears alpha.
-    pDstRow[idx + 3] = 0;
+    // AC4: NPP leaves the destination alpha untouched (measured).
   }
 }
 
@@ -134,8 +133,7 @@ __global__ void rgb_to_ycbcr_ac4_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *
     pDstRow[idx + 0] = yv;
     pDstRow[idx + 1] = cbv;
     pDstRow[idx + 2] = crv;
-    // Match NVIDIA NPP: packed AC4 output clears alpha.
-    pDstRow[idx + 3] = 0;
+    // AC4: NPP leaves the destination alpha untouched (measured).
   }
 }
 
@@ -387,8 +385,7 @@ __global__ void yuv_to_rgb_ac4_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pD
     pDstRow[idx + 0] = kBgr ? b : r;
     pDstRow[idx + 1] = g;
     pDstRow[idx + 2] = kBgr ? r : b;
-    // Match NVIDIA NPP: alpha is cleared for AC4 output.
-    pDstRow[idx + 3] = 0;
+    // AC4: NPP leaves the destination alpha untouched (measured).
   }
 }
 
@@ -480,8 +477,7 @@ __global__ void ycbcr_to_rgb_ac4_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *
     pDstRow[idx + 0] = kBgr ? b : r;
     pDstRow[idx + 1] = g;
     pDstRow[idx + 2] = kBgr ? r : b;
-    // Match NVIDIA NPP: packed AC4 output clears alpha.
-    pDstRow[idx + 3] = 0;
+    // AC4: NPP leaves the destination alpha untouched (measured).
   }
 }
 

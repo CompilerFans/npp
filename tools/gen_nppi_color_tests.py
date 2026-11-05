@@ -328,6 +328,59 @@ def emit_hls(row: dict) -> Optional[str]:
     return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
 
 
+
+YUV_CONV = {"nppiRGBToYUV": ("RGB2YUV", False), "nppiBGRToYUV": ("RGB2YUV", True),
+            "nppiYUVToRGB": ("YUV2RGB", False), "nppiYUVToBGR": ("YUV2RGB", True),
+            "nppiRGBToYCbCr": ("RGB2YCbCr", False), "nppiBGRToYCbCr": ("RGB2YCbCr", True),
+            "nppiYCbCrToRGB": ("YCbCr2RGB", False), "nppiYCbCrToBGR": ("YCbCr2RGB", True)}
+YUV_SL = {"C3R": "C3", "AC4R": "AC4", "P3R": "P3"}
+YUV_DL = {"C3R": "C3", "AC4R": "AC4", "P3R": "P3", "P4R": "P4", "P3C3R": "C3",
+          "C3P3R": "P3", "AC4P4R": "P4", "AC4P3R": "P3", "P3C4R": "C4A"}
+
+
+def _yuv_layouts(fn: str):
+    # Return (src_layout, dst_layout) tokens, or None.
+    for tok, dl in (("AC4P4R", ("AC4", "P4")), ("AC4P3R", ("AC4", "P3")),
+                    ("C3P3R", ("C3", "P3")), ("P3C4R", ("P3", "C4A")),
+                    ("P3C3R", ("P3", "C3")), ("P3R", ("P3", "P3")),
+                    ("AC4R", ("AC4", "AC4")), ("C3R", ("C3", "C3"))):
+        if fn.endswith("_" + tok + "_Ctx"):
+            return dl
+    return None
+
+
+def emit_yuv(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    fam = row["family"]
+    if fam not in YUV_CONV:
+        return None
+    lay = _yuv_layouts(fn)
+    if lay is None:
+        return None
+    sl, dl = lay
+    conv, bgr = YUV_CONV[fam]
+    name = re.sub(r"\W", "_", fn)
+    lam = ("[](const Npp8u *const *sp, const Npp8u *ps, int ss, Npp8u *const *dp, Npp8u *pd, int ds, "
+           "NppiSize r, int alpha, NppStreamContext c) "
+           "{ (void)sp; (void)ps; (void)ss; (void)dp; (void)pd; (void)ds; (void)r; (void)alpha; (void)c; "
+           f"return {fn}(")
+    if sl == "P3":
+        if dl in ("P3", "P4"):
+            lam += "sp, ss, const_cast<Npp8u **>(dp), ds, r, c); }"
+        elif dl == "C4A":
+            lam += "sp, ss, pd, ds, r, (Npp8u)alpha, c); }"
+        else:
+            lam += "sp, ss, pd, ds, r, c); }"
+    else:
+        if dl in ("P3", "P4"):
+            lam += "ps, ss, const_cast<Npp8u **>(dp), ds, r, c); }"
+        else:
+            lam += "ps, ss, pd, ds, r, c); }"
+    prefix = (f"num::yuv::run_yuv<num::yuv::Conv::{conv}, num::yuv::SL::{sl}, "
+              f"num::yuv::DL::{dl}, {str(bgr).lower()}>")
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -341,7 +394,8 @@ def main() -> int:
         fam = row["family"]
         text = (emit_lut(row) if fam in MODE
                 else emit_lut_palette(row) or emit_twist(row) or emit_twist_batch(row)
-                or emit_gamma(row) or emit_gray(row) or emit_gradient(row) or emit_hls(row))
+                or emit_gamma(row) or emit_gray(row) or emit_gradient(row) or emit_hls(row)
+                or emit_yuv(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
                                 reason="later color batch / unsupported"))
@@ -352,7 +406,8 @@ def main() -> int:
               "#include \"num_nppi_lut.h\"\n"
               "#include \"num_nppi_color_twist.h\"\n"
               "#include \"num_nppi_color_cvt.h\"\n"
-              "#include \"num_nppi_hls.h\"\n\n")
+              "#include \"num_nppi_hls.h\"\n"
+              "#include \"num_nppi_yuv.h\"\n\n")
     dest = Path(args.out) if args.out else ROOT / "test" / "unit" / "num" / "test_gen_nppi_color.cpp"
     if args.emit:
         dest.write_text(header + "\n".join(out))
