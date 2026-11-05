@@ -60,7 +60,7 @@
   "skipped": []
  },
  "nppi_geometry_transforms.h": {
-  "emitted": 80,
+  "emitted": 102,
   "skipped": [
    {
     "function": "nppiRemap_16s_AC4R_Ctx",
@@ -213,101 +213,6 @@
     "reason": "later geometry batch / unsupported"
    },
    {
-    "function": "nppiResizeBatch_16f_C1R_Advanced_Ctx",
-    "family": "nppiResizeBatch",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeBatch_16f_C3R_Advanced_Ctx",
-    "family": "nppiResizeBatch",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeBatch_16f_C4R_Advanced_Ctx",
-    "family": "nppiResizeBatch",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeBatch_32f_AC4R_Advanced_Ctx",
-    "family": "nppiResizeBatch",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeBatch_32f_AC4R_Ctx",
-    "family": "nppiResizeBatch",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeBatch_32f_C1R_Advanced_Ctx",
-    "family": "nppiResizeBatch",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeBatch_32f_C1R_Ctx",
-    "family": "nppiResizeBatch",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeBatch_32f_C3R_Advanced_Ctx",
-    "family": "nppiResizeBatch",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeBatch_32f_C3R_Ctx",
-    "family": "nppiResizeBatch",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeBatch_32f_C4R_Advanced_Ctx",
-    "family": "nppiResizeBatch",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeBatch_32f_C4R_Ctx",
-    "family": "nppiResizeBatch",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeBatch_8u_AC4R_Advanced_Ctx",
-    "family": "nppiResizeBatch",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeBatch_8u_AC4R_Ctx",
-    "family": "nppiResizeBatch",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeBatch_8u_C1R_Advanced_Ctx",
-    "family": "nppiResizeBatch",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeBatch_8u_C1R_Ctx",
-    "family": "nppiResizeBatch",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeBatch_8u_C3R_Advanced_Ctx",
-    "family": "nppiResizeBatch",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeBatch_8u_C3R_Ctx",
-    "family": "nppiResizeBatch",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeBatch_8u_C4R_Advanced_Ctx",
-    "family": "nppiResizeBatch",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeBatch_8u_C4R_Ctx",
-    "family": "nppiResizeBatch",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
     "function": "nppiResizeSqrPixel_16s_P3R_Ctx",
     "family": "nppiResizeSqrPixel",
     "reason": "later geometry batch / unsupported"
@@ -380,21 +285,6 @@
    {
     "function": "nppiResizeSqrPixel_8u_P4R_Ctx",
     "family": "nppiResizeSqrPixel",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResize_16f_C1R_Ctx",
-    "family": "nppiResize",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResize_16f_C3R_Ctx",
-    "family": "nppiResize",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResize_16f_C4R_Ctx",
-    "family": "nppiResize",
     "reason": "later geometry batch / unsupported"
    },
    {

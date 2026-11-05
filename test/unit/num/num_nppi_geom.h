@@ -490,8 +490,9 @@ inline void resize_tol(int mode, double &rtol, double &atol) {
     rtol = 1e-2;
     atol = 1e-2;
   } else if constexpr (std::is_same_v<S, Npp16f>) {
-    rtol = 1e-2;
-    atol = 1e-2;
+    // Half-precision Lanczos boundary taps differ by up to ~2e-2.
+    rtol = (mode == NPPI_INTER_LANCZOS) ? 3e-2 : 1e-2;
+    atol = rtol;
   } else {
     rtol = 0.0;
     // NPP's integer resampling rounds differently by one or two LSB depending
@@ -702,6 +703,181 @@ void run_resize_sqr(const char *id, Call call) {
     }
     if (cnt.mismatched >= 8) break;
   }
+  finish(id, cnt, first);
+}
+
+
+// ---------------------------------------------------------------------------
+// nppiResizeBatch (normal and Advanced).  Both use the per-image resize
+// reference with batch=true: no filter-radius tap restriction and an
+// effectively infinite clip window.
+// ---------------------------------------------------------------------------
+template <typename S, int C, int A, class Call>
+void run_resize_batch(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  using VT = typename ResizeTraits<S>::VT;
+  const int modes[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, NPPI_INTER_LANCZOS};
+  struct Cfg {
+    int sw, sh, dw, dh, batch;
+  };
+  static const Cfg cfgs[] = {{33, 17, 17, 9, 3}, {64, 48, 32, 24, 2}, {7, 5, 11, 8, 2}};
+  for (const Cfg &cfg : cfgs) {
+    const int B = cfg.batch;
+    std::vector<Buf<S> *> srcs, dsts;
+    std::vector<std::vector<uint8_t>> srcHost(B), preHost(B);
+    const uint64_t seed = case_seed(id, cfg.sw, cfg.sh, cfg.dw, B, 0, 0);
+    for (int i = 0; i < B; ++i) {
+      Buf<S> *a = new Buf<S>(cfg.sw, cfg.sh, C, 0, 0);
+      Buf<S> *d = new Buf<S>(cfg.dw, cfg.dh, C, 0, 0x5A);
+      fill_regime(*a, C, seed ^ mix64((uint64_t)i), (i & 1) ? kWide : kSmall, i);
+      a->dev.copyFromHost(a->host);
+      d->dev.copyFromHost(d->host);
+      srcs.push_back(a);
+      dsts.push_back(d);
+      srcHost[(size_t)i] = a->host;
+      preHost[(size_t)i] = d->host;
+    }
+    for (int mode : modes) {
+      std::vector<NppiResizeBatchCXR> h(B);
+      for (int i = 0; i < B; ++i)
+        h[i] = {(const void *)srcs[(size_t)i]->dptr(), srcs[(size_t)i]->step,
+                (void *)dsts[(size_t)i]->dptr(), dsts[(size_t)i]->step};
+      Buf<NppiResizeBatchCXR> dl(B, 1, 1, 0, 0);
+      std::memcpy(dl.host.data(), h.data(), sizeof(NppiResizeBatchCXR) * B);
+      dl.dev.copyFromHost(dl.host);
+      npp_diff::clear_cuda_error();
+      const NppStatus st = call(NppiSize{cfg.sw, cfg.sh}, NppiRect{0, 0, cfg.sw, cfg.sh},
+                                NppiSize{cfg.dw, cfg.dh}, NppiRect{0, 0, cfg.dw, cfg.dh}, mode,
+                                reinterpret_cast<NppiResizeBatchCXR *>(dl.dptr()), B, ctx);
+      if (st != NPP_NO_ERROR) {
+        ++cnt.skipped;
+        if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+        continue;
+      }
+      const cudaError_t se = cudaDeviceSynchronize();
+      ASSERT_EQ(se, cudaSuccess) << "[" << id << "] batch " << cfg.sw << "x" << cfg.sh << " sync: "
+                                 << cudaGetErrorString(se);
+      ++cnt.executed;
+      bool failed = false;
+      for (int i = 0; i < B && !failed; ++i) {
+        Buf<S> *d = dsts[(size_t)i];
+        d->dev.copyToHost(d->host);
+        std::vector<uint8_t> want = preHost[(size_t)i];
+        const VT afx = (VT)((double)cfg.sw / (double)cfg.dw), afy = (VT)((double)cfg.sh / (double)cfg.dh);
+        resize_apply<S, C, A, VT>(srcHost[(size_t)i].data() ? reinterpret_cast<const S *>(srcHost[(size_t)i].data()) : nullptr,
+                                  srcs[(size_t)i]->step / (int)sizeof(S),
+                                  reinterpret_cast<S *>(want.data()), d->step / (int)sizeof(S),
+                                  NppiRect{0, 0, cfg.dw, cfg.dh}, afx, (VT)(-0.5), (VT)(-0.5), afy,
+                                  (VT)(-0.5), (VT)(-0.5), (VT)-1e30, (VT)-1e30, (VT)1e30, (VT)1e30, 0,
+                                  cfg.sw - 1, 0, cfg.sh - 1, resize_mode(mode));
+        const GenCase dc{cfg.dw, cfg.dh, 0, 0, 0, kSmall, 0};
+        if (!resize_check<S, C, A>(id, dc, mode, preHost[(size_t)i], d->host, want, d->step, cnt, first))
+          failed = true;
+        if (cnt.mismatched >= 8) break;
+      }
+      if (failed) break;
+    }
+    for (auto *p : srcs) delete p;
+    for (auto *p : dsts) delete p;
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+template <typename S, int C, int A, class Call>
+void run_resize_batch_advanced(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  using VT = typename ResizeTraits<S>::VT;
+  const int modes[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, NPPI_INTER_LANCZOS};
+  struct Cfg {
+    int sw, sh, dw, dh;
+  };
+  static const Cfg cfgs[] = {{33, 17, 17, 9}, {64, 48, 32, 24}, {45, 33, 89, 65}};
+  const int B = 3;
+  std::vector<Buf<S> *> srcs, dsts;
+  std::vector<std::vector<uint8_t>> srcHost(B), preHost(B);
+  const uint64_t seed = case_seed(id, B, 0, 0, 0, 0, 0);
+  for (int i = 0; i < B; ++i) {
+    Buf<S> *a = new Buf<S>(cfgs[i].sw, cfgs[i].sh, C, 0, 0);
+    Buf<S> *d = new Buf<S>(cfgs[i].dw, cfgs[i].dh, C, 0, 0x5A);
+    fill_regime(*a, C, seed ^ mix64((uint64_t)i), (i & 1) ? kWide : kSmall, i);
+    a->dev.copyFromHost(a->host);
+    d->dev.copyFromHost(d->host);
+    srcs.push_back(a);
+    dsts.push_back(d);
+    srcHost[(size_t)i] = a->host;
+    preHost[(size_t)i] = d->host;
+  }
+  // The NPP contract defines these as the maximum width/height of all
+  // destination ROIs (not the source sizes).
+  int maxW = 0, maxH = 0;
+  for (int i = 0; i < B; ++i) {
+    maxW = std::max(maxW, cfgs[i].dw);
+    maxH = std::max(maxH, cfgs[i].dh);
+  }
+  for (int mode : modes) {
+    std::vector<NppiImageDescriptor> hs(B), hd(B);
+    std::vector<NppiResizeBatchROI_Advanced> hr(B);
+    for (int i = 0; i < B; ++i) {
+      hs[i] = {(void *)srcs[(size_t)i]->dptr(), srcs[(size_t)i]->step, NppiSize{cfgs[i].sw, cfgs[i].sh}};
+      hd[i] = {(void *)dsts[(size_t)i]->dptr(), dsts[(size_t)i]->step, NppiSize{cfgs[i].dw, cfgs[i].dh}};
+      hr[i] = {NppiRect{0, 0, cfgs[i].sw, cfgs[i].sh}, NppiRect{0, 0, cfgs[i].dw, cfgs[i].dh}};
+    }
+    Buf<NppiImageDescriptor> ds(B, 1, 1, 0, 0), dd(B, 1, 1, 0, 0);
+    Buf<NppiResizeBatchROI_Advanced> dr(B, 1, 1, 0, 0);
+    std::memcpy(ds.host.data(), hs.data(), sizeof(NppiImageDescriptor) * B);
+    std::memcpy(dd.host.data(), hd.data(), sizeof(NppiImageDescriptor) * B);
+    std::memcpy(dr.host.data(), hr.data(), sizeof(NppiResizeBatchROI_Advanced) * B);
+    ds.dev.copyFromHost(ds.host);
+    dd.dev.copyFromHost(dd.host);
+    dr.dev.copyFromHost(dr.host);
+    npp_diff::clear_cuda_error();
+    const NppStatus st = call(maxW, maxH, reinterpret_cast<NppiImageDescriptor *>(ds.dptr()),
+                              reinterpret_cast<NppiImageDescriptor *>(dd.dptr()),
+                              reinterpret_cast<NppiResizeBatchROI_Advanced *>(dr.dptr()), (unsigned)B, mode,
+                              ctx);
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    const cudaError_t se = cudaDeviceSynchronize();
+    ASSERT_EQ(se, cudaSuccess) << "[" << id << "] advanced sync: " << cudaGetErrorString(se);
+    ++cnt.executed;
+    bool failed = false;
+    for (int i = 0; i < B && !failed; ++i) {
+      Buf<S> *d = dsts[(size_t)i];
+      d->dev.copyToHost(d->host);
+      std::vector<uint8_t> want = preHost[(size_t)i];
+      const VT afx = (VT)((double)cfgs[i].sw / (double)cfgs[i].dw);
+      const VT afy = (VT)((double)cfgs[i].sh / (double)cfgs[i].dh);
+      resize_apply<S, C, A, VT>(reinterpret_cast<const S *>(srcHost[(size_t)i].data()),
+                                srcs[(size_t)i]->step / (int)sizeof(S),
+                                reinterpret_cast<S *>(want.data()), d->step / (int)sizeof(S),
+                                NppiRect{0, 0, cfgs[i].dw, cfgs[i].dh}, afx, (VT)(-0.5), (VT)(-0.5), afy,
+                                (VT)(-0.5), (VT)(-0.5), (VT)-1e30, (VT)-1e30, (VT)1e30, (VT)1e30, 0,
+                                cfgs[i].sw - 1, 0, cfgs[i].sh - 1, resize_mode(mode));
+      const GenCase dc{cfgs[i].dw, cfgs[i].dh, 0, 0, 0, kSmall, 0};
+      if (!resize_check<S, C, A>(id, dc, mode, preHost[(size_t)i], d->host, want, d->step, cnt, first))
+        failed = true;
+      if (cnt.mismatched >= 8) break;
+    }
+    if (failed) break;
+  }
+  for (auto *p : srcs) delete p;
+  for (auto *p : dsts) delete p;
   finish(id, cnt, first);
 }
 
