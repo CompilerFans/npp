@@ -130,7 +130,7 @@
   ]
  },
  "nppi_color_conversion.h": {
-  "emitted": 96,
+  "emitted": 114,
   "skipped": [
    {
     "function": "nppiAlphaCompColorKey_8u_AC4R_Ctx",
@@ -1145,96 +1145,6 @@
    {
     "function": "nppiHSVToRGB_8u_C3R_Ctx",
     "family": "nppiHSVToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiLUTPaletteSwap_16u_C3A0C4R_Ctx",
-    "family": "nppiLUTPaletteSwap",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiLUTPaletteSwap_8u_C3A0C4R_Ctx",
-    "family": "nppiLUTPaletteSwap",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiLUTPalette_16u24u_C1R_Ctx",
-    "family": "nppiLUTPalette",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiLUTPalette_16u32u_C1R_Ctx",
-    "family": "nppiLUTPalette",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiLUTPalette_16u8u_C1R_Ctx",
-    "family": "nppiLUTPalette",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiLUTPalette_16u_AC4R_Ctx",
-    "family": "nppiLUTPalette",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiLUTPalette_16u_C1R_Ctx",
-    "family": "nppiLUTPalette",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiLUTPalette_16u_C3R_Ctx",
-    "family": "nppiLUTPalette",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiLUTPalette_16u_C4R_Ctx",
-    "family": "nppiLUTPalette",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiLUTPalette_8u24u_C1R_Ctx",
-    "family": "nppiLUTPalette",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiLUTPalette_8u32u_C1R_Ctx",
-    "family": "nppiLUTPalette",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiLUTPalette_8u_AC4R_Ctx",
-    "family": "nppiLUTPalette",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiLUTPalette_8u_C1R_Ctx",
-    "family": "nppiLUTPalette",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiLUTPalette_8u_C3R_Ctx",
-    "family": "nppiLUTPalette",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiLUTPalette_8u_C4R_Ctx",
-    "family": "nppiLUTPalette",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiLUT_Trilinear_8u_AC4IR_Ctx",
-    "family": "nppiLUT_Trilinear",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiLUT_Trilinear_8u_AC4R_Ctx",
-    "family": "nppiLUT_Trilinear",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiLUT_Trilinear_8u_C4R_Ctx",
-    "family": "nppiLUT_Trilinear",
     "reason": "later color batch / unsupported"
    },
    {

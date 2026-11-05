@@ -382,11 +382,9 @@ __global__ void paletteSwapKernel(const T *pSrc, int nSrcStep, int nAlphaValue, 
 // ---------------------------------------------------------------------------
 
 __device__ __forceinline__ void trilinearAxis(int value, const Npp8u *levels, int nLevels, int &index, float &frac) {
-  if (value <= levels[0]) {
-    index = 0;
-    frac = 0.0f;
-    return;
-  }
+  // Below levels[0] NPP extrapolates with a negative fraction (measured:
+  // src 3 under levels {10,100,200} and src 0 under {5,130,250}); only the
+  // top level clamps.
   if (value >= levels[nLevels - 1]) {
     index = nLevels - 2;
     frac = 1.0f;

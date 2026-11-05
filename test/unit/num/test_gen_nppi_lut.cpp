@@ -2,6 +2,96 @@
 // module: nppi_color_conversion.h (point/linear/cubic LUT)
 #include "num_nppi_lut.h"
 
+TEST(NumGen, nppiLUTPaletteSwap_16u_C3A0C4R_Ctx) {
+  num::lut::run_lut_palette_swap<Npp16u>(
+      "nppiLUTPaletteSwap_16u_C3A0C4R_Ctx",
+      [](const Npp16u *a, int sa, int alpha, Npp16u *d, int ds, NppiSize r, const Npp16u **tabs, int bits, NppStreamContext c) { (void)sa; (void)alpha; (void)ds; (void)r; (void)tabs; (void)bits; (void)c; return nppiLUTPaletteSwap_16u_C3A0C4R_Ctx(a, sa, alpha, d, ds, r, tabs, bits, c); });
+}
+
+TEST(NumGen, nppiLUTPaletteSwap_8u_C3A0C4R_Ctx) {
+  num::lut::run_lut_palette_swap<Npp8u>(
+      "nppiLUTPaletteSwap_8u_C3A0C4R_Ctx",
+      [](const Npp8u *a, int sa, int alpha, Npp8u *d, int ds, NppiSize r, const Npp8u **tabs, int bits, NppStreamContext c) { (void)sa; (void)alpha; (void)ds; (void)r; (void)tabs; (void)bits; (void)c; return nppiLUTPaletteSwap_8u_C3A0C4R_Ctx(a, sa, alpha, d, ds, r, tabs, bits, c); });
+}
+
+TEST(NumGen, nppiLUTPalette_16u24u_C1R_Ctx) {
+  num::lut::run_lut_palette24<Npp16u>(
+      "nppiLUTPalette_16u24u_C1R_Ctx",
+      [](const Npp16u *a, int sa, Npp8u *d, int ds, NppiSize r, const Npp8u *tab, int bits, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)tab; (void)bits; (void)c; return nppiLUTPalette_16u24u_C1R_Ctx(a, sa, d, ds, r, tab, bits, c); });
+}
+
+TEST(NumGen, nppiLUTPalette_16u32u_C1R_Ctx) {
+  num::lut::run_lut_palette_c1<Npp16u, Npp32u, Npp32u>(
+      "nppiLUTPalette_16u32u_C1R_Ctx",
+      [](const Npp16u *a, int sa, Npp32u *d, int ds, NppiSize r, const Npp32u *tab, int bits, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)tab; (void)bits; (void)c; return nppiLUTPalette_16u32u_C1R_Ctx(a, sa, d, ds, r, tab, bits, c); });
+}
+
+TEST(NumGen, nppiLUTPalette_16u8u_C1R_Ctx) {
+  num::lut::run_lut_palette_c1<Npp16u, Npp8u, Npp8u>(
+      "nppiLUTPalette_16u8u_C1R_Ctx",
+      [](const Npp16u *a, int sa, Npp8u *d, int ds, NppiSize r, const Npp8u *tab, int bits, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)tab; (void)bits; (void)c; return nppiLUTPalette_16u8u_C1R_Ctx(a, sa, d, ds, r, tab, bits, c); });
+}
+
+TEST(NumGen, nppiLUTPalette_16u_AC4R_Ctx) {
+  num::lut::run_lut_palette_multi<Npp16u, 4, 3>(
+      "nppiLUTPalette_16u_AC4R_Ctx",
+      [](const Npp16u *a, int sa, Npp16u *d, int ds, NppiSize r, const Npp16u **tabs, int bits, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)tabs; (void)bits; (void)c; return nppiLUTPalette_16u_AC4R_Ctx(a, sa, d, ds, r, tabs, bits, c); });
+}
+
+TEST(NumGen, nppiLUTPalette_16u_C1R_Ctx) {
+  num::lut::run_lut_palette_c1<Npp16u, Npp16u, Npp16u>(
+      "nppiLUTPalette_16u_C1R_Ctx",
+      [](const Npp16u *a, int sa, Npp16u *d, int ds, NppiSize r, const Npp16u *tab, int bits, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)tab; (void)bits; (void)c; return nppiLUTPalette_16u_C1R_Ctx(a, sa, d, ds, r, tab, bits, c); });
+}
+
+TEST(NumGen, nppiLUTPalette_16u_C3R_Ctx) {
+  num::lut::run_lut_palette_multi<Npp16u, 3, 3>(
+      "nppiLUTPalette_16u_C3R_Ctx",
+      [](const Npp16u *a, int sa, Npp16u *d, int ds, NppiSize r, const Npp16u **tabs, int bits, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)tabs; (void)bits; (void)c; return nppiLUTPalette_16u_C3R_Ctx(a, sa, d, ds, r, tabs, bits, c); });
+}
+
+TEST(NumGen, nppiLUTPalette_16u_C4R_Ctx) {
+  num::lut::run_lut_palette_multi<Npp16u, 4, 4>(
+      "nppiLUTPalette_16u_C4R_Ctx",
+      [](const Npp16u *a, int sa, Npp16u *d, int ds, NppiSize r, const Npp16u **tabs, int bits, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)tabs; (void)bits; (void)c; return nppiLUTPalette_16u_C4R_Ctx(a, sa, d, ds, r, tabs, bits, c); });
+}
+
+TEST(NumGen, nppiLUTPalette_8u24u_C1R_Ctx) {
+  num::lut::run_lut_palette24<Npp8u>(
+      "nppiLUTPalette_8u24u_C1R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, const Npp8u *tab, int bits, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)tab; (void)bits; (void)c; return nppiLUTPalette_8u24u_C1R_Ctx(a, sa, d, ds, r, tab, bits, c); });
+}
+
+TEST(NumGen, nppiLUTPalette_8u32u_C1R_Ctx) {
+  num::lut::run_lut_palette_c1<Npp8u, Npp32u, Npp32u>(
+      "nppiLUTPalette_8u32u_C1R_Ctx",
+      [](const Npp8u *a, int sa, Npp32u *d, int ds, NppiSize r, const Npp32u *tab, int bits, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)tab; (void)bits; (void)c; return nppiLUTPalette_8u32u_C1R_Ctx(a, sa, d, ds, r, tab, bits, c); });
+}
+
+TEST(NumGen, nppiLUTPalette_8u_AC4R_Ctx) {
+  num::lut::run_lut_palette_multi<Npp8u, 4, 3>(
+      "nppiLUTPalette_8u_AC4R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, const Npp8u **tabs, int bits, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)tabs; (void)bits; (void)c; return nppiLUTPalette_8u_AC4R_Ctx(a, sa, d, ds, r, tabs, bits, c); });
+}
+
+TEST(NumGen, nppiLUTPalette_8u_C1R_Ctx) {
+  num::lut::run_lut_palette_c1<Npp8u, Npp8u, Npp8u>(
+      "nppiLUTPalette_8u_C1R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, const Npp8u *tab, int bits, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)tab; (void)bits; (void)c; return nppiLUTPalette_8u_C1R_Ctx(a, sa, d, ds, r, tab, bits, c); });
+}
+
+TEST(NumGen, nppiLUTPalette_8u_C3R_Ctx) {
+  num::lut::run_lut_palette_multi<Npp8u, 3, 3>(
+      "nppiLUTPalette_8u_C3R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, const Npp8u **tabs, int bits, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)tabs; (void)bits; (void)c; return nppiLUTPalette_8u_C3R_Ctx(a, sa, d, ds, r, tabs, bits, c); });
+}
+
+TEST(NumGen, nppiLUTPalette_8u_C4R_Ctx) {
+  num::lut::run_lut_palette_multi<Npp8u, 4, 4>(
+      "nppiLUTPalette_8u_C4R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, const Npp8u **tabs, int bits, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)tabs; (void)bits; (void)c; return nppiLUTPalette_8u_C4R_Ctx(a, sa, d, ds, r, tabs, bits, c); });
+}
+
 TEST(NumGen, nppiLUT_16s_AC4IR_Ctx) {
   num::lut::run_lut_multi_ir<Npp16s, 4, 3, num::lut::LutMode::Point>(
       "nppiLUT_16s_AC4IR_Ctx",
@@ -576,4 +666,22 @@ TEST(NumGen, nppiLUT_Linear_8u_C4R_Ctx) {
   num::lut::run_lut_multi<Npp8u, 4, 4, num::lut::LutMode::Linear>(
       "nppiLUT_Linear_8u_C4R_Ctx",
       [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, const Npp32s **vals, const Npp32s **lev, int *n, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)vals; (void)lev; (void)n; (void)c; return nppiLUT_Linear_8u_C4R_Ctx(a, sa, d, ds, r, vals, lev, n, c); });
+}
+
+TEST(NumGen, nppiLUT_Trilinear_8u_AC4IR_Ctx) {
+  num::lut::run_lut_trilinear<false, true>(
+      "nppiLUT_Trilinear_8u_AC4IR_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, Npp32u *vals, Npp8u **lev, int *nl, NppStreamContext c) { (void)d; (void)ds; (void)r; (void)vals; (void)lev; (void)nl; (void)c; return nppiLUT_Trilinear_8u_AC4IR_Ctx(const_cast<Npp8u *>(a), sa, r, vals, lev, nl, c); });
+}
+
+TEST(NumGen, nppiLUT_Trilinear_8u_AC4R_Ctx) {
+  num::lut::run_lut_trilinear<false, false>(
+      "nppiLUT_Trilinear_8u_AC4R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, Npp32u *vals, Npp8u **lev, int *nl, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)vals; (void)lev; (void)nl; (void)c; return nppiLUT_Trilinear_8u_AC4R_Ctx(a, sa, d, ds, r, vals, lev, nl, c); });
+}
+
+TEST(NumGen, nppiLUT_Trilinear_8u_C4R_Ctx) {
+  num::lut::run_lut_trilinear<true, false>(
+      "nppiLUT_Trilinear_8u_C4R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, Npp32u *vals, Npp8u **lev, int *nl, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)vals; (void)lev; (void)nl; (void)c; return nppiLUT_Trilinear_8u_C4R_Ctx(a, sa, d, ds, r, vals, lev, nl, c); });
 }
