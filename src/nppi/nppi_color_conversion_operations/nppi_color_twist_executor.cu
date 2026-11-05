@@ -112,7 +112,12 @@ template <int CH> __host__ __device__ constexpr int stepMultiple() {
 // by the dot product (0 * +-inf terms) survives instead of being replaced by
 // fminf/fmaxf NaN-suppression semantics.
 __device__ __forceinline__ float clampRange(float v, const TwistParams &p) {
-  return (v < p.nMin) ? p.nMin : ((v > p.nMax) ? p.nMax : v);
+  // The two comparisons are independent and min runs first: an inverted
+  // [nMin, nMax] range yields nMax (verified against NPP 13.4 with
+  // nMin=300, nMax=-50).
+  if (v < p.nMin) v = p.nMin;
+  if (v > p.nMax) v = p.nMax;
+  return v;
 }
 
 // Batch dtype conversion (measured): the 8u batch kernels store the LOW BYTE of
@@ -191,11 +196,15 @@ __device__ __forceinline__ void twistPixel(const T *s, T *d, const TwistParams &
   }
 
   if (BATCH) {
-    d[0] = batchFromFloat<T>(o0);
+    // The AC4 batch kernels convert every written channel with the saturating
+    // conversion (measured: 8u 400 -> 255 for channels 0..2); the other batch
+    // forms store the low byte.
+    constexpr bool kSat = AC4 && !HAS_CONST;
+    d[0] = kSat ? fromFloat<T>(o0) : batchFromFloat<T>(o0);
     if (CH >= 2)
-      d[1] = batchFromFloat<T>(o1);
+      d[1] = kSat ? fromFloat<T>(o1) : batchFromFloat<T>(o1);
     if (CH >= 3)
-      d[2] = (AC4 && !HAS_CONST) ? fromFloat<T>(o2) : batchFromFloat<T>(o2);
+      d[2] = kSat ? fromFloat<T>(o2) : batchFromFloat<T>(o2);
     if (CH == 4) {
       if (HAS_CONST) {
         d[3] = batchFromFloat<T>(o3);

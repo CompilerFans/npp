@@ -281,6 +281,32 @@ def emit_gradient(row: dict) -> Optional[str]:
             f"      {lam});\n}}\n")
 
 
+
+def emit_twist_batch(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    if not fn.startswith("nppiColorTwistBatch"):
+        return None
+    m = re.search(r"_(8u|16f|32f)C?_", fn)
+    if not m:
+        return None
+    S = CTW.get(m.group(1))
+    if S is None:
+        return None
+    mm = re.search(r"_(C1|C3|C4|AC4)(I?)R_Ctx$", fn)
+    if not mm:
+        return None
+    tok, inplace = mm.group(1), mm.group(2) == "I"
+    C, A = TW_LAYOUT[tok]
+    consts = "32fC" in fn
+    name = re.sub(r"\W", "_", fn)
+    lam = ("[](Npp32f mn, Npp32f mx, NppiSize r, NppiColorTwistBatchCXR *l, int n, NppStreamContext c) "
+           f"{{ (void)mn; (void)mx; (void)r; (void)l; (void)n; (void)c; "
+           f"return {fn}(mn, mx, r, l, n, c); }}")
+    prefix = (f"num::twist::run_twist_batch<{S}, {C}, {A}, {str(inplace).lower()}, "
+              f"{str(consts).lower()}>")
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -293,8 +319,8 @@ def main() -> int:
     for row in rows:
         fam = row["family"]
         text = (emit_lut(row) if fam in MODE
-                else emit_lut_palette(row) or emit_twist(row) or emit_gamma(row)
-                or emit_gray(row) or emit_gradient(row))
+                else emit_lut_palette(row) or emit_twist(row) or emit_twist_batch(row)
+                or emit_gamma(row) or emit_gray(row) or emit_gradient(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
                                 reason="later color batch / unsupported"))

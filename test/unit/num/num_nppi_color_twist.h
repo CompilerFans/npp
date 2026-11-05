@@ -372,5 +372,175 @@ void run_twist_planar(const char *id, Call call) {
   finish(id, cnt, first);
 }
 
+
+// ---------------------------------------------------------------------------
+// Batch ColorTwist.  Per-entry matrices live in device memory; the batch
+// kernels add the +0.5f bias before the [nMin, nMax] clamp, convert 8u with
+// the LOW BYTE of the u32 conversion (no saturation), exempt AC4 channel 2
+// from the clamp (saturating conversion instead), leave the C4 alpha of
+// 8u/32f untouched (16f copies the source alpha) and compute alpha from the
+// fourth row for the "C" (20-float) forms.
+// ---------------------------------------------------------------------------
+template <typename S>
+inline S batch_convert(float v) {
+  if constexpr (std::is_same_v<S, Npp8u>) {
+    const double t = std::trunc((double)v);
+    unsigned long long u;
+    if (!(t > 0.0)) u = 0;
+    else if (t >= 4294967295.0) u = 4294967295ull;
+    else u = (unsigned long long)t;
+    return (Npp8u)(u & 0xFFull);
+  } else {
+    return from_float<S>(v);
+  }
+}
+
+template <typename S, int C, int A, bool InPlace, bool WithConstants, class Call>
+void run_twist_batch(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  const int B = 3;
+  const int W = 33, H = 17;
+  static const float mats3[3][12] = {
+      {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0},
+      {1, 0, 0, 5, 0, 1, 0, -7, 0, 0, 1, 11},
+      {0.5f, 0.25f, 0.25f, 0, 0.25f, 0.5f, 0.25f, 0, 0.25f, 0.25f, 0.5f, 0},
+  };
+  // "C" batch layout: four rows of five floats (the fifth is the constant).
+  static const float matsC[3][20] = {
+      {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0},
+      {1, 0, 0, 0, 5, 0, 1, 0, 0, -7, 0, 0, 1, 0, 11, 0, 0, 0, 1, 3},
+      {0.5f, 0.25f, 0.25f, 0, 0.25f, 0.25f, 0.5f, 0.25f, 0, 0.5f,
+       0.25f, 0.25f, 0.5f, 0, 1, 0, 0, 0, 1, 4},
+  };
+  const float ranges[3][2] = {{0.0f, 255.0f}, {-50.0f, 300.0f}, {300.0f, -50.0f}};
+  std::vector<Buf<S> *> srcs, dsts;
+  std::vector<Buf<float> *> coeffs;
+  std::vector<std::vector<uint8_t>> pre(B), orig(B);
+  const uint64_t seed = case_seed(id, W, H, B, 0, 0, 0);
+  for (int i = 0; i < B; ++i) {
+    Buf<S> *a = new Buf<S>(W, H, C, 0, 0);
+    Buf<S> *d = new Buf<S>(W, H, C, 0, 0x5A);
+    Buf<float> *cf = new Buf<float>(WithConstants ? 20 : 12, 1, 1, 0, 0);
+    fill_regime(*a, C, seed ^ mix64((uint64_t)i + 3), (i & 1) ? kWide : kSmall, i, false, false,
+                std::is_floating_point_v<S>);
+    if constexpr (std::is_floating_point_v<S>) {
+      const size_t n = (size_t)(a->step / sizeof(S)) * (size_t)a->bh;
+      for (size_t k = 0; k < n; ++k) {
+        const double v = (double)a->hptr()[k];
+        if (v > 1e3) a->hptr()[k] = S(1e3);
+        else if (v < -1e3) a->hptr()[k] = S(-1e3);
+        else if (v != v) a->hptr()[k] = S(0);
+      }
+    }
+    a->dev.copyFromHost(a->host);
+    d->dev.copyFromHost(d->host);
+    if constexpr (WithConstants) std::memcpy(cf->host.data(), matsC[i], sizeof(matsC[i]));
+    else std::memcpy(cf->host.data(), mats3[i], sizeof(mats3[i]));
+    cf->dev.copyFromHost(cf->host);
+    srcs.push_back(a);
+    dsts.push_back(d);
+    coeffs.push_back(cf);
+    pre[(size_t)i] = d->host;
+    orig[(size_t)i] = a->host;
+  }
+  std::vector<NppiColorTwistBatchCXR> h(B);
+  for (int i = 0; i < B; ++i) {
+    h[i] = {(const void *)srcs[(size_t)i]->dptr(), srcs[(size_t)i]->step,
+            (void *)(InPlace ? srcs[(size_t)i]->dptr() : dsts[(size_t)i]->dptr()), dsts[(size_t)i]->step,
+            (Npp32f *)coeffs[(size_t)i]->dptr()};
+  }
+  Buf<NppiColorTwistBatchCXR> list(B, 1, 1, 0, 0);
+  std::memcpy(list.host.data(), h.data(), sizeof(NppiColorTwistBatchCXR) * B);
+  list.dev.copyFromHost(list.host);
+  const bool srcAlphaCopy = !WithConstants && C == 4 && std::is_same_v<S, Npp16f>;
+  for (int ri = 0; ri < 3; ++ri) {
+    for (int i = 0; i < B; ++i) {
+      dsts[(size_t)i]->host = pre[(size_t)i];
+      dsts[(size_t)i]->dev.copyFromHost(dsts[(size_t)i]->host);
+      if constexpr (InPlace) {
+        srcs[(size_t)i]->host = orig[(size_t)i];
+        srcs[(size_t)i]->dev.copyFromHost(srcs[(size_t)i]->host);
+      }
+    }
+    npp_diff::clear_cuda_error();
+    const NppStatus st = call(ranges[ri][0], ranges[ri][1], NppiSize{W, H},
+                              reinterpret_cast<NppiColorTwistBatchCXR *>(list.dptr()), B, ctx);
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    const cudaError_t se = cudaDeviceSynchronize();
+    ASSERT_EQ(se, cudaSuccess) << "[" << id << "] batch sync: " << cudaGetErrorString(se);
+    ++cnt.executed;
+    bool failed = false;
+    for (int i = 0; i < B && !failed; ++i) {
+      std::vector<uint8_t> got;
+      if constexpr (InPlace) srcs[(size_t)i]->dev.copyToHost(got);
+      else dsts[(size_t)i]->dev.copyToHost(got);
+      std::vector<uint8_t> want = InPlace ? orig[(size_t)i] : pre[(size_t)i];
+      const int stp = InPlace ? srcs[(size_t)i]->step : dsts[(size_t)i]->step;
+      for (int y = 0; y < H; ++y)
+        for (int x = 0; x < W; ++x) {
+          const size_t so = (size_t)y * (srcs[(size_t)i]->step / (int)sizeof(S)) + (size_t)x * C;
+          const size_t db = off_bytes<S>(y, x, stp, C);
+          float v[4] = {0, 0, 0, 0};
+          for (int ch = 0; ch < C; ++ch) v[ch] = (float)as_double(srcs[(size_t)i]->hptr()[so + (size_t)ch]);
+          const float *m = coeffs[(size_t)i]->hptr();
+          const int nOut = WithConstants ? 4 : (C < 3 ? C : 3);
+          for (int ch = 0; ch < nOut; ++ch) {
+            float o;
+            if constexpr (WithConstants) {
+              o = m[ch * 5 + 0] * v[0] + m[ch * 5 + 1] * v[1] + m[ch * 5 + 2] * v[2] + m[ch * 5 + 3] * v[3] +
+                  m[ch * 5 + 4];
+            } else {
+              o = m[ch * 4 + 0] * v[0] + m[ch * 4 + 1] * v[1] + m[ch * 4 + 2] * v[2] + m[ch * 4 + 3];
+            }
+            constexpr bool kBias = std::is_same_v<S, Npp32f> || (std::is_integral_v<S> && C >= 3);
+            if (kBias) o += 0.5f;
+            const bool exempt = !WithConstants && C == 4 && A == 3 && ch == 2;
+            if (!exempt) {
+              // NPP clamps min first and max second (independent comparisons),
+              // so an inverted [nMin, nMax] range yields nMax.
+              if (o < ranges[ri][0]) o = ranges[ri][0];
+              if (o > ranges[ri][1]) o = ranges[ri][1];
+            }
+            // AC4 batch kernels convert every written channel with the
+            // saturating conversion (8u: 400 -> 255); C3/C4 (and the "C"
+            // forms) use the low-byte batch conversion.
+            const bool satConv = !WithConstants && C == 4 && A == 3;
+            const S out = satConv ? from_float<S>(o) : batch_convert<S>(o);
+            std::memcpy(want.data() + db + (size_t)ch * sizeof(S), &out, sizeof(S));
+          }
+          if (!WithConstants) {
+            if constexpr (C == 4) {
+              if (srcAlphaCopy) {
+                // 16f batch copies the source alpha.
+                std::memcpy(want.data() + db + 3 * sizeof(S), srcs[(size_t)i]->hptr() + so + 3, sizeof(S));
+              }
+            }
+          }
+        }
+      const GenCase dc{W, H, 0, 0, 0, kSmall, 0};
+      const int Acheck = WithConstants ? 4 : (C == 4 ? (srcAlphaCopy ? 4 : 3) : C);
+      if (!rotate_check<S, C, Acheck>(id, dc, NPPI_INTER_NN, InPlace ? orig[(size_t)i] : pre[(size_t)i], got,
+                                      want, stp, std::vector<uint8_t>(), cnt, first))
+        failed = true;
+      if (cnt.mismatched >= 8) break;
+    }
+    if (failed) break;
+  }
+  for (auto *p : srcs) delete p;
+  for (auto *p : dsts) delete p;
+  for (auto *p : coeffs) delete p;
+  finish(id, cnt, first);
+}
+
 }  // namespace twist
 }  // namespace num
