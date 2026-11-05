@@ -1,58 +1,7 @@
 {
  "nppi_arithmetic_and_logical_operations.h": {
-  "emitted": 1152,
-  "skipped": [
-   {
-    "function": "nppiAlphaCompC_16s_C1R_Ctx",
-    "family": "nppiAlphaCompC",
-    "reason": "unsupported signature/type"
-   },
-   {
-    "function": "nppiAlphaCompC_32s_C1R_Ctx",
-    "family": "nppiAlphaCompC",
-    "reason": "unsupported signature/type"
-   },
-   {
-    "function": "nppiAlphaCompC_32u_C1R_Ctx",
-    "family": "nppiAlphaCompC",
-    "reason": "unsupported signature/type"
-   },
-   {
-    "function": "nppiAlphaCompC_8s_C1R_Ctx",
-    "family": "nppiAlphaCompC",
-    "reason": "unsupported signature/type"
-   },
-   {
-    "function": "nppiAlphaComp_16s_AC1R_Ctx",
-    "family": "nppiAlphaComp",
-    "reason": "unsupported signature/type"
-   },
-   {
-    "function": "nppiAlphaComp_32s_AC1R_Ctx",
-    "family": "nppiAlphaComp",
-    "reason": "unsupported signature/type"
-   },
-   {
-    "function": "nppiAlphaComp_32s_AC4R_Ctx",
-    "family": "nppiAlphaComp",
-    "reason": "unsupported signature/type"
-   },
-   {
-    "function": "nppiAlphaComp_32u_AC1R_Ctx",
-    "family": "nppiAlphaComp",
-    "reason": "unsupported signature/type"
-   },
-   {
-    "function": "nppiAlphaComp_32u_AC4R_Ctx",
-    "family": "nppiAlphaComp",
-    "reason": "unsupported signature/type"
-   },
-   {
-    "function": "nppiAlphaComp_8s_AC1R_Ctx",
-    "family": "nppiAlphaComp",
-    "reason": "unsupported signature/type"
-   }
-  ]
+  "emitted": 1162,
+  "skipped": []
  },
  "nppi_threshold_and_compare_operations.h": {
   "emitted": 208,

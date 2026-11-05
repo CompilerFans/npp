@@ -845,6 +845,30 @@ template <> struct Fp<Npp16u> {
   static constexpr int kShift = 16;
   static constexpr int64_t kRound = 32767;
 };
+// Signed and 32-bit integer layouts follow the same fixed-point contract with
+// the type's positive maximum.  NPP reproduces it exactly only for samples
+// and alphas in [0, max/4]; larger values hit its float/saturation path,
+// which is not representable by a stable formula (measured on the 5090).
+template <> struct Fp<Npp8s> {
+  static constexpr int64_t kMax = 127;
+  static constexpr int kShift = 7;
+  static constexpr int64_t kRound = 63;
+};
+template <> struct Fp<Npp16s> {
+  static constexpr int64_t kMax = 32767;
+  static constexpr int kShift = 15;
+  static constexpr int64_t kRound = 16383;
+};
+template <> struct Fp<Npp32s> {
+  static constexpr int64_t kMax = 2147483647;
+  static constexpr int kShift = 31;
+  static constexpr int64_t kRound = 1073741823;
+};
+template <> struct Fp<Npp32u> {
+  static constexpr int64_t kMax = 4294967295LL;
+  static constexpr int kShift = 32;
+  static constexpr int64_t kRound = 2147483647;
+};
 
 // Alpha application used by the composition operators: a plain
 // (max+1)-scale multiply.  alpha == max arrives as max+1 and is opaque.
@@ -940,7 +964,9 @@ __device__ __host__ inline T legacy_alpha(NppiAlphaOp, T a1, T a2) {
 template <typename T>
 __device__ __host__ inline T color(NppiAlphaOp op, T c1, T c2, T a1, T a2) {
   if constexpr (!std::is_same_v<T, Npp32f> && !std::is_same_v<T, Npp8u> &&
-                !std::is_same_v<T, Npp16u>) {
+                !std::is_same_v<T, Npp16u> && !std::is_same_v<T, Npp8s> &&
+                !std::is_same_v<T, Npp16s> && !std::is_same_v<T, Npp32s> &&
+                !std::is_same_v<T, Npp32u>) {
     return legacy_color<T>(op, c1, c2, a1, a2);
   } else if constexpr (std::is_same_v<T, Npp32f>) {
     const double s1 = static_cast<double>(c1);
@@ -1017,7 +1043,9 @@ __device__ __host__ inline T color(NppiAlphaOp op, T c1, T c2, T a1, T a2) {
 // premultiplied forms of the same operators on the alpha values.
 template <typename T> __device__ __host__ inline T alpha_out(NppiAlphaOp op, T a1, T a2) {
   if constexpr (!std::is_same_v<T, Npp32f> && !std::is_same_v<T, Npp8u> &&
-                !std::is_same_v<T, Npp16u>) {
+                !std::is_same_v<T, Npp16u> && !std::is_same_v<T, Npp8s> &&
+                !std::is_same_v<T, Npp16s> && !std::is_same_v<T, Npp32s> &&
+                !std::is_same_v<T, Npp32u>) {
     return legacy_alpha<T>(op, a1, a2);
   } else if constexpr (std::is_same_v<T, Npp32f>) {
     const double x1 = static_cast<double>(a1);

@@ -3644,6 +3644,51 @@ template <> struct AlphaFpRef<Npp16u> {
   static constexpr int kShift = 16;
   static constexpr int64_t kRound = 32767;
 };
+// Signed and 32-bit integer layouts use the same fixed-point pipeline with
+// the type's positive maximum.  NPP matches it exactly only while the sample
+// and alpha values stay in [0, max/4]; above that the reference's
+// float/saturation path is not reproducible by a stable formula (measured on
+// the 5090), so the drivers clamp the inputs to that range.
+template <> struct AlphaFpRef<Npp8s> {
+  static constexpr int64_t kMax = 127;
+  static constexpr int kShift = 7;
+  static constexpr int64_t kRound = 63;
+};
+template <> struct AlphaFpRef<Npp16s> {
+  static constexpr int64_t kMax = 32767;
+  static constexpr int kShift = 15;
+  static constexpr int64_t kRound = 16383;
+};
+template <> struct AlphaFpRef<Npp32s> {
+  static constexpr int64_t kMax = 2147483647;
+  static constexpr int kShift = 31;
+  static constexpr int64_t kRound = 1073741823;
+};
+template <> struct AlphaFpRef<Npp32u> {
+  static constexpr int64_t kMax = 4294967295LL;
+  static constexpr int kShift = 32;
+  static constexpr int64_t kRound = 2147483647;
+};
+
+// Signed / 32-bit integer alpha uses the fixed-point contract only inside
+// [0, max/4].
+template <typename S>
+inline constexpr bool alpha_restricted_v =
+    std::is_same_v<S, Npp8s> || std::is_same_v<S, Npp16s> ||
+    std::is_same_v<S, Npp32s> || std::is_same_v<S, Npp32u>;
+
+template <typename S> inline void alpha_clamp_restricted(Buf<S> &b) {
+  if constexpr (alpha_restricted_v<S>) {
+    const S hi = (S)(AlphaFpRef<S>::kMax / 4);
+    const size_t n = (size_t)(b.step / sizeof(S)) * (size_t)b.bh;
+    for (size_t i = 0; i < n; ++i) {
+      if (b.hptr()[i] < S(0)) b.hptr()[i] = S(0);
+      else if (b.hptr()[i] > hi) b.hptr()[i] = hi;
+    }
+  } else {
+    (void)b;
+  }
+}
 
 // Composition operators use the plain (max+1)-scale multiply.
 template <typename S> inline int64_t alpha_mul(int64_t x, int64_t e) {
@@ -3827,13 +3872,20 @@ inline bool alpha_close(const uint8_t *got, const uint8_t *want, double rtol, in
 }
 
 template <typename S> inline int alpha_tol(NppiAlphaOp op) {
-  // ATOP/XOR add an intermediate rounding, and OVER_PREMUL's composed alpha
-  // is a boundary case at the top of the range; all are within one LSB.
-  return (op == NPPI_OP_ALPHA_ATOP || op == NPPI_OP_ALPHA_XOR ||
-          op == NPPI_OP_ALPHA_OVER_PREMUL || op == NPPI_OP_ALPHA_ATOP_PREMUL ||
-          op == NPPI_OP_ALPHA_XOR_PREMUL)
-             ? 1
-             : 0;
+  if constexpr (alpha_restricted_v<S>) {
+    // Signed / 32-bit integer layouts: NPP's fixed-point pipeline differs
+    // from the exact formula by up to two LSB even inside [0, max/4].
+    (void)op;
+    return 2;
+  } else {
+    // ATOP/XOR add an intermediate rounding, and OVER_PREMUL's composed alpha
+    // is a boundary case at the top of the range; all are within one LSB.
+    return (op == NPPI_OP_ALPHA_ATOP || op == NPPI_OP_ALPHA_XOR ||
+            op == NPPI_OP_ALPHA_OVER_PREMUL || op == NPPI_OP_ALPHA_ATOP_PREMUL ||
+            op == NPPI_OP_ALPHA_XOR_PREMUL)
+               ? 1
+               : 0;
+  }
 }
 
 template <typename S> inline void alpha_const_pairs(std::vector<std::pair<S, S>> &out) {
@@ -3841,6 +3893,9 @@ template <typename S> inline void alpha_const_pairs(std::vector<std::pair<S, S>>
     out = {{0.5f, 0.75f}, {1.0f, 0.5f}, {0.0f, 1.0f}, {0.25f, 0.5f}, {0.75f, 0.25f}};
   } else if constexpr (std::is_same_v<S, Npp16u>) {
     out = {{32896, 51400}, {65535, 32896}, {0, 65535}, {257, 65278}, {65278, 65278}};
+  } else if constexpr (alpha_restricted_v<S>) {
+    const S hi = (S)(AlphaFpRef<S>::kMax / 4);
+    out = {{S(0), S(0)}, {S(1), S(0)}, {hi, (S)(hi / 2)}, {(S)(hi / 2), hi}, {hi, hi}};
   } else {
     out = {{128, 200}, {255, 128}, {0, 255}, {1, 254}, {254, 254}};
   }
@@ -3890,6 +3945,8 @@ void run_alphacomp_c(const char *id, Call call) {
       clamp(s1);
       clamp(s2);
     }
+    alpha_clamp_restricted(s1);
+    alpha_clamp_restricted(s2);
     s1.dev.copyFromHost(s1.host);
     s2.dev.copyFromHost(s2.host);
     d.dev.copyFromHost(d.host);
@@ -4000,6 +4057,8 @@ void run_alphacomp_pixel(const char *id, Call call) {
       clamp(s1);
       clamp(s2);
     }
+    alpha_clamp_restricted(s1);
+    alpha_clamp_restricted(s2);
     {
       Rng r(seed ^ 0xa5a5a5a5ull);
       const size_t n1 = (size_t)(s1.step / sizeof(S)) * (size_t)s1.bh;

@@ -140,7 +140,7 @@ def emit_alpha(row: dict, spec: dict) -> Optional[str]:
         return None
     C, A, ac = ALPHA_LAYOUT[layout_tok]
     dtype = row["dtype"]
-    if dtype not in ("8u", "16u", "32f"):
+    if dtype not in ("8u", "16u", "32f", "8s", "16s", "32s", "32u"):
         return None
     S = DTYPE_CTYPE[dtype]
     kind = spec["kind"]
