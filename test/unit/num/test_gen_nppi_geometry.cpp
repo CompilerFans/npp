@@ -781,3 +781,141 @@ TEST(NumGen, nppiRotate_8u_C4R_Ctx) {
       "nppiRotate_8u_C4R_Ctx",
       [](const Npp8u *a, NppiSize ss, int sa, NppiRect sr, Npp8u *d, int ds, NppiRect dr, double ang, double shx, double shy, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)ang; (void)shx; (void)shy; (void)m; (void)c; return nppiRotate_8u_C4R_Ctx(a, ss, sa, sr, d, ds, dr, ang, shx, shy, m, c); });
 }
+
+TEST(NumGen, nppiWarpAffine_16f_C1R_Ctx) {
+  num::run_warp_affine<Npp16f, 1, 1, true>(
+      "nppiWarpAffine_16f_C1R_Ctx",
+      [](const Npp16f *a, NppiSize ss, int sa, NppiRect sr, Npp16f *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_16f_C1R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_16f_C3R_Ctx) {
+  num::run_warp_affine<Npp16f, 3, 3, true>(
+      "nppiWarpAffine_16f_C3R_Ctx",
+      [](const Npp16f *a, NppiSize ss, int sa, NppiRect sr, Npp16f *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_16f_C3R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_16f_C4R_Ctx) {
+  num::run_warp_affine<Npp16f, 4, 4, true>(
+      "nppiWarpAffine_16f_C4R_Ctx",
+      [](const Npp16f *a, NppiSize ss, int sa, NppiRect sr, Npp16f *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_16f_C4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_16u_AC4R_Ctx) {
+  num::run_warp_affine<Npp16u, 4, 3, true>(
+      "nppiWarpAffine_16u_AC4R_Ctx",
+      [](const Npp16u *a, NppiSize ss, int sa, NppiRect sr, Npp16u *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_16u_AC4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_16u_C1R_Ctx) {
+  num::run_warp_affine<Npp16u, 1, 1, true>(
+      "nppiWarpAffine_16u_C1R_Ctx",
+      [](const Npp16u *a, NppiSize ss, int sa, NppiRect sr, Npp16u *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_16u_C1R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_16u_C3R_Ctx) {
+  num::run_warp_affine<Npp16u, 3, 3, true>(
+      "nppiWarpAffine_16u_C3R_Ctx",
+      [](const Npp16u *a, NppiSize ss, int sa, NppiRect sr, Npp16u *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_16u_C3R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_16u_C4R_Ctx) {
+  num::run_warp_affine<Npp16u, 4, 4, true>(
+      "nppiWarpAffine_16u_C4R_Ctx",
+      [](const Npp16u *a, NppiSize ss, int sa, NppiRect sr, Npp16u *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_16u_C4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_32f_AC4R_Ctx) {
+  num::run_warp_affine<Npp32f, 4, 3, true>(
+      "nppiWarpAffine_32f_AC4R_Ctx",
+      [](const Npp32f *a, NppiSize ss, int sa, NppiRect sr, Npp32f *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_32f_AC4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_32f_C1R_Ctx) {
+  num::run_warp_affine<Npp32f, 1, 1, true>(
+      "nppiWarpAffine_32f_C1R_Ctx",
+      [](const Npp32f *a, NppiSize ss, int sa, NppiRect sr, Npp32f *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_32f_C1R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_32f_C3R_Ctx) {
+  num::run_warp_affine<Npp32f, 3, 3, true>(
+      "nppiWarpAffine_32f_C3R_Ctx",
+      [](const Npp32f *a, NppiSize ss, int sa, NppiRect sr, Npp32f *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_32f_C3R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_32f_C4R_Ctx) {
+  num::run_warp_affine<Npp32f, 4, 4, true>(
+      "nppiWarpAffine_32f_C4R_Ctx",
+      [](const Npp32f *a, NppiSize ss, int sa, NppiRect sr, Npp32f *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_32f_C4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_32s_AC4R_Ctx) {
+  num::run_warp_affine<Npp32s, 4, 3, true>(
+      "nppiWarpAffine_32s_AC4R_Ctx",
+      [](const Npp32s *a, NppiSize ss, int sa, NppiRect sr, Npp32s *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_32s_AC4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_32s_C1R_Ctx) {
+  num::run_warp_affine<Npp32s, 1, 1, true>(
+      "nppiWarpAffine_32s_C1R_Ctx",
+      [](const Npp32s *a, NppiSize ss, int sa, NppiRect sr, Npp32s *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_32s_C1R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_32s_C3R_Ctx) {
+  num::run_warp_affine<Npp32s, 3, 3, true>(
+      "nppiWarpAffine_32s_C3R_Ctx",
+      [](const Npp32s *a, NppiSize ss, int sa, NppiRect sr, Npp32s *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_32s_C3R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_32s_C4R_Ctx) {
+  num::run_warp_affine<Npp32s, 4, 4, true>(
+      "nppiWarpAffine_32s_C4R_Ctx",
+      [](const Npp32s *a, NppiSize ss, int sa, NppiRect sr, Npp32s *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_32s_C4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_64f_AC4R_Ctx) {
+  num::run_warp_affine<Npp64f, 4, 3, true>(
+      "nppiWarpAffine_64f_AC4R_Ctx",
+      [](const Npp64f *a, NppiSize ss, int sa, NppiRect sr, Npp64f *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_64f_AC4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_64f_C1R_Ctx) {
+  num::run_warp_affine<Npp64f, 1, 1, true>(
+      "nppiWarpAffine_64f_C1R_Ctx",
+      [](const Npp64f *a, NppiSize ss, int sa, NppiRect sr, Npp64f *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_64f_C1R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_64f_C3R_Ctx) {
+  num::run_warp_affine<Npp64f, 3, 3, true>(
+      "nppiWarpAffine_64f_C3R_Ctx",
+      [](const Npp64f *a, NppiSize ss, int sa, NppiRect sr, Npp64f *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_64f_C3R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_64f_C4R_Ctx) {
+  num::run_warp_affine<Npp64f, 4, 4, true>(
+      "nppiWarpAffine_64f_C4R_Ctx",
+      [](const Npp64f *a, NppiSize ss, int sa, NppiRect sr, Npp64f *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_64f_C4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_8u_AC4R_Ctx) {
+  num::run_warp_affine<Npp8u, 4, 3, true>(
+      "nppiWarpAffine_8u_AC4R_Ctx",
+      [](const Npp8u *a, NppiSize ss, int sa, NppiRect sr, Npp8u *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_8u_AC4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_8u_C1R_Ctx) {
+  num::run_warp_affine<Npp8u, 1, 1, true>(
+      "nppiWarpAffine_8u_C1R_Ctx",
+      [](const Npp8u *a, NppiSize ss, int sa, NppiRect sr, Npp8u *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_8u_C1R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_8u_C3R_Ctx) {
+  num::run_warp_affine<Npp8u, 3, 3, true>(
+      "nppiWarpAffine_8u_C3R_Ctx",
+      [](const Npp8u *a, NppiSize ss, int sa, NppiRect sr, Npp8u *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_8u_C3R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpAffine_8u_C4R_Ctx) {
+  num::run_warp_affine<Npp8u, 4, 4, true>(
+      "nppiWarpAffine_8u_C4R_Ctx",
+      [](const Npp8u *a, NppiSize ss, int sa, NppiRect sr, Npp8u *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffine_8u_C4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}

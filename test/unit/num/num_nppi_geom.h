@@ -533,7 +533,8 @@ inline bool resize_check(const char *id, const GenCase &c, int mode, const std::
           // a tolerance-aware LSB comparison.
           const long long g = (long long)(*(const S *)(got.data() + off));
           const long long w = (long long)(*(const S *)(want.data() + off));
-          ok = (g > w ? g - w : w - g) <= (long long)atol;
+          const long long d = g > w ? g - w : w - g;
+          ok = (double)d <= atol + rtol * std::fabs((double)w);
         } else {
           ok = equal_elem<S>(got.data() + off, want.data() + off, rtol, atol);
         }
@@ -992,6 +993,11 @@ inline bool rotate_check(const char *id, const GenCase &c, int interp, const std
   } else if constexpr (std::is_same_v<S, Npp16f>) {
     rtol = 5e-2;
     atol = 5e-2;
+  } else if constexpr (std::is_same_v<S, Npp32s>) {
+    // Float interpolation of 32-bit samples loses several ulp at large
+    // magnitudes; allow the corresponding relative envelope.
+    rtol = 2e-5;
+    atol = 256.0;
   } else {
     rtol = 0.0;
     atol = 4.0;
@@ -1010,7 +1016,8 @@ inline bool rotate_check(const char *id, const GenCase &c, int interp, const std
         } else if constexpr (std::is_integral_v<S>) {
           const long long g = (long long)(*(const S *)(got.data() + off));
           const long long w = (long long)(*(const S *)(want.data() + off));
-          ok = (g > w ? g - w : w - g) <= (long long)atol;
+          const long long d = g > w ? g - w : w - g;
+          ok = (double)d <= atol + rtol * std::fabs((double)w);
         } else {
           ok = equal_elem<S>(got.data() + off, want.data() + off, rtol, atol);
         }
@@ -1207,6 +1214,263 @@ void run_remap(const char *id, Call call) {
       }
       if (cnt.mismatched >= 8) break;
     }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+
+// ---------------------------------------------------------------------------
+// WarpAffine packed reference (ported from the measured g1 executor).
+// ---------------------------------------------------------------------------
+template <typename S> struct AffineVT {
+  using type = float;
+};
+template <> struct AffineVT<Npp64f> {
+  using type = double;
+};
+
+inline float aff_mul(float a, float b) { return (float)((double)a * (double)b); }
+inline float aff_add(float a, float b) { return (float)((double)a + (double)b); }
+inline float aff_sub(float a, float b) { return (float)((double)a - (double)b); }
+inline double aff_mul(double a, double b) { return a * b; }
+inline double aff_add(double a, double b) { return a + b; }
+
+inline bool affine_invert(const double in[2][3], double out[2][3]) {
+  const double det = in[0][0] * in[1][1] - in[0][1] * in[1][0];
+  if (std::fabs(det) < 1e-12) return false;
+  const double invDet = 1.0 / det;
+  out[0][0] = in[1][1] * invDet;
+  out[0][1] = -in[0][1] * invDet;
+  out[1][0] = -in[1][0] * invDet;
+  out[1][1] = in[0][0] * invDet;
+  out[0][2] = -(out[0][0] * in[0][2] + out[0][1] * in[1][2]);
+  out[1][2] = -(out[1][0] * in[0][2] + out[1][1] * in[1][2]);
+  return true;
+}
+
+inline float aff_div3(float x) {
+  const float kThird = 0x1.555556p-2f;
+  const float a = std::fma(x, kThird, 0.0f);
+  const float r = std::fma(a, -3.0f, x);
+  return std::fma(r, kThird, a);
+}
+
+inline void aff_cubic_weights(float t, float w[4]) {
+  const float t1 = aff_sub(t, 1.0f);
+  const float t2 = aff_sub(t, 2.0f);
+  const float t3 = aff_sub(t, 3.0f);
+  w[0] = aff_mul(aff_mul(t1, aff_mul(t2, -0.5f)), aff_div3(t3));
+  w[1] = aff_mul(aff_mul(t, t2), aff_mul(t3, 0.5f));
+  w[2] = aff_mul(t3, aff_mul(t1, aff_mul(t, -0.5f)));
+  w[3] = aff_mul(t2, aff_mul(aff_mul(t1, 0.5f), aff_div3(t)));
+}
+
+inline float aff_cubic_weight_poly(double x) {
+  x = std::fabs(x);
+  if (x <= 1.0) return (float)(((1.5 * x - 2.5) * x) * x + 1.0);
+  if (x < 2.0) return (float)((((-0.5 * x + 2.5) * x) - 4.0) * x + 2.0);
+  return 0.0f;
+}
+
+template <typename S>
+inline double affine_at(const S *src, int stepElems, int w, int h, int x, int y, int C, int ch) {
+  const int cx = resize_clampi(x, 0, w - 1), cy = resize_clampi(y, 0, h - 1);
+  return (double)warp_load(src[(size_t)cy * stepElems + (size_t)cx * C + ch]);
+}
+
+template <typename S>
+inline S affine_cast(double v) {
+  constexpr bool is_int = std::is_integral_v<S>;
+  if constexpr (std::is_same_v<S, Npp32f>) {
+    return (Npp32f)v;
+  } else if constexpr (std::is_same_v<S, Npp64f>) {
+    return (Npp64f)v;
+  } else if constexpr (std::is_same_v<S, Npp16f>) {
+    return half_round((float)v);
+  } else if constexpr (is_int) {
+    double lo = 0.0, hi = 0.0;
+    if constexpr (std::is_same_v<S, Npp8u>) { lo = 0.0; hi = 255.0; }
+    else if constexpr (std::is_same_v<S, Npp16u>) { lo = 0.0; hi = 65535.0; }
+    else if constexpr (std::is_same_v<S, Npp32s>) { lo = -2147483648.0; hi = 2147483520.0; }
+    v = v < lo ? lo : (v > hi ? hi : v);
+    // __fadd_rz(v, copysign(0.5, v)) followed by F2I.RZ.
+    const double s = v + std::copysign(0.5, v);
+    float f = (float)s;
+    if ((s > 0.0 && (double)f > s) || (s < 0.0 && (double)f < s)) f = std::nextafter(f, 0.0f);
+    return (S)std::trunc((double)f);
+  } else {
+    return (S)v;
+  }
+}
+
+template <typename S, int C, int A>
+inline S affine_sample(const S *src, int stepElems, int w, int h, int ch, float fx, float fy, int interp,
+                       bool doubleWork) {
+  using VT = typename AffineVT<S>::type;
+  if (doubleWork) {
+    // Work type is double, but the kernel derives the tap fractions and the
+    // cubic weights in single precision from the float map.
+    if (interp == NPPI_INTER_NN) {
+      const int x = (int)std::floor((double)fx + 0.5), y = (int)std::floor((double)fy + 0.5);
+      return affine_cast<S>(affine_at(src, stepElems, w, h, x, y, C, ch));
+    }
+    const int x0 = (int)std::floor(fx), y0 = (int)std::floor(fy);
+    const float dxf = aff_sub(fx, (float)x0), dyf = aff_sub(fy, (float)y0);
+    const double dx = (double)dxf, dy = (double)dyf;
+    if (interp == NPPI_INTER_LINEAR) {
+      const double v00 = affine_at(src, stepElems, w, h, x0, y0, C, ch);
+      const double v10 = affine_at(src, stepElems, w, h, x0 + 1, y0, C, ch);
+      const double v01 = affine_at(src, stepElems, w, h, x0, y0 + 1, C, ch);
+      const double v11 = affine_at(src, stepElems, w, h, x0 + 1, y0 + 1, C, ch);
+      const double v0 = (1.0 - dx) * v00 + dx * v10;
+      const double v1 = (1.0 - dx) * v01 + dx * v11;
+      return affine_cast<S>((1.0 - dy) * v0 + dy * v1);
+    }
+    float wx[4], wy[4];
+    const float ax = fx - (float)x0, ay = fy - (float)y0;
+    for (int i = 0; i < 4; ++i) {
+      wx[i] = aff_cubic_weight_poly((double)(ax - (float)(i - 1)));
+      wy[i] = aff_cubic_weight_poly((double)(ay - (float)(i - 1)));
+    }
+    double sum = 0.0;
+    for (int j = 0; j < 4; ++j)
+      for (int i = 0; i < 4; ++i)
+        sum += affine_at(src, stepElems, w, h, x0 + i - 1, y0 + j - 1, C, ch) * ((double)wx[i] * (double)wy[j]);
+    return affine_cast<S>(sum);
+  }
+  if (interp == NPPI_INTER_NN) {
+    const int x = (int)std::floor((double)fx + 0.5), y = (int)std::floor((double)fy + 0.5);
+    return affine_cast<S>(affine_at(src, stepElems, w, h, x, y, C, ch));
+  }
+  if (interp == NPPI_INTER_LINEAR) {
+    float ux = fx < 0.0f ? 0.0f : fx;
+    float uy = fy < 0.0f ? 0.0f : fy;
+    const int x0 = (int)std::floor(ux), y0 = (int)std::floor(uy);
+    const float dx = aff_sub(ux, (float)x0), dy = aff_sub(uy, (float)y0);
+    const float v00 = (float)affine_at(src, stepElems, w, h, x0, y0, C, ch);
+    const float v10 = (float)affine_at(src, stepElems, w, h, x0 + 1, y0, C, ch);
+    const float v01 = (float)affine_at(src, stepElems, w, h, x0, y0 + 1, C, ch);
+    const float v11 = (float)affine_at(src, stepElems, w, h, x0 + 1, y0 + 1, C, ch);
+    const float v0 = aff_add(aff_mul(aff_sub(1.0f, dx), v00), aff_mul(dx, v10));
+    const float v1 = aff_add(aff_mul(aff_sub(1.0f, dx), v01), aff_mul(dx, v11));
+    return affine_cast<S>(aff_add(aff_mul(aff_sub(1.0f, dy), v0), aff_mul(dy, v1)));
+  }
+  const int tx = (int)std::floor(fx), ty = (int)std::floor(fy);
+  const float t = aff_sub(fx, (float)(tx - 1));
+  const float u = aff_sub(fy, (float)(ty - 1));
+  float wx[4], wy[4];
+  aff_cubic_weights(t, wx);
+  aff_cubic_weights(u, wy);
+  float rows[4];
+  for (int j = 0; j < 4; ++j) {
+    const int y = ty - 1 + j;
+    float r = aff_mul(wx[1], (float)affine_at(src, stepElems, w, h, tx, y, C, ch));
+    r = std::fma(wx[0], (float)affine_at(src, stepElems, w, h, tx - 1, y, C, ch), r);
+    r = std::fma(wx[2], (float)affine_at(src, stepElems, w, h, tx + 1, y, C, ch), r);
+    r = std::fma(wx[3], (float)affine_at(src, stepElems, w, h, tx + 2, y, C, ch), r);
+    rows[j] = r;
+  }
+  float out = aff_mul(wy[0], rows[0]);
+  out = std::fma(wy[1], rows[1], out);
+  out = std::fma(wy[2], rows[2], out);
+  out = std::fma(wy[3], rows[3], out);
+  return affine_cast<S>(out);
+}
+
+// InvertMap=true for nppiWarpAffine (coeffs are src->dst), false for the Back
+// family (coeffs are already dst->src).
+template <typename S, int C, int A, bool InvertMap, class Call>
+void run_warp_affine(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
+  for (const GenCase &c : make_gen_cases(0)) {
+    if (c.w < 2 || c.h < 2) continue;
+    Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
+    Buf<S> d(c.w, c.h, C, 0, 0x5A);
+    const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
+    fill_regime(s, C, seed, c.regime, 0, false, false, std::is_floating_point_v<S>);
+    if constexpr (std::is_floating_point_v<S>) {
+      auto clampv = [](Buf<S> &b) {
+        const size_t n = (size_t)(b.step / sizeof(S)) * (size_t)b.bh;
+        for (size_t i = 0; i < n; ++i) {
+          const double v = (double)b.hptr()[i];
+          if (v > 1e3) b.hptr()[i] = S(1e3);
+          else if (v < -1e3) b.hptr()[i] = S(-1e3);
+          else if (v != v) b.hptr()[i] = S(0);
+        }
+      };
+      clampv(s);
+    }
+    s.dev.copyFromHost(s.host);
+    d.dev.copyFromHost(d.host);
+    // Binary-exact transforms: the inverse map has exact float coordinates,
+    // so nearest-neighbour ties are reproducible across the reference and NPP.
+    const double w1 = c.w - 1.0, h1 = c.h - 1.0;
+    double coeffs[6][2][3] = {
+        {{1, 0, 0}, {0, 1, 0}},
+        {{1, 0, 1}, {0, 1, -1}},
+        {{2, 0, 0}, {0, 2, 0}},
+        {{0, -1, h1}, {1, 0, 0}},
+        {{-1, 0, w1}, {0, -1, h1}},
+        {{-1, 0, w1}, {0, 1, 0}},
+    };
+    const S *hsrc = s.hptr() + off_bytes<S>(c.oy, c.ox, s.step, C) / sizeof(S);
+    const S *dsrc = reinterpret_cast<const S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, C));
+    const int srcStepElems = s.step / (int)sizeof(S);
+    const bool doubleWork = std::is_same_v<S, Npp64f>;
+    for (auto &cf : coeffs)
+      for (int interp : interps) {
+        const std::vector<uint8_t> pre = d.host;
+        npp_diff::clear_cuda_error();
+        const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, s.step, NppiRect{0, 0, c.w, c.h},
+                                  reinterpret_cast<S *>(d.dptr()), d.step, NppiRect{0, 0, c.w, c.h},
+                                  reinterpret_cast<const double *>(cf), interp, ctx);
+        if (st != NPP_NO_ERROR) {
+          ++cnt.skipped;
+          if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+          continue;
+        }
+        const cudaError_t se = cudaDeviceSynchronize();
+        ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+        d.dev.copyToHost(d.host);
+        ++cnt.executed;
+        double map[2][3];
+        if constexpr (InvertMap) {
+          if (!affine_invert(cf, map)) continue;
+        } else {
+          for (int i = 0; i < 2; ++i)
+            for (int j = 0; j < 3; ++j) map[i][j] = cf[i][j];
+        }
+        std::vector<uint8_t> want = pre;
+        for (int y = 0; y < c.h; ++y)
+          for (int x = 0; x < c.w; ++x) {
+            const float dx = (float)x, dy = (float)y;
+            // The kernel evaluates the map in single precision for every
+            // pixel type (only the interpolation arithmetic is double for 64f).
+            const float fx = aff_add(std::fma(dx, (float)map[0][0], aff_mul((float)map[0][1], dy)),
+                                     (float)map[0][2]);
+            const float fy = aff_add(std::fma(dx, (float)map[1][0], aff_mul((float)map[1][1], dy)),
+                                     (float)map[1][2]);
+            if (!(fx >= 0.0f && fx <= (float)(c.w - 1) && fy >= 0.0f && fy <= (float)(c.h - 1))) continue;
+            const size_t db = off_bytes<S>(y, x, d.step, C);
+            for (int ch = 0; ch < A; ++ch) {
+              const S v = affine_sample<S, C, A>(hsrc, srcStepElems, c.w, c.h, ch, fx, fy, interp, doubleWork);
+              std::memcpy(want.data() + db + (size_t)ch * sizeof(S), &v, sizeof(S));
+            }
+          }
+        const GenCase dc{c.w, c.h, 0, 0, 0, kSmall, 0};
+        if (!rotate_check<S, C, A>(id, dc, interp, pre, d.host, want, d.step, std::vector<uint8_t>(), cnt, first)) {
+          if (cnt.mismatched >= 8) break;
+        }
+        if (cnt.mismatched >= 8) break;
+      }
     if (cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);

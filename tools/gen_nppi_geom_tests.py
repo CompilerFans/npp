@@ -178,6 +178,23 @@ def emit_remap(row: dict) -> Optional[str]:
     return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
 
 
+
+def emit_warp_affine(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    lay = _layout(fn)
+    S = CTYPE.get(row["dtype"])
+    if lay is None or S is None:
+        return None
+    C, A = lay[1]
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[](const {S} *a, NppiSize ss, int sa, NppiRect sr, {S} *d, int ds, "
+           f"NppiRect dr, const double *cf, int m, NppStreamContext c) "
+           f"{{ (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; "
+           f"return {fn}(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); }}")
+    prefix = f"num::run_warp_affine<{S}, {C}, {A}, true>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -204,6 +221,8 @@ def main() -> int:
             text = emit_rotate(row)
         elif fam == "nppiRemap":
             text = emit_remap(row)
+        elif fam == "nppiWarpAffine":
+            text = emit_warp_affine(row)
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
                                 reason="later geometry batch / unsupported"))
