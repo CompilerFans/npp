@@ -133,8 +133,8 @@ __global__ void rgb_to_hls_ac4_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pD
     pDstRow[idx + 0] = h;
     pDstRow[idx + 1] = l;
     pDstRow[idx + 2] = s;
-    // Match NVIDIA NPP: clear alpha.
-    pDstRow[idx + 3] = 0;
+    // AC4: NVIDIA NPP 13.4 leaves the destination alpha untouched (measured:
+    // a 0x5A-filled destination keeps 0x5A).
   }
 }
 
@@ -181,8 +181,8 @@ __global__ void hls_to_rgb_ac4_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pD
     pDstRow[idx + 0] = r;
     pDstRow[idx + 1] = g;
     pDstRow[idx + 2] = b;
-    // Match NVIDIA NPP: clear alpha.
-    pDstRow[idx + 3] = 0;
+    // AC4: NVIDIA NPP 13.4 leaves the destination alpha untouched (measured:
+    // a 0x5A-filled destination keeps 0x5A).
   }
 }
 
@@ -276,7 +276,7 @@ __global__ void bgr_to_hls_ac4_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pD
     pDstRow[idx + 0] = h;
     pDstRow[idx + 1] = l;
     pDstRow[idx + 2] = s;
-    pDstRow[idx + 3] = 0;
+    // AC4: NPP leaves the destination alpha untouched.
   }
 }
 

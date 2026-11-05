@@ -307,6 +307,27 @@ def emit_twist_batch(row: dict) -> Optional[str]:
     return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
 
 
+
+HLS_KIND = {"nppiRGBToHLS": "RGB2HLS", "nppiHLSToRGB": "HLS2RGB",
+            "nppiRGBToHSV": "RGB2HSV", "nppiHSVToRGB": "HSV2RGB"}
+
+
+def emit_hls(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    fam = row["family"]
+    if fam not in HLS_KIND:
+        return None
+    m = re.match(r"nppi(?:RGBToHLS|HLSToRGB|RGBToHSV|HSVToRGB)_8u_(C3|AC4)R_Ctx$", fn)
+    if not m:
+        return None
+    ac4 = m.group(1) == "AC4"
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) "
+           f"{{ (void)sa; (void)ds; (void)r; (void)c; return {fn}(a, sa, d, ds, r, c); }}")
+    prefix = f"num::hls::run_hls<num::hls::Kind::{HLS_KIND[fam]}, {str(ac4).lower()}>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -320,7 +341,7 @@ def main() -> int:
         fam = row["family"]
         text = (emit_lut(row) if fam in MODE
                 else emit_lut_palette(row) or emit_twist(row) or emit_twist_batch(row)
-                or emit_gamma(row) or emit_gray(row) or emit_gradient(row))
+                or emit_gamma(row) or emit_gray(row) or emit_gradient(row) or emit_hls(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
                                 reason="later color batch / unsupported"))
@@ -330,7 +351,8 @@ def main() -> int:
               "// module: nppi_color_conversion.h (LUT + ColorTwist + gray/gamma)\n"
               "#include \"num_nppi_lut.h\"\n"
               "#include \"num_nppi_color_twist.h\"\n"
-              "#include \"num_nppi_color_cvt.h\"\n\n")
+              "#include \"num_nppi_color_cvt.h\"\n"
+              "#include \"num_nppi_hls.h\"\n\n")
     dest = Path(args.out) if args.out else ROOT / "test" / "unit" / "num" / "test_gen_nppi_color.cpp"
     if args.emit:
         dest.write_text(header + "\n".join(out))

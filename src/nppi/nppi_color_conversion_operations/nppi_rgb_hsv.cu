@@ -142,7 +142,7 @@ __global__ void rgb_to_hsv_ac4_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pD
     pDstRow[idx + 0] = h;
     pDstRow[idx + 1] = s;
     pDstRow[idx + 2] = v;
-    pDstRow[idx + 3] = 0;
+    // AC4: NPP leaves the destination alpha untouched.
   }
 }
 
@@ -189,7 +189,7 @@ __global__ void hsv_to_rgb_ac4_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pD
     pDstRow[idx + 0] = r;
     pDstRow[idx + 1] = g;
     pDstRow[idx + 2] = b;
-    pDstRow[idx + 3] = 0;
+    // AC4: NPP leaves the destination alpha untouched.
   }
 }
 

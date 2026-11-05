@@ -130,7 +130,7 @@
   ]
  },
  "nppi_color_conversion.h": {
-  "emitted": 246,
+  "emitted": 254,
   "skipped": [
    {
     "function": "nppiAlphaCompColorKey_8u_AC4R_Ctx",
@@ -508,26 +508,6 @@
     "reason": "later color batch / unsupported"
    },
    {
-    "function": "nppiHLSToRGB_8u_AC4R_Ctx",
-    "family": "nppiHLSToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiHLSToRGB_8u_C3R_Ctx",
-    "family": "nppiHLSToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiHSVToRGB_8u_AC4R_Ctx",
-    "family": "nppiHSVToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiHSVToRGB_8u_C3R_Ctx",
-    "family": "nppiHSVToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
     "function": "nppiLUVToRGB_8u_AC4R_Ctx",
     "family": "nppiLUVToRGB",
     "reason": "later color batch / unsupported"
@@ -605,26 +585,6 @@
    {
     "function": "nppiRGBToCbYCr422_8u_C3C2R_Ctx",
     "family": "nppiRGBToCbYCr422",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToHLS_8u_AC4R_Ctx",
-    "family": "nppiRGBToHLS",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToHLS_8u_C3R_Ctx",
-    "family": "nppiRGBToHLS",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToHSV_8u_AC4R_Ctx",
-    "family": "nppiRGBToHSV",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToHSV_8u_C3R_Ctx",
-    "family": "nppiRGBToHSV",
     "reason": "later color batch / unsupported"
    },
    {
