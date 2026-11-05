@@ -60,7 +60,7 @@
   "skipped": []
  },
  "nppi_geometry_transforms.h": {
-  "emitted": 260,
+  "emitted": 284,
   "skipped": [
    {
     "function": "nppiRemap_16s_P3R_Ctx",
@@ -375,126 +375,6 @@
    {
     "function": "nppiWarpAffine_8u_P4R_Ctx",
     "family": "nppiWarpAffine",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspectiveBack_16u_P3R_Ctx",
-    "family": "nppiWarpPerspectiveBack",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspectiveBack_16u_P4R_Ctx",
-    "family": "nppiWarpPerspectiveBack",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspectiveBack_32f_P3R_Ctx",
-    "family": "nppiWarpPerspectiveBack",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspectiveBack_32f_P4R_Ctx",
-    "family": "nppiWarpPerspectiveBack",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspectiveBack_32s_P3R_Ctx",
-    "family": "nppiWarpPerspectiveBack",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspectiveBack_32s_P4R_Ctx",
-    "family": "nppiWarpPerspectiveBack",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspectiveBack_8u_P3R_Ctx",
-    "family": "nppiWarpPerspectiveBack",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspectiveBack_8u_P4R_Ctx",
-    "family": "nppiWarpPerspectiveBack",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspectiveQuad_16u_P3R_Ctx",
-    "family": "nppiWarpPerspectiveQuad",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspectiveQuad_16u_P4R_Ctx",
-    "family": "nppiWarpPerspectiveQuad",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspectiveQuad_32f_P3R_Ctx",
-    "family": "nppiWarpPerspectiveQuad",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspectiveQuad_32f_P4R_Ctx",
-    "family": "nppiWarpPerspectiveQuad",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspectiveQuad_32s_P3R_Ctx",
-    "family": "nppiWarpPerspectiveQuad",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspectiveQuad_32s_P4R_Ctx",
-    "family": "nppiWarpPerspectiveQuad",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspectiveQuad_8u_P3R_Ctx",
-    "family": "nppiWarpPerspectiveQuad",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspectiveQuad_8u_P4R_Ctx",
-    "family": "nppiWarpPerspectiveQuad",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspective_16u_P3R_Ctx",
-    "family": "nppiWarpPerspective",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspective_16u_P4R_Ctx",
-    "family": "nppiWarpPerspective",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspective_32f_P3R_Ctx",
-    "family": "nppiWarpPerspective",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspective_32f_P4R_Ctx",
-    "family": "nppiWarpPerspective",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspective_32s_P3R_Ctx",
-    "family": "nppiWarpPerspective",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspective_32s_P4R_Ctx",
-    "family": "nppiWarpPerspective",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspective_8u_P3R_Ctx",
-    "family": "nppiWarpPerspective",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpPerspective_8u_P4R_Ctx",
-    "family": "nppiWarpPerspective",
     "reason": "later geometry batch / unsupported"
    }
   ]

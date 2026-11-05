@@ -1208,6 +1208,18 @@ TEST(NumGen, nppiWarpPerspectiveBack_16u_C4R_Ctx) {
       [](const Npp16u *a, NppiSize ss, int sa, NppiRect sr, Npp16u *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveBack_16u_C4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
 }
 
+TEST(NumGen, nppiWarpPerspectiveBack_16u_P3R_Ctx) {
+  num::run_warp_perspective_planar<Npp16u, 3, false>(
+      "nppiWarpPerspectiveBack_16u_P3R_Ctx",
+      [](const Npp16u **sp, NppiSize ss, int sstep, NppiRect sr, Npp16u **dp, int dstep, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveBack_16u_P3R_Ctx(sp, ss, sstep, sr, dp, dstep, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpPerspectiveBack_16u_P4R_Ctx) {
+  num::run_warp_perspective_planar<Npp16u, 4, false>(
+      "nppiWarpPerspectiveBack_16u_P4R_Ctx",
+      [](const Npp16u **sp, NppiSize ss, int sstep, NppiRect sr, Npp16u **dp, int dstep, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveBack_16u_P4R_Ctx(sp, ss, sstep, sr, dp, dstep, dr, (const double (*)[3])cf, m, c); });
+}
+
 TEST(NumGen, nppiWarpPerspectiveBack_32f_AC4R_Ctx) {
   num::run_warp_perspective<Npp32f, 4, 3, false>(
       "nppiWarpPerspectiveBack_32f_AC4R_Ctx",
@@ -1230,6 +1242,18 @@ TEST(NumGen, nppiWarpPerspectiveBack_32f_C4R_Ctx) {
   num::run_warp_perspective<Npp32f, 4, 4, false>(
       "nppiWarpPerspectiveBack_32f_C4R_Ctx",
       [](const Npp32f *a, NppiSize ss, int sa, NppiRect sr, Npp32f *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveBack_32f_C4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpPerspectiveBack_32f_P3R_Ctx) {
+  num::run_warp_perspective_planar<Npp32f, 3, false>(
+      "nppiWarpPerspectiveBack_32f_P3R_Ctx",
+      [](const Npp32f **sp, NppiSize ss, int sstep, NppiRect sr, Npp32f **dp, int dstep, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveBack_32f_P3R_Ctx(sp, ss, sstep, sr, dp, dstep, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpPerspectiveBack_32f_P4R_Ctx) {
+  num::run_warp_perspective_planar<Npp32f, 4, false>(
+      "nppiWarpPerspectiveBack_32f_P4R_Ctx",
+      [](const Npp32f **sp, NppiSize ss, int sstep, NppiRect sr, Npp32f **dp, int dstep, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveBack_32f_P4R_Ctx(sp, ss, sstep, sr, dp, dstep, dr, (const double (*)[3])cf, m, c); });
 }
 
 TEST(NumGen, nppiWarpPerspectiveBack_32s_AC4R_Ctx) {
@@ -1256,6 +1280,18 @@ TEST(NumGen, nppiWarpPerspectiveBack_32s_C4R_Ctx) {
       [](const Npp32s *a, NppiSize ss, int sa, NppiRect sr, Npp32s *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveBack_32s_C4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
 }
 
+TEST(NumGen, nppiWarpPerspectiveBack_32s_P3R_Ctx) {
+  num::run_warp_perspective_planar<Npp32s, 3, false>(
+      "nppiWarpPerspectiveBack_32s_P3R_Ctx",
+      [](const Npp32s **sp, NppiSize ss, int sstep, NppiRect sr, Npp32s **dp, int dstep, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveBack_32s_P3R_Ctx(sp, ss, sstep, sr, dp, dstep, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpPerspectiveBack_32s_P4R_Ctx) {
+  num::run_warp_perspective_planar<Npp32s, 4, false>(
+      "nppiWarpPerspectiveBack_32s_P4R_Ctx",
+      [](const Npp32s **sp, NppiSize ss, int sstep, NppiRect sr, Npp32s **dp, int dstep, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveBack_32s_P4R_Ctx(sp, ss, sstep, sr, dp, dstep, dr, (const double (*)[3])cf, m, c); });
+}
+
 TEST(NumGen, nppiWarpPerspectiveBack_8u_AC4R_Ctx) {
   num::run_warp_perspective<Npp8u, 4, 3, false>(
       "nppiWarpPerspectiveBack_8u_AC4R_Ctx",
@@ -1278,6 +1314,18 @@ TEST(NumGen, nppiWarpPerspectiveBack_8u_C4R_Ctx) {
   num::run_warp_perspective<Npp8u, 4, 4, false>(
       "nppiWarpPerspectiveBack_8u_C4R_Ctx",
       [](const Npp8u *a, NppiSize ss, int sa, NppiRect sr, Npp8u *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveBack_8u_C4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpPerspectiveBack_8u_P3R_Ctx) {
+  num::run_warp_perspective_planar<Npp8u, 3, false>(
+      "nppiWarpPerspectiveBack_8u_P3R_Ctx",
+      [](const Npp8u **sp, NppiSize ss, int sstep, NppiRect sr, Npp8u **dp, int dstep, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveBack_8u_P3R_Ctx(sp, ss, sstep, sr, dp, dstep, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpPerspectiveBack_8u_P4R_Ctx) {
+  num::run_warp_perspective_planar<Npp8u, 4, false>(
+      "nppiWarpPerspectiveBack_8u_P4R_Ctx",
+      [](const Npp8u **sp, NppiSize ss, int sstep, NppiRect sr, Npp8u **dp, int dstep, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveBack_8u_P4R_Ctx(sp, ss, sstep, sr, dp, dstep, dr, (const double (*)[3])cf, m, c); });
 }
 
 TEST(NumGen, nppiWarpPerspectiveBatchInit_Ctx) {
@@ -1376,6 +1424,18 @@ TEST(NumGen, nppiWarpPerspectiveQuad_16u_C4R_Ctx) {
       [](const Npp16u *a, NppiSize ss, int sa, NppiRect sr, const double *sq, Npp16u *d, int ds, NppiRect dr, const double *dq, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveQuad_16u_C4R_Ctx(a, ss, sa, sr, (const double (*)[2])sq, d, ds, dr, (const double (*)[2])dq, m, c); });
 }
 
+TEST(NumGen, nppiWarpPerspectiveQuad_16u_P3R_Ctx) {
+  num::run_warp_perspective_quad_planar<Npp16u, 3>(
+      "nppiWarpPerspectiveQuad_16u_P3R_Ctx",
+      [](const Npp16u **sp, NppiSize ss, int sstep, NppiRect sr, const double *sq, Npp16u **dp, int dstep, NppiRect dr, const double *dq, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveQuad_16u_P3R_Ctx(sp, ss, sstep, sr, (const double (*)[2])sq, dp, dstep, dr, (const double (*)[2])dq, m, c); });
+}
+
+TEST(NumGen, nppiWarpPerspectiveQuad_16u_P4R_Ctx) {
+  num::run_warp_perspective_quad_planar<Npp16u, 4>(
+      "nppiWarpPerspectiveQuad_16u_P4R_Ctx",
+      [](const Npp16u **sp, NppiSize ss, int sstep, NppiRect sr, const double *sq, Npp16u **dp, int dstep, NppiRect dr, const double *dq, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveQuad_16u_P4R_Ctx(sp, ss, sstep, sr, (const double (*)[2])sq, dp, dstep, dr, (const double (*)[2])dq, m, c); });
+}
+
 TEST(NumGen, nppiWarpPerspectiveQuad_32f_AC4R_Ctx) {
   num::run_warp_perspective_quad<Npp32f, 4, 3>(
       "nppiWarpPerspectiveQuad_32f_AC4R_Ctx",
@@ -1398,6 +1458,18 @@ TEST(NumGen, nppiWarpPerspectiveQuad_32f_C4R_Ctx) {
   num::run_warp_perspective_quad<Npp32f, 4, 4>(
       "nppiWarpPerspectiveQuad_32f_C4R_Ctx",
       [](const Npp32f *a, NppiSize ss, int sa, NppiRect sr, const double *sq, Npp32f *d, int ds, NppiRect dr, const double *dq, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveQuad_32f_C4R_Ctx(a, ss, sa, sr, (const double (*)[2])sq, d, ds, dr, (const double (*)[2])dq, m, c); });
+}
+
+TEST(NumGen, nppiWarpPerspectiveQuad_32f_P3R_Ctx) {
+  num::run_warp_perspective_quad_planar<Npp32f, 3>(
+      "nppiWarpPerspectiveQuad_32f_P3R_Ctx",
+      [](const Npp32f **sp, NppiSize ss, int sstep, NppiRect sr, const double *sq, Npp32f **dp, int dstep, NppiRect dr, const double *dq, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveQuad_32f_P3R_Ctx(sp, ss, sstep, sr, (const double (*)[2])sq, dp, dstep, dr, (const double (*)[2])dq, m, c); });
+}
+
+TEST(NumGen, nppiWarpPerspectiveQuad_32f_P4R_Ctx) {
+  num::run_warp_perspective_quad_planar<Npp32f, 4>(
+      "nppiWarpPerspectiveQuad_32f_P4R_Ctx",
+      [](const Npp32f **sp, NppiSize ss, int sstep, NppiRect sr, const double *sq, Npp32f **dp, int dstep, NppiRect dr, const double *dq, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveQuad_32f_P4R_Ctx(sp, ss, sstep, sr, (const double (*)[2])sq, dp, dstep, dr, (const double (*)[2])dq, m, c); });
 }
 
 TEST(NumGen, nppiWarpPerspectiveQuad_32s_AC4R_Ctx) {
@@ -1424,6 +1496,18 @@ TEST(NumGen, nppiWarpPerspectiveQuad_32s_C4R_Ctx) {
       [](const Npp32s *a, NppiSize ss, int sa, NppiRect sr, const double *sq, Npp32s *d, int ds, NppiRect dr, const double *dq, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveQuad_32s_C4R_Ctx(a, ss, sa, sr, (const double (*)[2])sq, d, ds, dr, (const double (*)[2])dq, m, c); });
 }
 
+TEST(NumGen, nppiWarpPerspectiveQuad_32s_P3R_Ctx) {
+  num::run_warp_perspective_quad_planar<Npp32s, 3>(
+      "nppiWarpPerspectiveQuad_32s_P3R_Ctx",
+      [](const Npp32s **sp, NppiSize ss, int sstep, NppiRect sr, const double *sq, Npp32s **dp, int dstep, NppiRect dr, const double *dq, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveQuad_32s_P3R_Ctx(sp, ss, sstep, sr, (const double (*)[2])sq, dp, dstep, dr, (const double (*)[2])dq, m, c); });
+}
+
+TEST(NumGen, nppiWarpPerspectiveQuad_32s_P4R_Ctx) {
+  num::run_warp_perspective_quad_planar<Npp32s, 4>(
+      "nppiWarpPerspectiveQuad_32s_P4R_Ctx",
+      [](const Npp32s **sp, NppiSize ss, int sstep, NppiRect sr, const double *sq, Npp32s **dp, int dstep, NppiRect dr, const double *dq, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveQuad_32s_P4R_Ctx(sp, ss, sstep, sr, (const double (*)[2])sq, dp, dstep, dr, (const double (*)[2])dq, m, c); });
+}
+
 TEST(NumGen, nppiWarpPerspectiveQuad_8u_AC4R_Ctx) {
   num::run_warp_perspective_quad<Npp8u, 4, 3>(
       "nppiWarpPerspectiveQuad_8u_AC4R_Ctx",
@@ -1446,6 +1530,18 @@ TEST(NumGen, nppiWarpPerspectiveQuad_8u_C4R_Ctx) {
   num::run_warp_perspective_quad<Npp8u, 4, 4>(
       "nppiWarpPerspectiveQuad_8u_C4R_Ctx",
       [](const Npp8u *a, NppiSize ss, int sa, NppiRect sr, const double *sq, Npp8u *d, int ds, NppiRect dr, const double *dq, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveQuad_8u_C4R_Ctx(a, ss, sa, sr, (const double (*)[2])sq, d, ds, dr, (const double (*)[2])dq, m, c); });
+}
+
+TEST(NumGen, nppiWarpPerspectiveQuad_8u_P3R_Ctx) {
+  num::run_warp_perspective_quad_planar<Npp8u, 3>(
+      "nppiWarpPerspectiveQuad_8u_P3R_Ctx",
+      [](const Npp8u **sp, NppiSize ss, int sstep, NppiRect sr, const double *sq, Npp8u **dp, int dstep, NppiRect dr, const double *dq, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveQuad_8u_P3R_Ctx(sp, ss, sstep, sr, (const double (*)[2])sq, dp, dstep, dr, (const double (*)[2])dq, m, c); });
+}
+
+TEST(NumGen, nppiWarpPerspectiveQuad_8u_P4R_Ctx) {
+  num::run_warp_perspective_quad_planar<Npp8u, 4>(
+      "nppiWarpPerspectiveQuad_8u_P4R_Ctx",
+      [](const Npp8u **sp, NppiSize ss, int sstep, NppiRect sr, const double *sq, Npp8u **dp, int dstep, NppiRect dr, const double *dq, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspectiveQuad_8u_P4R_Ctx(sp, ss, sstep, sr, (const double (*)[2])sq, dp, dstep, dr, (const double (*)[2])dq, m, c); });
 }
 
 TEST(NumGen, nppiWarpPerspective_16f_C1R_Ctx) {
@@ -1490,6 +1586,18 @@ TEST(NumGen, nppiWarpPerspective_16u_C4R_Ctx) {
       [](const Npp16u *a, NppiSize ss, int sa, NppiRect sr, Npp16u *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpPerspective_16u_C4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
 }
 
+TEST(NumGen, nppiWarpPerspective_16u_P3R_Ctx) {
+  num::run_warp_perspective_planar<Npp16u, 3, true>(
+      "nppiWarpPerspective_16u_P3R_Ctx",
+      [](const Npp16u **sp, NppiSize ss, int sstep, NppiRect sr, Npp16u **dp, int dstep, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspective_16u_P3R_Ctx(sp, ss, sstep, sr, dp, dstep, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpPerspective_16u_P4R_Ctx) {
+  num::run_warp_perspective_planar<Npp16u, 4, true>(
+      "nppiWarpPerspective_16u_P4R_Ctx",
+      [](const Npp16u **sp, NppiSize ss, int sstep, NppiRect sr, Npp16u **dp, int dstep, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspective_16u_P4R_Ctx(sp, ss, sstep, sr, dp, dstep, dr, (const double (*)[3])cf, m, c); });
+}
+
 TEST(NumGen, nppiWarpPerspective_32f_AC4R_Ctx) {
   num::run_warp_perspective<Npp32f, 4, 3, true>(
       "nppiWarpPerspective_32f_AC4R_Ctx",
@@ -1512,6 +1620,18 @@ TEST(NumGen, nppiWarpPerspective_32f_C4R_Ctx) {
   num::run_warp_perspective<Npp32f, 4, 4, true>(
       "nppiWarpPerspective_32f_C4R_Ctx",
       [](const Npp32f *a, NppiSize ss, int sa, NppiRect sr, Npp32f *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpPerspective_32f_C4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpPerspective_32f_P3R_Ctx) {
+  num::run_warp_perspective_planar<Npp32f, 3, true>(
+      "nppiWarpPerspective_32f_P3R_Ctx",
+      [](const Npp32f **sp, NppiSize ss, int sstep, NppiRect sr, Npp32f **dp, int dstep, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspective_32f_P3R_Ctx(sp, ss, sstep, sr, dp, dstep, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpPerspective_32f_P4R_Ctx) {
+  num::run_warp_perspective_planar<Npp32f, 4, true>(
+      "nppiWarpPerspective_32f_P4R_Ctx",
+      [](const Npp32f **sp, NppiSize ss, int sstep, NppiRect sr, Npp32f **dp, int dstep, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspective_32f_P4R_Ctx(sp, ss, sstep, sr, dp, dstep, dr, (const double (*)[3])cf, m, c); });
 }
 
 TEST(NumGen, nppiWarpPerspective_32s_AC4R_Ctx) {
@@ -1538,6 +1658,18 @@ TEST(NumGen, nppiWarpPerspective_32s_C4R_Ctx) {
       [](const Npp32s *a, NppiSize ss, int sa, NppiRect sr, Npp32s *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpPerspective_32s_C4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
 }
 
+TEST(NumGen, nppiWarpPerspective_32s_P3R_Ctx) {
+  num::run_warp_perspective_planar<Npp32s, 3, true>(
+      "nppiWarpPerspective_32s_P3R_Ctx",
+      [](const Npp32s **sp, NppiSize ss, int sstep, NppiRect sr, Npp32s **dp, int dstep, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspective_32s_P3R_Ctx(sp, ss, sstep, sr, dp, dstep, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpPerspective_32s_P4R_Ctx) {
+  num::run_warp_perspective_planar<Npp32s, 4, true>(
+      "nppiWarpPerspective_32s_P4R_Ctx",
+      [](const Npp32s **sp, NppiSize ss, int sstep, NppiRect sr, Npp32s **dp, int dstep, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspective_32s_P4R_Ctx(sp, ss, sstep, sr, dp, dstep, dr, (const double (*)[3])cf, m, c); });
+}
+
 TEST(NumGen, nppiWarpPerspective_8u_AC4R_Ctx) {
   num::run_warp_perspective<Npp8u, 4, 3, true>(
       "nppiWarpPerspective_8u_AC4R_Ctx",
@@ -1560,4 +1692,16 @@ TEST(NumGen, nppiWarpPerspective_8u_C4R_Ctx) {
   num::run_warp_perspective<Npp8u, 4, 4, true>(
       "nppiWarpPerspective_8u_C4R_Ctx",
       [](const Npp8u *a, NppiSize ss, int sa, NppiRect sr, Npp8u *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpPerspective_8u_C4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpPerspective_8u_P3R_Ctx) {
+  num::run_warp_perspective_planar<Npp8u, 3, true>(
+      "nppiWarpPerspective_8u_P3R_Ctx",
+      [](const Npp8u **sp, NppiSize ss, int sstep, NppiRect sr, Npp8u **dp, int dstep, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspective_8u_P3R_Ctx(sp, ss, sstep, sr, dp, dstep, dr, (const double (*)[3])cf, m, c); });
+}
+
+TEST(NumGen, nppiWarpPerspective_8u_P4R_Ctx) {
+  num::run_warp_perspective_planar<Npp8u, 4, true>(
+      "nppiWarpPerspective_8u_P4R_Ctx",
+      [](const Npp8u **sp, NppiSize ss, int sstep, NppiRect sr, Npp8u **dp, int dstep, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; return nppiWarpPerspective_8u_P4R_Ctx(sp, ss, sstep, sr, dp, dstep, dr, (const double (*)[3])cf, m, c); });
 }

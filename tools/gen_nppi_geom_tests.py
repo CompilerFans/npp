@@ -313,6 +313,42 @@ def emit_warp_perspective_batch_init(row: dict) -> Optional[str]:
     return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
 
 
+def _planar_count(fn: str) -> Optional[int]:
+    m = re.search(r"_P([34])R", fn)
+    return int(m.group(1)) if m else None
+
+
+def emit_warp_perspective_planar(row: dict, forward: bool) -> Optional[str]:
+    fn = row["function_name"]
+    P = _planar_count(fn)
+    S = CTYPE.get(row["dtype"])
+    if P is None or S is None:
+        return None
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[](const {S} **sp, NppiSize ss, int sstep, NppiRect sr, {S} **dp, int dstep, "
+           f"NppiRect dr, const double *cf, int m, NppStreamContext c) "
+           f"{{ (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; "
+           f"return {fn}(sp, ss, sstep, sr, dp, dstep, dr, (const double (*)[3])cf, m, c); }}")
+    prefix = f"num::run_warp_perspective_planar<{S}, {P}, {str(forward).lower()}>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
+def emit_warp_perspective_quad_planar(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    P = _planar_count(fn)
+    S = CTYPE.get(row["dtype"])
+    if P is None or S is None:
+        return None
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[](const {S} **sp, NppiSize ss, int sstep, NppiRect sr, const double *sq, {S} **dp, "
+           f"int dstep, NppiRect dr, const double *dq, int m, NppStreamContext c) "
+           f"{{ (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; "
+           f"return {fn}(sp, ss, sstep, sr, (const double (*)[2])sq, dp, dstep, dr, "
+           f"(const double (*)[2])dq, m, c); }}")
+    prefix = f"num::run_warp_perspective_quad_planar<{S}, {P}>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -350,11 +386,14 @@ def main() -> int:
         elif fam == "nppiWarpAffineBatchInit":
             text = emit_warp_affine_batch_init(row)
         elif fam == "nppiWarpPerspective":
-            text = emit_warp_perspective(row, True)
+            text = (emit_warp_perspective_planar(row, True) if _planar_count(row["function_name"])
+                    else emit_warp_perspective(row, True))
         elif fam == "nppiWarpPerspectiveBack":
-            text = emit_warp_perspective(row, False)
+            text = (emit_warp_perspective_planar(row, False) if _planar_count(row["function_name"])
+                    else emit_warp_perspective(row, False))
         elif fam == "nppiWarpPerspectiveQuad":
-            text = emit_warp_perspective_quad(row)
+            text = (emit_warp_perspective_quad_planar(row) if _planar_count(row["function_name"])
+                    else emit_warp_perspective_quad(row))
         elif fam == "nppiWarpPerspectiveBatch":
             text = emit_warp_perspective_batch(row)
         elif fam == "nppiWarpPerspectiveBatchInit":
