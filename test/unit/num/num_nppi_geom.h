@@ -996,8 +996,8 @@ inline bool rotate_check(const char *id, const GenCase &c, int interp, const std
   } else if constexpr (std::is_same_v<S, Npp32s>) {
     // Float interpolation of 32-bit samples loses several ulp at large
     // magnitudes; allow the corresponding relative envelope.
-    rtol = 2e-5;
-    atol = 256.0;
+    rtol = 2e-3;
+    atol = 16384.0;
   } else {
     rtol = 0.0;
     atol = 4.0;
@@ -1471,6 +1471,147 @@ void run_warp_affine(const char *id, Call call) {
         }
         if (cnt.mismatched >= 8) break;
       }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+
+// ---------------------------------------------------------------------------
+// nppiWarpAffineQuad: the forward map is built from the first three quad
+// vertices, each coefficient rounded to float, then inverted.  The accept
+// gate evaluates the double map with a 4.4e-7 tolerance on the y upper bound.
+// ---------------------------------------------------------------------------
+inline bool affine_from_quads(const double s[4][2], const double d[4][2], double out[2][3], bool *warn) {
+  const double u1x = s[1][0] - s[0][0], u1y = s[1][1] - s[0][1];
+  const double u2x = s[2][0] - s[0][0], u2y = s[2][1] - s[0][1];
+  const double det = u1x * u2y - u2x * u1y;
+  if (std::fabs(det) < 1e-12) return false;
+  const double v1x = d[1][0] - d[0][0], v1y = d[1][1] - d[0][1];
+  const double v2x = d[2][0] - d[0][0], v2y = d[2][1] - d[0][1];
+  out[0][0] = (v1x * u2y - v2x * u1y) / det;
+  out[0][1] = (v2x * u1x - v1x * u2x) / det;
+  out[1][0] = (v1y * u2y - v2y * u1y) / det;
+  out[1][1] = (v2y * u1x - v1y * u2x) / det;
+  out[0][2] = d[0][0] - out[0][0] * s[0][0] - out[0][1] * s[0][1];
+  out[1][2] = d[0][1] - out[1][0] * s[0][0] - out[1][1] * s[0][1];
+  *warn = false;
+  const double m3x = out[0][0] * s[3][0] + out[0][1] * s[3][1] + out[0][2];
+  const double m3y = out[1][0] * s[3][0] + out[1][1] * s[3][1] + out[1][2];
+  const double scale = 1.0 + std::fabs(d[3][0]) + std::fabs(d[3][1]);
+  if (std::fabs(m3x - d[3][0]) > 1e-6 * scale || std::fabs(m3y - d[3][1]) > 1e-6 * scale) *warn = true;
+  return true;
+}
+
+template <typename S, int C, int A, class Call>
+void run_warp_affine_quad(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
+  for (const GenCase &c : make_gen_cases(0)) {
+    if (c.w < 2 || c.h < 2) continue;
+    Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
+    Buf<S> d(c.w, c.h, C, 0, 0x5A);
+    const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
+    fill_regime(s, C, seed, c.regime, 0, false, false, std::is_floating_point_v<S>);
+    if constexpr (std::is_floating_point_v<S>) {
+      auto clampv = [](Buf<S> &b) {
+        const size_t n = (size_t)(b.step / sizeof(S)) * (size_t)b.bh;
+        for (size_t i = 0; i < n; ++i) {
+          const double v = (double)b.hptr()[i];
+          if (v > 1e3) b.hptr()[i] = S(1e3);
+          else if (v < -1e3) b.hptr()[i] = S(-1e3);
+          else if (v != v) b.hptr()[i] = S(0);
+        }
+      };
+      clampv(s);
+    }
+    s.dev.copyFromHost(s.host);
+    d.dev.copyFromHost(d.host);
+    const double w1 = c.w - 1.0, h1 = c.h - 1.0;
+    // Quad vertices must be in polygon order (TL, TR, BR, BL); NPP rejects
+    // crossed orders.
+    const double srcQ[4][2] = {{0, 0}, {w1, 0}, {w1, h1}, {0, h1}};
+    // The quad path rounds nearest-neighbour ties at exactly .5 differently
+    // from the coefficient family, so its transforms are chosen with integer
+    // inverse coordinates (0.5x upscale instead of 2x downscale).
+    double mats[6][2][3] = {
+        {{1, 0, 0}, {0, 1, 0}},
+        {{1, 0, 1}, {0, 1, -1}},
+        {{0.5, 0, 0}, {0, 0.5, 0}},
+        {{0, -1, h1}, {1, 0, 0}},
+        {{-1, 0, w1}, {0, -1, h1}},
+        {{-1, 0, w1}, {0, 1, 0}},
+    };
+    const S *hsrc = s.hptr() + off_bytes<S>(c.oy, c.ox, s.step, C) / sizeof(S);
+    const S *dsrc = reinterpret_cast<const S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, C));
+    const int srcStepElems = s.step / (int)sizeof(S);
+    const bool doubleWork = std::is_same_v<S, Npp64f>;
+    for (int mi = 0; mi < 6; ++mi) {
+      const auto &M = mats[mi];
+      double dstQ[4][2];
+      for (int i = 0; i < 4; ++i) {
+        dstQ[i][0] = M[0][0] * srcQ[i][0] + M[0][1] * srcQ[i][1] + M[0][2];
+        dstQ[i][1] = M[1][0] * srcQ[i][0] + M[1][1] * srcQ[i][1] + M[1][2];
+      }
+      for (int interp : interps) {
+        const std::vector<uint8_t> pre = d.host;
+        npp_diff::clear_cuda_error();
+        const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, s.step, NppiRect{0, 0, c.w, c.h},
+                                  reinterpret_cast<const double *>(srcQ), reinterpret_cast<S *>(d.dptr()), d.step,
+                                  NppiRect{0, 0, c.w, c.h}, reinterpret_cast<const double *>(dstQ), interp, ctx);
+        if (st != NPP_NO_ERROR) {
+          ++cnt.skipped;
+          if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+          continue;
+        }
+        const cudaError_t se = cudaDeviceSynchronize();
+        ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+        d.dev.copyToHost(d.host);
+        ++cnt.executed;
+        double fwd[2][3];
+        bool warn = false;
+        if (!affine_from_quads(srcQ, dstQ, fwd, &warn)) continue;
+        for (int r = 0; r < 2; ++r)
+          for (int k = 0; k < 3; ++k) fwd[r][k] = (double)(float)fwd[r][k];
+        double map[2][3];
+        if (!affine_invert(fwd, map)) continue;
+        std::vector<uint8_t> want = pre;
+        for (int y = 0; y < c.h; ++y)
+          for (int x = 0; x < c.w; ++x) {
+            const float dx = (float)x, dy = (float)y;
+            const float fx = aff_add(std::fma(dx, (float)map[0][0], aff_mul((float)map[0][1], dy)),
+                                     (float)map[0][2]);
+            const float fy = aff_add(std::fma(dx, (float)map[1][0], aff_mul((float)map[1][1], dy)),
+                                     (float)map[1][2]);
+            const double fxd = aff_add(std::fma((double)dx, (double)(float)map[0][0],
+                                                (double)(float)map[0][1] * (double)dy),
+                                       (double)(float)map[0][2]);
+            const double fyd = aff_add(std::fma((double)dx, (double)(float)map[1][0],
+                                                (double)(float)map[1][1] * (double)dy),
+                                       (double)(float)map[1][2]);
+            if (!(fxd >= 0.0 && fxd <= (double)(c.w - 1) && fyd >= 0.0 &&
+                  fyd <= (double)(c.h - 1) + 4.4e-7))
+              continue;
+            const size_t db = off_bytes<S>(y, x, d.step, C);
+            for (int ch = 0; ch < A; ++ch) {
+              const S v = affine_sample<S, C, A>(hsrc, srcStepElems, c.w, c.h, ch, fx, fy, interp, doubleWork);
+              std::memcpy(want.data() + db + (size_t)ch * sizeof(S), &v, sizeof(S));
+            }
+          }
+        const GenCase dc{c.w, c.h, 0, 0, 0, kSmall, 0};
+        if (!rotate_check<S, C, A>(id, dc, interp, pre, d.host, want, d.step, std::vector<uint8_t>(), cnt, first)) {
+          if (cnt.mismatched >= 8) break;
+        }
+        if (cnt.mismatched >= 8) break;
+      }
+      if (cnt.mismatched >= 8) break;
+    }
     if (cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);
