@@ -54,5 +54,9 @@
  "npps_filtering_functions.h": {
   "emitted": 1,
   "skipped": []
+ },
+ "nppi_morphological_operations.h": {
+  "emitted": 142,
+  "skipped": []
  }
 }
