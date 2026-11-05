@@ -58,6 +58,7 @@ template <> __device__ __forceinline__ Npp32s floatToElem<Npp32s>(double v) {
   return static_cast<Npp32s>(r < -2147483648.0 ? -2147483648.0 : (r > 2147483647.0 ? 2147483647.0 : r));
 }
 template <> __device__ __forceinline__ Npp32f floatToElem<Npp32f>(double v) { return static_cast<Npp32f>(v); }
+template <> __device__ __forceinline__ Npp64f floatToElem<Npp64f>(double v) { return static_cast<Npp64f>(v); }
 template <> __device__ __forceinline__ Npp16f floatToElem<Npp16f>(double v) {
   Npp16f r;
   r.fp16 = static_cast<short>(__half_as_ushort(__float2half(static_cast<float>(v))));

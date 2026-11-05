@@ -157,6 +157,27 @@ def emit_rotate(row: dict) -> Optional[str]:
     return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
 
 
+
+def emit_remap(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    lay = _layout(fn)
+    S = CTYPE.get(row["dtype"])
+    if lay is None or S is None:
+        return None
+    # 64f remap maps are Npp64f and NPP's 64f sampling precision is deferred.
+    if row["dtype"] == "64f":
+        return None
+    C, A = lay[1]
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[](const {S} *a, NppiSize ss, int sa, NppiRect sr, const Npp32f *mx, int mxs, "
+           f"const Npp32f *my, int mys, {S} *d, int ds, NppiSize droi, int m, NppStreamContext c) "
+           f"{{ (void)ss; (void)sa; (void)sr; (void)mx; (void)mxs; (void)my; (void)mys; "
+           f"(void)ds; (void)droi; (void)m; (void)c; "
+           f"return {fn}(a, ss, sa, sr, mx, mxs, my, mys, d, ds, droi, m, c); }}")
+    prefix = f"num::run_remap<{S}, Npp32f, {C}, {A}>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -181,6 +202,8 @@ def main() -> int:
             text = emit_resize_batch(row)
         elif fam == "nppiRotate":
             text = emit_rotate(row)
+        elif fam == "nppiRemap":
+            text = emit_remap(row)
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
                                 reason="later geometry batch / unsupported"))

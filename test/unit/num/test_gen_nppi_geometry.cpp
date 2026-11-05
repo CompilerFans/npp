@@ -290,6 +290,102 @@ TEST(NumGen, nppiMirror_8u_C4R_Ctx) {
       [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppiAxis f, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)f; (void)c; return nppiMirror_8u_C4R_Ctx(a, sa, d, ds, r, f, c); });
 }
 
+TEST(NumGen, nppiRemap_16s_AC4R_Ctx) {
+  num::run_remap<Npp16s, Npp32f, 4, 3>(
+      "nppiRemap_16s_AC4R_Ctx",
+      [](const Npp16s *a, NppiSize ss, int sa, NppiRect sr, const Npp32f *mx, int mxs, const Npp32f *my, int mys, Npp16s *d, int ds, NppiSize droi, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)mx; (void)mxs; (void)my; (void)mys; (void)ds; (void)droi; (void)m; (void)c; return nppiRemap_16s_AC4R_Ctx(a, ss, sa, sr, mx, mxs, my, mys, d, ds, droi, m, c); });
+}
+
+TEST(NumGen, nppiRemap_16s_C1R_Ctx) {
+  num::run_remap<Npp16s, Npp32f, 1, 1>(
+      "nppiRemap_16s_C1R_Ctx",
+      [](const Npp16s *a, NppiSize ss, int sa, NppiRect sr, const Npp32f *mx, int mxs, const Npp32f *my, int mys, Npp16s *d, int ds, NppiSize droi, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)mx; (void)mxs; (void)my; (void)mys; (void)ds; (void)droi; (void)m; (void)c; return nppiRemap_16s_C1R_Ctx(a, ss, sa, sr, mx, mxs, my, mys, d, ds, droi, m, c); });
+}
+
+TEST(NumGen, nppiRemap_16s_C3R_Ctx) {
+  num::run_remap<Npp16s, Npp32f, 3, 3>(
+      "nppiRemap_16s_C3R_Ctx",
+      [](const Npp16s *a, NppiSize ss, int sa, NppiRect sr, const Npp32f *mx, int mxs, const Npp32f *my, int mys, Npp16s *d, int ds, NppiSize droi, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)mx; (void)mxs; (void)my; (void)mys; (void)ds; (void)droi; (void)m; (void)c; return nppiRemap_16s_C3R_Ctx(a, ss, sa, sr, mx, mxs, my, mys, d, ds, droi, m, c); });
+}
+
+TEST(NumGen, nppiRemap_16s_C4R_Ctx) {
+  num::run_remap<Npp16s, Npp32f, 4, 4>(
+      "nppiRemap_16s_C4R_Ctx",
+      [](const Npp16s *a, NppiSize ss, int sa, NppiRect sr, const Npp32f *mx, int mxs, const Npp32f *my, int mys, Npp16s *d, int ds, NppiSize droi, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)mx; (void)mxs; (void)my; (void)mys; (void)ds; (void)droi; (void)m; (void)c; return nppiRemap_16s_C4R_Ctx(a, ss, sa, sr, mx, mxs, my, mys, d, ds, droi, m, c); });
+}
+
+TEST(NumGen, nppiRemap_16u_AC4R_Ctx) {
+  num::run_remap<Npp16u, Npp32f, 4, 3>(
+      "nppiRemap_16u_AC4R_Ctx",
+      [](const Npp16u *a, NppiSize ss, int sa, NppiRect sr, const Npp32f *mx, int mxs, const Npp32f *my, int mys, Npp16u *d, int ds, NppiSize droi, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)mx; (void)mxs; (void)my; (void)mys; (void)ds; (void)droi; (void)m; (void)c; return nppiRemap_16u_AC4R_Ctx(a, ss, sa, sr, mx, mxs, my, mys, d, ds, droi, m, c); });
+}
+
+TEST(NumGen, nppiRemap_16u_C1R_Ctx) {
+  num::run_remap<Npp16u, Npp32f, 1, 1>(
+      "nppiRemap_16u_C1R_Ctx",
+      [](const Npp16u *a, NppiSize ss, int sa, NppiRect sr, const Npp32f *mx, int mxs, const Npp32f *my, int mys, Npp16u *d, int ds, NppiSize droi, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)mx; (void)mxs; (void)my; (void)mys; (void)ds; (void)droi; (void)m; (void)c; return nppiRemap_16u_C1R_Ctx(a, ss, sa, sr, mx, mxs, my, mys, d, ds, droi, m, c); });
+}
+
+TEST(NumGen, nppiRemap_16u_C3R_Ctx) {
+  num::run_remap<Npp16u, Npp32f, 3, 3>(
+      "nppiRemap_16u_C3R_Ctx",
+      [](const Npp16u *a, NppiSize ss, int sa, NppiRect sr, const Npp32f *mx, int mxs, const Npp32f *my, int mys, Npp16u *d, int ds, NppiSize droi, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)mx; (void)mxs; (void)my; (void)mys; (void)ds; (void)droi; (void)m; (void)c; return nppiRemap_16u_C3R_Ctx(a, ss, sa, sr, mx, mxs, my, mys, d, ds, droi, m, c); });
+}
+
+TEST(NumGen, nppiRemap_16u_C4R_Ctx) {
+  num::run_remap<Npp16u, Npp32f, 4, 4>(
+      "nppiRemap_16u_C4R_Ctx",
+      [](const Npp16u *a, NppiSize ss, int sa, NppiRect sr, const Npp32f *mx, int mxs, const Npp32f *my, int mys, Npp16u *d, int ds, NppiSize droi, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)mx; (void)mxs; (void)my; (void)mys; (void)ds; (void)droi; (void)m; (void)c; return nppiRemap_16u_C4R_Ctx(a, ss, sa, sr, mx, mxs, my, mys, d, ds, droi, m, c); });
+}
+
+TEST(NumGen, nppiRemap_32f_AC4R_Ctx) {
+  num::run_remap<Npp32f, Npp32f, 4, 3>(
+      "nppiRemap_32f_AC4R_Ctx",
+      [](const Npp32f *a, NppiSize ss, int sa, NppiRect sr, const Npp32f *mx, int mxs, const Npp32f *my, int mys, Npp32f *d, int ds, NppiSize droi, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)mx; (void)mxs; (void)my; (void)mys; (void)ds; (void)droi; (void)m; (void)c; return nppiRemap_32f_AC4R_Ctx(a, ss, sa, sr, mx, mxs, my, mys, d, ds, droi, m, c); });
+}
+
+TEST(NumGen, nppiRemap_32f_C1R_Ctx) {
+  num::run_remap<Npp32f, Npp32f, 1, 1>(
+      "nppiRemap_32f_C1R_Ctx",
+      [](const Npp32f *a, NppiSize ss, int sa, NppiRect sr, const Npp32f *mx, int mxs, const Npp32f *my, int mys, Npp32f *d, int ds, NppiSize droi, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)mx; (void)mxs; (void)my; (void)mys; (void)ds; (void)droi; (void)m; (void)c; return nppiRemap_32f_C1R_Ctx(a, ss, sa, sr, mx, mxs, my, mys, d, ds, droi, m, c); });
+}
+
+TEST(NumGen, nppiRemap_32f_C3R_Ctx) {
+  num::run_remap<Npp32f, Npp32f, 3, 3>(
+      "nppiRemap_32f_C3R_Ctx",
+      [](const Npp32f *a, NppiSize ss, int sa, NppiRect sr, const Npp32f *mx, int mxs, const Npp32f *my, int mys, Npp32f *d, int ds, NppiSize droi, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)mx; (void)mxs; (void)my; (void)mys; (void)ds; (void)droi; (void)m; (void)c; return nppiRemap_32f_C3R_Ctx(a, ss, sa, sr, mx, mxs, my, mys, d, ds, droi, m, c); });
+}
+
+TEST(NumGen, nppiRemap_32f_C4R_Ctx) {
+  num::run_remap<Npp32f, Npp32f, 4, 4>(
+      "nppiRemap_32f_C4R_Ctx",
+      [](const Npp32f *a, NppiSize ss, int sa, NppiRect sr, const Npp32f *mx, int mxs, const Npp32f *my, int mys, Npp32f *d, int ds, NppiSize droi, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)mx; (void)mxs; (void)my; (void)mys; (void)ds; (void)droi; (void)m; (void)c; return nppiRemap_32f_C4R_Ctx(a, ss, sa, sr, mx, mxs, my, mys, d, ds, droi, m, c); });
+}
+
+TEST(NumGen, nppiRemap_8u_AC4R_Ctx) {
+  num::run_remap<Npp8u, Npp32f, 4, 3>(
+      "nppiRemap_8u_AC4R_Ctx",
+      [](const Npp8u *a, NppiSize ss, int sa, NppiRect sr, const Npp32f *mx, int mxs, const Npp32f *my, int mys, Npp8u *d, int ds, NppiSize droi, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)mx; (void)mxs; (void)my; (void)mys; (void)ds; (void)droi; (void)m; (void)c; return nppiRemap_8u_AC4R_Ctx(a, ss, sa, sr, mx, mxs, my, mys, d, ds, droi, m, c); });
+}
+
+TEST(NumGen, nppiRemap_8u_C1R_Ctx) {
+  num::run_remap<Npp8u, Npp32f, 1, 1>(
+      "nppiRemap_8u_C1R_Ctx",
+      [](const Npp8u *a, NppiSize ss, int sa, NppiRect sr, const Npp32f *mx, int mxs, const Npp32f *my, int mys, Npp8u *d, int ds, NppiSize droi, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)mx; (void)mxs; (void)my; (void)mys; (void)ds; (void)droi; (void)m; (void)c; return nppiRemap_8u_C1R_Ctx(a, ss, sa, sr, mx, mxs, my, mys, d, ds, droi, m, c); });
+}
+
+TEST(NumGen, nppiRemap_8u_C3R_Ctx) {
+  num::run_remap<Npp8u, Npp32f, 3, 3>(
+      "nppiRemap_8u_C3R_Ctx",
+      [](const Npp8u *a, NppiSize ss, int sa, NppiRect sr, const Npp32f *mx, int mxs, const Npp32f *my, int mys, Npp8u *d, int ds, NppiSize droi, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)mx; (void)mxs; (void)my; (void)mys; (void)ds; (void)droi; (void)m; (void)c; return nppiRemap_8u_C3R_Ctx(a, ss, sa, sr, mx, mxs, my, mys, d, ds, droi, m, c); });
+}
+
+TEST(NumGen, nppiRemap_8u_C4R_Ctx) {
+  num::run_remap<Npp8u, Npp32f, 4, 4>(
+      "nppiRemap_8u_C4R_Ctx",
+      [](const Npp8u *a, NppiSize ss, int sa, NppiRect sr, const Npp32f *mx, int mxs, const Npp32f *my, int mys, Npp8u *d, int ds, NppiSize droi, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)mx; (void)mxs; (void)my; (void)mys; (void)ds; (void)droi; (void)m; (void)c; return nppiRemap_8u_C4R_Ctx(a, ss, sa, sr, mx, mxs, my, mys, d, ds, droi, m, c); });
+}
+
 TEST(NumGen, nppiResizeBatch_16f_C1R_Advanced_Ctx) {
   num::run_resize_batch_advanced<Npp16f, 1, 1>(
       "nppiResizeBatch_16f_C1R_Advanced_Ctx",

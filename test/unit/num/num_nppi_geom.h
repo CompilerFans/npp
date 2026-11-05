@@ -1121,4 +1121,95 @@ void run_rotate(const char *id, Call call) {
   finish(id, cnt, first);
 }
 
+
+// ---------------------------------------------------------------------------
+// nppiRemap packed layouts.  Tests keep the map coordinates inside the source
+// image (taps fully in bounds), where NPP's contract is defined.
+// ---------------------------------------------------------------------------
+template <typename S, typename MapT, int C, int A, class Call>
+void run_remap(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
+  for (const GenCase &c : make_gen_cases(0)) {
+    if (c.w < 4 || c.h < 4) continue;  // need interior taps for every mode
+    Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
+    Buf<S> d(c.w, c.h, C, 0, 0x5A);
+    const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
+    fill_regime(s, C, seed, c.regime, 0, false, false, std::is_floating_point_v<S>);
+    if constexpr (std::is_floating_point_v<S>) {
+      auto clampv = [](Buf<S> &b) {
+        const size_t n = (size_t)(b.step / sizeof(S)) * (size_t)b.bh;
+        for (size_t i = 0; i < n; ++i) {
+          const double v = (double)b.hptr()[i];
+          if (v > 1e3) b.hptr()[i] = S(1e3);
+          else if (v < -1e3) b.hptr()[i] = S(-1e3);
+          else if (v != v) b.hptr()[i] = S(0);
+        }
+      };
+      clampv(s);
+    }
+    s.dev.copyFromHost(s.host);
+    d.dev.copyFromHost(d.host);
+    Buf<MapT> mx(c.w, c.h, 1, 0, 0), my(c.w, c.h, 1, 0, 0);
+    const int spanX = std::max(1, (c.w - 3) * 4);
+    const int spanY = std::max(1, (c.h - 3) * 4);
+    const int mapStepElems = mx.step / (int)sizeof(MapT);
+    for (int y = 0; y < c.h; ++y)
+      for (int x = 0; x < c.w; ++x) {
+        const double fu = 1.0 + (double)((x * 7 + y * 3 + (int)(seed & 3)) % spanX) / 4.0;
+        const double fv = 1.0 + (double)((x * 5 + y * 11 + (int)((seed >> 2) & 3)) % spanY) / 4.0;
+        reinterpret_cast<MapT *>(mx.host.data())[(size_t)y * mapStepElems + x] = (MapT)fu;
+        reinterpret_cast<MapT *>(my.host.data())[(size_t)y * mapStepElems + x] = (MapT)fv;
+      }
+    mx.dev.copyFromHost(mx.host);
+    my.dev.copyFromHost(my.host);
+    const S *hsrc = s.hptr() + off_bytes<S>(c.oy, c.ox, s.step, C) / sizeof(S);
+    const S *dsrc = reinterpret_cast<const S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, C));
+    const int srcStepElems = s.step / (int)sizeof(S);
+    for (int interp : interps) {
+      const std::vector<uint8_t> pre = d.host;
+      npp_diff::clear_cuda_error();
+      const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, s.step, NppiRect{0, 0, c.w, c.h},
+                                reinterpret_cast<const MapT *>(mx.dptr()), mx.step,
+                                reinterpret_cast<const MapT *>(my.dptr()), my.step,
+                                reinterpret_cast<S *>(d.dptr()), d.step, NppiSize{c.w, c.h}, interp, ctx);
+      if (st != NPP_NO_ERROR) {
+        ++cnt.skipped;
+        if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+        continue;
+      }
+      const cudaError_t se = cudaDeviceSynchronize();
+      ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+      d.dev.copyToHost(d.host);
+      ++cnt.executed;
+      std::vector<uint8_t> want = pre;
+      const MapT *hmx = reinterpret_cast<const MapT *>(mx.host.data());
+      const MapT *hmy = reinterpret_cast<const MapT *>(my.host.data());
+      for (int y = 0; y < c.h; ++y)
+        for (int x = 0; x < c.w; ++x) {
+          const double u = (double)hmx[(size_t)y * mapStepElems + x];
+          const double v = (double)hmy[(size_t)y * mapStepElems + x];
+          const size_t db = off_bytes<S>(y, x, d.step, C);
+          for (int ch = 0; ch < A; ++ch) {
+            const S val = warp_sample_channel<S>(hsrc + ch, srcStepElems, C, c.w, c.h, u, v, interp);
+            std::memcpy(want.data() + db + (size_t)ch * sizeof(S), &val, sizeof(S));
+          }
+        }
+      const GenCase dc{c.w, c.h, 0, 0, 0, kSmall, 0};
+      if (!rotate_check<S, C, A>(id, dc, interp, pre, d.host, want, d.step, std::vector<uint8_t>(), cnt, first)) {
+        if (cnt.mismatched >= 8) break;
+      }
+      if (cnt.mismatched >= 8) break;
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
 }  // namespace num
