@@ -2720,6 +2720,432 @@ void run_nppi_error_complex(const char *id, Call call) {
   finish(id, cnt, first);
 }
 
+// ---------------------------------------------------------------------------
+// SSIM / WMSSSIM / MSSSIM.
+//
+// The CPU golden mirrors the pipeline decoded from NPP 13.4: an 11x11
+// Gaussian (sigma 1.5, normalized, clamp-to-edge) applied separably to a, b,
+// a^2, b^2 and a*b; biased variance/covariance; C1 = 6.5025, C2 = 58.5225;
+// cs takes the absolute covariance.  SSIM is the mean over all pixels of
+// l*cs.  WMSSSIM multiplies five per-level means after 2x2 shift-clamp
+// decimation: levels 0..3 average cs^w and level 4 averages (l*cs)^w, with
+// w = {0.0448, 0.2856, 0.3001, 0.2363, 0.1333}.  Both are evaluated per
+// colour channel.  Probe 62 measured NPP-vs-model agreement on the 5090 of
+// <= 1e-6 relative for SSIM and <= 4e-5 for WMSSSIM, so the tests allow
+// 1e-5 and 2e-4.
+//
+// nppiMSSSIM's per-scale combination is not decoded (random inputs diverge
+// from the classic product by up to 0.25), so its test pins only the decoded
+// contracts: identical images return 1, two different flat images return 0,
+// and both ROI dimensions must be at least 176.
+//
+// Plain (non-Advanced) batch entry points only work reliably when every
+// descriptor has the same geometry as the shared ROI (probe 62: images with
+// different per-descriptor sizes give garbage).  The batch driver above
+// follows that contract; the Advanced variants use each descriptor's oSize.
+// ---------------------------------------------------------------------------
+inline constexpr int kSsimScratch = 64 << 20;
+
+namespace ssim_ref {
+
+inline constexpr float kC1 = 6.5025f;
+inline constexpr float kC2 = 58.5225f;
+inline constexpr float kWeights[5] = {0.0448f, 0.2856f, 0.3001f, 0.2363f, 0.1333f};
+
+inline void blur(const float *in, float *tmp, float *out, int w, int h) {
+  float g[11];
+  double s = 0.0;
+  for (int i = 0; i < 11; ++i) {
+    const double x = i - 5;
+    g[i] = (float)std::exp(-(x * x) / (2.0 * 1.5 * 1.5));
+    s += g[i];
+  }
+  for (int i = 0; i < 11; ++i) g[i] = (float)(g[i] / s);
+  for (int y = 0; y < h; ++y)
+    for (int x = 0; x < w; ++x) {
+      double acc = 0.0;
+      for (int k = -5; k <= 5; ++k) {
+        int xx = x + k;
+        xx = xx < 0 ? 0 : (xx >= w ? w - 1 : xx);
+        acc += (double)g[k + 5] * in[(size_t)y * w + xx];
+      }
+      tmp[(size_t)y * w + x] = (float)acc;
+    }
+  for (int y = 0; y < h; ++y)
+    for (int x = 0; x < w; ++x) {
+      double acc = 0.0;
+      for (int k = -5; k <= 5; ++k) {
+        int yy = y + k;
+        yy = yy < 0 ? 0 : (yy >= h ? h - 1 : yy);
+        acc += (double)g[k + 5] * tmp[(size_t)yy * w + x];
+      }
+      out[(size_t)y * w + x] = (float)acc;
+    }
+}
+
+inline void decimate(const float *in, float *out, int w, int h, int ow, int oh) {
+  for (int y = 0; y < oh; ++y)
+    for (int x = 0; x < ow; ++x) {
+      const int y0 = y > 0 ? 2 * y - 1 : 0;
+      const int y1 = 2 * y < h ? 2 * y : h - 1;
+      const int x0 = x > 0 ? 2 * x - 1 : 0;
+      const int x1 = 2 * x < w ? 2 * x : w - 1;
+      out[(size_t)y * ow + x] = 0.25f * (in[(size_t)y0 * w + x0] + in[(size_t)y0 * w + x1] +
+                                         in[(size_t)y1 * w + x0] + in[(size_t)y1 * w + x1]);
+    }
+}
+
+// mode 0: sum of l*cs (plain SSIM); mode 1: sum of cs^w; mode 2: sum of
+// (l*cs)^w.
+inline double level_sum(const float *a, const float *b, int w, int h, int mode, float weight) {
+  const size_t n = (size_t)w * h;
+  std::vector<float> buf(n * 9);
+  float *mu_a = buf.data(), *mu_b = mu_a + n, *ea2 = mu_b + n, *eb2 = ea2 + n,
+        *eab = eb2 + n, *tmp = eab + n, *sq = tmp + n, *pr = sq + n;
+  blur(a, tmp, mu_a, w, h);
+  blur(b, tmp, mu_b, w, h);
+  for (size_t i = 0; i < n; ++i) sq[i] = a[i] * a[i];
+  blur(sq, tmp, ea2, w, h);
+  for (size_t i = 0; i < n; ++i) sq[i] = b[i] * b[i];
+  blur(sq, tmp, eb2, w, h);
+  for (size_t i = 0; i < n; ++i) pr[i] = a[i] * b[i];
+  blur(pr, tmp, eab, w, h);
+  double acc = 0.0;
+  for (size_t i = 0; i < n; ++i) {
+    const float mua = mu_a[i], mub = mu_b[i];
+    const float va = ea2[i] - mua * mua;
+    const float vb = eb2[i] - mub * mub;
+    const float cov = eab[i] - mua * mub;
+    const float cs = (2.0f * std::fabs(cov) + kC2) / (va + vb + kC2);
+    const float l = (2.0f * mua * mub + kC1) / (mua * mua + mub * mub + kC1);
+    float v;
+    if (mode == 0) v = l * cs;
+    else if (mode == 1) v = std::pow(cs, weight);
+    else v = std::pow(l * cs, weight);
+    acc += (double)v;
+  }
+  return acc;
+}
+
+inline void extract(const Npp8u *p, int step, int w, int h, int C, int ch, float *out) {
+  for (int y = 0; y < h; ++y)
+    for (int x = 0; x < w; ++x) out[(size_t)y * w + x] = (float)p[(size_t)y * step + (size_t)x * C + ch];
+}
+
+inline float ssim(const Npp8u *p1, int s1, const Npp8u *p2, int s2, int w, int h, int C, int ch) {
+  const size_t n = (size_t)w * h;
+  std::vector<float> a(n), b(n);
+  extract(p1, s1, w, h, C, ch, a.data());
+  extract(p2, s2, w, h, C, ch, b.data());
+  return (float)(level_sum(a.data(), b.data(), w, h, 0, 1.0f) / (double)n);
+}
+
+inline float wmsssim(const Npp8u *p1, int s1, const Npp8u *p2, int s2, int w, int h, int C, int ch) {
+  const size_t n0 = (size_t)w * h;
+  std::vector<float> a(n0), b(n0), na(n0), nb(n0);
+  extract(p1, s1, w, h, C, ch, a.data());
+  extract(p2, s2, w, h, C, ch, b.data());
+  double result = 1.0;
+  int cw = w, chh = h;
+  for (int level = 0; level < 5; ++level) {
+    result *= level_sum(a.data(), b.data(), cw, chh, level < 4 ? 1 : 2, kWeights[level]) /
+              (double)(cw * chh);
+    if (level < 4) {
+      const int nw = (cw + 1) / 2, nh = (chh + 1) / 2;
+      decimate(a.data(), na.data(), cw, chh, nw, nh);
+      decimate(b.data(), nb.data(), cw, chh, nw, nh);
+      std::memcpy(a.data(), na.data(), (size_t)nw * nh * sizeof(float));
+      std::memcpy(b.data(), nb.data(), (size_t)nw * nh * sizeof(float));
+      cw = nw;
+      chh = nh;
+    }
+  }
+  return (float)result;
+}
+
+}  // namespace ssim_ref
+
+template <int C, bool Wm, class Call>
+void run_nppi_ssim_single(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  npp_functional_test::DeviceMemory<Npp8u> scratch(kSsimScratch);
+  const double rtol = Wm ? 2e-4 : 1e-5;
+  const double atol = Wm ? 2e-4 : 1e-6;
+  for (const GenCase &c : make_gen_cases(0)) {
+    Buf<Npp8u> s1(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
+    Buf<Npp8u> s2(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
+    const uint64_t seed = case_seed(id, c.w, c.h, s1.step, s2.step, (int)c.regime, 0);
+    fill_regime(s1, C, seed, c.regime, 0);
+    fill_regime(s2, C, seed ^ 0x51633e2dull, c.regime, 1);
+    s1.dev.copyFromHost(s1.host);
+    s2.dev.copyFromHost(s2.host);
+    Buf<Npp32f> out(C + 1, 1, 1, 0, 0x5A);
+    out.dev.copyFromHost(out.host);
+    npp_diff::clear_cuda_error();
+    const NppStatus st = call(
+        reinterpret_cast<const Npp8u *>(s1.dptr() + off_bytes<Npp8u>(c.oy, c.ox, s1.step, C)), s1.step,
+        reinterpret_cast<const Npp8u *>(s2.dptr() + off_bytes<Npp8u>(c.oy, c.ox, s2.step, C)), s2.step,
+        NppiSize{c.w, c.h}, reinterpret_cast<Npp32f *>(out.dptr()), scratch.get(), ctx);
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    const cudaError_t se = cudaDeviceSynchronize();
+    ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+    out.dev.copyToHost(out.host);
+    ++cnt.executed;
+    const Npp8u *b1 = s1.host.data() + off_bytes<Npp8u>(c.oy, c.ox, s1.step, C);
+    const Npp8u *b2 = s2.host.data() + off_bytes<Npp8u>(c.oy, c.ox, s2.step, C);
+    // At a degenerate 1x1 ROI the variance and cs are driven by the last
+    // bits of the Gaussian normalization; NPP sits up to ~1e-4 from the model
+    // there (measured) while every real image agrees to <= 1e-6.  Widen the
+    // band for those shapes only.
+    const bool tiny = c.w * c.h <= 4;
+    const double crtol = tiny ? 5e-4 : rtol;
+    const double catol = tiny ? 1e-5 : atol;
+    bool failed = false;
+    for (int ch = 0; ch < C && !failed; ++ch) {
+      const float want = Wm ? ssim_ref::wmsssim(b1, s1.step, b2, s2.step, c.w, c.h, C, ch)
+                            : ssim_ref::ssim(b1, s1.step, b2, s2.step, c.w, c.h, C, ch);
+      const size_t off = (size_t)ch * sizeof(Npp32f);
+      ++cnt.compared;
+      if (!equal_elem<Npp32f>(out.host.data() + off, reinterpret_cast<const uint8_t *>(&want), crtol, catol)) {
+        char b[360];
+        std::snprintf(b, sizeof(b), "[%s] %s ch=%d got=%s want=%s", id, c.id().c_str(), ch,
+                      dbg_elem<Npp32f>(out.host.data() + off).c_str(),
+                      dbg_elem<Npp32f>(reinterpret_cast<const uint8_t *>(&want)).c_str());
+        if (first.empty()) first = b;
+        EXPECT_TRUE(false) << b;
+        ++cnt.mismatched;
+        failed = true;
+      }
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+template <int C, bool Wm, bool Advanced, class Call>
+void run_nppi_ssim_batch(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  struct BatchCfg {
+    int w, h, batch, pad;
+  };
+  static const BatchCfg kSsimCfgs[] = {{7, 5, 3, 0}, {33, 17, 4, 0}, {257, 129, 2, 0},
+                                       {64, 48, 3, 16}, {1, 1, 1, 0}, {3, 2, 2, 8}};
+  static const BatchCfg kWmCfgs[] = {{16, 16, 3, 0}, {33, 17, 4, 0}, {64, 48, 3, 16},
+                                     {97, 65, 2, 0}};
+  const BatchCfg *cfgs = Wm ? kWmCfgs : kSsimCfgs;
+  const int ncfgs = Wm ? 4 : 6;
+  const double rtol = Wm ? 2e-4 : 1e-5;
+  const double atol = Wm ? 2e-4 : 1e-6;
+  const size_t per_scratch = (size_t)(Wm ? 32 : 16) << 20;
+  for (int ci = 0; ci < ncfgs; ++ci) {
+    const BatchCfg &cfg = cfgs[ci];
+    const int B = cfg.batch;
+    const int floor = Wm ? 16 : 1;
+    std::vector<int> ws(B), hs(B);
+    for (int i = 0; i < B; ++i) {
+      if constexpr (Advanced) {
+        ws[i] = std::max(floor, cfg.w >> i);
+        hs[i] = std::max(floor, cfg.h >> i);
+      } else {
+        ws[i] = cfg.w;
+        hs[i] = cfg.h;
+      }
+    }
+    std::vector<Buf<Npp8u> *> bufs;
+    std::vector<std::vector<Npp8u>> src1_host(B), src2_host(B);
+    const uint64_t seed = case_seed(id, cfg.w, cfg.h, cfg.pad, B, 0, 0);
+    for (int i = 0; i < B; ++i) {
+      Buf<Npp8u> *a = new Buf<Npp8u>(ws[i], hs[i], C, cfg.pad, 0);
+      Buf<Npp8u> *b = new Buf<Npp8u>(ws[i], hs[i], C, cfg.pad, 0);
+      fill_regime(*a, C, seed ^ mix64((uint64_t)i), (i & 1) ? kWide : kSmall, i);
+      if (i == 0) {
+        b->host = a->host;
+      } else {
+        fill_regime(*b, C, seed ^ mix64((uint64_t)i) ^ 0x51633e2dull, (i & 1) ? kSmall : kWide, i + 7);
+      }
+      a->dev.copyFromHost(a->host);
+      b->dev.copyFromHost(b->host);
+      src1_host[(size_t)i] = a->host;
+      src2_host[(size_t)i] = b->host;
+      bufs.push_back(a);
+      bufs.push_back(b);
+    }
+    std::vector<NppiImageDescriptor> h1(B), h2(B);
+    for (int i = 0; i < B; ++i) {
+      Buf<Npp8u> *a = bufs[(size_t)i * 2];
+      Buf<Npp8u> *b = bufs[(size_t)i * 2 + 1];
+      h1[i] = {(void *)a->dptr(), a->step, NppiSize{ws[i], hs[i]}};
+      h2[i] = {(void *)b->dptr(), b->step, NppiSize{ws[i], hs[i]}};
+    }
+    Buf<Npp8u> d1(sizeof(NppiImageDescriptor) * B, 1, 1, 0, 0);
+    Buf<Npp8u> d2(sizeof(NppiImageDescriptor) * B, 1, 1, 0, 0);
+    std::memcpy(d1.host.data(), h1.data(), sizeof(NppiImageDescriptor) * B);
+    std::memcpy(d2.host.data(), h2.data(), sizeof(NppiImageDescriptor) * B);
+    d1.dev.copyFromHost(d1.host);
+    d2.dev.copyFromHost(d2.host);
+    npp_functional_test::DeviceMemory<Npp8u> scratch(per_scratch * B);
+    std::vector<NppiBufferDescriptor> hbuf(B);
+    for (int i = 0; i < B; ++i) {
+      hbuf[i] = {(void *)(scratch.get() + per_scratch * (size_t)i), (int)per_scratch};
+    }
+    Buf<Npp8u> dbuf(sizeof(NppiBufferDescriptor) * B, 1, 1, 0, 0);
+    std::memcpy(dbuf.host.data(), hbuf.data(), sizeof(NppiBufferDescriptor) * B);
+    dbuf.dev.copyFromHost(dbuf.host);
+    Buf<Npp32f> out(B * C, 1, 1, 0, 0);
+    out.dev.copyFromHost(out.host);
+    npp_diff::clear_cuda_error();
+    const NppStatus st = call(
+        reinterpret_cast<const NppiImageDescriptor *>(d1.dptr()),
+        reinterpret_cast<const NppiImageDescriptor *>(d2.dptr()), B, NppiSize{cfg.w, cfg.h},
+        reinterpret_cast<Npp32f *>(out.dptr()),
+        reinterpret_cast<NppiBufferDescriptor *>(dbuf.dptr()), ctx);
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      for (auto *p : bufs) delete p;
+      continue;
+    }
+    const cudaError_t se = cudaDeviceSynchronize();
+    ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << cfg.w << "x" << cfg.h
+                               << " sync: " << cudaGetErrorString(se);
+    out.dev.copyToHost(out.host);
+    ++cnt.executed;
+    bool failed = false;
+    for (int i = 0; i < B && !failed; ++i) {
+      const int gw = Advanced ? ws[i] : cfg.w;
+      const int gh = Advanced ? hs[i] : cfg.h;
+      // Same degenerate-1x1 band as the single-image driver.
+      const bool tiny = gw * gh <= 4;
+      const double crtol = tiny ? 5e-4 : rtol;
+      const double catol = tiny ? 1e-5 : atol;
+      for (int ch = 0; ch < C && !failed; ++ch) {
+        const float want = Wm
+            ? ssim_ref::wmsssim(src1_host[(size_t)i].data(), bufs[(size_t)i * 2]->step,
+                                src2_host[(size_t)i].data(), bufs[(size_t)i * 2 + 1]->step, gw, gh, C, ch)
+            : ssim_ref::ssim(src1_host[(size_t)i].data(), bufs[(size_t)i * 2]->step,
+                             src2_host[(size_t)i].data(), bufs[(size_t)i * 2 + 1]->step, gw, gh, C, ch);
+        const float got = out.hptr()[(size_t)i * C + ch];
+        ++cnt.compared;
+        if (!equal_elem<Npp32f>(reinterpret_cast<const uint8_t *>(&got),
+                                reinterpret_cast<const uint8_t *>(&want), crtol, catol)) {
+          char b[360];
+          std::snprintf(b, sizeof(b), "[%s] batch=%d w=%d h=%d img=%d ch=%d got=%s want=%s", id, B,
+                        cfg.w, cfg.h, i, ch, dbg_elem<Npp32f>(reinterpret_cast<const uint8_t *>(&got)).c_str(),
+                        dbg_elem<Npp32f>(reinterpret_cast<const uint8_t *>(&want)).c_str());
+          if (first.empty()) first = b;
+          EXPECT_TRUE(false) << b;
+          ++cnt.mismatched;
+          failed = true;
+        }
+      }
+    }
+    for (auto *p : bufs) delete p;
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+// nppiMSSSIM: only the decoded contracts are checked (see the note above).
+template <class Call>
+void run_nppi_msssim(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  npp_functional_test::DeviceMemory<Npp8u> scratch(kSsimScratch);
+  struct MsCfg {
+    int w, h;
+  };
+  static const MsCfg cfgs[] = {{176, 176}, {200, 180}, {256, 256}, {512, 257}};
+  auto run_value = [&](Buf<Npp8u> &a, Buf<Npp8u> &b, int w, int h, float want, double atol,
+                       const char *what, bool expect_ok) {
+    Buf<Npp32f> out(2, 1, 1, 0, 0x5A);
+    out.dev.copyFromHost(out.host);
+    npp_diff::clear_cuda_error();
+    const NppStatus st = call(a.dptr(), a.step, b.dptr(), b.step, NppiSize{w, h},
+                              reinterpret_cast<Npp32f *>(out.dptr()), scratch.get(), ctx);
+    if (!expect_ok) {
+      ++cnt.compared;
+      if (st == NPP_NO_ERROR) {
+        char m[220];
+        std::snprintf(m, sizeof(m), "[%s] %dx%d expected a non-success status below the 176 minimum",
+                      id, w, h);
+        if (first.empty()) first = m;
+        EXPECT_TRUE(false) << m;
+        ++cnt.mismatched;
+      }
+      return;
+    }
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      return;
+    }
+    const cudaError_t se = cudaDeviceSynchronize();
+    ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << what << " sync: " << cudaGetErrorString(se);
+    out.dev.copyToHost(out.host);
+    ++cnt.executed;
+    ++cnt.compared;
+    const float got = out.hptr()[0];
+    if (!equal_elem<Npp32f>(reinterpret_cast<const uint8_t *>(&got),
+                            reinterpret_cast<const uint8_t *>(&want), 0.0, atol)) {
+      char m[260];
+      std::snprintf(m, sizeof(m), "[%s] %s %dx%d got=%.9g want=%.9g", id, what, w, h, (double)got,
+                    (double)want);
+      if (first.empty()) first = m;
+      EXPECT_TRUE(false) << m;
+      ++cnt.mismatched;
+    }
+  };
+  for (const MsCfg &cfg : cfgs) {
+    Buf<Npp8u> a(cfg.w, cfg.h, 1, 16, 0), b(cfg.w, cfg.h, 1, 16, 0);
+    const uint64_t seed = case_seed(id, cfg.w, cfg.h, a.step, b.step, 0, 0);
+    fill_regime(a, 1, seed, kWide, 0);
+    a.dev.copyFromHost(a.host);
+    // identical
+    run_value(a, a, cfg.w, cfg.h, 1.0f, 2e-4, "identical", true);
+    // two different flat images -> exactly 0; equal flat images -> 1
+    std::fill(a.host.begin(), a.host.end(), (Npp8u)100);
+    std::fill(b.host.begin(), b.host.end(), (Npp8u)110);
+    a.dev.copyFromHost(a.host);
+    b.dev.copyFromHost(b.host);
+    run_value(a, b, cfg.w, cfg.h, 0.0f, 1e-6, "flat_diff", true);
+    std::fill(b.host.begin(), b.host.end(), (Npp8u)100);
+    b.dev.copyFromHost(b.host);
+    run_value(a, b, cfg.w, cfg.h, 1.0f, 2e-4, "flat_same", true);
+  }
+  // ROI minimum contract: either dimension below 176 must be rejected.
+  {
+    const MsCfg below[] = {{175, 200}, {200, 175}, {176, 175}};
+    Buf<Npp8u> a(200, 200, 1, 16, 0), b(200, 200, 1, 16, 0);
+    fill_regime(a, 1, 7, kWide, 0);
+    fill_regime(b, 1, 11, kSmall, 1);
+    a.dev.copyFromHost(a.host);
+    b.dev.copyFromHost(b.host);
+    for (const MsCfg &cfg : below) run_value(a, b, cfg.w, cfg.h, 0.0f, 0.0, "below_min", false);
+  }
+  finish(id, cnt, first);
+}
+
 }  // namespace num
 
 

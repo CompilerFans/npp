@@ -151,6 +151,48 @@ def emit(row: dict) -> Optional[str]:
                   f"{str(adv).lower()}>")
         return (f"TEST(NumGenNppiStats, {name}) {{\n"
                 f"  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+    # --- SSIM / WMSSSIM / MSSSIM -----------------------------------------
+    if row["family"] in ("nppiSSIM", "nppiWMSSSIM", "nppiMSSSIM",
+                         "nppiSSIMBatch", "nppiWMSSSIMBatch"):
+        m = re.search(r"_8u_C([13])R", fn)
+        if m is None:
+            return None
+        C = int(m.group(1))
+        if row["family"] == "nppiMSSSIM":
+            if C != 1:
+                return None
+            lam = ("[](const Npp8u *a, int sa, const Npp8u *b, int sb, NppiSize r, "
+                   "Npp32f *o, Npp8u *buf, NppStreamContext c) { (void)sa; (void)sb; "
+                   "(void)r; (void)o; (void)buf; (void)c; return " + fn +
+                   "(a, sa, b, sb, r, o, buf, c); }")
+            return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                    f"  num::run_nppi_msssim(\n      \"{fn}\",\n      {lam});\n}}\n")
+        if row["family"] in ("nppiSSIMBatch", "nppiWMSSSIMBatch"):
+            if C not in (1, 3):
+                return None
+            wm = row["family"] == "nppiWMSSSIMBatch"
+            adv = "_Advanced" in fn
+            if adv and not wm:
+                return None
+            lam = ("[](const NppiImageDescriptor *a, const NppiImageDescriptor *b, "
+                   "int nb, NppiSize r, Npp32f *o, NppiBufferDescriptor *buf, "
+                   "NppStreamContext c) { (void)r; (void)buf; (void)c; return " +
+                   fn + "(a, b, nb, r, o, buf, c); }")
+            prefix = (f"num::run_nppi_ssim_batch<{C}, {str(wm).lower()}, "
+                      f"{str(adv).lower()}>")
+            return (f"TEST(NumGenNppiStats, {name}) {{\n  {prefix}(\n"
+                    f"      \"{fn}\",\n      {lam});\n}}\n")
+        if C not in (1, 3):
+            return None
+        wm = row["family"] == "nppiWMSSSIM"
+        lam = ("[](const Npp8u *a, int sa, const Npp8u *b, int sb, NppiSize r, "
+               "Npp32f *o, Npp8u *buf, NppStreamContext c) { (void)sa; (void)sb; "
+               "(void)r; (void)o; (void)buf; (void)c; return " + fn +
+               "(a, sa, b, sb, r, o, buf, c); }")
+        prefix = f"num::run_nppi_ssim_single<{C}, {str(wm).lower()}>"
+        return (f"TEST(NumGenNppiStats, {name}) {{\n  {prefix}(\n"
+                f"      \"{fn}\",\n      {lam});\n}}\n")
+
     # --- GetBufferHostSize smoke test ------------------------------------
     if "GetBufferHostSize" in fn:
         lam = (
