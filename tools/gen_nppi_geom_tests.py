@@ -67,6 +67,52 @@ def emit_mirror_batch(row: dict) -> Optional[str]:
     return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
 
 
+
+def _layout(fn: str):
+    m = re.search(r"_(AC4|C1|C3|C4)R_Ctx$", fn)
+    if m is None:
+        return None
+    tok = m.group(1)
+    return tok, LAYOUT[tok]
+
+
+def emit_resize(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    lay = _layout(fn)
+    S = CTYPE.get(row["dtype"])
+    if lay is None or S is None:
+        return None
+    C, A = lay[1]
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[](const {S} *a, int sa, NppiSize ss, NppiRect sr, {S} *d, int ds, "
+           f"NppiSize dsz, NppiRect dr, int m, NppStreamContext c) "
+           f"{{ (void)sa; (void)ss; (void)sr; (void)ds; (void)dsz; (void)dr; (void)m; (void)c; "
+           f"return {fn}(a, sa, ss, sr, d, ds, dsz, dr, m, c); }}")
+    prefix = f"num::run_resize<{S}, {C}, {A}>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
+def emit_resize_sqr(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    lay = _layout(fn)
+    S = CTYPE.get(row["dtype"])
+    if lay is None or S is None:
+        return None
+    # NPP's 64f SqrPixel path computes with reduced (float-sized) precision;
+    # the double CPU reference does not reproduce it (deferred).
+    if row["dtype"] == "64f":
+        return None
+    C, A = lay[1]
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[](const {S} *a, NppiSize ss, int sa, NppiRect sr, {S} *d, int ds, "
+           f"NppiRect dr, double fx, double fy, double shx, double shy, int m, "
+           f"NppStreamContext c) {{ (void)sa; (void)ss; (void)sr; (void)ds; (void)dr; "
+           f"(void)fx; (void)fy; (void)shx; (void)shy; (void)m; (void)c; "
+           f"return {fn}(a, ss, sa, sr, d, ds, dr, fx, fy, shx, shy, m, c); }}")
+    prefix = f"num::run_resize_sqr<{S}, {C}, {A}>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -83,6 +129,10 @@ def main() -> int:
             text = emit_mirror(row)
         elif fam == "nppiMirrorBatch":
             text = emit_mirror_batch(row)
+        elif fam == "nppiResize":
+            text = emit_resize(row)
+        elif fam == "nppiResizeSqrPixel":
+            text = emit_resize_sqr(row)
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
                                 reason="later geometry batch / unsupported"))
