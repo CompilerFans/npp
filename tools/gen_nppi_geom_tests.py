@@ -349,6 +349,37 @@ def emit_warp_perspective_quad_planar(row: dict) -> Optional[str]:
     return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
 
 
+def emit_warp_affine_planar(row: dict, invert: bool) -> Optional[str]:
+    fn = row["function_name"]
+    P = _planar_count(fn)
+    S = CTYPE.get(row["dtype"])
+    if P is None or S is None:
+        return None
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[](const {S} **sp, NppiSize ss, int sstep, NppiRect sr, {S} **dp, int dstep, "
+           f"NppiRect dr, const double *cf, int m, NppStreamContext c) "
+           f"{{ (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; "
+           f"return {fn}(sp, ss, sstep, sr, dp, dstep, dr, (const double (*)[3])cf, m, c); }}")
+    prefix = f"num::run_warp_affine_planar<{S}, {P}, {str(invert).lower()}>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
+def emit_warp_affine_quad_planar(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    P = _planar_count(fn)
+    S = CTYPE.get(row["dtype"])
+    if P is None or S is None:
+        return None
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[](const {S} **sp, NppiSize ss, int sstep, NppiRect sr, const double *sq, {S} **dp, "
+           f"int dstep, NppiRect dr, const double *dq, int m, NppStreamContext c) "
+           f"{{ (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; "
+           f"return {fn}(sp, ss, sstep, sr, (const double (*)[2])sq, dp, dstep, dr, "
+           f"(const double (*)[2])dq, m, c); }}")
+    prefix = f"num::run_warp_affine_quad_planar<{S}, {P}>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -376,11 +407,14 @@ def main() -> int:
         elif fam == "nppiRemap":
             text = emit_remap(row)
         elif fam == "nppiWarpAffine":
-            text = emit_warp_affine(row)
+            text = (emit_warp_affine_planar(row, True) if _planar_count(row["function_name"])
+                    else emit_warp_affine(row))
         elif fam == "nppiWarpAffineBack":
-            text = emit_warp_affine_back(row)
+            text = (emit_warp_affine_planar(row, False) if _planar_count(row["function_name"])
+                    else emit_warp_affine_back(row))
         elif fam == "nppiWarpAffineQuad":
-            text = emit_warp_affine_quad(row)
+            text = (emit_warp_affine_quad_planar(row) if _planar_count(row["function_name"])
+                    else emit_warp_affine_quad(row))
         elif fam == "nppiWarpAffineBatch":
             text = emit_warp_affine_batch(row)
         elif fam == "nppiWarpAffineBatchInit":

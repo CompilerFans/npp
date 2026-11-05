@@ -2560,4 +2560,246 @@ void run_warp_perspective_quad_planar(const char *id, Call call) {
   finish(id, cnt, first);
 }
 
+// ---------------------------------------------------------------------------
+// Planar (P3R/P4R) warp affine.  Same measured map/sampling model as the
+// packed path; each plane is an independent single-channel image.
+// ---------------------------------------------------------------------------
+template <typename S, int P, bool InvertMap, class Call>
+void run_warp_affine_planar(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
+  for (const GenCase &c : make_gen_cases(0)) {
+    if (c.w < 2 || c.h < 2) continue;
+    std::vector<Buf<S> *> srcs(P), dsts(P);
+    std::vector<std::vector<uint8_t>> pre(P);
+    const uint64_t seed = case_seed(id, c.w, c.h, c.pad, 0, (int)c.regime, 0);
+    for (int p = 0; p < P; ++p) {
+      Buf<S> *a = new Buf<S>(c.w + c.ox, c.h + c.oy, 1, c.pad, 0);
+      Buf<S> *d = new Buf<S>(c.w, c.h, 1, 0, 0x5A);
+      fill_regime(*a, 1, seed ^ mix64((uint64_t)p + 1), c.regime, p, false, false,
+                  std::is_floating_point_v<S>);
+      if constexpr (std::is_floating_point_v<S>) {
+        const size_t n = (size_t)(a->step / sizeof(S)) * (size_t)a->bh;
+        for (size_t i = 0; i < n; ++i) {
+          const double v = (double)a->hptr()[i];
+          if (v > 1e3) a->hptr()[i] = S(1e3);
+          else if (v < -1e3) a->hptr()[i] = S(-1e3);
+          else if (v != v) a->hptr()[i] = S(0);
+        }
+      }
+      a->dev.copyFromHost(a->host);
+      d->dev.copyFromHost(d->host);
+      srcs[(size_t)p] = a;
+      dsts[(size_t)p] = d;
+      pre[(size_t)p] = d->host;
+    }
+    const double w1 = c.w - 1.0, h1 = c.h - 1.0;
+    double coeffs[6][2][3] = {
+        {{1, 0, 0}, {0, 1, 0}},
+        {{1, 0, 1}, {0, 1, -1}},
+        {{2, 0, 0}, {0, 2, 0}},
+        {{0, -1, h1}, {1, 0, 0}},
+        {{-1, 0, w1}, {0, -1, h1}},
+        {{-1, 0, w1}, {0, 1, 0}},
+    };
+    const S *hsrc[4] = {nullptr, nullptr, nullptr, nullptr};
+    const S *dsrc[4] = {nullptr, nullptr, nullptr, nullptr};
+    S *ddst[4] = {nullptr, nullptr, nullptr, nullptr};
+    int sstep[4] = {0, 0, 0, 0};
+    for (int p = 0; p < P; ++p) {
+      hsrc[p] = srcs[(size_t)p]->hptr() + off_bytes<S>(c.oy, c.ox, srcs[(size_t)p]->step, 1) / sizeof(S);
+      dsrc[p] = reinterpret_cast<const S *>(srcs[(size_t)p]->dptr() +
+                                            off_bytes<S>(c.oy, c.ox, srcs[(size_t)p]->step, 1));
+      ddst[p] = reinterpret_cast<S *>(dsts[(size_t)p]->dptr());
+      sstep[p] = srcs[(size_t)p]->step / (int)sizeof(S);
+    }
+    const bool doubleWork = std::is_same_v<S, Npp64f>;
+    for (int mi = 0; mi < 6; ++mi) {
+      const auto &cf = coeffs[mi];
+      for (int interp : interps) {
+        for (int p = 0; p < P; ++p) dsts[(size_t)p]->dev.copyFromHost(pre[(size_t)p]);
+        npp_diff::clear_cuda_error();
+        const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, srcs[0]->step, NppiRect{0, 0, c.w, c.h}, ddst,
+                                  dsts[0]->step, NppiRect{0, 0, c.w, c.h},
+                                  reinterpret_cast<const double *>(cf), interp, ctx);
+        if (st != NPP_NO_ERROR) {
+          ++cnt.skipped;
+          if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+          continue;
+        }
+        const cudaError_t se = cudaDeviceSynchronize();
+        ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+        ++cnt.executed;
+        double map[2][3];
+        if constexpr (InvertMap) {
+          if (!affine_invert(cf, map)) continue;
+        } else {
+          for (int i = 0; i < 2; ++i)
+            for (int j = 0; j < 3; ++j) map[i][j] = cf[i][j];
+        }
+        bool failed = false;
+        for (int p = 0; p < P && !failed; ++p) {
+          dsts[(size_t)p]->dev.copyToHost(dsts[(size_t)p]->host);
+          std::vector<uint8_t> want = pre[(size_t)p];
+          for (int y = 0; y < c.h; ++y)
+            for (int x = 0; x < c.w; ++x) {
+              const float dx = (float)x, dy = (float)y;
+              const float fx = aff_add(std::fma(dx, (float)map[0][0], aff_mul((float)map[0][1], dy)),
+                                       (float)map[0][2]);
+              const float fy = aff_add(std::fma(dx, (float)map[1][0], aff_mul((float)map[1][1], dy)),
+                                       (float)map[1][2]);
+              if (!(fx >= 0.0f && fx <= (float)(c.w - 1) && fy >= 0.0f && fy <= (float)(c.h - 1))) continue;
+              const size_t db = off_bytes<S>(y, x, dsts[(size_t)p]->step, 1);
+              const S v = affine_sample<S, 1, 1>(hsrc[p], sstep[p], c.w, c.h, 0, fx, fy, fx, interp, doubleWork);
+              std::memcpy(want.data() + db, &v, sizeof(S));
+            }
+          const GenCase dc{c.w, c.h, 0, 0, 0, kSmall, 0};
+          if (!rotate_check<S, 1, 1>(id, dc, interp, pre[(size_t)p], dsts[(size_t)p]->host, want,
+                                     dsts[(size_t)p]->step, std::vector<uint8_t>(), cnt, first))
+            failed = true;
+          if (cnt.mismatched >= 8) break;
+        }
+        if (failed) break;
+      }
+      if (cnt.mismatched >= 8) break;
+    }
+    if (cnt.mismatched >= 8) break;
+    for (auto *p : srcs) delete p;
+    for (auto *p : dsts) delete p;
+  }
+  finish(id, cnt, first);
+}
+
+template <typename S, int P, class Call>
+void run_warp_affine_quad_planar(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
+  for (const GenCase &c : make_gen_cases(0)) {
+    if (c.w < 2 || c.h < 2) continue;
+    std::vector<Buf<S> *> srcs(P), dsts(P);
+    std::vector<std::vector<uint8_t>> pre(P);
+    const uint64_t seed = case_seed(id, c.w, c.h, c.pad, 0, (int)c.regime, 0);
+    for (int p = 0; p < P; ++p) {
+      Buf<S> *a = new Buf<S>(c.w + c.ox, c.h + c.oy, 1, c.pad, 0);
+      Buf<S> *d = new Buf<S>(c.w, c.h, 1, 0, 0x5A);
+      fill_regime(*a, 1, seed ^ mix64((uint64_t)p + 1), c.regime, p, false, false,
+                  std::is_floating_point_v<S>);
+      if constexpr (std::is_floating_point_v<S>) {
+        const size_t n = (size_t)(a->step / sizeof(S)) * (size_t)a->bh;
+        for (size_t i = 0; i < n; ++i) {
+          const double v = (double)a->hptr()[i];
+          if (v > 1e3) a->hptr()[i] = S(1e3);
+          else if (v < -1e3) a->hptr()[i] = S(-1e3);
+          else if (v != v) a->hptr()[i] = S(0);
+        }
+      }
+      a->dev.copyFromHost(a->host);
+      d->dev.copyFromHost(d->host);
+      srcs[(size_t)p] = a;
+      dsts[(size_t)p] = d;
+      pre[(size_t)p] = d->host;
+    }
+    const double w1 = c.w - 1.0, h1 = c.h - 1.0;
+    const double srcQ[4][2] = {{0, 0}, {w1, 0}, {w1, h1}, {0, h1}};
+    double mats[6][2][3] = {
+        {{1, 0, 0}, {0, 1, 0}},
+        {{1, 0, 1}, {0, 1, -1}},
+        {{0.5, 0, 0}, {0, 0.5, 0}},
+        {{0, -1, h1}, {1, 0, 0}},
+        {{-1, 0, w1}, {0, -1, h1}},
+        {{-1, 0, w1}, {0, 1, 0}},
+    };
+    const S *hsrc[4] = {nullptr, nullptr, nullptr, nullptr};
+    const S *dsrc[4] = {nullptr, nullptr, nullptr, nullptr};
+    S *ddst[4] = {nullptr, nullptr, nullptr, nullptr};
+    int sstep[4] = {0, 0, 0, 0};
+    for (int p = 0; p < P; ++p) {
+      hsrc[p] = srcs[(size_t)p]->hptr() + off_bytes<S>(c.oy, c.ox, srcs[(size_t)p]->step, 1) / sizeof(S);
+      dsrc[p] = reinterpret_cast<const S *>(srcs[(size_t)p]->dptr() +
+                                            off_bytes<S>(c.oy, c.ox, srcs[(size_t)p]->step, 1));
+      ddst[p] = reinterpret_cast<S *>(dsts[(size_t)p]->dptr());
+      sstep[p] = srcs[(size_t)p]->step / (int)sizeof(S);
+    }
+    const bool doubleWork = std::is_same_v<S, Npp64f>;
+    for (int mi = 0; mi < 6; ++mi) {
+      const auto &M = mats[mi];
+      double dstQ[4][2];
+      for (int i = 0; i < 4; ++i) {
+        dstQ[i][0] = M[0][0] * srcQ[i][0] + M[0][1] * srcQ[i][1] + M[0][2];
+        dstQ[i][1] = M[1][0] * srcQ[i][0] + M[1][1] * srcQ[i][1] + M[1][2];
+      }
+      for (int interp : interps) {
+        for (int p = 0; p < P; ++p) dsts[(size_t)p]->dev.copyFromHost(pre[(size_t)p]);
+        npp_diff::clear_cuda_error();
+        const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, srcs[0]->step, NppiRect{0, 0, c.w, c.h},
+                                  reinterpret_cast<const double *>(srcQ), ddst, dsts[0]->step,
+                                  NppiRect{0, 0, c.w, c.h}, reinterpret_cast<const double *>(dstQ), interp, ctx);
+        if (st != NPP_NO_ERROR) {
+          ++cnt.skipped;
+          if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+          continue;
+        }
+        const cudaError_t se = cudaDeviceSynchronize();
+        ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+        ++cnt.executed;
+        double fwd[2][3];
+        bool warn = false;
+        if (!affine_from_quads(srcQ, dstQ, fwd, &warn)) continue;
+        for (int r = 0; r < 2; ++r)
+          for (int k = 0; k < 3; ++k) fwd[r][k] = (double)(float)fwd[r][k];
+        double map[2][3];
+        if (!affine_invert(fwd, map)) continue;
+        bool failed = false;
+        for (int p = 0; p < P && !failed; ++p) {
+          dsts[(size_t)p]->dev.copyToHost(dsts[(size_t)p]->host);
+          std::vector<uint8_t> want = pre[(size_t)p];
+          for (int y = 0; y < c.h; ++y)
+            for (int x = 0; x < c.w; ++x) {
+              const float dx = (float)x, dy = (float)y;
+              const float fx = aff_add(std::fma(dx, (float)map[0][0], aff_mul((float)map[0][1], dy)),
+                                       (float)map[0][2]);
+              const float fy = aff_add(std::fma(dx, (float)map[1][0], aff_mul((float)map[1][1], dy)),
+                                       (float)map[1][2]);
+              const double fxd = aff_add(std::fma((double)dx, (double)(float)map[0][0],
+                                                  (double)(float)map[0][1] * (double)dy),
+                                         (double)(float)map[0][2]);
+              const double fyd = aff_add(std::fma((double)dx, (double)(float)map[1][0],
+                                                  (double)(float)map[1][1] * (double)dy),
+                                         (double)(float)map[1][2]);
+              if (!(fxd >= 0.0 && fxd <= (double)(c.w - 1) && fyd >= 0.0 &&
+                    fyd <= (double)(c.h - 1) + 4.4e-7))
+                continue;
+              const size_t db = off_bytes<S>(y, x, dsts[(size_t)p]->step, 1);
+              const S v = affine_sample<S, 1, 1>(hsrc[p], sstep[p], c.w, c.h, 0, fx, fy, fx, interp, doubleWork);
+              std::memcpy(want.data() + db, &v, sizeof(S));
+            }
+          const GenCase dc{c.w, c.h, 0, 0, 0, kSmall, 0};
+          if (!rotate_check<S, 1, 1>(id, dc, interp, pre[(size_t)p], dsts[(size_t)p]->host, want,
+                                     dsts[(size_t)p]->step, std::vector<uint8_t>(), cnt, first))
+            failed = true;
+          if (cnt.mismatched >= 8) break;
+        }
+        if (failed) break;
+      }
+      if (cnt.mismatched >= 8) break;
+    }
+    if (cnt.mismatched >= 8) break;
+    for (auto *p : srcs) delete p;
+    for (auto *p : dsts) delete p;
+  }
+  finish(id, cnt, first);
+}
+
 }  // namespace num

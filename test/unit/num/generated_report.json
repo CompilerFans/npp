@@ -60,7 +60,7 @@
   "skipped": []
  },
  "nppi_geometry_transforms.h": {
-  "emitted": 284,
+  "emitted": 310,
   "skipped": [
    {
     "function": "nppiRemap_16s_P3R_Ctx",
@@ -245,136 +245,6 @@
    {
     "function": "nppiResize_8u_P4R_Ctx",
     "family": "nppiResize",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffineBack_16u_P3R_Ctx",
-    "family": "nppiWarpAffineBack",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffineBack_16u_P4R_Ctx",
-    "family": "nppiWarpAffineBack",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffineBack_32f_P3R_Ctx",
-    "family": "nppiWarpAffineBack",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffineBack_32f_P4R_Ctx",
-    "family": "nppiWarpAffineBack",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffineBack_32s_P3R_Ctx",
-    "family": "nppiWarpAffineBack",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffineBack_32s_P4R_Ctx",
-    "family": "nppiWarpAffineBack",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffineBack_8u_P3R_Ctx",
-    "family": "nppiWarpAffineBack",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffineBack_8u_P4R_Ctx",
-    "family": "nppiWarpAffineBack",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffineQuad_16u_P3R_Ctx",
-    "family": "nppiWarpAffineQuad",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffineQuad_16u_P4R_Ctx",
-    "family": "nppiWarpAffineQuad",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffineQuad_32f_P3R_Ctx",
-    "family": "nppiWarpAffineQuad",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffineQuad_32f_P4R_Ctx",
-    "family": "nppiWarpAffineQuad",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffineQuad_32s_P3R_Ctx",
-    "family": "nppiWarpAffineQuad",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffineQuad_32s_P4R_Ctx",
-    "family": "nppiWarpAffineQuad",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffineQuad_8u_P3R_Ctx",
-    "family": "nppiWarpAffineQuad",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffineQuad_8u_P4R_Ctx",
-    "family": "nppiWarpAffineQuad",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffine_16u_P3R_Ctx",
-    "family": "nppiWarpAffine",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffine_16u_P4R_Ctx",
-    "family": "nppiWarpAffine",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffine_32f_P3R_Ctx",
-    "family": "nppiWarpAffine",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffine_32f_P4R_Ctx",
-    "family": "nppiWarpAffine",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffine_32s_P3R_Ctx",
-    "family": "nppiWarpAffine",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffine_32s_P4R_Ctx",
-    "family": "nppiWarpAffine",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffine_64f_P3R_Ctx",
-    "family": "nppiWarpAffine",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffine_64f_P4R_Ctx",
-    "family": "nppiWarpAffine",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffine_8u_P3R_Ctx",
-    "family": "nppiWarpAffine",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiWarpAffine_8u_P4R_Ctx",
-    "family": "nppiWarpAffine",
     "reason": "later geometry batch / unsupported"
    }
   ]
