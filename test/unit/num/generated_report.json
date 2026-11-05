@@ -58,5 +58,1505 @@
  "nppi_morphological_operations.h": {
   "emitted": 142,
   "skipped": []
+ },
+ "nppi_geometry_transforms.h": {
+  "emitted": 48,
+  "skipped": [
+   {
+    "function": "nppiRemap_16s_AC4R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_16s_C1R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_16s_C3R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_16s_C4R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_16s_P3R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_16s_P4R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_16u_AC4R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_16u_C1R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_16u_C3R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_16u_C4R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_16u_P3R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_16u_P4R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_32f_AC4R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_32f_C1R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_32f_C3R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_32f_C4R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_32f_P3R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_32f_P4R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_64f_AC4R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_64f_C1R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_64f_C3R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_64f_C4R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_64f_P3R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_64f_P4R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_8u_AC4R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_8u_C1R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_8u_C3R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_8u_C4R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_8u_P3R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRemap_8u_P4R_Ctx",
+    "family": "nppiRemap",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeBatch_16f_C1R_Advanced_Ctx",
+    "family": "nppiResizeBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeBatch_16f_C3R_Advanced_Ctx",
+    "family": "nppiResizeBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeBatch_16f_C4R_Advanced_Ctx",
+    "family": "nppiResizeBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeBatch_32f_AC4R_Advanced_Ctx",
+    "family": "nppiResizeBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeBatch_32f_AC4R_Ctx",
+    "family": "nppiResizeBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeBatch_32f_C1R_Advanced_Ctx",
+    "family": "nppiResizeBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeBatch_32f_C1R_Ctx",
+    "family": "nppiResizeBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeBatch_32f_C3R_Advanced_Ctx",
+    "family": "nppiResizeBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeBatch_32f_C3R_Ctx",
+    "family": "nppiResizeBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeBatch_32f_C4R_Advanced_Ctx",
+    "family": "nppiResizeBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeBatch_32f_C4R_Ctx",
+    "family": "nppiResizeBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeBatch_8u_AC4R_Advanced_Ctx",
+    "family": "nppiResizeBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeBatch_8u_AC4R_Ctx",
+    "family": "nppiResizeBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeBatch_8u_C1R_Advanced_Ctx",
+    "family": "nppiResizeBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeBatch_8u_C1R_Ctx",
+    "family": "nppiResizeBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeBatch_8u_C3R_Advanced_Ctx",
+    "family": "nppiResizeBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeBatch_8u_C3R_Ctx",
+    "family": "nppiResizeBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeBatch_8u_C4R_Advanced_Ctx",
+    "family": "nppiResizeBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeBatch_8u_C4R_Ctx",
+    "family": "nppiResizeBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_16s_AC4R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_16s_C1R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_16s_C3R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_16s_C4R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_16s_P3R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_16s_P4R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_16u_AC4R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_16u_C1R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_16u_C3R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_16u_C4R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_16u_P3R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_16u_P4R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_32f_AC4R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_32f_C1R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_32f_C3R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_32f_C4R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_32f_P3R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_32f_P4R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_64f_AC4R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_64f_C1R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_64f_C3R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_64f_C4R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_64f_P3R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_64f_P4R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_8u_AC4R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_8u_C1R_Advanced_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_8u_C1R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_8u_C3R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_8u_C4R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_8u_P3R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResizeSqrPixel_8u_P4R_Ctx",
+    "family": "nppiResizeSqrPixel",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_16f_C1R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_16f_C3R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_16f_C4R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_16s_AC4R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_16s_C1R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_16s_C3R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_16s_C4R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_16s_P3R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_16s_P4R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_16u_AC4R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_16u_C1R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_16u_C3R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_16u_C4R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_16u_P3R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_16u_P4R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_32f_AC4R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_32f_C1R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_32f_C3R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_32f_C4R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_32f_P3R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_32f_P4R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_8u_AC4R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_8u_C1R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_8u_C3R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_8u_C4R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_8u_P3R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiResize_8u_P4R_Ctx",
+    "family": "nppiResize",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRotate_16u_AC4R_Ctx",
+    "family": "nppiRotate",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRotate_16u_C1R_Ctx",
+    "family": "nppiRotate",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRotate_16u_C3R_Ctx",
+    "family": "nppiRotate",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRotate_16u_C4R_Ctx",
+    "family": "nppiRotate",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRotate_32f_AC4R_Ctx",
+    "family": "nppiRotate",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRotate_32f_C1R_Ctx",
+    "family": "nppiRotate",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRotate_32f_C3R_Ctx",
+    "family": "nppiRotate",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRotate_32f_C4R_Ctx",
+    "family": "nppiRotate",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRotate_8u_AC4R_Ctx",
+    "family": "nppiRotate",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRotate_8u_C1R_Ctx",
+    "family": "nppiRotate",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRotate_8u_C3R_Ctx",
+    "family": "nppiRotate",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiRotate_8u_C4R_Ctx",
+    "family": "nppiRotate",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_16u_AC4R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_16u_C1R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_16u_C3R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_16u_C4R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_16u_P3R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_16u_P4R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_32f_AC4R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_32f_C1R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_32f_C3R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_32f_C4R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_32f_P3R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_32f_P4R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_32s_AC4R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_32s_C1R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_32s_C3R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_32s_C4R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_32s_P3R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_32s_P4R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_8u_AC4R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_8u_C1R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_8u_C3R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_8u_C4R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_8u_P3R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBack_8u_P4R_Ctx",
+    "family": "nppiWarpAffineBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBatchInit_Ctx",
+    "family": "nppiWarpAffineBatchInit",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBatch_16f_C1R_Ctx",
+    "family": "nppiWarpAffineBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBatch_16f_C3R_Ctx",
+    "family": "nppiWarpAffineBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBatch_16f_C4R_Ctx",
+    "family": "nppiWarpAffineBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBatch_32f_AC4R_Ctx",
+    "family": "nppiWarpAffineBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBatch_32f_C1R_Ctx",
+    "family": "nppiWarpAffineBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBatch_32f_C3R_Ctx",
+    "family": "nppiWarpAffineBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBatch_32f_C4R_Ctx",
+    "family": "nppiWarpAffineBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBatch_8u_AC4R_Ctx",
+    "family": "nppiWarpAffineBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBatch_8u_C1R_Ctx",
+    "family": "nppiWarpAffineBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBatch_8u_C3R_Ctx",
+    "family": "nppiWarpAffineBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineBatch_8u_C4R_Ctx",
+    "family": "nppiWarpAffineBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_16u_AC4R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_16u_C1R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_16u_C3R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_16u_C4R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_16u_P3R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_16u_P4R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_32f_AC4R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_32f_C1R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_32f_C3R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_32f_C4R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_32f_P3R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_32f_P4R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_32s_AC4R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_32s_C1R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_32s_C3R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_32s_C4R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_32s_P3R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_32s_P4R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_8u_AC4R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_8u_C1R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_8u_C3R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_8u_C4R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_8u_P3R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffineQuad_8u_P4R_Ctx",
+    "family": "nppiWarpAffineQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_16f_C1R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_16f_C3R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_16f_C4R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_16u_AC4R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_16u_C1R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_16u_C3R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_16u_C4R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_16u_P3R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_16u_P4R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_32f_AC4R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_32f_C1R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_32f_C3R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_32f_C4R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_32f_P3R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_32f_P4R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_32s_AC4R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_32s_C1R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_32s_C3R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_32s_C4R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_32s_P3R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_32s_P4R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_64f_AC4R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_64f_C1R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_64f_C3R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_64f_C4R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_64f_P3R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_64f_P4R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_8u_AC4R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_8u_C1R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_8u_C3R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_8u_C4R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_8u_P3R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpAffine_8u_P4R_Ctx",
+    "family": "nppiWarpAffine",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_16u_AC4R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_16u_C1R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_16u_C3R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_16u_C4R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_16u_P3R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_16u_P4R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_32f_AC4R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_32f_C1R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_32f_C3R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_32f_C4R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_32f_P3R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_32f_P4R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_32s_AC4R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_32s_C1R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_32s_C3R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_32s_C4R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_32s_P3R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_32s_P4R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_8u_AC4R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_8u_C1R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_8u_C3R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_8u_C4R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_8u_P3R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBack_8u_P4R_Ctx",
+    "family": "nppiWarpPerspectiveBack",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBatchInit_Ctx",
+    "family": "nppiWarpPerspectiveBatchInit",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBatch_16f_C1R_Ctx",
+    "family": "nppiWarpPerspectiveBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBatch_16f_C3R_Ctx",
+    "family": "nppiWarpPerspectiveBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBatch_16f_C4R_Ctx",
+    "family": "nppiWarpPerspectiveBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBatch_32f_AC4R_Ctx",
+    "family": "nppiWarpPerspectiveBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBatch_32f_C1R_Ctx",
+    "family": "nppiWarpPerspectiveBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBatch_32f_C3R_Ctx",
+    "family": "nppiWarpPerspectiveBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBatch_32f_C4R_Ctx",
+    "family": "nppiWarpPerspectiveBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBatch_8u_AC4R_Ctx",
+    "family": "nppiWarpPerspectiveBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBatch_8u_C1R_Ctx",
+    "family": "nppiWarpPerspectiveBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBatch_8u_C3R_Ctx",
+    "family": "nppiWarpPerspectiveBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveBatch_8u_C4R_Ctx",
+    "family": "nppiWarpPerspectiveBatch",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_16u_AC4R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_16u_C1R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_16u_C3R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_16u_C4R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_16u_P3R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_16u_P4R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_32f_AC4R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_32f_C1R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_32f_C3R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_32f_C4R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_32f_P3R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_32f_P4R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_32s_AC4R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_32s_C1R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_32s_C3R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_32s_C4R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_32s_P3R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_32s_P4R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_8u_AC4R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_8u_C1R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_8u_C3R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_8u_C4R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_8u_P3R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspectiveQuad_8u_P4R_Ctx",
+    "family": "nppiWarpPerspectiveQuad",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_16f_C1R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_16f_C3R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_16f_C4R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_16u_AC4R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_16u_C1R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_16u_C3R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_16u_C4R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_16u_P3R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_16u_P4R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_32f_AC4R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_32f_C1R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_32f_C3R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_32f_C4R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_32f_P3R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_32f_P4R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_32s_AC4R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_32s_C1R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_32s_C3R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_32s_C4R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_32s_P3R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_32s_P4R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_8u_AC4R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_8u_C1R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_8u_C3R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_8u_C4R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_8u_P3R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   },
+   {
+    "function": "nppiWarpPerspective_8u_P4R_Ctx",
+    "family": "nppiWarpPerspective",
+    "reason": "later geometry batch / unsupported"
+   }
+  ]
  }
 }
