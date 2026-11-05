@@ -380,6 +380,51 @@ def emit_warp_affine_quad_planar(row: dict) -> Optional[str]:
     return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
 
 
+def emit_resize_planar(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    P = _planar_count(fn)
+    S = CTYPE.get(row["dtype"])
+    if P is None or S is None:
+        return None
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[](const {S} **sp, int sstep, NppiSize ss, NppiRect sr, {S} **dp, int dstep, "
+           f"NppiSize ds, NppiRect dr, int m, NppStreamContext c) "
+           f"{{ (void)sstep; (void)ss; (void)sr; (void)dstep; (void)ds; (void)dr; (void)m; (void)c; "
+           f"return {fn}(sp, sstep, ss, sr, dp, dstep, ds, dr, m, c); }}")
+    prefix = f"num::run_resize_planar<{S}, {P}>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
+def emit_resize_sqr_planar(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    P = _planar_count(fn)
+    S = CTYPE.get(row["dtype"])
+    if P is None or S is None or row["dtype"] == "64f":
+        return None
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[](const {S} **sp, NppiSize ss, int sstep, NppiRect sr, {S} **dp, int dstep, NppiRect dr, "
+           f"double fx, double fy, double sx, double sy, int m, NppStreamContext c) "
+           f"{{ (void)ss; (void)sstep; (void)sr; (void)dstep; (void)dr; (void)m; (void)c; "
+           f"return {fn}(sp, ss, sstep, sr, dp, dstep, dr, fx, fy, sx, sy, m, c); }}")
+    prefix = f"num::run_resize_sqr_planar<{S}, {P}>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
+def emit_remap_planar(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    P = _planar_count(fn)
+    S = CTYPE.get(row["dtype"])
+    if P is None or S is None or row["dtype"] == "64f":
+        return None
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[](const {S} **sp, NppiSize ss, int sstep, NppiRect sr, const float *mx, int mxs, "
+           f"const float *my, int mys, {S} **dp, int dstep, NppiSize ds, int m, NppStreamContext c) "
+           f"{{ (void)ss; (void)sstep; (void)sr; (void)mxs; (void)mys; (void)dstep; (void)ds; (void)m; (void)c; "
+           f"return {fn}(sp, ss, sstep, sr, mx, mxs, my, mys, dp, dstep, ds, m, c); }}")
+    prefix = f"num::run_remap_planar<{S}, {P}>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -397,15 +442,18 @@ def main() -> int:
         elif fam == "nppiMirrorBatch":
             text = emit_mirror_batch(row)
         elif fam == "nppiResize":
-            text = emit_resize(row)
+            text = (emit_resize_planar(row) if _planar_count(row["function_name"])
+                    else emit_resize(row))
         elif fam == "nppiResizeSqrPixel":
-            text = emit_resize_sqr(row)
+            text = (emit_resize_sqr_planar(row) if _planar_count(row["function_name"])
+                    else emit_resize_sqr(row))
         elif fam == "nppiResizeBatch":
             text = emit_resize_batch(row)
         elif fam == "nppiRotate":
             text = emit_rotate(row)
         elif fam == "nppiRemap":
-            text = emit_remap(row)
+            text = (emit_remap_planar(row) if _planar_count(row["function_name"])
+                    else emit_remap(row))
         elif fam == "nppiWarpAffine":
             text = (emit_warp_affine_planar(row, True) if _planar_count(row["function_name"])
                     else emit_warp_affine(row))

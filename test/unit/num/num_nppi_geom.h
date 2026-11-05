@@ -2802,4 +2802,285 @@ void run_warp_affine_quad_planar(const char *id, Call call) {
   finish(id, cnt, first);
 }
 
+// ---------------------------------------------------------------------------
+// Planar (P3R/P4R) resize / resize-sqr / remap: each plane is resampled with
+// the packed reference for a single channel.
+// ---------------------------------------------------------------------------
+template <typename S>
+inline void planar_fill_src(std::vector<Buf<S> *> &srcs, int P, int w, int h, int ox, int oy, int pad,
+                            uint64_t seed, Regime regime) {
+  for (int p = 0; p < P; ++p) {
+    Buf<S> *a = new Buf<S>(w + ox, h + oy, 1, pad, 0);
+    fill_regime(*a, 1, seed ^ mix64((uint64_t)p + 1), regime, p, false, false,
+                std::is_floating_point_v<S>);
+    if constexpr (std::is_floating_point_v<S>) {
+      const size_t n = (size_t)(a->step / sizeof(S)) * (size_t)a->bh;
+      for (size_t i = 0; i < n; ++i) {
+        const double v = (double)a->hptr()[i];
+        if (v > 1e3) a->hptr()[i] = S(1e3);
+        else if (v < -1e3) a->hptr()[i] = S(-1e3);
+        else if (v != v) a->hptr()[i] = S(0);
+      }
+    }
+    a->dev.copyFromHost(a->host);
+    srcs.push_back(a);
+  }
+}
+
+template <typename S>
+inline void planar_ptrs(std::vector<Buf<S> *> &srcs, std::vector<Buf<S> *> &dsts, int P, int ox, int oy,
+                        const S *hsrc[4], const S *dsrc[4], S *ddst[4], int sstep[4]) {
+  for (int p = 0; p < P; ++p) {
+    hsrc[p] = srcs[(size_t)p]->hptr() + off_bytes<S>(oy, ox, srcs[(size_t)p]->step, 1) / sizeof(S);
+    dsrc[p] = reinterpret_cast<const S *>(srcs[(size_t)p]->dptr() +
+                                          off_bytes<S>(oy, ox, srcs[(size_t)p]->step, 1));
+    ddst[p] = reinterpret_cast<S *>(dsts[(size_t)p]->dptr());
+    sstep[p] = srcs[(size_t)p]->step / (int)sizeof(S);
+  }
+}
+
+template <typename S, int P, class Call>
+void run_resize_planar(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  using VT = typename ResizeTraits<S>::VT;
+  const int modes[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, NPPI_INTER_LANCZOS};
+  const double scales[] = {0.5, 0.75, 1.0, 1.5, 2.0};
+  for (const GenCase &c : make_gen_cases(0)) {
+    if (c.w < 2 || c.h < 2) continue;
+    std::vector<Buf<S> *> srcs;
+    const uint64_t seed = case_seed(id, c.w, c.h, c.pad, 0, (int)c.regime, 0);
+    planar_fill_src(srcs, P, c.w, c.h, c.ox, c.oy, c.pad, seed, c.regime);
+    for (double sc : scales) {
+      const int dw = std::max(1, (int)std::llround(c.w * sc));
+      const int dh = std::max(1, (int)std::llround(c.h * sc));
+      std::vector<Buf<S> *> dsts;
+      std::vector<std::vector<uint8_t>> pre(P);
+      for (int p = 0; p < P; ++p) {
+        Buf<S> *d = new Buf<S>(dw, dh, 1, 0, 0x5A);
+        d->dev.copyFromHost(d->host);
+        dsts.push_back(d);
+        pre[(size_t)p] = d->host;
+      }
+      const S *hsrc[4] = {nullptr, nullptr, nullptr, nullptr};
+      const S *dsrc[4] = {nullptr, nullptr, nullptr, nullptr};
+      S *ddst[4] = {nullptr, nullptr, nullptr, nullptr};
+      int sstep[4] = {0, 0, 0, 0};
+      planar_ptrs(srcs, dsts, P, c.ox, c.oy, hsrc, dsrc, ddst, sstep);
+      for (int mode : modes) {
+        for (int p = 0; p < P; ++p) dsts[(size_t)p]->dev.copyFromHost(pre[(size_t)p]);
+        npp_diff::clear_cuda_error();
+        const NppStatus st = call(dsrc, srcs[0]->step, NppiSize{c.w, c.h}, NppiRect{0, 0, c.w, c.h},
+                                  ddst, dsts[0]->step, NppiSize{dw, dh}, NppiRect{0, 0, dw, dh}, mode, ctx);
+        if (st != NPP_NO_ERROR) {
+          ++cnt.skipped;
+          if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+          continue;
+        }
+        const cudaError_t se = cudaDeviceSynchronize();
+        ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+        ++cnt.executed;
+        const VT afx = (VT)((double)c.w / (double)dw), offx = (VT)(-0.5), basex = (VT)(-0.5);
+        const VT afy = (VT)((double)c.h / (double)dh), offy = (VT)(-0.5), basey = (VT)(-0.5);
+        int radius = 0;
+        if (mode == NPPI_INTER_LINEAR) radius = 1;
+        else if (mode == NPPI_INTER_CUBIC) radius = 2;
+        else if (mode == NPPI_INTER_LANCZOS) radius = 3;
+        int tapHiX = c.w - 1 + radius, tapHiY = c.h - 1 + radius;
+        if (tapHiX > c.w - 1) tapHiX = c.w - 1;
+        if (tapHiY > c.h - 1) tapHiY = c.h - 1;
+        bool failed = false;
+        for (int p = 0; p < P && !failed; ++p) {
+          dsts[(size_t)p]->dev.copyToHost(dsts[(size_t)p]->host);
+          std::vector<uint8_t> want = pre[(size_t)p];
+          resize_apply<S, 1, 1, VT>(hsrc[p], sstep[p], reinterpret_cast<S *>(want.data()),
+                                    dsts[(size_t)p]->step / (int)sizeof(S), NppiRect{0, 0, dw, dh}, afx, offx,
+                                    basex, afy, offy, basey, (VT)(-0.5), (VT)(-0.5), (VT)c.w, (VT)c.h, 0,
+                                    tapHiX, 0, tapHiY, resize_mode(mode));
+          const GenCase dc{dw, dh, 0, 0, 0, kSmall, 0};
+          if (!resize_check<S, 1, 1>(id, dc, mode, pre[(size_t)p], dsts[(size_t)p]->host, want,
+                                     dsts[(size_t)p]->step, cnt, first))
+            failed = true;
+          if (cnt.mismatched >= 8) break;
+        }
+        if (failed) break;
+      }
+      for (auto *p : dsts) delete p;
+      if (cnt.mismatched >= 8) break;
+    }
+    if (cnt.mismatched >= 8) break;
+    for (auto *p : srcs) delete p;
+  }
+  finish(id, cnt, first);
+}
+
+template <typename S, int P, class Call>
+void run_resize_sqr_planar(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  using VT = typename ResizeTraits<S>::VT;
+  const int modes[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, NPPI_INTER_LANCZOS};
+  const double factors[] = {0.5, 1.0, 1.5, 2.0};
+  const double shifts[] = {0.0, 0.25};
+  for (const GenCase &c : make_gen_cases(0)) {
+    if (c.w < 2 || c.h < 2) continue;
+    std::vector<Buf<S> *> srcs;
+    const uint64_t seed = case_seed(id, c.w, c.h, c.pad, 0, (int)c.regime, 0);
+    planar_fill_src(srcs, P, c.w, c.h, c.ox, c.oy, c.pad, seed, c.regime);
+    for (double f : factors) {
+      const int dw = std::max(1, (int)std::llround(c.w * f));
+      const int dh = std::max(1, (int)std::llround(c.h * f));
+      std::vector<Buf<S> *> dsts;
+      std::vector<std::vector<uint8_t>> pre(P);
+      for (int p = 0; p < P; ++p) {
+        Buf<S> *d = new Buf<S>(dw, dh, 1, 0, 0x5A);
+        d->dev.copyFromHost(d->host);
+        dsts.push_back(d);
+        pre[(size_t)p] = d->host;
+      }
+      const S *hsrc[4] = {nullptr, nullptr, nullptr, nullptr};
+      const S *dsrc[4] = {nullptr, nullptr, nullptr, nullptr};
+      S *ddst[4] = {nullptr, nullptr, nullptr, nullptr};
+      int sstep[4] = {0, 0, 0, 0};
+      planar_ptrs(srcs, dsts, P, c.ox, c.oy, hsrc, dsrc, ddst, sstep);
+      for (double shift : shifts) {
+        for (int mode : modes) {
+          for (int p = 0; p < P; ++p) dsts[(size_t)p]->dev.copyFromHost(pre[(size_t)p]);
+          npp_diff::clear_cuda_error();
+          const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, srcs[0]->step, NppiRect{0, 0, c.w, c.h},
+                                    ddst, dsts[0]->step, NppiRect{0, 0, dw, dh}, f, f, shift, shift, mode, ctx);
+          if (st != NPP_NO_ERROR) {
+            ++cnt.skipped;
+            if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+            continue;
+          }
+          const cudaError_t se = cudaDeviceSynchronize();
+          ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+          ++cnt.executed;
+          const VT afx = (VT)(1.0 / f);
+          const VT asx = (VT)(shift * (1.0 / f) + (1.0 - 1.0 / f) * 0.5);
+          const VT afy = (VT)(1.0 / f);
+          const VT asy = (VT)(shift * (1.0 / f) + (1.0 - 1.0 / f) * 0.5);
+          bool failed = false;
+          for (int p = 0; p < P && !failed; ++p) {
+            dsts[(size_t)p]->dev.copyToHost(dsts[(size_t)p]->host);
+            std::vector<uint8_t> want = pre[(size_t)p];
+            resize_apply<S, 1, 1, VT>(hsrc[p], sstep[p], reinterpret_cast<S *>(want.data()),
+                                      dsts[(size_t)p]->step / (int)sizeof(S), NppiRect{0, 0, dw, dh}, afx,
+                                      (VT)0, (VT)(-asx), afy, (VT)0, (VT)(-asy), (VT)(-0.5 * f),
+                                      (VT)(-0.5 * f), (VT)c.w, (VT)c.h, 0, c.w - 1, 0, c.h - 1,
+                                      resize_mode(mode));
+            const GenCase dc{dw, dh, 0, 0, 0, kSmall, 0};
+            if (!resize_check<S, 1, 1>(id, dc, mode, pre[(size_t)p], dsts[(size_t)p]->host, want,
+                                       dsts[(size_t)p]->step, cnt, first))
+              failed = true;
+            if (cnt.mismatched >= 8) break;
+          }
+          if (failed) break;
+        }
+        if (cnt.mismatched >= 8) break;
+      }
+      for (auto *p : dsts) delete p;
+      if (cnt.mismatched >= 8) break;
+    }
+    if (cnt.mismatched >= 8) break;
+    for (auto *p : srcs) delete p;
+  }
+  finish(id, cnt, first);
+}
+
+template <typename S, int P, class Call>
+void run_remap_planar(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
+  for (const GenCase &c : make_gen_cases(0)) {
+    if (c.w < 4 || c.h < 4) continue;
+    std::vector<Buf<S> *> srcs, dsts;
+    std::vector<std::vector<uint8_t>> pre(P);
+    const uint64_t seed = case_seed(id, c.w, c.h, c.pad, 0, (int)c.regime, 0);
+    planar_fill_src(srcs, P, c.w, c.h, c.ox, c.oy, c.pad, seed, c.regime);
+    for (int p = 0; p < P; ++p) {
+      Buf<S> *d = new Buf<S>(c.w, c.h, 1, 0, 0x5A);
+      d->dev.copyFromHost(d->host);
+      dsts.push_back(d);
+      pre[(size_t)p] = d->host;
+    }
+    Buf<float> mx(c.w, c.h, 1, 0, 0), my(c.w, c.h, 1, 0, 0);
+    const int spanX = std::max(1, (c.w - 3) * 4);
+    const int spanY = std::max(1, (c.h - 3) * 4);
+    const int mapStepElems = mx.step / (int)sizeof(float);
+    for (int y = 0; y < c.h; ++y)
+      for (int x = 0; x < c.w; ++x) {
+        const double fu = 1.0 + (double)((x * 7 + y * 3 + (int)(seed & 3)) % spanX) / 4.0;
+        const double fv = 1.0 + (double)((x * 5 + y * 11 + (int)((seed >> 2) & 3)) % spanY) / 4.0;
+        reinterpret_cast<float *>(mx.host.data())[(size_t)y * mapStepElems + x] = (float)fu;
+        reinterpret_cast<float *>(my.host.data())[(size_t)y * mapStepElems + x] = (float)fv;
+      }
+    mx.dev.copyFromHost(mx.host);
+    my.dev.copyFromHost(my.host);
+    const S *hsrc[4] = {nullptr, nullptr, nullptr, nullptr};
+    const S *dsrc[4] = {nullptr, nullptr, nullptr, nullptr};
+    S *ddst[4] = {nullptr, nullptr, nullptr, nullptr};
+    int sstep[4] = {0, 0, 0, 0};
+    planar_ptrs(srcs, dsts, P, c.ox, c.oy, hsrc, dsrc, ddst, sstep);
+    const float *hmx = reinterpret_cast<const float *>(mx.host.data());
+    const float *hmy = reinterpret_cast<const float *>(my.host.data());
+    for (int interp : interps) {
+      for (int p = 0; p < P; ++p) dsts[(size_t)p]->dev.copyFromHost(pre[(size_t)p]);
+      npp_diff::clear_cuda_error();
+      const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, srcs[0]->step, NppiRect{0, 0, c.w, c.h},
+                                reinterpret_cast<const float *>(mx.dptr()), mx.step,
+                                reinterpret_cast<const float *>(my.dptr()), my.step, ddst, dsts[0]->step,
+                                NppiSize{c.w, c.h}, interp, ctx);
+      if (st != NPP_NO_ERROR) {
+        ++cnt.skipped;
+        if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+        continue;
+      }
+      const cudaError_t se = cudaDeviceSynchronize();
+      ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+      ++cnt.executed;
+      bool failed = false;
+      for (int p = 0; p < P && !failed; ++p) {
+        dsts[(size_t)p]->dev.copyToHost(dsts[(size_t)p]->host);
+        std::vector<uint8_t> want = pre[(size_t)p];
+        for (int y = 0; y < c.h; ++y)
+          for (int x = 0; x < c.w; ++x) {
+            const double u = (double)hmx[(size_t)y * mapStepElems + x];
+            const double v = (double)hmy[(size_t)y * mapStepElems + x];
+            const size_t db = off_bytes<S>(y, x, dsts[(size_t)p]->step, 1);
+            const S val = warp_sample_channel<S>(hsrc[p], sstep[p], 1, c.w, c.h, u, v, interp);
+            std::memcpy(want.data() + db, &val, sizeof(S));
+          }
+        const GenCase dc{c.w, c.h, 0, 0, 0, kSmall, 0};
+        if (!rotate_check<S, 1, 1>(id, dc, interp, pre[(size_t)p], dsts[(size_t)p]->host, want,
+                                   dsts[(size_t)p]->step, std::vector<uint8_t>(), cnt, first))
+          failed = true;
+        if (cnt.mismatched >= 8) break;
+      }
+      if (failed) break;
+    }
+    for (auto *p : srcs) delete p;
+    for (auto *p : dsts) delete p;
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
 }  // namespace num

@@ -60,38 +60,8 @@
   "skipped": []
  },
  "nppi_geometry_transforms.h": {
-  "emitted": 310,
+  "emitted": 334,
   "skipped": [
-   {
-    "function": "nppiRemap_16s_P3R_Ctx",
-    "family": "nppiRemap",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRemap_16s_P4R_Ctx",
-    "family": "nppiRemap",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRemap_16u_P3R_Ctx",
-    "family": "nppiRemap",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRemap_16u_P4R_Ctx",
-    "family": "nppiRemap",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRemap_32f_P3R_Ctx",
-    "family": "nppiRemap",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRemap_32f_P4R_Ctx",
-    "family": "nppiRemap",
-    "reason": "later geometry batch / unsupported"
-   },
    {
     "function": "nppiRemap_64f_AC4R_Ctx",
     "family": "nppiRemap",
@@ -120,46 +90,6 @@
    {
     "function": "nppiRemap_64f_P4R_Ctx",
     "family": "nppiRemap",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRemap_8u_P3R_Ctx",
-    "family": "nppiRemap",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRemap_8u_P4R_Ctx",
-    "family": "nppiRemap",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeSqrPixel_16s_P3R_Ctx",
-    "family": "nppiResizeSqrPixel",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeSqrPixel_16s_P4R_Ctx",
-    "family": "nppiResizeSqrPixel",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeSqrPixel_16u_P3R_Ctx",
-    "family": "nppiResizeSqrPixel",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeSqrPixel_16u_P4R_Ctx",
-    "family": "nppiResizeSqrPixel",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeSqrPixel_32f_P3R_Ctx",
-    "family": "nppiResizeSqrPixel",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeSqrPixel_32f_P4R_Ctx",
-    "family": "nppiResizeSqrPixel",
     "reason": "later geometry batch / unsupported"
    },
    {
@@ -195,56 +125,6 @@
    {
     "function": "nppiResizeSqrPixel_8u_C1R_Advanced_Ctx",
     "family": "nppiResizeSqrPixel",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeSqrPixel_8u_P3R_Ctx",
-    "family": "nppiResizeSqrPixel",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeSqrPixel_8u_P4R_Ctx",
-    "family": "nppiResizeSqrPixel",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResize_16s_P3R_Ctx",
-    "family": "nppiResize",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResize_16s_P4R_Ctx",
-    "family": "nppiResize",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResize_16u_P3R_Ctx",
-    "family": "nppiResize",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResize_16u_P4R_Ctx",
-    "family": "nppiResize",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResize_32f_P3R_Ctx",
-    "family": "nppiResize",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResize_32f_P4R_Ctx",
-    "family": "nppiResize",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResize_8u_P3R_Ctx",
-    "family": "nppiResize",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResize_8u_P4R_Ctx",
-    "family": "nppiResize",
     "reason": "later geometry batch / unsupported"
    }
   ]
