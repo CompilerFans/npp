@@ -14,11 +14,24 @@ namespace nppi {
 namespace warp {
 namespace {
 
+// NPP evaluates the perspective map in float32 (measured on 13.4: a map that
+// is mathematically exactly k+0.5 comes out one ulp below from the float
+// division and selects row k; a double map rounds it to exactly k+0.5 and
+// selects row k+1).
 __device__ __forceinline__ void mapPoint(const Mat3 &M, double x, double y, double &u, double &v, double &den) {
-  den = M.m[2][0] * x + M.m[2][1] * y + M.m[2][2];
-  const double inv = 1.0 / den;
-  u = (M.m[0][0] * x + M.m[0][1] * y + M.m[0][2]) * inv;
-  v = (M.m[1][0] * x + M.m[1][1] * y + M.m[1][2]) * inv;
+  const float m00 = static_cast<float>(M.m[0][0]), m01 = static_cast<float>(M.m[0][1]),
+              m02 = static_cast<float>(M.m[0][2]);
+  const float m10 = static_cast<float>(M.m[1][0]), m11 = static_cast<float>(M.m[1][1]),
+              m12 = static_cast<float>(M.m[1][2]);
+  const float m20 = static_cast<float>(M.m[2][0]), m21 = static_cast<float>(M.m[2][1]),
+              m22 = static_cast<float>(M.m[2][2]);
+  const float fx = static_cast<float>(x), fy = static_cast<float>(y);
+  const float fd = fadd_rn(fadd_rn(fmul_rn(m20, fx), fmul_rn(m21, fy)), m22);
+  const float nu = fadd_rn(fadd_rn(fmul_rn(m00, fx), fmul_rn(m01, fy)), m02);
+  const float nv = fadd_rn(fadd_rn(fmul_rn(m10, fx), fmul_rn(m11, fy)), m12);
+  den = static_cast<double>(fd);
+  u = static_cast<double>(nu / fd);
+  v = static_cast<double>(nv / fd);
 }
 
 // Per-pixel region test shared by every direction.
@@ -31,28 +44,24 @@ __device__ __forceinline__ bool pixelGate(const Mat3 &M, NppiRect src, int x, in
   return u >= (double)src.x && u <= uhi && v >= (double)src.y && v <= vhi;
 }
 
-// Forward (source -> destination coefficients) region model: the x span of the
-// source ROI's image at the row's left-edge v, then the per-pixel gate.  The
-// batch kernel additionally drops whole rows whose left-edge v falls outside
-// the source ROI (`gateRows`), which the single-image kernel does not do
-// (measured: batch n3/persp skips dst row 1, planar persp_subroi_cubic still
-// writes dst row 3 with v_row < srcROI.y).
+// Forward (source -> destination coefficients) region model: the per-pixel
+// gate only.  Explicit rot90/mirror/projective probes on 13.4 write every
+// in-range pixel, so the source ROI's forward image does not clip x; an
+// earlier left-edge-v x-span model was a small-shape measurement artifact.
+// The batch kernel additionally drops whole rows whose left-edge v falls
+// outside the source ROI (`gateRows`), which the single-image kernel does not
+// do (measured: batch n3/persp skips dst row 1, planar persp_subroi_cubic
+// still writes dst row 3 with v_row < srcROI.y).
 __device__ __forceinline__ bool forwardGate(const Mat3 &M, const Mat3 &F, NppiRect src, int x, int y, bool gateRows,
                                             double &u, double &v) {
-  const double left = (double)src.x;
-  const double uhi = (double)src.x + src.width - 1.0;
-  double denA, uA, vRow;
-  mapPoint(M, left, (double)y, uA, vRow, denA);
-  (void)uA;
-  if (!(denA > 0.0)) return false;
-  if (gateRows && (vRow < (double)src.y || vRow > (double)src.y + src.height)) return false;
-  double d0, d1, xl, unused;
-  mapPoint(F, left, vRow, xl, unused, d0);
-  if (!(d0 > 0.0)) return false;
-  double xr, unused2;
-  mapPoint(F, uhi, vRow, xr, unused2, d1);
-  if (!(d1 > 0.0)) return false;
-  if ((double)x < ceil(xl) || (double)x > floor(xr)) return false;
+  (void)F;
+  if (gateRows) {
+    double denA, uA, vRow;
+    mapPoint(M, (double)src.x, (double)y, uA, vRow, denA);
+    (void)uA;
+    if (!(denA > 0.0)) return false;
+    if (vRow < (double)src.y || vRow > (double)src.y + src.height) return false;
+  }
   return pixelGate(M, src, x, y, u, v);
 }
 

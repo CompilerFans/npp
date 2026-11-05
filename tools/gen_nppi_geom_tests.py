@@ -255,6 +255,64 @@ def emit_warp_affine_batch_init(row: dict) -> Optional[str]:
     return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
 
 
+
+def emit_warp_perspective(row: dict, forward: bool) -> Optional[str]:
+    fn = row["function_name"]
+    lay = _layout(fn)
+    S = CTYPE.get(row["dtype"])
+    if lay is None or S is None:
+        return None
+    C, A = lay[1]
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[](const {S} *a, NppiSize ss, int sa, NppiRect sr, {S} *d, int ds, "
+           f"NppiRect dr, const double *cf, int m, NppStreamContext c) "
+           f"{{ (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; "
+           f"return {fn}(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); }}")
+    prefix = f"num::run_warp_perspective<{S}, {C}, {A}, {str(forward).lower()}>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
+def emit_warp_perspective_quad(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    lay = _layout(fn)
+    S = CTYPE.get(row["dtype"])
+    if lay is None or S is None:
+        return None
+    C, A = lay[1]
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[](const {S} *a, NppiSize ss, int sa, NppiRect sr, const double *sq, {S} *d, int ds, "
+           f"NppiRect dr, const double *dq, int m, NppStreamContext c) "
+           f"{{ (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; "
+           f"return {fn}(a, ss, sa, sr, (const double (*)[2])sq, d, ds, dr, "
+           f"(const double (*)[2])dq, m, c); }}")
+    prefix = f"num::run_warp_perspective_quad<{S}, {C}, {A}>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
+def emit_warp_perspective_batch(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    lay = _layout(fn)
+    S = CTYPE.get(row["dtype"])
+    if lay is None or S is None:
+        return None
+    C, A = lay[1]
+    name = re.sub(r"\W", "_", fn)
+    lam = ("[](NppiSize ss, NppiRect sr, NppiRect dr, int m, NppiWarpPerspectiveBatchCXR *b, "
+           "unsigned nb, NppStreamContext c) { (void)ss; (void)sr; (void)dr; (void)m; "
+           f"(void)b; (void)nb; (void)c; return {fn}(ss, sr, dr, m, b, nb, c); }}")
+    prefix = f"num::run_warp_perspective_batch<{S}, {C}, {A}>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
+def emit_warp_perspective_batch_init(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    name = re.sub(r"\W", "_", fn)
+    lam = ("[](NppiWarpPerspectiveBatchCXR *b, unsigned nb, NppStreamContext c) { "
+           f"(void)b; (void)nb; (void)c; return {fn}(b, nb, c); }}")
+    prefix = "num::run_warp_perspective_batch_init<Npp8u, 1, 1>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -291,6 +349,16 @@ def main() -> int:
             text = emit_warp_affine_batch(row)
         elif fam == "nppiWarpAffineBatchInit":
             text = emit_warp_affine_batch_init(row)
+        elif fam == "nppiWarpPerspective":
+            text = emit_warp_perspective(row, True)
+        elif fam == "nppiWarpPerspectiveBack":
+            text = emit_warp_perspective(row, False)
+        elif fam == "nppiWarpPerspectiveQuad":
+            text = emit_warp_perspective_quad(row)
+        elif fam == "nppiWarpPerspectiveBatch":
+            text = emit_warp_perspective_batch(row)
+        elif fam == "nppiWarpPerspectiveBatchInit":
+            text = emit_warp_perspective_batch_init(row)
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
                                 reason="later geometry batch / unsupported"))

@@ -1425,7 +1425,8 @@ void run_warp_affine(const char *id, Call call) {
     const S *dsrc = reinterpret_cast<const S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, C));
     const int srcStepElems = s.step / (int)sizeof(S);
     const bool doubleWork = std::is_same_v<S, Npp64f>;
-    for (auto &cf : coeffs)
+    for (int mi = 0; mi < 6; ++mi) {
+      const auto &cf = coeffs[mi];
       for (int interp : interps) {
         const std::vector<uint8_t> pre = d.host;
         npp_diff::clear_cuda_error();
@@ -1472,6 +1473,7 @@ void run_warp_affine(const char *id, Call call) {
         if (cnt.mismatched >= 8) break;
       }
     if (cnt.mismatched >= 8) break;
+  }
   }
   finish(id, cnt, first);
 }
@@ -1811,6 +1813,510 @@ void run_warp_affine_batch_init(const char *id, Call call) {
         break;
       }
     }
+  }
+  for (auto *p : coeffs) delete p;
+  finish(id, cnt, first);
+}
+
+
+// ---------------------------------------------------------------------------
+// WarpPerspective packed reference.  Forward coefficients map source to
+// destination (the kernel applies their inverse with row/x-span gating); the
+// Back family supplies destination-to-source coefficients directly.
+// ---------------------------------------------------------------------------
+struct Mat3d {
+  double m[3][3];
+};
+
+inline double mat3_det(const Mat3d &a) {
+  return a.m[0][0] * (a.m[1][1] * a.m[2][2] - a.m[1][2] * a.m[2][1]) -
+         a.m[0][1] * (a.m[1][0] * a.m[2][2] - a.m[1][2] * a.m[2][0]) +
+         a.m[0][2] * (a.m[1][0] * a.m[2][1] - a.m[1][1] * a.m[2][0]);
+}
+
+inline Mat3d mat3_inverse(const Mat3d &a) {
+  Mat3d r;
+  const double id = 1.0 / mat3_det(a);
+  r.m[0][0] = (a.m[1][1] * a.m[2][2] - a.m[1][2] * a.m[2][1]) * id;
+  r.m[0][1] = (a.m[0][2] * a.m[2][1] - a.m[0][1] * a.m[2][2]) * id;
+  r.m[0][2] = (a.m[0][1] * a.m[1][2] - a.m[0][2] * a.m[1][1]) * id;
+  r.m[1][0] = (a.m[1][2] * a.m[2][0] - a.m[1][0] * a.m[2][2]) * id;
+  r.m[1][1] = (a.m[0][0] * a.m[2][2] - a.m[0][2] * a.m[2][0]) * id;
+  r.m[1][2] = (a.m[0][2] * a.m[1][0] - a.m[0][0] * a.m[1][2]) * id;
+  r.m[2][0] = (a.m[1][0] * a.m[2][1] - a.m[1][1] * a.m[2][0]) * id;
+  r.m[2][1] = (a.m[0][1] * a.m[2][0] - a.m[0][0] * a.m[2][1]) * id;
+  r.m[2][2] = (a.m[0][0] * a.m[1][1] - a.m[0][1] * a.m[1][0]) * id;
+  return r;
+}
+
+inline void mat3_map(const Mat3d &M, double x, double y, double &u, double &v, double &den) {
+  den = M.m[2][0] * x + M.m[2][1] * y + M.m[2][2];
+  const double inv = 1.0 / den;
+  u = (M.m[0][0] * x + M.m[0][1] * y + M.m[0][2]) * inv;
+  v = (M.m[1][0] * x + M.m[1][1] * y + M.m[1][2]) * inv;
+}
+
+// NPP evaluates the perspective map in float32 (measured: a map that is
+// mathematically exactly k+0.5 comes out as 12.499999046 from the float
+// division and selects row k, while a double map yields exactly 12.5).
+// warp_fmul/warp_fadd are single-rounding float ops on double intermediates.
+inline void mat3_map_f32(const Mat3d &M, int x, int y, double &uOut, double &vOut, double &denOut) {
+  const float m00 = (float)M.m[0][0], m01 = (float)M.m[0][1], m02 = (float)M.m[0][2];
+  const float m10 = (float)M.m[1][0], m11 = (float)M.m[1][1], m12 = (float)M.m[1][2];
+  const float m20 = (float)M.m[2][0], m21 = (float)M.m[2][1], m22 = (float)M.m[2][2];
+  const float fx = (float)x, fy = (float)y;
+  const float den = warp_fadd(warp_fadd(warp_fmul(m20, fx), warp_fmul(m21, fy)), m22);
+  const float numU = warp_fadd(warp_fadd(warp_fmul(m00, fx), warp_fmul(m01, fy)), m02);
+  const float numV = warp_fadd(warp_fadd(warp_fmul(m10, fx), warp_fmul(m11, fy)), m12);
+  denOut = (double)den;
+  uOut = (double)(float)((double)numU / (double)den);
+  vOut = (double)(float)((double)numV / (double)den);
+}
+
+inline bool persp_pixel_gate(const Mat3d &M, NppiRect src, int x, int y, double &u, double &v) {
+  double den;
+  mat3_map_f32(M, x, y, u, v, den);
+  if (!(den > 0.0)) return false;
+  const double uhi = (double)src.x + src.width - 1.0;
+  const double vhi = (double)src.y + src.height - 1.0;
+  return u >= (double)src.x && u <= uhi && v >= (double)src.y && v <= vhi;
+}
+
+template <typename S, int C, int A, bool Forward, class Call>
+void run_warp_perspective(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
+  for (const GenCase &c : make_gen_cases(0)) {
+    if (c.w < 2 || c.h < 2) continue;
+    Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
+    Buf<S> d(c.w, c.h, C, 0, 0x5A);
+    const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
+    fill_regime(s, C, seed, c.regime, 0, false, false, std::is_floating_point_v<S>);
+    if constexpr (std::is_floating_point_v<S>) {
+      auto clampv = [](Buf<S> &b) {
+        const size_t n = (size_t)(b.step / sizeof(S)) * (size_t)b.bh;
+        for (size_t i = 0; i < n; ++i) {
+          const double v = (double)b.hptr()[i];
+          if (v > 1e3) b.hptr()[i] = S(1e3);
+          else if (v < -1e3) b.hptr()[i] = S(-1e3);
+          else if (v != v) b.hptr()[i] = S(0);
+        }
+      };
+      clampv(s);
+    }
+    s.dev.copyFromHost(s.host);
+    d.dev.copyFromHost(d.host);
+    const double w1 = c.w - 1.0, h1 = c.h - 1.0;
+    double coeffs[6][3][3] = {
+        {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}},
+        {{1, 0, 1}, {0, 1, -1}, {0, 0, 1}},
+        {{2, 0, 0}, {0, 2, 0}, {0, 0, 1}},
+        {{0, -1, h1}, {1, 0, 0}, {0, 0, 1}},
+        {{-1, 0, w1}, {0, 1, 0}, {0, 0, 1}},
+        {{1, 0, 0}, {0, 1, 0}, {0.002, 0, 1}},
+    };
+    const S *hsrc = s.hptr() + off_bytes<S>(c.oy, c.ox, s.step, C) / sizeof(S);
+    const S *dsrc = reinterpret_cast<const S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, C));
+    const int srcStepElems = s.step / (int)sizeof(S);
+    for (int mi = 0; mi < 6; ++mi) {
+      const auto &cf = coeffs[mi];
+      for (int interp : interps) {
+        const std::vector<uint8_t> pre = d.host;
+        npp_diff::clear_cuda_error();
+        const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, s.step, NppiRect{0, 0, c.w, c.h},
+                                  reinterpret_cast<S *>(d.dptr()), d.step, NppiRect{0, 0, c.w, c.h},
+                                  reinterpret_cast<const double *>(cf), interp, ctx);
+        if (st != NPP_NO_ERROR) {
+          ++cnt.skipped;
+          if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+          continue;
+        }
+        const cudaError_t se = cudaDeviceSynchronize();
+        ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+        d.dev.copyToHost(d.host);
+        ++cnt.executed;
+        Mat3d M3, F3;
+        for (int i = 0; i < 3; ++i)
+          for (int j = 0; j < 3; ++j) {
+            M3.m[i][j] = cf[i][j];
+            F3.m[i][j] = cf[i][j];
+          }
+        if constexpr (Forward) {
+          F3 = M3;
+          M3 = mat3_inverse(F3);
+        } else {
+          F3 = mat3_inverse(M3);
+        }
+        std::vector<uint8_t> want = pre;
+        for (int y = 0; y < c.h; ++y)
+          for (int x = 0; x < c.w; ++x) {
+            (void)F3;
+            double u, v;
+            if (!persp_pixel_gate(M3, NppiRect{0, 0, c.w, c.h}, x, y, u, v)) continue;
+            // NPP samples at single-precision coordinates: a map that is
+            // mathematically exactly k+0.5 but 12.499999999999996 in double
+            // rounds up to the float tie and selects row k+1.
+            const double uf = (double)(float)u, vf = (double)(float)v;
+            const size_t db = off_bytes<S>(y, x, d.step, C);
+            for (int ch = 0; ch < A; ++ch) {
+              const S val = warp_sample_channel<S>(hsrc + ch, srcStepElems, C, c.w, c.h, uf, vf, interp);
+              std::memcpy(want.data() + db + (size_t)ch * sizeof(S), &val, sizeof(S));
+            }
+          }
+        const GenCase dc{c.w, c.h, 0, 0, 0, kSmall, 0};
+        if (!rotate_check<S, C, A>(id, dc, interp, pre, d.host, want, d.step, std::vector<uint8_t>(), cnt, first)) {
+          if (cnt.mismatched >= 8) break;
+        }
+        if (cnt.mismatched >= 8) break;
+      }
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+
+// ---------------------------------------------------------------------------
+// WarpPerspectiveQuad: the homography is recovered from the source/destination
+// quads, then applied with the same float32 map as the coefficient family.
+// The acceptance region is the source quad (half-plane test in float32).
+// ---------------------------------------------------------------------------
+inline bool persp_quad_homography(const double src[4][2], const double dst[4][2], Mat3d &out) {
+  double a[8][9] = {};
+  for (int i = 0; i < 4; ++i) {
+    const double x = src[i][0], y = src[i][1], X = dst[i][0], Y = dst[i][1];
+    a[2 * i][0] = x; a[2 * i][1] = y; a[2 * i][2] = 1.0;
+    a[2 * i][6] = -X * x; a[2 * i][7] = -X * y; a[2 * i][8] = X;
+    a[2 * i + 1][3] = x; a[2 * i + 1][4] = y; a[2 * i + 1][5] = 1.0;
+    a[2 * i + 1][6] = -Y * x; a[2 * i + 1][7] = -Y * y; a[2 * i + 1][8] = Y;
+  }
+  for (int col = 0; col < 8; ++col) {
+    int pivot = col;
+    for (int r = col + 1; r < 8; ++r)
+      if (std::fabs(a[r][col]) > std::fabs(a[pivot][col])) pivot = r;
+    if (a[pivot][col] == 0.0) return false;
+    if (pivot != col)
+      for (int k = 0; k < 9; ++k) std::swap(a[col][k], a[pivot][k]);
+    const double p = a[col][col];
+    for (int r = 0; r < 8; ++r) {
+      if (r == col) continue;
+      const double f = a[r][col] / p;
+      if (f == 0.0) continue;
+      for (int k = col; k < 9; ++k) a[r][k] -= f * a[col][k];
+    }
+  }
+  double h[8];
+  for (int i = 0; i < 8; ++i) h[i] = a[i][8] / a[i][i];
+  out.m[0][0] = h[0]; out.m[0][1] = h[1]; out.m[0][2] = h[2];
+  out.m[1][0] = h[3]; out.m[1][1] = h[4]; out.m[1][2] = h[5];
+  out.m[2][0] = h[6]; out.m[2][1] = h[7]; out.m[2][2] = 1.0;
+  return true;
+}
+
+inline bool persp_inside_quad_f32(const double q[4][2], float u, float v) {
+  bool allPos = true, allNeg = true;
+  for (int i = 0; i < 4; ++i) {
+    const int j = (i + 1) & 3;
+    const float ax = (float)q[i][0], ay = (float)q[i][1];
+    const float bx = (float)q[j][0], by = (float)q[j][1];
+    const float t1 = warp_fmul(warp_fsub(bx, ax), warp_fsub(v, ay));
+    const float t2 = warp_fmul(warp_fsub(by, ay), warp_fsub(u, ax));
+    const float cross = warp_fsub(t1, t2);
+    allPos = allPos && (cross >= 0.0f);
+    allNeg = allNeg && (cross <= 0.0f);
+  }
+  return allPos || allNeg;
+}
+
+template <typename S, int C, int A, class Call>
+void run_warp_perspective_quad(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
+  for (const GenCase &c : make_gen_cases(0)) {
+    if (c.w < 2 || c.h < 2) continue;
+    Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
+    Buf<S> d(c.w, c.h, C, 0, 0x5A);
+    const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
+    fill_regime(s, C, seed, c.regime, 0, false, false, std::is_floating_point_v<S>);
+    if constexpr (std::is_floating_point_v<S>) {
+      auto clampv = [](Buf<S> &b) {
+        const size_t n = (size_t)(b.step / sizeof(S)) * (size_t)b.bh;
+        for (size_t i = 0; i < n; ++i) {
+          const double v = (double)b.hptr()[i];
+          if (v > 1e3) b.hptr()[i] = S(1e3);
+          else if (v < -1e3) b.hptr()[i] = S(-1e3);
+          else if (v != v) b.hptr()[i] = S(0);
+        }
+      };
+      clampv(s);
+    }
+    s.dev.copyFromHost(s.host);
+    d.dev.copyFromHost(d.host);
+    const double w1 = c.w - 1.0, h1 = c.h - 1.0;
+    const double srcQ[4][2] = {{0, 0}, {w1, 0}, {w1, h1}, {0, h1}};
+    double mats[5][3][3] = {
+        {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}},
+        {{1, 0, 1}, {0, 1, -1}, {0, 0, 1}},
+        {{0.5, 0, 0}, {0, 0.5, 0}, {0, 0, 1}},
+        {{0, -1, h1}, {1, 0, 0}, {0, 0, 1}},
+        {{-1, 0, w1}, {0, 1, 0}, {0, 0, 1}},
+    };
+    const S *hsrc = s.hptr() + off_bytes<S>(c.oy, c.ox, s.step, C) / sizeof(S);
+    const S *dsrc = reinterpret_cast<const S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, C));
+    const int srcStepElems = s.step / (int)sizeof(S);
+    for (int mi = 0; mi < 5; ++mi) {
+      Mat3d H;
+      for (int i = 0; i < 3; ++i)
+        for (int j = 0; j < 3; ++j) H.m[i][j] = mats[mi][i][j];
+      double dstQ[4][2];
+      for (int i = 0; i < 4; ++i) {
+        double den, x, y;
+        mat3_map(H, srcQ[i][0], srcQ[i][1], x, y, den);
+        dstQ[i][0] = x;
+        dstQ[i][1] = y;
+      }
+      for (int interp : interps) {
+        const std::vector<uint8_t> pre = d.host;
+        npp_diff::clear_cuda_error();
+        const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, s.step, NppiRect{0, 0, c.w, c.h},
+                                  reinterpret_cast<const double *>(srcQ), reinterpret_cast<S *>(d.dptr()), d.step,
+                                  NppiRect{0, 0, c.w, c.h}, reinterpret_cast<const double *>(dstQ), interp, ctx);
+        if (st != NPP_NO_ERROR) {
+          ++cnt.skipped;
+          if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+          continue;
+        }
+        const cudaError_t se = cudaDeviceSynchronize();
+        ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+        d.dev.copyToHost(d.host);
+        ++cnt.executed;
+        Mat3d Fquad;
+        if (!persp_quad_homography(srcQ, dstQ, Fquad)) continue;
+        const Mat3d Mquad = mat3_inverse(Fquad);
+        std::vector<uint8_t> want = pre;
+        for (int y = 0; y < c.h; ++y)
+          for (int x = 0; x < c.w; ++x) {
+            double u, v, den;
+            mat3_map_f32(Mquad, x, y, u, v, den);
+            if (!(den > 0.0)) continue;
+            if (!(u >= 0.0 && u <= (double)(c.w - 1) && v >= 0.0 && v <= (double)(c.h - 1))) continue;
+            if (!persp_inside_quad_f32(srcQ, (float)u, (float)v)) continue;
+            const size_t db = off_bytes<S>(y, x, d.step, C);
+            for (int ch = 0; ch < A; ++ch) {
+              const S val = warp_sample_channel<S>(hsrc + ch, srcStepElems, C, c.w, c.h, u, v, interp);
+              std::memcpy(want.data() + db + (size_t)ch * sizeof(S), &val, sizeof(S));
+            }
+          }
+        const GenCase dc{c.w, c.h, 0, 0, 0, kSmall, 0};
+        if (!rotate_check<S, C, A>(id, dc, interp, pre, d.host, want, d.step, std::vector<uint8_t>(), cnt, first)) {
+          if (cnt.mismatched >= 8) break;
+        }
+        if (cnt.mismatched >= 8) break;
+      }
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+
+// ---------------------------------------------------------------------------
+// WarpPerspectiveBatch / BatchInit (packed).  Init stores the inverse of each
+// coefficient matrix in aTransformedCoeffs; the batch kernel applies that
+// inverse with the additional row gate measured on the batch path (rows whose
+// left-edge v falls outside the source ROI are skipped).
+// ---------------------------------------------------------------------------
+template <typename S, int C, int A, class Call>
+void run_warp_perspective_batch(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
+  const int B = 3, W = 33, H = 17;
+  Mat3d fwd[3];
+  const double f0[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+  const double f1[3][3] = {{1, 0, 1}, {0, 1, -1}, {0, 0, 1}};
+  const double f2[3][3] = {{0.5, 0, 0}, {0, 0.5, 0}, {0, 0, 1}};
+  for (int i = 0; i < 3; ++i)
+    for (int r = 0; r < 3; ++r)
+      for (int c = 0; c < 3; ++c) {
+        fwd[0].m[r][c] = f0[r][c];
+        fwd[1].m[r][c] = f1[r][c];
+        fwd[2].m[r][c] = f2[r][c];
+      }
+  std::vector<Buf<S> *> srcs, dsts;
+  std::vector<Buf<Npp64f> *> coeffs;
+  std::vector<std::vector<uint8_t>> preHost(B);
+  const uint64_t seed = case_seed(id, W, H, B, 0, 0, 0);
+  for (int i = 0; i < B; ++i) {
+    Buf<S> *a = new Buf<S>(W, H, C, 0, 0);
+    Buf<S> *d = new Buf<S>(W, H, C, 0, 0x5A);
+    Buf<Npp64f> *cf = new Buf<Npp64f>(9, 1, 1, 0, 0);
+    fill_regime(*a, C, seed ^ mix64((uint64_t)i), (i & 1) ? kWide : kSmall, i);
+    a->dev.copyFromHost(a->host);
+    d->dev.copyFromHost(d->host);
+    std::memcpy(cf->host.data(), fwd[i].m, sizeof(fwd[i].m));
+    cf->dev.copyFromHost(cf->host);
+    srcs.push_back(a);
+    dsts.push_back(d);
+    coeffs.push_back(cf);
+    preHost[(size_t)i] = d->host;
+  }
+  std::vector<NppiWarpPerspectiveBatchCXR> h(B);
+  for (int i = 0; i < B; ++i) {
+    h[i] = {(const void *)srcs[(size_t)i]->dptr(), srcs[(size_t)i]->step, (void *)dsts[(size_t)i]->dptr(),
+            dsts[(size_t)i]->step, (Npp64f *)coeffs[(size_t)i]->dptr(), {}};
+  }
+  Buf<NppiWarpPerspectiveBatchCXR> list(B, 1, 1, 0, 0);
+  std::memcpy(list.host.data(), h.data(), sizeof(NppiWarpPerspectiveBatchCXR) * B);
+  list.dev.copyFromHost(list.host);
+  const NppStatus initSt = nppiWarpPerspectiveBatchInit_Ctx(
+      reinterpret_cast<NppiWarpPerspectiveBatchCXR *>(list.dptr()), (unsigned)B, ctx);
+  if (initSt != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] BatchInit failed: " << (int)initSt;
+    for (auto *p : srcs) delete p;
+    for (auto *p : dsts) delete p;
+    for (auto *p : coeffs) delete p;
+    return;
+  }
+  const S *hsrc[3];
+  const int srcStepElems[3] = {srcs[0]->step / (int)sizeof(S), srcs[1]->step / (int)sizeof(S),
+                               srcs[2]->step / (int)sizeof(S)};
+  for (int i = 0; i < B; ++i) hsrc[i] = srcs[(size_t)i]->hptr();
+  for (int interp : interps) {
+    std::vector<std::vector<uint8_t>> pre(B);
+    for (int i = 0; i < B; ++i) {
+      pre[(size_t)i] = dsts[(size_t)i]->host;
+      dsts[(size_t)i]->dev.copyFromHost(dsts[(size_t)i]->host);
+    }
+    npp_diff::clear_cuda_error();
+    const NppStatus st = call(NppiSize{W, H}, NppiRect{0, 0, W, H}, NppiRect{0, 0, W, H}, interp,
+                              reinterpret_cast<NppiWarpPerspectiveBatchCXR *>(list.dptr()), (unsigned)B, ctx);
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    const cudaError_t se = cudaDeviceSynchronize();
+    ASSERT_EQ(se, cudaSuccess) << "[" << id << "] batch sync: " << cudaGetErrorString(se);
+    ++cnt.executed;
+    bool failed = false;
+    for (int i = 0; i < B && !failed; ++i) {
+      Buf<S> *d = dsts[(size_t)i];
+      d->dev.copyToHost(d->host);
+      const Mat3d M = mat3_inverse(fwd[i]);
+      std::vector<uint8_t> want = pre[(size_t)i];
+      for (int ry = 0; ry < H; ++ry) {
+        const int y = ry;
+        double dRow, uRow, vRow;
+        mat3_map_f32(M, 0, y, uRow, vRow, dRow);
+        (void)uRow;
+        if (!(dRow > 0.0)) continue;
+        if (vRow < 0.0 || vRow > (double)H) continue;
+        for (int x = 0; x < W; ++x) {
+          double u, v, den;
+          mat3_map_f32(M, x, y, u, v, den);
+          if (!(den > 0.0)) continue;
+          if (!(u >= 0.0 && u <= (double)(W - 1) && v >= 0.0 && v <= (double)(H - 1))) continue;
+          const size_t db = off_bytes<S>(y, x, d->step, C);
+          for (int ch = 0; ch < A; ++ch) {
+            const S vv = warp_sample_channel<S>(hsrc[i] + ch, srcStepElems[i], C, W, H, u, v, interp);
+            std::memcpy(want.data() + db + (size_t)ch * sizeof(S), &vv, sizeof(S));
+          }
+        }
+      }
+      const GenCase dc{W, H, 0, 0, 0, kSmall, 0};
+      if (!rotate_check<S, C, A>(id, dc, interp, pre[(size_t)i], d->host, want, d->step,
+                                 std::vector<uint8_t>(), cnt, first))
+        failed = true;
+      if (cnt.mismatched >= 8) break;
+    }
+    if (failed) break;
+  }
+  for (auto *p : srcs) delete p;
+  for (auto *p : dsts) delete p;
+  for (auto *p : coeffs) delete p;
+  finish(id, cnt, first);
+}
+
+template <typename S, int C, int A, class Call>
+void run_warp_perspective_batch_init(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  const int B = 3;
+  const double fwd[3][3][3] = {
+      {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}},
+      {{1, 0, 1}, {0, 1, -1}, {0, 0, 1}},
+      {{1, 0, 0}, {0, 1, 0}, {0.002, 0, 1}},
+  };
+  std::vector<Buf<Npp64f> *> coeffs;
+  std::vector<NppiWarpPerspectiveBatchCXR> h(B);
+  for (int i = 0; i < B; ++i) {
+    Buf<Npp64f> *cf = new Buf<Npp64f>(9, 1, 1, 0, 0);
+    std::memcpy(cf->host.data(), fwd[i], sizeof(fwd[i]));
+    cf->dev.copyFromHost(cf->host);
+    coeffs.push_back(cf);
+    h[i] = {nullptr, 0, nullptr, 0, (Npp64f *)cf->dptr(), {}};
+  }
+  Buf<NppiWarpPerspectiveBatchCXR> list(B, 1, 1, 0, 0);
+  std::memcpy(list.host.data(), h.data(), sizeof(NppiWarpPerspectiveBatchCXR) * B);
+  list.dev.copyFromHost(list.host);
+  npp_diff::clear_cuda_error();
+  const NppStatus st = call(reinterpret_cast<NppiWarpPerspectiveBatchCXR *>(list.dptr()), (unsigned)B, ctx);
+  if (st != NPP_NO_ERROR) {
+    ++cnt.skipped;
+    if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+    for (auto *p : coeffs) delete p;
+    finish(id, cnt, first);
+    return;
+  }
+  const cudaError_t se = cudaDeviceSynchronize();
+  ASSERT_EQ(se, cudaSuccess) << "[" << id << "] sync: " << cudaGetErrorString(se);
+  list.dev.copyToHost(list.host);
+  ++cnt.executed;
+  for (int i = 0; i < B; ++i) {
+    Mat3d F;
+    for (int r = 0; r < 3; ++r)
+      for (int c = 0; c < 3; ++c) F.m[r][c] = fwd[i][r][c];
+    const Mat3d want = mat3_inverse(F);
+    const NppiWarpPerspectiveBatchCXR &e = reinterpret_cast<const NppiWarpPerspectiveBatchCXR *>(list.host.data())[i];
+    bool bad = false;
+    for (int r = 0; r < 3 && !bad; ++r)
+      for (int c = 0; c < 3; ++c) {
+        ++cnt.compared;
+        const double got = e.aTransformedCoeffs[r][c];
+        if (got != want.m[r][c]) {
+          char b[360];
+          std::snprintf(b, sizeof(b), "[%s] entry=%d coeff=%d,%d got=%.17g want=%.17g", id, i, r, c, got,
+                        want.m[r][c]);
+          if (first.empty()) first = b;
+          EXPECT_TRUE(false) << b;
+          ++cnt.mismatched;
+          bad = true;
+          break;
+        }
+      }
   }
   for (auto *p : coeffs) delete p;
   finish(id, cnt, first);
