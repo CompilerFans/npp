@@ -230,6 +230,31 @@ def emit_warp_affine_quad(row: dict) -> Optional[str]:
     return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
 
 
+
+def emit_warp_affine_batch(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    lay = _layout(fn)
+    S = CTYPE.get(row["dtype"])
+    if lay is None or S is None:
+        return None
+    C, A = lay[1]
+    name = re.sub(r"\W", "_", fn)
+    lam = ("[](NppiSize ssz, NppiRect sr, NppiRect dr, int m, NppiWarpAffineBatchCXR *b, "
+           "unsigned nb, NppStreamContext c) { (void)ssz; (void)sr; (void)dr; (void)m; "
+           f"(void)b; (void)nb; (void)c; return {fn}(ssz, sr, dr, m, b, nb, c); }}")
+    prefix = f"num::run_warp_affine_batch<{S}, {C}, {A}>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
+def emit_warp_affine_batch_init(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    name = re.sub(r"\W", "_", fn)
+    lam = ("[](NppiWarpAffineBatchCXR *b, unsigned nb, NppStreamContext c) { "
+           f"(void)b; (void)nb; (void)c; return {fn}(b, nb, c); }}")
+    prefix = "num::run_warp_affine_batch_init<Npp8u, 1, 1>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -262,6 +287,10 @@ def main() -> int:
             text = emit_warp_affine_back(row)
         elif fam == "nppiWarpAffineQuad":
             text = emit_warp_affine_quad(row)
+        elif fam == "nppiWarpAffineBatch":
+            text = emit_warp_affine_batch(row)
+        elif fam == "nppiWarpAffineBatchInit":
+            text = emit_warp_affine_batch_init(row)
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
                                 reason="later geometry batch / unsupported"))

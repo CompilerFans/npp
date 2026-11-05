@@ -878,6 +878,78 @@ TEST(NumGen, nppiWarpAffineBack_8u_C4R_Ctx) {
       [](const Npp8u *a, NppiSize ss, int sa, NppiRect sr, Npp8u *d, int ds, NppiRect dr, const double *cf, int m, NppStreamContext c) { (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)m; (void)c; return nppiWarpAffineBack_8u_C4R_Ctx(a, ss, sa, sr, d, ds, dr, (const double (*)[3])cf, m, c); });
 }
 
+TEST(NumGen, nppiWarpAffineBatchInit_Ctx) {
+  num::run_warp_affine_batch_init<Npp8u, 1, 1>(
+      "nppiWarpAffineBatchInit_Ctx",
+      [](NppiWarpAffineBatchCXR *b, unsigned nb, NppStreamContext c) { (void)b; (void)nb; (void)c; return nppiWarpAffineBatchInit_Ctx(b, nb, c); });
+}
+
+TEST(NumGen, nppiWarpAffineBatch_16f_C1R_Ctx) {
+  num::run_warp_affine_batch<Npp16f, 1, 1>(
+      "nppiWarpAffineBatch_16f_C1R_Ctx",
+      [](NppiSize ssz, NppiRect sr, NppiRect dr, int m, NppiWarpAffineBatchCXR *b, unsigned nb, NppStreamContext c) { (void)ssz; (void)sr; (void)dr; (void)m; (void)b; (void)nb; (void)c; return nppiWarpAffineBatch_16f_C1R_Ctx(ssz, sr, dr, m, b, nb, c); });
+}
+
+TEST(NumGen, nppiWarpAffineBatch_16f_C3R_Ctx) {
+  num::run_warp_affine_batch<Npp16f, 3, 3>(
+      "nppiWarpAffineBatch_16f_C3R_Ctx",
+      [](NppiSize ssz, NppiRect sr, NppiRect dr, int m, NppiWarpAffineBatchCXR *b, unsigned nb, NppStreamContext c) { (void)ssz; (void)sr; (void)dr; (void)m; (void)b; (void)nb; (void)c; return nppiWarpAffineBatch_16f_C3R_Ctx(ssz, sr, dr, m, b, nb, c); });
+}
+
+TEST(NumGen, nppiWarpAffineBatch_16f_C4R_Ctx) {
+  num::run_warp_affine_batch<Npp16f, 4, 4>(
+      "nppiWarpAffineBatch_16f_C4R_Ctx",
+      [](NppiSize ssz, NppiRect sr, NppiRect dr, int m, NppiWarpAffineBatchCXR *b, unsigned nb, NppStreamContext c) { (void)ssz; (void)sr; (void)dr; (void)m; (void)b; (void)nb; (void)c; return nppiWarpAffineBatch_16f_C4R_Ctx(ssz, sr, dr, m, b, nb, c); });
+}
+
+TEST(NumGen, nppiWarpAffineBatch_32f_AC4R_Ctx) {
+  num::run_warp_affine_batch<Npp32f, 4, 3>(
+      "nppiWarpAffineBatch_32f_AC4R_Ctx",
+      [](NppiSize ssz, NppiRect sr, NppiRect dr, int m, NppiWarpAffineBatchCXR *b, unsigned nb, NppStreamContext c) { (void)ssz; (void)sr; (void)dr; (void)m; (void)b; (void)nb; (void)c; return nppiWarpAffineBatch_32f_AC4R_Ctx(ssz, sr, dr, m, b, nb, c); });
+}
+
+TEST(NumGen, nppiWarpAffineBatch_32f_C1R_Ctx) {
+  num::run_warp_affine_batch<Npp32f, 1, 1>(
+      "nppiWarpAffineBatch_32f_C1R_Ctx",
+      [](NppiSize ssz, NppiRect sr, NppiRect dr, int m, NppiWarpAffineBatchCXR *b, unsigned nb, NppStreamContext c) { (void)ssz; (void)sr; (void)dr; (void)m; (void)b; (void)nb; (void)c; return nppiWarpAffineBatch_32f_C1R_Ctx(ssz, sr, dr, m, b, nb, c); });
+}
+
+TEST(NumGen, nppiWarpAffineBatch_32f_C3R_Ctx) {
+  num::run_warp_affine_batch<Npp32f, 3, 3>(
+      "nppiWarpAffineBatch_32f_C3R_Ctx",
+      [](NppiSize ssz, NppiRect sr, NppiRect dr, int m, NppiWarpAffineBatchCXR *b, unsigned nb, NppStreamContext c) { (void)ssz; (void)sr; (void)dr; (void)m; (void)b; (void)nb; (void)c; return nppiWarpAffineBatch_32f_C3R_Ctx(ssz, sr, dr, m, b, nb, c); });
+}
+
+TEST(NumGen, nppiWarpAffineBatch_32f_C4R_Ctx) {
+  num::run_warp_affine_batch<Npp32f, 4, 4>(
+      "nppiWarpAffineBatch_32f_C4R_Ctx",
+      [](NppiSize ssz, NppiRect sr, NppiRect dr, int m, NppiWarpAffineBatchCXR *b, unsigned nb, NppStreamContext c) { (void)ssz; (void)sr; (void)dr; (void)m; (void)b; (void)nb; (void)c; return nppiWarpAffineBatch_32f_C4R_Ctx(ssz, sr, dr, m, b, nb, c); });
+}
+
+TEST(NumGen, nppiWarpAffineBatch_8u_AC4R_Ctx) {
+  num::run_warp_affine_batch<Npp8u, 4, 3>(
+      "nppiWarpAffineBatch_8u_AC4R_Ctx",
+      [](NppiSize ssz, NppiRect sr, NppiRect dr, int m, NppiWarpAffineBatchCXR *b, unsigned nb, NppStreamContext c) { (void)ssz; (void)sr; (void)dr; (void)m; (void)b; (void)nb; (void)c; return nppiWarpAffineBatch_8u_AC4R_Ctx(ssz, sr, dr, m, b, nb, c); });
+}
+
+TEST(NumGen, nppiWarpAffineBatch_8u_C1R_Ctx) {
+  num::run_warp_affine_batch<Npp8u, 1, 1>(
+      "nppiWarpAffineBatch_8u_C1R_Ctx",
+      [](NppiSize ssz, NppiRect sr, NppiRect dr, int m, NppiWarpAffineBatchCXR *b, unsigned nb, NppStreamContext c) { (void)ssz; (void)sr; (void)dr; (void)m; (void)b; (void)nb; (void)c; return nppiWarpAffineBatch_8u_C1R_Ctx(ssz, sr, dr, m, b, nb, c); });
+}
+
+TEST(NumGen, nppiWarpAffineBatch_8u_C3R_Ctx) {
+  num::run_warp_affine_batch<Npp8u, 3, 3>(
+      "nppiWarpAffineBatch_8u_C3R_Ctx",
+      [](NppiSize ssz, NppiRect sr, NppiRect dr, int m, NppiWarpAffineBatchCXR *b, unsigned nb, NppStreamContext c) { (void)ssz; (void)sr; (void)dr; (void)m; (void)b; (void)nb; (void)c; return nppiWarpAffineBatch_8u_C3R_Ctx(ssz, sr, dr, m, b, nb, c); });
+}
+
+TEST(NumGen, nppiWarpAffineBatch_8u_C4R_Ctx) {
+  num::run_warp_affine_batch<Npp8u, 4, 4>(
+      "nppiWarpAffineBatch_8u_C4R_Ctx",
+      [](NppiSize ssz, NppiRect sr, NppiRect dr, int m, NppiWarpAffineBatchCXR *b, unsigned nb, NppStreamContext c) { (void)ssz; (void)sr; (void)dr; (void)m; (void)b; (void)nb; (void)c; return nppiWarpAffineBatch_8u_C4R_Ctx(ssz, sr, dr, m, b, nb, c); });
+}
+
 TEST(NumGen, nppiWarpAffineQuad_16u_AC4R_Ctx) {
   num::run_warp_affine_quad<Npp16u, 4, 3>(
       "nppiWarpAffineQuad_16u_AC4R_Ctx",

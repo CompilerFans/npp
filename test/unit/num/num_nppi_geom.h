@@ -1305,7 +1305,7 @@ inline S affine_cast(double v) {
 }
 
 template <typename S, int C, int A>
-inline S affine_sample(const S *src, int stepElems, int w, int h, int ch, float fx, float fy, int interp,
+inline S affine_sample(const S *src, int stepElems, int w, int h, int ch, float fx, float fy, float fxX, int interp,
                        bool doubleWork) {
   using VT = typename AffineVT<S>::type;
   if (doubleWork) {
@@ -1315,8 +1315,8 @@ inline S affine_sample(const S *src, int stepElems, int w, int h, int ch, float 
       const int x = (int)std::floor((double)fx + 0.5), y = (int)std::floor((double)fy + 0.5);
       return affine_cast<S>(affine_at(src, stepElems, w, h, x, y, C, ch));
     }
-    const int x0 = (int)std::floor(fx), y0 = (int)std::floor(fy);
-    const float dxf = aff_sub(fx, (float)x0), dyf = aff_sub(fy, (float)y0);
+    const int x0 = (int)std::floor(fxX), y0 = (int)std::floor(fy);
+    const float dxf = aff_sub(fxX, (float)x0), dyf = aff_sub(fy, (float)y0);
     const double dx = (double)dxf, dy = (double)dyf;
     if (interp == NPPI_INTER_LINEAR) {
       const double v00 = affine_at(src, stepElems, w, h, x0, y0, C, ch);
@@ -1328,7 +1328,7 @@ inline S affine_sample(const S *src, int stepElems, int w, int h, int ch, float 
       return affine_cast<S>((1.0 - dy) * v0 + dy * v1);
     }
     float wx[4], wy[4];
-    const float ax = fx - (float)x0, ay = fy - (float)y0;
+    const float ax = fxX - (float)x0, ay = fy - (float)y0;
     for (int i = 0; i < 4; ++i) {
       wx[i] = aff_cubic_weight_poly((double)(ax - (float)(i - 1)));
       wy[i] = aff_cubic_weight_poly((double)(ay - (float)(i - 1)));
@@ -1344,7 +1344,7 @@ inline S affine_sample(const S *src, int stepElems, int w, int h, int ch, float 
     return affine_cast<S>(affine_at(src, stepElems, w, h, x, y, C, ch));
   }
   if (interp == NPPI_INTER_LINEAR) {
-    float ux = fx < 0.0f ? 0.0f : fx;
+    float ux = fxX < 0.0f ? 0.0f : fxX;
     float uy = fy < 0.0f ? 0.0f : fy;
     const int x0 = (int)std::floor(ux), y0 = (int)std::floor(uy);
     const float dx = aff_sub(ux, (float)x0), dy = aff_sub(uy, (float)y0);
@@ -1356,8 +1356,8 @@ inline S affine_sample(const S *src, int stepElems, int w, int h, int ch, float 
     const float v1 = aff_add(aff_mul(aff_sub(1.0f, dx), v01), aff_mul(dx, v11));
     return affine_cast<S>(aff_add(aff_mul(aff_sub(1.0f, dy), v0), aff_mul(dy, v1)));
   }
-  const int tx = (int)std::floor(fx), ty = (int)std::floor(fy);
-  const float t = aff_sub(fx, (float)(tx - 1));
+  const int tx = (int)std::floor(fxX), ty = (int)std::floor(fy);
+  const float t = aff_sub(fxX, (float)(tx - 1));
   const float u = aff_sub(fy, (float)(ty - 1));
   float wx[4], wy[4];
   aff_cubic_weights(t, wx);
@@ -1461,7 +1461,7 @@ void run_warp_affine(const char *id, Call call) {
             if (!(fx >= 0.0f && fx <= (float)(c.w - 1) && fy >= 0.0f && fy <= (float)(c.h - 1))) continue;
             const size_t db = off_bytes<S>(y, x, d.step, C);
             for (int ch = 0; ch < A; ++ch) {
-              const S v = affine_sample<S, C, A>(hsrc, srcStepElems, c.w, c.h, ch, fx, fy, interp, doubleWork);
+              const S v = affine_sample<S, C, A>(hsrc, srcStepElems, c.w, c.h, ch, fx, fy, fx, interp, doubleWork);
               std::memcpy(want.data() + db + (size_t)ch * sizeof(S), &v, sizeof(S));
             }
           }
@@ -1600,7 +1600,7 @@ void run_warp_affine_quad(const char *id, Call call) {
               continue;
             const size_t db = off_bytes<S>(y, x, d.step, C);
             for (int ch = 0; ch < A; ++ch) {
-              const S v = affine_sample<S, C, A>(hsrc, srcStepElems, c.w, c.h, ch, fx, fy, interp, doubleWork);
+              const S v = affine_sample<S, C, A>(hsrc, srcStepElems, c.w, c.h, ch, fx, fy, fx, interp, doubleWork);
               std::memcpy(want.data() + db + (size_t)ch * sizeof(S), &v, sizeof(S));
             }
           }
@@ -1614,6 +1614,205 @@ void run_warp_affine_quad(const char *id, Call call) {
     }
     if (cnt.mismatched >= 8) break;
   }
+  finish(id, cnt, first);
+}
+
+
+// ---------------------------------------------------------------------------
+// nppiWarpAffineBatch / BatchInit (SASS-replayed float-rounded inversion and
+// ROI-relative double map with the row-pair reuse rule).
+// ---------------------------------------------------------------------------
+inline void invert_affine_batch(const double in[6], double out[6]) {
+  const double det = std::fma(in[0], in[4], -(in[1] * in[3]));
+  const bool invertible = det != 0.0;
+  const double inv = 1.0 / (invertible ? det : in[0]);
+  const float m00 = (float)((invertible ? in[4] : 1.0) * inv);
+  const float m01 = (float)((-in[1]) * inv);
+  const float m10 = (float)((invertible ? -in[3] : 0.0) * inv);
+  const float m11 = (float)(in[0] * inv);
+  out[0] = m00;
+  out[1] = m01;
+  out[3] = m10;
+  out[4] = m11;
+  out[2] = -(float)std::fma(in[2], (double)m00, in[5] * (double)m01);
+  out[5] = -(float)std::fma(in[2], (double)m10, in[5] * (double)m11);
+}
+
+inline void affine_batch_map(const double c[2][3], int x, int y, float &fx, float &fy) {
+  const double dx = (double)(float)x, dy = (double)(float)y;
+  fx = (float)(std::fma(c[0][1], dy, c[0][0] * dx) + c[0][2]);
+  fy = (float)(std::fma(c[1][1], dy, c[1][0] * dx) + c[1][2]);
+}
+
+template <typename S, int C, int A, class Call>
+void run_warp_affine_batch(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
+  const int B = 3, W = 33, H = 17;
+  const double fwd[3][6] = {{1, 0, 0, 0, 1, 0}, {1, 0, 1, 0, 1, -1}, {0.5, 0, 0, 0, 0.5, 0}};
+  std::vector<Buf<S> *> srcs, dsts;
+  std::vector<Buf<Npp64f> *> coeffs;
+  std::vector<std::vector<uint8_t>> preHost(B);
+  const uint64_t seed = case_seed(id, W, H, B, 0, 0, 0);
+  for (int i = 0; i < B; ++i) {
+    Buf<S> *a = new Buf<S>(W, H, C, 0, 0);
+    Buf<S> *d = new Buf<S>(W, H, C, 0, 0x5A);
+    Buf<Npp64f> *cf = new Buf<Npp64f>(6, 1, 1, 0, 0);
+    fill_regime(*a, C, seed ^ mix64((uint64_t)i), (i & 1) ? kWide : kSmall, i);
+    a->dev.copyFromHost(a->host);
+    d->dev.copyFromHost(d->host);
+    std::memcpy(cf->host.data(), fwd[i], sizeof(fwd[i]));
+    cf->dev.copyFromHost(cf->host);
+    srcs.push_back(a);
+    dsts.push_back(d);
+    coeffs.push_back(cf);
+    preHost[(size_t)i] = d->host;
+  }
+  std::vector<NppiWarpAffineBatchCXR> h(B);
+  for (int i = 0; i < B; ++i) {
+    h[i] = {(const void *)srcs[(size_t)i]->dptr(), srcs[(size_t)i]->step, (void *)dsts[(size_t)i]->dptr(),
+            dsts[(size_t)i]->step, (Npp64f *)coeffs[(size_t)i]->dptr(), {}};
+  }
+  Buf<NppiWarpAffineBatchCXR> list(B, 1, 1, 0, 0);
+  std::memcpy(list.host.data(), h.data(), sizeof(NppiWarpAffineBatchCXR) * B);
+  list.dev.copyFromHost(list.host);
+  const NppStatus initSt = nppiWarpAffineBatchInit_Ctx(
+      reinterpret_cast<NppiWarpAffineBatchCXR *>(list.dptr()), (unsigned)B, ctx);
+  if (initSt != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] BatchInit failed: " << (int)initSt;
+    for (auto *p : srcs) delete p;
+    for (auto *p : dsts) delete p;
+    for (auto *p : coeffs) delete p;
+    return;
+  }
+  const S *hsrc[3];
+  const S *dsrc[3];
+  const int srcStepElems[3] = {srcs[0]->step / (int)sizeof(S), srcs[1]->step / (int)sizeof(S),
+                               srcs[2]->step / (int)sizeof(S)};
+  for (int i = 0; i < B; ++i) {
+    hsrc[i] = srcs[(size_t)i]->hptr();
+    dsrc[i] = reinterpret_cast<const S *>(srcs[(size_t)i]->dptr());
+  }
+  const bool doubleWork = std::is_same_v<S, Npp64f>;
+  for (int interp : interps) {
+    std::vector<std::vector<uint8_t>> pre(B);
+    for (int i = 0; i < B; ++i) {
+      pre[(size_t)i] = dsts[(size_t)i]->host;
+      dsts[(size_t)i]->dev.copyFromHost(dsts[(size_t)i]->host);
+    }
+    npp_diff::clear_cuda_error();
+    const NppStatus st = call(NppiSize{W, H}, NppiRect{0, 0, W, H}, NppiRect{0, 0, W, H}, interp,
+                              reinterpret_cast<NppiWarpAffineBatchCXR *>(list.dptr()), (unsigned)B, ctx);
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    const cudaError_t se = cudaDeviceSynchronize();
+    ASSERT_EQ(se, cudaSuccess) << "[" << id << "] batch sync: " << cudaGetErrorString(se);
+    ++cnt.executed;
+    bool failed = false;
+    for (int i = 0; i < B && !failed; ++i) {
+      Buf<S> *d = dsts[(size_t)i];
+      d->dev.copyToHost(d->host);
+      double tr[6];
+      invert_affine_batch(fwd[i], tr);
+      double c[2][3] = {{tr[0], tr[1], tr[2]}, {tr[3], tr[4], tr[5]}};
+      std::vector<uint8_t> want = pre[(size_t)i];
+      for (int y = 0; y < H; ++y)
+        for (int x = 0; x < W; ++x) {
+          float fx, fy;
+          affine_batch_map(c, x, y, fx, fy);
+          if (!(fx >= 0.0f && fx <= (float)(W - 1) && fy >= 0.0f && fy <= (float)(H - 1))) continue;
+          float fxX = fx;
+          if ((y & 1) != 0) {
+            float ex, ey;
+            affine_batch_map(c, x, y - 1, ex, ey);
+            if (!(ex >= 0.0f && ex <= (float)(W - 1) && ey >= 0.0f && ey <= (float)(H - 1))) continue;
+            if constexpr (!std::is_same_v<S, Npp16f>) {
+              if ((int)std::floor(ey) == (int)std::floor(fy)) fxX = ex;
+            }
+          }
+          const size_t db = off_bytes<S>(y, x, d->step, C);
+          for (int ch = 0; ch < A; ++ch) {
+            const S v = affine_sample<S, C, A>(hsrc[i], srcStepElems[i], W, H, ch, fx, fy, fxX, interp, doubleWork);
+            std::memcpy(want.data() + db + (size_t)ch * sizeof(S), &v, sizeof(S));
+          }
+        }
+      const GenCase dc{W, H, 0, 0, 0, kSmall, 0};
+      if (!rotate_check<S, C, A>(id, dc, interp, pre[(size_t)i], d->host, want, d->step,
+                                 std::vector<uint8_t>(), cnt, first))
+        failed = true;
+      if (cnt.mismatched >= 8) break;
+    }
+    if (failed) break;
+  }
+  for (auto *p : srcs) delete p;
+  for (auto *p : dsts) delete p;
+  for (auto *p : coeffs) delete p;
+  finish(id, cnt, first);
+}
+
+template <typename S, int C, int A, class Call>
+void run_warp_affine_batch_init(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  const int B = 3;
+  const double fwd[3][6] = {{1, 0, 0, 0, 1, 0}, {1, 0, 1, 0, 1, -1}, {1, 2, 0, 2, 4, 0}};
+  std::vector<Buf<Npp64f> *> coeffs;
+  std::vector<NppiWarpAffineBatchCXR> h(B);
+  for (int i = 0; i < B; ++i) {
+    Buf<Npp64f> *cf = new Buf<Npp64f>(6, 1, 1, 0, 0);
+    std::memcpy(cf->host.data(), fwd[i], sizeof(fwd[i]));
+    cf->dev.copyFromHost(cf->host);
+    coeffs.push_back(cf);
+    h[i] = {nullptr, 0, nullptr, 0, (Npp64f *)cf->dptr(), {}};
+  }
+  Buf<NppiWarpAffineBatchCXR> list(B, 1, 1, 0, 0);
+  std::memcpy(list.host.data(), h.data(), sizeof(NppiWarpAffineBatchCXR) * B);
+  list.dev.copyFromHost(list.host);
+  npp_diff::clear_cuda_error();
+  const NppStatus st = call(reinterpret_cast<NppiWarpAffineBatchCXR *>(list.dptr()), (unsigned)B, ctx);
+  if (st != NPP_NO_ERROR) {
+    ++cnt.skipped;
+    if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+    for (auto *p : coeffs) delete p;
+    finish(id, cnt, first);
+    return;
+  }
+  const cudaError_t se = cudaDeviceSynchronize();
+  ASSERT_EQ(se, cudaSuccess) << "[" << id << "] sync: " << cudaGetErrorString(se);
+  list.dev.copyToHost(list.host);
+  ++cnt.executed;
+  for (int i = 0; i < B; ++i) {
+    double want[6];
+    invert_affine_batch(fwd[i], want);
+    const NppiWarpAffineBatchCXR &e = reinterpret_cast<const NppiWarpAffineBatchCXR *>(list.host.data())[i];
+    for (int k = 0; k < 6; ++k) {
+      ++cnt.compared;
+      const double got = e.aTransformedCoeffs[k / 3][k % 3];
+      if (got != want[k]) {
+        char b[360];
+        std::snprintf(b, sizeof(b), "[%s] entry=%d coeff=%d got=%.17g want=%.17g", id, i, k, got, want[k]);
+        if (first.empty()) first = b;
+        EXPECT_TRUE(false) << b;
+        ++cnt.mismatched;
+        break;
+      }
+    }
+  }
+  for (auto *p : coeffs) delete p;
   finish(id, cnt, first);
 }
 
