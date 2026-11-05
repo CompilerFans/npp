@@ -78,11 +78,8 @@ __global__ void gamma_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int n
       dst_row[pixel_idx + c] = op(src_row[pixel_idx + c]);
     }
 
-    // Set Alpha channel to 0 if AC4 format (matching NVIDIA NPP behavior)
-    // NVIDIA NPP clears alpha channel instead of copying it
-    if (Channels == 4) {
-      dst_row[pixel_idx + 3] = 0;
-    }
+    // AC4: NVIDIA NPP 13.4 leaves the destination alpha untouched (measured:
+    // a 0x5A-filled destination keeps 0x5A through nppiGammaFwd_8u_AC4R).
   }
 }
 

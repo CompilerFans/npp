@@ -130,7 +130,7 @@
   ]
  },
  "nppi_color_conversion.h": {
-  "emitted": 182,
+  "emitted": 218,
   "skipped": [
    {
     "function": "nppiAlphaCompColorKey_8u_AC4R_Ctx",
@@ -453,66 +453,6 @@
     "reason": "later color batch / unsupported"
    },
    {
-    "function": "nppiColorToGray_16s_AC4C1R_Ctx",
-    "family": "nppiColorToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiColorToGray_16s_C3C1R_Ctx",
-    "family": "nppiColorToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiColorToGray_16s_C4C1R_Ctx",
-    "family": "nppiColorToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiColorToGray_16u_AC4C1R_Ctx",
-    "family": "nppiColorToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiColorToGray_16u_C3C1R_Ctx",
-    "family": "nppiColorToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiColorToGray_16u_C4C1R_Ctx",
-    "family": "nppiColorToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiColorToGray_32f_AC4C1R_Ctx",
-    "family": "nppiColorToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiColorToGray_32f_C3C1R_Ctx",
-    "family": "nppiColorToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiColorToGray_32f_C4C1R_Ctx",
-    "family": "nppiColorToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiColorToGray_8u_AC4C1R_Ctx",
-    "family": "nppiColorToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiColorToGray_8u_C3C1R_Ctx",
-    "family": "nppiColorToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiColorToGray_8u_C4C1R_Ctx",
-    "family": "nppiColorToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
     "function": "nppiColorTwistBatch32fC_16f_C4IR_Ctx",
     "family": "nppiColorTwistBatch32fC",
     "reason": "later color batch / unsupported"
@@ -678,86 +618,6 @@
     "reason": "later color batch / unsupported"
    },
    {
-    "function": "nppiGammaFwd_8u_AC4IR_Ctx",
-    "family": "nppiGammaFwd",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiGammaFwd_8u_AC4R_Ctx",
-    "family": "nppiGammaFwd",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiGammaFwd_8u_C3IR_Ctx",
-    "family": "nppiGammaFwd",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiGammaFwd_8u_C3R_Ctx",
-    "family": "nppiGammaFwd",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiGammaFwd_8u_IP3R_Ctx",
-    "family": "nppiGammaFwd",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiGammaFwd_8u_P3R_Ctx",
-    "family": "nppiGammaFwd",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiGammaInv_8u_AC4IR_Ctx",
-    "family": "nppiGammaInv",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiGammaInv_8u_AC4R_Ctx",
-    "family": "nppiGammaInv",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiGammaInv_8u_C3IR_Ctx",
-    "family": "nppiGammaInv",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiGammaInv_8u_C3R_Ctx",
-    "family": "nppiGammaInv",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiGammaInv_8u_IP3R_Ctx",
-    "family": "nppiGammaInv",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiGammaInv_8u_P3R_Ctx",
-    "family": "nppiGammaInv",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiGradientColorToGray_16s_C3C1R_Ctx",
-    "family": "nppiGradientColorToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiGradientColorToGray_16u_C3C1R_Ctx",
-    "family": "nppiGradientColorToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiGradientColorToGray_32f_C3C1R_Ctx",
-    "family": "nppiGradientColorToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiGradientColorToGray_8u_C3C1R_Ctx",
-    "family": "nppiGradientColorToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
     "function": "nppiHLSToBGR_8u_AC4P4R_Ctx",
     "family": "nppiHLSToBGR",
     "reason": "later color batch / unsupported"
@@ -885,46 +745,6 @@
    {
     "function": "nppiRGBToCbYCr422_8u_C3C2R_Ctx",
     "family": "nppiRGBToCbYCr422",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToGray_16s_AC4C1R_Ctx",
-    "family": "nppiRGBToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToGray_16s_C3C1R_Ctx",
-    "family": "nppiRGBToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToGray_16u_AC4C1R_Ctx",
-    "family": "nppiRGBToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToGray_16u_C3C1R_Ctx",
-    "family": "nppiRGBToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToGray_32f_AC4C1R_Ctx",
-    "family": "nppiRGBToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToGray_32f_C3C1R_Ctx",
-    "family": "nppiRGBToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToGray_8u_AC4C1R_Ctx",
-    "family": "nppiRGBToGray",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToGray_8u_C3C1R_Ctx",
-    "family": "nppiRGBToGray",
     "reason": "later color batch / unsupported"
    },
    {
