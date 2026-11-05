@@ -76,6 +76,18 @@ void run_mirror(const char *id, Call call) {
     Buf<S> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
     fill_regime(s, C, seed, c.regime, 0, false, false, std::is_floating_point_v<S>);
+    if constexpr (std::is_floating_point_v<S>) {
+      auto clampv = [](Buf<S> &b) {
+        const size_t n = (size_t)(b.step / sizeof(S)) * (size_t)b.bh;
+        for (size_t i = 0; i < n; ++i) {
+          const double v = (double)b.hptr()[i];
+          if (v > 1e3) b.hptr()[i] = S(1e3);
+          else if (v < -1e3) b.hptr()[i] = S(-1e3);
+          else if (v != v) b.hptr()[i] = S(0);
+        }
+      };
+      clampv(s);
+    }
     s.dev.copyFromHost(s.host);
     d.dev.copyFromHost(d.host);
     for (NppiAxis flip : flips) {
@@ -878,6 +890,234 @@ void run_resize_batch_advanced(const char *id, Call call) {
   }
   for (auto *p : srcs) delete p;
   for (auto *p : dsts) delete p;
+  finish(id, cnt, first);
+}
+
+
+// ---------------------------------------------------------------------------
+// Warp-style sampling shared by rotate/remap/warp (measured NPP 13.4 model):
+// NN rounds half up, LINEAR/CUBIC clamp taps to the image bounds, loads go
+// through float, accumulation is double, integer stores round half away from
+// zero and saturate, 16f stores round through half.
+// ---------------------------------------------------------------------------
+template <typename S> inline float warp_load(const S &v) {
+  if constexpr (std::is_same_v<S, Npp16f>) {
+    return half_to_float_host(v);
+  } else {
+    return (float)v;
+  }
+}
+
+template <typename S> inline S warp_store(double v) {
+  if constexpr (std::is_same_v<S, Npp32f>) {
+    return (Npp32f)v;
+  } else if constexpr (std::is_same_v<S, Npp64f>) {
+    return (Npp64f)v;
+  } else if constexpr (std::is_same_v<S, Npp16f>) {
+    return half_round((float)v);
+  } else {
+    const double r = std::floor(v + 0.5);
+    if constexpr (std::is_same_v<S, Npp8u>) {
+      return (S)(r < 0.0 ? 0.0 : (r > 255.0 ? 255.0 : r));
+    } else if constexpr (std::is_same_v<S, Npp16u>) {
+      return (S)(r < 0.0 ? 0.0 : (r > 65535.0 ? 65535.0 : r));
+    } else if constexpr (std::is_same_v<S, Npp16s>) {
+      return (S)(r < -32768.0 ? -32768.0 : (r > 32767.0 ? 32767.0 : r));
+    } else if constexpr (std::is_same_v<S, Npp32s>) {
+      return (S)(r < -2147483648.0 ? -2147483648.0 : (r > 2147483647.0 ? 2147483647.0 : r));
+    } else {
+      return (S)r;
+    }
+  }
+}
+
+inline double warp_cubic_w(int i, double d) {
+  switch (i) {
+    case 0: return -d * (d - 1.0) * (d - 2.0) / 6.0;
+    case 1: return (d + 1.0) * (d - 1.0) * (d - 2.0) / 2.0;
+    case 2: return -(d + 1.0) * d * (d - 2.0) / 2.0;
+    default: return (d + 1.0) * d * (d - 1.0) / 6.0;
+  }
+}
+
+template <typename S>
+inline S warp_sample_channel(const S *base, int stepElems, int chStride, int width, int height, double u, double v,
+                             int interp) {
+  if (interp == NPPI_INTER_NN) {
+    const int ix = resize_clampi((int)std::floor(u + 0.5), 0, width - 1);
+    const int iy = resize_clampi((int)std::floor(v + 0.5), 0, height - 1);
+    return base[(size_t)iy * stepElems + (size_t)ix * chStride];
+  }
+  const int iu = (int)std::floor(u), iv = (int)std::floor(v);
+  const double fx = u - iu, fy = v - iv;
+  if (interp == NPPI_INTER_LINEAR) {
+    const int x0 = resize_clampi(iu, 0, width - 1), x1 = resize_clampi(iu + 1, 0, width - 1);
+    const int y0 = resize_clampi(iv, 0, height - 1), y1 = resize_clampi(iv + 1, 0, height - 1);
+    const double v00 = warp_load(base[(size_t)y0 * stepElems + (size_t)x0 * chStride]);
+    const double v01 = warp_load(base[(size_t)y0 * stepElems + (size_t)x1 * chStride]);
+    const double v10 = warp_load(base[(size_t)y1 * stepElems + (size_t)x0 * chStride]);
+    const double v11 = warp_load(base[(size_t)y1 * stepElems + (size_t)x1 * chStride]);
+    const double acc = (1.0 - fx) * (1.0 - fy) * v00 + fx * (1.0 - fy) * v01 + (1.0 - fx) * fy * v10 + fx * fy * v11;
+    return warp_store<S>(acc);
+  }
+  double acc = 0.0;
+  for (int j = 0; j < 4; ++j) {
+    const int yy = resize_clampi(iv - 1 + j, 0, height - 1);
+    const double wy = warp_cubic_w(j, fy);
+    for (int i = 0; i < 4; ++i) {
+      const int xx = resize_clampi(iu - 1 + i, 0, width - 1);
+      acc += warp_cubic_w(i, fx) * wy * warp_load(base[(size_t)yy * stepElems + (size_t)xx * chStride]);
+    }
+  }
+  return warp_store<S>(acc);
+}
+
+// Float operations with explicit round-to-nearest (double intermediates, like
+// the device helpers; avoids FMA contraction differences).
+inline float warp_fmul(float a, float b) { return (float)((double)a * (double)b); }
+inline float warp_fadd(float a, float b) { return (float)((double)a + (double)b); }
+inline float warp_fsub(float a, float b) { return (float)((double)a - (double)b); }
+
+template <typename S, int C, int A>
+inline bool rotate_check(const char *id, const GenCase &c, int interp, const std::vector<uint8_t> &pre,
+                         const std::vector<uint8_t> &got, const std::vector<uint8_t> &want, int step,
+                         const std::vector<uint8_t> &mask, RunCounts &cnt, std::string &first) {
+  double rtol, atol;
+  if constexpr (std::is_same_v<S, Npp32f>) {
+    rtol = 6e-2;
+    atol = 6e-2;
+  } else if constexpr (std::is_same_v<S, Npp64f>) {
+    rtol = 6e-2;
+    atol = 6e-2;
+  } else if constexpr (std::is_same_v<S, Npp16f>) {
+    rtol = 5e-2;
+    atol = 5e-2;
+  } else {
+    rtol = 0.0;
+    atol = 4.0;
+  }
+  (void)interp;
+  for (int y = 0; y < c.h; ++y)
+    for (int x = 0; x < c.w; ++x) {
+      if (!mask.empty() && !mask[(size_t)y * c.w + x]) continue;
+      const size_t base = off_bytes<S>(c.oy + y, c.ox + x, step, C);
+      for (int ch = 0; ch < C; ++ch) {
+        const size_t off = base + (size_t)ch * sizeof(S);
+        ++cnt.compared;
+        bool ok;
+        if (ch >= A) {
+          ok = std::memcmp(got.data() + off, pre.data() + off, sizeof(S)) == 0;
+        } else if constexpr (std::is_integral_v<S>) {
+          const long long g = (long long)(*(const S *)(got.data() + off));
+          const long long w = (long long)(*(const S *)(want.data() + off));
+          ok = (g > w ? g - w : w - g) <= (long long)atol;
+        } else {
+          ok = equal_elem<S>(got.data() + off, want.data() + off, rtol, atol);
+        }
+        if (!ok) {
+          char b[420];
+          std::snprintf(b, sizeof(b), "[%s] %s interp=%d (%d,%d,ch=%d) got=%s want=%s", id, c.id().c_str(),
+                        interp, x, y, ch, dbg_elem<S>(got.data() + off).c_str(),
+                        dbg_elem<S>(want.data() + off).c_str());
+          if (first.empty()) first = b;
+          EXPECT_TRUE(false) << b;
+          ++cnt.mismatched;
+          return false;
+        }
+      }
+    }
+  return true;
+}
+
+template <typename S, int C, int A, class Call>
+void run_rotate(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
+  const double angles[] = {0.0, 30.0, 45.0, 90.0, 180.0};
+  for (const GenCase &c : make_gen_cases(0)) {
+    if (c.w < 2 || c.h < 2) continue;
+    Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
+    Buf<S> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
+    const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
+    fill_regime(s, C, seed, c.regime, 0, false, false, std::is_floating_point_v<S>);
+    if constexpr (std::is_floating_point_v<S>) {
+      auto clampv = [](Buf<S> &b) {
+        const size_t n = (size_t)(b.step / sizeof(S)) * (size_t)b.bh;
+        for (size_t i = 0; i < n; ++i) {
+          const double v = (double)b.hptr()[i];
+          if (v > 1e3) b.hptr()[i] = S(1e3);
+          else if (v < -1e3) b.hptr()[i] = S(-1e3);
+          else if (v != v) b.hptr()[i] = S(0);
+        }
+      };
+      clampv(s);
+    }
+    s.dev.copyFromHost(s.host);
+    d.dev.copyFromHost(d.host);
+    const S *hsrc = s.hptr() + off_bytes<S>(c.oy, c.ox, s.step, C) / sizeof(S);
+    const S *dsrc = reinterpret_cast<const S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, C));
+    const int srcStepElems = s.step / (int)sizeof(S);
+    struct Shift {
+      double x, y;
+    };
+    const Shift shifts[] = {{0.0, 0.0}, {c.w / 2.0, c.h / 2.0}};
+    for (double angle : angles)
+      for (const Shift &sh : shifts)
+        for (int interp : interps) {
+          const std::vector<uint8_t> pre = d.host;
+          npp_diff::clear_cuda_error();
+          const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, s.step, NppiRect{0, 0, c.w, c.h},
+                                    reinterpret_cast<S *>(d.dptr() + off_bytes<S>(c.oy, c.ox, d.step, C)),
+                                    d.step, NppiRect{0, 0, c.w, c.h}, angle, sh.x, sh.y, interp, ctx);
+          if (st != NPP_NO_ERROR) {
+            ++cnt.skipped;
+            if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+            continue;
+          }
+          const cudaError_t se = cudaDeviceSynchronize();
+          ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+          d.dev.copyToHost(d.host);
+          ++cnt.executed;
+          const double rad = angle * 3.14159265358979323846 / 180.0;
+          const float ca = (float)std::cos(rad), sa = (float)std::sin(rad);
+          std::vector<uint8_t> want = pre;
+          // Only pixels whose interpolation taps all lie inside the source
+          // image are defined; NPP leaves the boundary-tap reads undefined.
+          std::vector<uint8_t> mask((size_t)c.w * c.h, 0);
+          for (int y = 0; y < c.h; ++y)
+            for (int x = 0; x < c.w; ++x) {
+              const float dx = warp_fsub((float)x, (float)sh.x);
+              const float dy = warp_fsub((float)y, (float)sh.y);
+              const float fx = warp_fsub(warp_fmul(ca, dx), warp_fmul(sa, dy));
+              const float fy = warp_fadd(warp_fmul(sa, dx), warp_fmul(ca, dy));
+              if (!(fx >= -0.5f && fx <= (float)(c.w - 1) && fy >= -0.5f && fy <= (float)(c.h - 1))) continue;
+              bool defined = true;
+              if (interp == NPPI_INTER_LINEAR) {
+                defined = fx >= 0.0f && fx <= (float)(c.w - 2) && fy >= 0.0f && fy <= (float)(c.h - 2);
+              } else if (interp == NPPI_INTER_CUBIC) {
+                defined = fx >= 1.0f && fx < (float)(c.w - 2) && fy >= 1.0f && fy < (float)(c.h - 2);
+              }
+              if (!defined) continue;
+              mask[(size_t)y * c.w + x] = 1;
+              const size_t db = off_bytes<S>(c.oy + y, c.ox + x, d.step, C);
+              for (int ch = 0; ch < A; ++ch) {
+                const S v = warp_sample_channel<S>(hsrc + ch, srcStepElems, C, c.w, c.h, (double)fx, (double)fy, interp);
+                std::memcpy(want.data() + db + (size_t)ch * sizeof(S), &v, sizeof(S));
+              }
+            }
+          if (!rotate_check<S, C, A>(id, c, interp, pre, d.host, want, d.step, mask, cnt, first)) {
+            if (cnt.mismatched >= 8) break;
+          }
+          if (cnt.mismatched >= 8) break;
+        }
+    if (cnt.mismatched >= 8) break;
+  }
   finish(id, cnt, first);
 }
 

@@ -60,7 +60,7 @@
   "skipped": []
  },
  "nppi_geometry_transforms.h": {
-  "emitted": 102,
+  "emitted": 114,
   "skipped": [
    {
     "function": "nppiRemap_16s_AC4R_Ctx",
@@ -325,66 +325,6 @@
    {
     "function": "nppiResize_8u_P4R_Ctx",
     "family": "nppiResize",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRotate_16u_AC4R_Ctx",
-    "family": "nppiRotate",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRotate_16u_C1R_Ctx",
-    "family": "nppiRotate",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRotate_16u_C3R_Ctx",
-    "family": "nppiRotate",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRotate_16u_C4R_Ctx",
-    "family": "nppiRotate",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRotate_32f_AC4R_Ctx",
-    "family": "nppiRotate",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRotate_32f_C1R_Ctx",
-    "family": "nppiRotate",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRotate_32f_C3R_Ctx",
-    "family": "nppiRotate",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRotate_32f_C4R_Ctx",
-    "family": "nppiRotate",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRotate_8u_AC4R_Ctx",
-    "family": "nppiRotate",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRotate_8u_C1R_Ctx",
-    "family": "nppiRotate",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRotate_8u_C3R_Ctx",
-    "family": "nppiRotate",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRotate_8u_C4R_Ctx",
-    "family": "nppiRotate",
     "reason": "later geometry batch / unsupported"
    },
    {

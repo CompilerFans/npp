@@ -140,6 +140,23 @@ def emit_resize_batch(row: dict) -> Optional[str]:
     return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
 
 
+
+def emit_rotate(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    lay = _layout(fn)
+    S = CTYPE.get(row["dtype"])
+    if lay is None or S is None:
+        return None
+    C, A = lay[1]
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[](const {S} *a, NppiSize ss, int sa, NppiRect sr, {S} *d, int ds, "
+           f"NppiRect dr, double ang, double shx, double shy, int m, NppStreamContext c) "
+           f"{{ (void)ss; (void)sa; (void)sr; (void)ds; (void)dr; (void)ang; (void)shx; "
+           f"(void)shy; (void)m; (void)c; return {fn}(a, ss, sa, sr, d, ds, dr, ang, shx, shy, m, c); }}")
+    prefix = f"num::run_rotate<{S}, {C}, {A}>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -162,6 +179,8 @@ def main() -> int:
             text = emit_resize_sqr(row)
         elif fam == "nppiResizeBatch":
             text = emit_resize_batch(row)
+        elif fam == "nppiRotate":
+            text = emit_rotate(row)
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
                                 reason="later geometry batch / unsupported"))
