@@ -40,6 +40,8 @@
 
 #include "num_nppi_hough.h"
 
+#include "num_nppi_watershed.h"
+
 TEST(NumGen, nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx) {
   num::compresslabels::run_compress_batch<true>(
       "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx",
@@ -5570,6 +5572,18 @@ TEST(NumGen, nppiLabelMarkersUF_8u32u_C1R_Ctx) {
   num::labelmarkers::run_label<Npp8u>(
       "nppiLabelMarkersUF_8u32u_C1R_Ctx",
       [](Npp8u *sp, int ss, Npp32u *dp, int ds, NppiSize roi, int norm, Npp8u *buf, NppStreamContext ctx) { return nppiLabelMarkersUF_8u32u_C1R_Ctx(sp, ss, dp, ds, roi, (NppiNorm)norm, buf, ctx); });
+}
+
+TEST(NumGen, nppiSegmentWatershed_16u_C1IR_Ctx) {
+  num::watershed::run_watershed<Npp16u> (
+      "nppiSegmentWatershed_16u_C1IR_Ctx",
+      [](Npp16u *sp, int ss, Npp32u *lp, int ls, int norm, int mode, NppiSize roi, Npp8u *buf, NppStreamContext ctx) { return nppiSegmentWatershed_16u_C1IR_Ctx(sp, ss, lp, ls, (NppiNorm)norm, (NppiWatershedSegmentBoundaryType)mode, roi, buf, ctx); });
+}
+
+TEST(NumGen, nppiSegmentWatershed_8u_C1IR_Ctx) {
+  num::watershed::run_watershed<Npp8u> (
+      "nppiSegmentWatershed_8u_C1IR_Ctx",
+      [](Npp8u *sp, int ss, Npp32u *lp, int ls, int norm, int mode, NppiSize roi, Npp8u *buf, NppStreamContext ctx) { return nppiSegmentWatershed_8u_C1IR_Ctx(sp, ss, lp, ls, (NppiNorm)norm, (NppiWatershedSegmentBoundaryType)mode, roi, buf, ctx); });
 }
 
 TEST(NumGen, nppiSignedDistanceTransformAbsPBA_32f64f_C1R_Ctx) {

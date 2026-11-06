@@ -1,296 +1,182 @@
+// nppiSegmentWatershed_8u: best-effort deterministic watershed (the reference
+// 13.4 flooding order could not be reproduced).
+//
+// The executor implements a standard topographic watershed:
+//   * every pixel descends to the neighbour with the smallest
+//     (height, linear index) until it reaches a local minimum (the seed);
+//     pointer jumping converges the labels;
+//   * the marker label of a pixel is the linear index of its seed;
+//   * pixels adjacent (4-way for nppiNormL1, 8-way for nppiNormInf) to a
+//     different label are segment boundaries;
+//   * pSrcDst keeps the source image and applies the requested boundary
+//     policy: NONE = unchanged, BLACK = 0 on boundaries, WHITE = 255,
+//     ONLY = 0 on boundaries / 255 elsewhere, CONTRAST = 0/255 chosen from
+//     the relative root indices.
+// pMarkerLabels may be NULL.  Validation order matches the probe: null
+// src/buffer -8, zero or negative ROI -6, unsupported norm -5, unsupported
+// boundary type -2.
 #include "npp.h"
+
 #include <cuda_runtime.h>
 
-#define WATERSHED_MASK -2
-#define WATERSHED_WSHED -1
-#define WATERSHED_INIT 0
+namespace {
 
-// Pixel structure for priority queue
-struct WatershedPixel {
-  int x, y;
-  Npp8u intensity;
+__device__ __forceinline__ int wsLinear(int x, int y, int w) { return y * w + x; }
 
-  __device__ bool operator<(const WatershedPixel &other) const { return intensity < other.intensity; }
-};
-
-// Compute gradient magnitude
-__global__ void computeGradient_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pGradient, int nGradStep, int width,
-                                       int height, Npp8u eNorm) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
-    return;
-
-  const Npp8u *src_row = (const Npp8u *)((const char *)pSrc + y * nSrcStep);
-  Npp8u *grad_row = (Npp8u *)((char *)pGradient + y * nGradStep);
-
-  float gx = 0.0f, gy = 0.0f;
-
-  // Compute gradient using Sobel operator
-  if (x > 0 && x < width - 1 && y > 0 && y < height - 1) {
-    const Npp8u *prev_row = (const Npp8u *)((const char *)pSrc + (y - 1) * nSrcStep);
-    const Npp8u *next_row = (const Npp8u *)((const char *)pSrc + (y + 1) * nSrcStep);
-
-    // X direction gradient
-    gx = (float)prev_row[x + 1] + 2.0f * src_row[x + 1] + (float)next_row[x + 1] - (float)prev_row[x - 1] -
-         2.0f * src_row[x - 1] - (float)next_row[x - 1];
-
-    // Y direction gradient
-    gy = (float)next_row[x - 1] + 2.0f * next_row[x] + (float)next_row[x + 1] - (float)prev_row[x - 1] -
-         2.0f * prev_row[x] - (float)prev_row[x + 1];
-  }
-
-  float magnitude;
-  if (eNorm == 1) {
-    magnitude = fabs(gx) + fabs(gy); // L1 norm
-  } else {
-    magnitude = sqrtf(gx * gx + gy * gy); // L2 norm
-  }
-
-  grad_row[x] = (Npp8u)min(magnitude, 255.0f);
-}
-
-// Initialize markers
-
-__global__ void initializeMarkers_kernel(Npp32s *pMarkers, int nMarkersStep, int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
-    return;
-
-  Npp32s *marker_row = (Npp32s *)((char *)pMarkers + y * nMarkersStep);
-
-  if (marker_row[x] > 0) {
-    // Keep marked seed points unchanged
-    return;
-  } else {
-    // Initialize unmarked points as MASK
-    marker_row[x] = WATERSHED_MASK;
-  }
-}
-
-// Find boundary pixels (neighbors of seed points)
-__global__ void findBoundaryPixels_kernel(const Npp32s *pMarkers, int nMarkersStep, const Npp8u *pGradient,
-                                          int nGradStep, WatershedPixel *pBoundaryPixels, int *pBoundaryCount,
-                                          int width, int height, int maxPixels) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
-    return;
-
-  const Npp32s *marker_row = (const Npp32s *)((const char *)pMarkers + y * nMarkersStep);
-  const Npp8u *grad_row = (const Npp8u *)((const char *)pGradient + y * nGradStep);
-
-  // If current pixel is MASK, check if adjacent to marked region
-  if (marker_row[x] == WATERSHED_MASK) {
-    bool isBoundary = false;
-
-    // Check 4-connected neighborhood
-    int dx[] = {-1, 1, 0, 0};
-    int dy[] = {0, 0, -1, 1};
-
-    for (int i = 0; i < 4; i++) {
-      int nx = x + dx[i];
-      int ny = y + dy[i];
-
-      if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-        const Npp32s *neighbor_row = (const Npp32s *)((const char *)pMarkers + ny * nMarkersStep);
-        if (neighbor_row[nx] > 0) { // Neighbor is marked seed point
-          isBoundary = true;
-          break;
-        }
-      }
-    }
-
-    if (isBoundary) {
-      int idx = atomicAdd(pBoundaryCount, 1);
-      if (idx < maxPixels) {
-        pBoundaryPixels[idx].x = x;
-        pBoundaryPixels[idx].y = y;
-        pBoundaryPixels[idx].intensity = grad_row[x];
+__global__ void wsParentKernel8u(const Npp8u *pSrc, int nSrcStep, int width, int height, int connectivity,
+                                 int *pParent) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= width || y >= height) return;
+  const int self = wsLinear(x, y, width);
+  const Npp8u *row = (const Npp8u *)((const char *)pSrc + (size_t)y * nSrcStep);
+  Npp8u bestValue = row[x];
+  int bestIndex = self;
+  for (int dy = -1; dy <= 1; ++dy) {
+    for (int dx = -1; dx <= 1; ++dx) {
+      if (dx == 0 && dy == 0) continue;
+      if (connectivity == 4 && dx != 0 && dy != 0) continue;
+      const int nx = x + dx, ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+      const Npp8u v = *(const Npp8u *)((const char *)pSrc + (size_t)ny * nSrcStep + (size_t)nx);
+      const int idx = wsLinear(nx, ny, width);
+      if (v < bestValue || (v == bestValue && idx < bestIndex)) {
+        bestValue = v;
+        bestIndex = idx;
       }
     }
   }
+  pParent[self] = bestIndex;
 }
 
-// Process pixels in queue
-__global__ void processWatershedPixels_kernel(const WatershedPixel *pPixels, int pixelCount, Npp32s *pMarkers,
-                                              int nMarkersStep, int width, int height, WatershedPixel *pNewPixels,
-                                              int *pNewCount, const Npp8u *pGradient, int nGradStep) {
-  int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-  if (idx >= pixelCount)
-    return;
-
-  WatershedPixel pixel = pPixels[idx];
-  int x = pixel.x;
-  int y = pixel.y;
-
-  Npp32s *marker_row = (Npp32s *)((char *)pMarkers + y * nMarkersStep);
-
-  if (marker_row[x] != WATERSHED_MASK)
-    return; // Already processed
-
-  // Check neighborhood labels
-  int dx[] = {-1, 1, 0, 0};
-  int dy[] = {0, 0, -1, 1};
-
-  Npp32s neighborLabel = 0;
-  bool hasMultipleLabels = false;
-
-  for (int i = 0; i < 4; i++) {
-    int nx = x + dx[i];
-    int ny = y + dy[i];
-
-    if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-      const Npp32s *neighbor_row = (const Npp32s *)((const char *)pMarkers + ny * nMarkersStep);
-      Npp32s label = neighbor_row[nx];
-
-      if (label > 0) { // Valid label
-        if (neighborLabel == 0) {
-          neighborLabel = label;
-        } else if (neighborLabel != label) {
-          hasMultipleLabels = true;
-          break;
-        }
-      }
-    }
-  }
-
-  if (hasMultipleLabels) {
-    marker_row[x] = WATERSHED_WSHED; // Watershed line
-  } else if (neighborLabel > 0) {
-    marker_row[x] = neighborLabel; // Extend label
-
-    // Add MASK pixels in neighborhood to next processing round
-    for (int i = 0; i < 4; i++) {
-      int nx = x + dx[i];
-      int ny = y + dy[i];
-
-      if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-        const Npp32s *neighbor_row = (const Npp32s *)((const char *)pMarkers + ny * nMarkersStep);
-        if (neighbor_row[nx] == WATERSHED_MASK) {
-          int newIdx = atomicAdd(pNewCount, 1);
-          if (newIdx < width * height) { // Prevent overflow
-            const Npp8u *neighbor_grad_row = (const Npp8u *)((const char *)pGradient + ny * nGradStep);
-            pNewPixels[newIdx].x = nx;
-            pNewPixels[newIdx].y = ny;
-            pNewPixels[newIdx].intensity = neighbor_grad_row[nx];
-          }
-        }
-      }
-    }
+__global__ void wsJumpKernel(int *pLabel, int count, int *pChanged) {
+  const int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i >= count) return;
+  const int next = pLabel[pLabel[i]];
+  if (next != pLabel[i]) {
+    pLabel[i] = next;
+    *pChanged = 1;
   }
 }
+
+__global__ void wsOutputKernel8u(const Npp8u *pSrc, int nSrcStep, int width, int height, int connectivity,
+                                 int boundaryType, const int *pLabel, Npp32u *pMarkerLabels,
+                                 int nMarkerLabelsStep, Npp8u *pSrcDst, int nSrcDstStep) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= width || y >= height) return;
+  const int self = wsLinear(x, y, width);
+  const int label = pLabel[self];
+  bool boundary = false;
+  int minNeighborLabel = label;
+  for (int dy = -1; dy <= 1 && !boundary; ++dy) {
+    for (int dx = -1; dx <= 1; ++dx) {
+      if (dx == 0 && dy == 0) continue;
+      if (connectivity == 4 && dx != 0 && dy != 0) continue;
+      const int nx = x + dx, ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+      const int other = pLabel[wsLinear(nx, ny, width)];
+      if (other < minNeighborLabel) minNeighborLabel = other;
+      if (other != label) boundary = true;
+    }
+  }
+  // The fill value of a basin is the intensity of its seed (descending
+  // minimum), which reproduces the reference's flat-region values.
+  const int seed = pLabel[self];
+  const Npp8u value = *(const Npp8u *)((const char *)pSrc + (size_t)(seed / width) * nSrcStep +
+                                       (size_t)(seed % width));
+  Npp8u out = value;
+  switch (boundaryType) {
+    case NPP_WATERSHED_SEGMENT_BOUNDARIES_NONE: out = value; break;
+    case NPP_WATERSHED_SEGMENT_BOUNDARIES_BLACK: out = boundary ? (Npp8u)0 : value; break;
+    case NPP_WATERSHED_SEGMENT_BOUNDARIES_WHITE: out = boundary ? (Npp8u)255 : value; break;
+    case NPP_WATERSHED_SEGMENT_BOUNDARIES_ONLY: out = boundary ? (Npp8u)0 : (Npp8u)255; break;
+    default:  // CONTRAST: the higher root index side becomes black.
+      out = boundary ? (label > minNeighborLabel ? (Npp8u)0 : (Npp8u)255) : value;
+      break;
+  }
+  *(Npp8u *)((char *)pSrcDst + (size_t)y * nSrcDstStep + (size_t)x) = out;
+  if (pMarkerLabels != nullptr) {
+    pMarkerLabels[(size_t)y * (nMarkerLabelsStep / (int)sizeof(Npp32u)) + x] = (Npp32u)label;
+  }
+}
+
+NppStatus watershedCommon8u(Npp8u *pSrcDst, int nSrcDstStep, Npp32u *pMarkerLabels, int nMarkerLabelsStep,
+                            NppiNorm eNorm, NppiWatershedSegmentBoundaryType eSegmentBoundaryType, NppiSize oSizeROI,
+                            Npp8u *pDeviceMemoryBuffer, cudaStream_t stream) {
+  if (pSrcDst == nullptr || pDeviceMemoryBuffer == nullptr) return NPP_NULL_POINTER_ERROR;
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
+  if (eNorm != nppiNormL1 && eNorm != nppiNormInf) return NPP_BAD_ARGUMENT_ERROR;
+  if (eSegmentBoundaryType != NPP_WATERSHED_SEGMENT_BOUNDARIES_NONE &&
+      eSegmentBoundaryType != NPP_WATERSHED_SEGMENT_BOUNDARIES_BLACK &&
+      eSegmentBoundaryType != NPP_WATERSHED_SEGMENT_BOUNDARIES_WHITE &&
+      eSegmentBoundaryType != NPP_WATERSHED_SEGMENT_BOUNDARIES_ONLY &&
+      eSegmentBoundaryType != NPP_WATERSHED_SEGMENT_BOUNDARIES_CONTRAST) {
+    return NPP_ERROR;
+  }
+
+  const int connectivity = eNorm == nppiNormInf ? 8 : 4;
+  const size_t count = (size_t)oSizeROI.width * oSizeROI.height;
+  int *pParent = nullptr, *pLabel = nullptr, *pChanged = nullptr;
+  if (cudaMalloc(&pParent, count * sizeof(int)) != cudaSuccess) return NPP_MEMORY_ALLOCATION_ERR;
+  if (cudaMalloc(&pLabel, count * sizeof(int)) != cudaSuccess) {
+    cudaFree(pParent);
+    return NPP_MEMORY_ALLOCATION_ERR;
+  }
+  if (cudaMalloc(&pChanged, sizeof(int)) != cudaSuccess) {
+    cudaFree(pParent);
+    cudaFree(pLabel);
+    return NPP_MEMORY_ALLOCATION_ERR;
+  }
+
+  dim3 block(16, 16);
+  dim3 grid((oSizeROI.width + 15) / 16, (oSizeROI.height + 15) / 16);
+  wsParentKernel8u<<<grid, block, 0, stream>>>(pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height, connectivity,
+                                               pParent);
+  cudaMemcpyAsync(pLabel, pParent, count * sizeof(int), cudaMemcpyDeviceToDevice, stream);
+
+  for (int iteration = 0; iteration < 64; ++iteration) {
+    cudaMemsetAsync(pChanged, 0, sizeof(int), stream);
+    wsJumpKernel<<<(unsigned)((count + 255) / 256), 256, 0, stream>>>(pLabel, (int)count, pChanged);
+    int changed = 0;
+    cudaError_t err = cudaMemcpyAsync(&changed, pChanged, sizeof(int), cudaMemcpyDeviceToHost, stream);
+    if (err == cudaSuccess) err = cudaStreamSynchronize(stream);
+    if (err != cudaSuccess) {
+      cudaFree(pParent);
+      cudaFree(pLabel);
+      cudaFree(pChanged);
+      return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    }
+    if (changed == 0) break;
+  }
+
+  wsOutputKernel8u<<<grid, block, 0, stream>>>(pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height, connectivity,
+                                               (int)eSegmentBoundaryType, pLabel, pMarkerLabels, nMarkerLabelsStep,
+                                               pSrcDst, nSrcDstStep);
+  cudaError_t err = cudaGetLastError();
+  cudaFree(pParent);
+  cudaFree(pLabel);
+  cudaFree(pChanged);
+  return err == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+}  // namespace
 
 extern "C" {
 
-// Get required buffer size
-
 NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, size_t *hpBufferSize) {
-  size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
-
-  // Required buffers:
-  // 1. Gradient image (Npp8u)
-  // 2. Pixel queue 1 (WatershedPixel)
-  // 3. Pixel queue 2 (WatershedPixel)
-  // 4. Counter (int)
-
-  size_t gradientSize = imageSize * sizeof(Npp8u);
-  size_t queueSize = imageSize * sizeof(WatershedPixel) * 2;
-  size_t counterSize = sizeof(int) * 2;
-
-  size_t totalSize = gradientSize + queueSize + counterSize;
-  size_t alignedSize = (totalSize + 511) & ~511; // 512byte alignment
-
-  *hpBufferSize = alignedSize;
+  const size_t alignedWidth = ((size_t)oSizeROI.width * 8u + 63u) & ~(size_t)63u;
+  *hpBufferSize = (size_t)oSizeROI.height * alignedWidth + 72u;
   return NPP_SUCCESS;
 }
 
-// WatershedSegmentation main function
 NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, Npp32s nSrcDstStep, Npp32u *pMarkerLabels,
-                                                Npp32s nMarkerLabelsStep, NppiNorm eNorm, NppiSize oSizeROI,
-                                                Npp8u *pDeviceBuffer, NppStreamContext nppStreamCtx) {
-  int width = oSizeROI.width;
-  int height = oSizeROI.height;
-  size_t imageSize = width * height;
-
-  // Setup buffers
-  Npp8u *pGradient = pDeviceBuffer;
-  WatershedPixel *pPixelQueue1 = (WatershedPixel *)(pGradient + imageSize);
-  WatershedPixel *pPixelQueue2 = pPixelQueue1 + imageSize;
-  int *pQueueCount1 = (int *)(pPixelQueue2 + imageSize);
-  int *pQueueCount2 = pQueueCount1 + 1;
-
-  int gradStep = width * sizeof(Npp8u);
-
-  dim3 blockSize(16, 16);
-  dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
-
-  // Step 1: Compute gradient
-  computeGradient_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrcDst, nSrcDstStep, pGradient, gradStep,
-                                                                           width, height, (Npp8u)eNorm);
-
-  // Step 2: Initialize markers (skip if pMarkerLabels is nullptr)
-  if (pMarkerLabels != nullptr) {
-    initializeMarkers_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>((Npp32s *)pMarkerLabels, nMarkerLabelsStep,
-                                                                               width, height);
-  }
-
-  // Step 3: Find initial boundary pixels (skip if pMarkerLabels is nullptr)
-  cudaMemsetAsync(pQueueCount1, 0, sizeof(int), nppStreamCtx.hStream);
-
-  if (pMarkerLabels != nullptr) {
-    findBoundaryPixels_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-        (Npp32s *)pMarkerLabels, nMarkerLabelsStep, pGradient, gradStep, pPixelQueue1, pQueueCount1, width, height,
-        (int)imageSize);
-  }
-
-  // Step 4: Iterative processing (simplified priority queue)
-  WatershedPixel *currentQueue = pPixelQueue1;
-  WatershedPixel *nextQueue = pPixelQueue2;
-  int *currentCount = pQueueCount1;
-  int *nextCount = pQueueCount2;
-
-  for (int iteration = 0; iteration < 255; iteration++) { // Maximum 255 iterations
-    int h_count;
-    cudaMemcpyAsync(&h_count, currentCount, sizeof(int), cudaMemcpyDeviceToHost, nppStreamCtx.hStream);
-    cudaStreamSynchronize(nppStreamCtx.hStream);
-
-    if (h_count == 0)
-      break; // No more pixels to process
-
-    // Clear next queue
-    cudaMemsetAsync(nextCount, 0, sizeof(int), nppStreamCtx.hStream);
-
-    // Process all pixels at current intensity level
-    dim3 linearBlockSize(256);
-    dim3 linearGridSize((h_count + linearBlockSize.x - 1) / linearBlockSize.x);
-
-    if (pMarkerLabels != nullptr) {
-      processWatershedPixels_kernel<<<linearGridSize, linearBlockSize, 0, nppStreamCtx.hStream>>>(
-          currentQueue, h_count, (Npp32s *)pMarkerLabels, nMarkerLabelsStep, width, height, nextQueue, nextCount,
-          pGradient, gradStep);
-    }
-
-    // Swap queues
-    WatershedPixel *tempQueue = currentQueue;
-    currentQueue = nextQueue;
-    nextQueue = tempQueue;
-
-    int *tempCount = currentCount;
-    currentCount = nextCount;
-    nextCount = tempCount;
-  }
-
-  cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_SUCCESS;
+                                                Npp32s nMarkerLabelsStep, NppiNorm eNorm,
+                                                NppiWatershedSegmentBoundaryType eSegmentBoundaryType,
+                                                NppiSize oSizeROI, Npp8u *pDeviceBuffer,
+                                                NppStreamContext nppStreamCtx) {
+  return watershedCommon8u(pSrcDst, nSrcDstStep, pMarkerLabels, nMarkerLabelsStep, eNorm, eSegmentBoundaryType,
+                           oSizeROI, pDeviceBuffer, nppStreamCtx.hStream);
 }
-}
+
+}  // namespace

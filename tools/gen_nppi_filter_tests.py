@@ -476,6 +476,19 @@ def emit_label_markers(row: dict) -> Optional[str]:
     return None
 
 
+def emit_watershed(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    m = re.match(r"nppiSegmentWatershed_(8u|16u)_C1IR_Ctx$", fn)
+    if not m:
+        return None
+    src = "Npp8u" if m.group(1) == "8u" else "Npp16u"
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[]({src} *sp, int ss, Npp32u *lp, int ls, int norm, int mode, NppiSize roi, Npp8u *buf, "
+           f"NppStreamContext ctx) {{ return {fn}(sp, ss, lp, ls, (NppiNorm)norm, "
+           f"(NppiWatershedSegmentBoundaryType)mode, roi, buf, ctx); }}")
+    return f"TEST(NumGen, {name}) {{\n  num::watershed::run_watershed<{src}> (\n      \"{fn}\",\n      {lam});\n}}\n"
+
+
 def emit_hough(row: dict) -> Optional[str]:
     fn = row["function_name"]
     name = re.sub(r"\W", "_", fn)
@@ -572,7 +585,7 @@ def main() -> int:
                 or emit_pyramid(row) or emit_hog(row) or emit_median_bufsize(row)
                 or emit_distance_transform(row) or emit_floodfill(row)
                 or emit_signed_dt(row) or emit_label_markers(row) or emit_compress_labels(row)
-                or emit_canny(row) or emit_hough(row))
+                or emit_canny(row) or emit_hough(row) or emit_watershed(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
@@ -599,7 +612,8 @@ def main() -> int:
               "#include \"num_nppi_label_markers.h\"\n\n"
               "#include \"num_nppi_compress_labels.h\"\n\n"
               "#include \"num_nppi_canny.h\"\n\n"
-              "#include \"num_nppi_hough.h\"\n\n")
+              "#include \"num_nppi_hough.h\"\n\n"
+              "#include \"num_nppi_watershed.h\"\n\n")
     if args.emit:
         DEST.write_text(header + "\n".join(out))
         prev = {}

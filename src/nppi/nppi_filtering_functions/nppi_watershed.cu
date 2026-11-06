@@ -86,8 +86,11 @@ __global__ void watershedOutputKernel(const Npp16u *pSrc, int nSrcStep, int widt
     }
   }
 
-  const Npp16u value =
-      *(const Npp16u *)((const char *)pSrc + (size_t)y * nSrcStep + (size_t)x * sizeof(Npp16u));
+  // The fill value of a basin is the intensity of its seed (descending
+  // minimum), which reproduces the reference's flat-region values.
+  const int seed = pLabel[self];
+  const Npp16u value = *(const Npp16u *)((const char *)pSrc + (size_t)(seed / width) * nSrcStep +
+                                         (size_t)(seed % width) * sizeof(Npp16u));
   Npp16u out = value;
   switch (boundaryType) {
     case NPP_WATERSHED_SEGMENT_BOUNDARIES_NONE: out = value; break;

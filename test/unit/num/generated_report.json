@@ -134,7 +134,7 @@
   "skipped": []
  },
  "nppi_filtering_functions.h": {
-  "emitted": 964,
+  "emitted": 966,
   "skipped": [
    {
     "function": "nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx",
@@ -154,16 +154,6 @@
    {
     "function": "nppiContoursImageMarchingSquaresInterpolation_64f_C1R_Ctx",
     "family": "nppiContoursImageMarchingSquaresInterpolation",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiSegmentWatershed_16u_C1IR_Ctx",
-    "family": "nppiSegmentWatershed",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiSegmentWatershed_8u_C1IR_Ctx",
-    "family": "nppiSegmentWatershed",
     "reason": "later filtering batch / unsupported"
    }
   ]

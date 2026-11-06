@@ -7,8 +7,10 @@
 extern "C" {
 NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, size_t *hpBufferSize);
 NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, Npp32s nSrcDstStep, Npp32u *pMarkerLabels,
-                                                Npp32s nMarkerLabelsStep, NppiNorm eNorm, NppiSize oSizeROI,
-                                                Npp8u *pDeviceBuffer, NppStreamContext nppStreamCtx);
+                                                Npp32s nMarkerLabelsStep, NppiNorm eNorm,
+                                                NppiWatershedSegmentBoundaryType eSegmentBoundaryType,
+                                                NppiSize oSizeROI, Npp8u *pDeviceBuffer,
+                                                NppStreamContext nppStreamCtx);
 }
 
 // Get buffer size required for Watershed segmentation
@@ -62,8 +64,8 @@ NppStatus nppiSegmentWatershed_8u_C1IR(Npp8u *pSrcDst, Npp32s nSrcDstStep, Npp32
 
   NppStreamContext nppStreamCtx = nppCreateDefaultStreamContext();
 
-  return nppiSegmentWatershed_8u_C1IR_Ctx_impl(pSrcDst, nSrcDstStep, pMarkerLabels, nMarkerLabelsStep, eNorm, oSizeROI,
-                                               pDeviceMemoryBuffer, nppStreamCtx);
+  return nppiSegmentWatershed_8u_C1IR_Ctx_impl(pSrcDst, nSrcDstStep, pMarkerLabels, nMarkerLabelsStep, eNorm,
+                                               eSegmentBoundaryType, oSizeROI, pDeviceMemoryBuffer, nppStreamCtx);
 }
 
 NppStatus nppiSegmentWatershed_8u_C1IR_Ctx(Npp8u *pSrcDst, Npp32s nSrcDstStep, Npp32u *pMarkerLabels,
@@ -98,6 +100,6 @@ NppStatus nppiSegmentWatershed_8u_C1IR_Ctx(Npp8u *pSrcDst, Npp32s nSrcDstStep, N
     return NPP_BAD_ARGUMENT_ERROR;
   }
 
-  return nppiSegmentWatershed_8u_C1IR_Ctx_impl(pSrcDst, nSrcDstStep, pMarkerLabels, nMarkerLabelsStep, eNorm, oSizeROI,
-                                               pDeviceMemoryBuffer, nppStreamCtx);
+  return nppiSegmentWatershed_8u_C1IR_Ctx_impl(pSrcDst, nSrcDstStep, pMarkerLabels, nMarkerLabelsStep, eNorm,
+                                               eSegmentBoundaryType, oSizeROI, pDeviceMemoryBuffer, nppStreamCtx);
 }
