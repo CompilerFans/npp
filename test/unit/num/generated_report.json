@@ -44,74 +44,8 @@
   "skipped": []
  },
  "nppi_geometry_transforms.h": {
-  "emitted": 334,
-  "skipped": [
-   {
-    "function": "nppiRemap_64f_AC4R_Ctx",
-    "family": "nppiRemap",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRemap_64f_C1R_Ctx",
-    "family": "nppiRemap",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRemap_64f_C3R_Ctx",
-    "family": "nppiRemap",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRemap_64f_C4R_Ctx",
-    "family": "nppiRemap",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRemap_64f_P3R_Ctx",
-    "family": "nppiRemap",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiRemap_64f_P4R_Ctx",
-    "family": "nppiRemap",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeSqrPixel_64f_AC4R_Ctx",
-    "family": "nppiResizeSqrPixel",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeSqrPixel_64f_C1R_Ctx",
-    "family": "nppiResizeSqrPixel",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeSqrPixel_64f_C3R_Ctx",
-    "family": "nppiResizeSqrPixel",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeSqrPixel_64f_C4R_Ctx",
-    "family": "nppiResizeSqrPixel",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeSqrPixel_64f_P3R_Ctx",
-    "family": "nppiResizeSqrPixel",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeSqrPixel_64f_P4R_Ctx",
-    "family": "nppiResizeSqrPixel",
-    "reason": "later geometry batch / unsupported"
-   },
-   {
-    "function": "nppiResizeSqrPixel_8u_C1R_Advanced_Ctx",
-    "family": "nppiResizeSqrPixel",
-    "reason": "later geometry batch / unsupported"
-   }
-  ]
+  "emitted": 347,
+  "skipped": []
  },
  "nppi_color_conversion.h": {
   "emitted": 554,

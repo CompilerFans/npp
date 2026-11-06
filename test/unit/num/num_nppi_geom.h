@@ -294,7 +294,9 @@ template <typename S> struct ResizeTraits {
   using VT = float;
 };
 template <> struct ResizeTraits<Npp64f> {
-  using VT = double;
+  // NPP's 64f SqrPixel path computes with float-sized intermediates (measured:
+  // double-coordinate model differs by ~5% at large factors, float matches).
+  using VT = float;
 };
 
 template <typename S, typename VT> inline VT resize_load(const S *p) {
@@ -496,9 +498,8 @@ inline void resize_tol(int mode, double &rtol, double &atol) {
     rtol = (mode == NPPI_INTER_LANCZOS) ? 2e-3 : 2e-4;
     atol = rtol;
   } else if constexpr (std::is_same_v<S, Npp64f>) {
-    // NPP's 64f resampling computes its coordinates/taps with float-sized
-    // precision; differences reach a few 1e-3 on random data.  The test still
-    // pins the mapping and weights at the 1% level.
+    // NPP's 64f SqrPixel path computes with float-sized intermediates; the
+    // float model below matches it closely (measured on the 5090).
     rtol = 1e-2;
     atol = 1e-2;
   } else if constexpr (std::is_same_v<S, Npp16f>) {
@@ -719,6 +720,64 @@ void run_resize_sqr(const char *id, Call call) {
   finish(id, cnt, first);
 }
 
+
+// nppiResizeSqrPixel Advanced entry point (LANCZOS3_ADVANCED): the reference
+// kernel for the advanced mode is not documented, so this driver pins the
+// status and the constant-image invariance of any normalized resampler.
+template <class Call>
+void run_resize_sqr_advanced_8u(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  struct Cfg {
+    int sw, sh, dw, dh;
+  };
+  static const Cfg cfgs[] = {{64, 48, 96, 72}, {33, 17, 17, 9}, {128, 96, 64, 48}};
+  for (const Cfg &cfg : cfgs) {
+    Buf<Npp8u> s(cfg.sw, cfg.sh, 1, 0, 0);
+    std::memset(s.host.data(), 100, s.host.size());
+    s.dev.copyFromHost(s.host);
+    Buf<Npp8u> d(cfg.dw, cfg.dh, 1, 0, 0x5A);
+    d.dev.copyFromHost(d.host);
+    std::vector<Npp8u> bufHost((size_t)cfg.sw * cfg.sh);
+    npp_functional_test::DeviceMemory<Npp8u> buf(bufHost.size());
+    buf.copyFromHost(bufHost);
+    npp_diff::clear_cuda_error();
+    const NppStatus st = call(reinterpret_cast<const Npp8u *>(s.dptr()), NppiSize{cfg.sw, cfg.sh}, s.step,
+                              NppiRect{0, 0, cfg.sw, cfg.sh}, reinterpret_cast<Npp8u *>(d.dptr()), d.step,
+                              NppiRect{0, 0, cfg.dw, cfg.dh},
+                              (double)cfg.dw / (double)cfg.sw, (double)cfg.dh / (double)cfg.sh, buf.get(), 17, ctx);
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    ASSERT_EQ(cudaDeviceSynchronize(), cudaSuccess) << "[" << id << "] sync";
+    ++cnt.executed;
+    d.dev.copyToHost(d.host);
+    const GenCase gc{cfg.dw, cfg.dh, 0, 0, 0, kSmall, 0};
+    bool ok = true;
+    for (int y = 0; y < cfg.dh; ++y)
+      for (int x = 0; x < cfg.dw; ++x) {
+        ++cnt.compared;
+        const Npp8u v = d.host[(size_t)y * d.step + (size_t)x];
+        if (v == 100) continue;
+        char b[320];
+        std::snprintf(b, sizeof(b), "[%s] %s (%d,%d) constant source gave %d", id, gc.id().c_str(), x, y, (int)v);
+        if (first.empty()) first = b;
+        EXPECT_TRUE(false) << b;
+        ++cnt.mismatched;
+        ok = false;
+        break;
+      }
+    if (!ok) break;
+  }
+  finish(id, cnt, first);
+}
 
 // ---------------------------------------------------------------------------
 // nppiResizeBatch (normal and Advanced).  Both use the per-image resize
@@ -3001,7 +3060,7 @@ void run_resize_sqr_planar(const char *id, Call call) {
   finish(id, cnt, first);
 }
 
-template <typename S, int P, class Call>
+template <typename S, int P, typename MapT = float, class Call>
 void run_remap_planar(const char *id, Call call) {
   NppStreamContext ctx{};
   if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
@@ -3023,16 +3082,16 @@ void run_remap_planar(const char *id, Call call) {
       dsts.push_back(d);
       pre[(size_t)p] = d->host;
     }
-    Buf<float> mx(c.w, c.h, 1, 0, 0), my(c.w, c.h, 1, 0, 0);
+    Buf<MapT> mx(c.w, c.h, 1, 0, 0), my(c.w, c.h, 1, 0, 0);
     const int spanX = std::max(1, (c.w - 3) * 4);
     const int spanY = std::max(1, (c.h - 3) * 4);
-    const int mapStepElems = mx.step / (int)sizeof(float);
+    const int mapStepElems = mx.step / (int)sizeof(MapT);
     for (int y = 0; y < c.h; ++y)
       for (int x = 0; x < c.w; ++x) {
         const double fu = 1.0 + (double)((x * 7 + y * 3 + (int)(seed & 3)) % spanX) / 4.0;
         const double fv = 1.0 + (double)((x * 5 + y * 11 + (int)((seed >> 2) & 3)) % spanY) / 4.0;
-        reinterpret_cast<float *>(mx.host.data())[(size_t)y * mapStepElems + x] = (float)fu;
-        reinterpret_cast<float *>(my.host.data())[(size_t)y * mapStepElems + x] = (float)fv;
+        reinterpret_cast<MapT *>(mx.host.data())[(size_t)y * mapStepElems + x] = (MapT)fu;
+        reinterpret_cast<MapT *>(my.host.data())[(size_t)y * mapStepElems + x] = (MapT)fv;
       }
     mx.dev.copyFromHost(mx.host);
     my.dev.copyFromHost(my.host);
@@ -3041,14 +3100,14 @@ void run_remap_planar(const char *id, Call call) {
     S *ddst[4] = {nullptr, nullptr, nullptr, nullptr};
     int sstep[4] = {0, 0, 0, 0};
     planar_ptrs(srcs, dsts, P, c.ox, c.oy, hsrc, dsrc, ddst, sstep);
-    const float *hmx = reinterpret_cast<const float *>(mx.host.data());
-    const float *hmy = reinterpret_cast<const float *>(my.host.data());
+    const MapT *hmx = reinterpret_cast<const MapT *>(mx.host.data());
+    const MapT *hmy = reinterpret_cast<const MapT *>(my.host.data());
     for (int interp : interps) {
       for (int p = 0; p < P; ++p) dsts[(size_t)p]->dev.copyFromHost(pre[(size_t)p]);
       npp_diff::clear_cuda_error();
       const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, srcs[0]->step, NppiRect{0, 0, c.w, c.h},
-                                reinterpret_cast<const float *>(mx.dptr()), mx.step,
-                                reinterpret_cast<const float *>(my.dptr()), my.step, ddst, dsts[0]->step,
+                                reinterpret_cast<const MapT *>(mx.dptr()), mx.step,
+                                reinterpret_cast<const MapT *>(my.dptr()), my.step, ddst, dsts[0]->step,
                                 NppiSize{c.w, c.h}, interp, ctx);
       if (st != NPP_NO_ERROR) {
         ++cnt.skipped;

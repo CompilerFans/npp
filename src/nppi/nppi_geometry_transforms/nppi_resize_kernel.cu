@@ -24,7 +24,10 @@ template <> struct Traits<Npp32f> {
   using VT = float;
 };
 template <> struct Traits<Npp64f> {
-  using VT = double;
+  // NPP's 64f ResizeSqrPixel computes with float-sized intermediates (measured
+  // on the 5090: a double-precision model differs by up to ~5% at large
+  // factors, float matches).
+  using VT = float;
 };
 template <> struct Traits<Npp16f> {
   using VT = float;

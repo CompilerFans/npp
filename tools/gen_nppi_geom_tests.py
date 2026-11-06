@@ -98,10 +98,7 @@ def emit_resize_sqr(row: dict) -> Optional[str]:
     S = CTYPE.get(row["dtype"])
     if lay is None or S is None:
         return None
-    # NPP's 64f SqrPixel path computes with reduced (float-sized) precision;
-    # the double CPU reference does not reproduce it (deferred).
-    if row["dtype"] == "64f":
-        return None
+
     C, A = lay[1]
     name = re.sub(r"\W", "_", fn)
     lam = (f"[](const {S} *a, NppiSize ss, int sa, NppiRect sr, {S} *d, int ds, "
@@ -164,17 +161,16 @@ def emit_remap(row: dict) -> Optional[str]:
     S = CTYPE.get(row["dtype"])
     if lay is None or S is None:
         return None
-    # 64f remap maps are Npp64f and NPP's 64f sampling precision is deferred.
-    if row["dtype"] == "64f":
-        return None
+
     C, A = lay[1]
+    M = "Npp64f" if row["dtype"] == "64f" else "Npp32f"
     name = re.sub(r"\W", "_", fn)
-    lam = (f"[](const {S} *a, NppiSize ss, int sa, NppiRect sr, const Npp32f *mx, int mxs, "
-           f"const Npp32f *my, int mys, {S} *d, int ds, NppiSize droi, int m, NppStreamContext c) "
+    lam = (f"[](const {S} *a, NppiSize ss, int sa, NppiRect sr, const {M} *mx, int mxs, "
+           f"const {M} *my, int mys, {S} *d, int ds, NppiSize droi, int m, NppStreamContext c) "
            f"{{ (void)ss; (void)sa; (void)sr; (void)mx; (void)mxs; (void)my; (void)mys; "
            f"(void)ds; (void)droi; (void)m; (void)c; "
            f"return {fn}(a, ss, sa, sr, mx, mxs, my, mys, d, ds, droi, m, c); }}")
-    prefix = f"num::run_remap<{S}, Npp32f, {C}, {A}>"
+    prefix = f"num::run_remap<{S}, {M}, {C}, {A}>"
     return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
 
 
@@ -395,11 +391,22 @@ def emit_resize_planar(row: dict) -> Optional[str]:
     return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
 
 
+def emit_resize_sqr_advanced(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    if fn != "nppiResizeSqrPixel_8u_C1R_Advanced_Ctx":
+        return None
+    name = re.sub(r"\W", "_", fn)
+    lam = ("[](const Npp8u *a, NppiSize ss, int sa, NppiRect sr, Npp8u *d, int ds, NppiRect dr, "
+           "double fx, double fy, Npp8u *buf, int m, NppStreamContext c) { return "
+           f"{fn}(a, ss, sa, sr, d, ds, dr, fx, fy, buf, m, c); }}")
+    return (f"TEST(NumGen, {name}) {{\n  num::run_resize_sqr_advanced_8u(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
 def emit_resize_sqr_planar(row: dict) -> Optional[str]:
     fn = row["function_name"]
     P = _planar_count(fn)
     S = CTYPE.get(row["dtype"])
-    if P is None or S is None or row["dtype"] == "64f":
+    if P is None or S is None:
         return None
     name = re.sub(r"\W", "_", fn)
     lam = (f"[](const {S} **sp, NppiSize ss, int sstep, NppiRect sr, {S} **dp, int dstep, NppiRect dr, "
@@ -414,14 +421,15 @@ def emit_remap_planar(row: dict) -> Optional[str]:
     fn = row["function_name"]
     P = _planar_count(fn)
     S = CTYPE.get(row["dtype"])
-    if P is None or S is None or row["dtype"] == "64f":
+    if P is None or S is None:
         return None
+    M = "Npp64f" if row["dtype"] == "64f" else "Npp32f"
     name = re.sub(r"\W", "_", fn)
-    lam = (f"[](const {S} **sp, NppiSize ss, int sstep, NppiRect sr, const float *mx, int mxs, "
-           f"const float *my, int mys, {S} **dp, int dstep, NppiSize ds, int m, NppStreamContext c) "
+    lam = (f"[](const {S} **sp, NppiSize ss, int sstep, NppiRect sr, const {M} *mx, int mxs, "
+           f"const {M} *my, int mys, {S} **dp, int dstep, NppiSize ds, int m, NppStreamContext c) "
            f"{{ (void)ss; (void)sstep; (void)sr; (void)mxs; (void)mys; (void)dstep; (void)ds; (void)m; (void)c; "
            f"return {fn}(sp, ss, sstep, sr, mx, mxs, my, mys, dp, dstep, ds, m, c); }}")
-    prefix = f"num::run_remap_planar<{S}, {P}>"
+    prefix = f"num::run_remap_planar<{S}, {P}, {M}>"
     return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
 
 
@@ -445,8 +453,9 @@ def main() -> int:
             text = (emit_resize_planar(row) if _planar_count(row["function_name"])
                     else emit_resize(row))
         elif fam == "nppiResizeSqrPixel":
-            text = (emit_resize_sqr_planar(row) if _planar_count(row["function_name"])
-                    else emit_resize_sqr(row))
+            text = (emit_resize_sqr_advanced(row) or
+                    (emit_resize_sqr_planar(row) if _planar_count(row["function_name"])
+                     else emit_resize_sqr(row)))
         elif fam == "nppiResizeBatch":
             text = emit_resize_batch(row)
         elif fam == "nppiRotate":
