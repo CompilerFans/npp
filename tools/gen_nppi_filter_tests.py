@@ -295,6 +295,22 @@ def emit_tail(row: dict) -> Optional[str]:
     return None
 
 
+def emit_wiener(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    m = re.match(r"nppiFilterWienerBorder_(8u|16s|32f)_(C1R|C3R|C4R|AC4R)_Ctx$", fn)
+    if not m:
+        return None
+    src = {"8u": "Npp8u", "16s": "Npp16s", "32f": "Npp32f"}[m.group(1)]
+    c, a = LAYOUT[m.group(2)]
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[](const {src} *sp, int ss, NppiSize srcSize, NppiPoint off, {src} *dp, int ds, "
+           f"NppiSize roi, NppiSize mask, NppiPoint anchor, const Npp32f *noise, int border, "
+           f"NppStreamContext ctx) {{ return {fn}(sp, ss, srcSize, off, dp, ds, roi, mask, "
+           f"anchor, const_cast<Npp32f *>(noise), (NppiBorderType)border, ctx); }}")
+    prefix = f"num::filtwien::run_wiener<{src}, {c}, {a}>"
+    return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -306,7 +322,7 @@ def main() -> int:
     for row in rows:
         text = (emit_fixed(row) or emit_deriv(row) or emit_gauss(row) or emit_window(row)
                 or emit_generic(row) or emit_sumwindow(row) or emit_gradient(row)
-                or emit_tail(row))
+                or emit_tail(row) or emit_wiener(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
@@ -321,7 +337,8 @@ def main() -> int:
               "#include \"num_nppi_filter_generic.h\"\n\n"
               "#include \"num_nppi_filter_sumwindow.h\"\n\n"
               "#include \"num_nppi_filter_gradient.h\"\n\n"
-              "#include \"num_nppi_filter_tail.h\"\n\n")
+              "#include \"num_nppi_filter_tail.h\"\n\n"
+              "#include \"num_nppi_filter_wiener.h\"\n\n")
     if args.emit:
         DEST.write_text(header + "\n".join(out))
         prev = {}

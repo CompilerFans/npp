@@ -134,7 +134,7 @@
   "skipped": []
  },
  "nppi_filtering_functions.h": {
-  "emitted": 799,
+  "emitted": 811,
   "skipped": [
    {
     "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx",
@@ -624,66 +624,6 @@
    {
     "function": "nppiFilterUnsharpBorder_8u_C4R_Ctx",
     "family": "nppiFilterUnsharpBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterWienerBorder_16s_AC4R_Ctx",
-    "family": "nppiFilterWienerBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterWienerBorder_16s_C1R_Ctx",
-    "family": "nppiFilterWienerBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterWienerBorder_16s_C3R_Ctx",
-    "family": "nppiFilterWienerBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterWienerBorder_16s_C4R_Ctx",
-    "family": "nppiFilterWienerBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterWienerBorder_32f_AC4R_Ctx",
-    "family": "nppiFilterWienerBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterWienerBorder_32f_C1R_Ctx",
-    "family": "nppiFilterWienerBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterWienerBorder_32f_C3R_Ctx",
-    "family": "nppiFilterWienerBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterWienerBorder_32f_C4R_Ctx",
-    "family": "nppiFilterWienerBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterWienerBorder_8u_AC4R_Ctx",
-    "family": "nppiFilterWienerBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterWienerBorder_8u_C1R_Ctx",
-    "family": "nppiFilterWienerBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterWienerBorder_8u_C3R_Ctx",
-    "family": "nppiFilterWienerBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterWienerBorder_8u_C4R_Ctx",
-    "family": "nppiFilterWienerBorder",
     "reason": "later filtering batch / unsupported"
    },
    {
