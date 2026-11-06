@@ -486,6 +486,71 @@ YUV_FAMILIES = {"nppiYUV420ToRGB", "nppiYUV420ToBGR", "nppiYUV422ToRGB",
                 "nppiRGBToYUV420", "nppiRGBToYUV422"}
 
 
+C3CONV422_KIND = {
+    "rgbToYCbCr422C3C2": ("FwdC3C2", 3, "0"),
+    "rgbToYCbCr422C3P3": ("FwdC3P3", 2, "0"),
+    "rgbToYCbCr422P3C2": ("FwdP3C2", 0, "0"),
+    "yCbCr422ToRgbC2": ("InvC2C", 4, "0"),
+    "yCbCr422ToRgbC2P3": ("InvC2P3", 1, "0"),
+    "yCbCr422ToRgbP3C3": ("InvP3C3", 1, "0"),
+    "yCbCr422ToCbYCr422": ("Reorder", 0, "0"),
+    "rgbToCbYCr422GammaC3C2": ("GammaErr", 0, "0"),
+}
+_YCBCR422_FILES: dict = {}
+YCBCR422_FAMILIES = {
+    "nppiRGBToYCbCr422", "nppiBGRToYCbCr422", "nppiYCbCr422ToRGB", "nppiYCbCr422ToBGR",
+    "nppiYCbCr422ToCbYCr422", "nppiRGBToCbYCr422Gamma",
+}
+
+
+def emit_ycbcr422(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    fam = row["family"]
+    if fam not in YCBCR422_FAMILIES:
+        return None
+    path = ROOT / "src" / "nppi" / "nppi_color_conversion_operations" / f"nppi_c3_{fam}_generated.cpp"
+    if not path.exists():
+        return None
+    text = _YCBCR422_FILES.setdefault(str(path), path.read_text())
+    m = re.search(re.escape(fn) + r"\s*\(", text)
+    if not m:
+        return None
+    m2 = re.search(r"return nppi::c3conv::(\w+)\(([^;]*)\);", text[m.end():])
+    if not m2 or m2.group(1) not in C3CONV422_KIND:
+        return None
+    exec_name = m2.group(1)
+    kind, nargs, _ = C3CONV422_KIND[exec_name]
+    tail = m2.group(2).split("nppStreamCtx.hStream")[-1]
+    ints = [int(x) for x in re.findall(r"-?\d+", tail)]
+    vals = (ints + [0, 0, 0, 0])[:4]
+    if kind == "InvC2C" and vals[0] == 4:
+        vals[3] = 0x37  # constant alpha used by the emitted lambda
+    name = re.sub(r"\W", "_", fn)
+    sig = ("[](const Npp8u *const *sp, const Npp8u *ps, int ss, int *ssa, Npp8u *const *dp, Npp8u *pd, "
+           "int ds, int *dsa, NppiSize r, NppStreamContext c) ")
+    voids = "(void)sp; (void)ps; (void)ss; (void)ssa; (void)dp; (void)pd; (void)ds; (void)dsa; (void)r; (void)c; "
+    if kind == "FwdC3C2" or kind == "Reorder" or kind == "GammaErr":
+        body = f"return {fn}(ps, ss, pd, ds, r, c);"
+    elif kind == "FwdC3P3":
+        body = f"return {fn}(ps, ss, const_cast<Npp8u **>(dp), dsa, r, c);"
+    elif kind == "InvC2P3":
+        body = f"return {fn}(ps, ss, const_cast<Npp8u **>(dp), ds, r, c);"
+    elif kind == "FwdP3C2":
+        body = f"return {fn}(sp, ssa[0], pd, ds, r, c);"
+    elif kind == "InvP3C3":
+        body = f"return {fn}(sp, ssa, pd, ds, r, c);"
+    else:  # InvC2C
+        if vals[0] == 4:
+            body = f"return {fn}(ps, ss, pd, ds, r, (Npp8u)0x37, c);"
+        else:
+            body = f"return {fn}(ps, ss, pd, ds, r, c);"
+    lam = f"{sig}{{ {voids}{body} }}"
+    return (f"TEST(NumGen, {name}) {{\n"
+            f"  num::ycbcr422::run_ycbcr422(\n      \"{fn}\", num::ycbcr422::Kind::{kind}, "
+            f"&num::ycbcr422::mat601v(), 0,\n      {vals[0]}, {vals[1]}, {vals[2]}, {vals[3]},\n"
+            f"      {lam});\n}}\n")
+
+
 LAYOUT_KIND = {
     "c2ToP3": ("C2P3", 4), "c2ToP2": ("C2P2", 3), "p3ToC2": ("P3C2", 3),
     "p2ToC2_411": ("P2C2_411", 1), "p2ToP3_411": ("P2P3_411", 0),
@@ -728,7 +793,7 @@ def main() -> int:
                 or emit_gamma(row) or emit_gray(row) or emit_gradient(row) or emit_hls(row)
                 or emit_hls_layout(row) or emit_yuv(row) or emit_cs(row) or emit_cfa(row)
                 or emit_ycbcr_jpeg(row) or emit_yuv_planar(row) or emit_yuv_layout(row)
-                or emit_nv12(row) or emit_nv12_twist(row))
+                or emit_ycbcr422(row) or emit_nv12(row) or emit_nv12_twist(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
                                 reason="later color batch / unsupported"))
@@ -743,6 +808,7 @@ def main() -> int:
               "#include \"num_nppi_yuv.h\"\n"
               "#include \"num_nppi_yuv420.h\"\n"
               "#include \"num_nppi_yuv_layout.h\"\n"
+              "#include \"num_nppi_ycbcr422.h\"\n"
               "#include \"num_nppi_colorspace.h\"\n"
               "#include \"num_nppi_cfa.h\"\n"
               "#include \"num_nppi_ycbcr.h\"\n"
