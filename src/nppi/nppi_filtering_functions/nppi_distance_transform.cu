@@ -1,4 +1,6 @@
 #include "npp.h"
+#include "nppi_signed_distance_common.cuh"
+
 #include <cfloat>
 #include <cmath>
 #include <cuda_runtime.h>
@@ -627,58 +629,19 @@ NppStatus nppiSignedDistanceTransformPBA_32f64f_C1R_Ctx_impl(
   int width = oSizeROI.width;
   int height = oSizeROI.height;
   cudaStream_t stream = nppStreamCtx.hStream;
-  size_t numPixels = (size_t)width * height;
 
-  // Buffer layout: ExtX, ExtY, IntX, IntY, IsInside
-  int *pSitesExtX = (int *)pDeviceBuffer;
-  int *pSitesExtY = pSitesExtX + numPixels;
-  int *pSitesIntX = pSitesExtY + numPixels;
-  int *pSitesIntY = pSitesIntX + numPixels;
-  bool *pIsInside = (bool *)(pSitesIntY + numPixels);
-
-  dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
-  dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
-
-  // Step 1: Initialize and determine inside/outside
-  initSignedBoundarySites_kernel<Npp32f><<<gridSize, blockSize, 0, stream>>>(
-      pSrc, nSrcStep, width, height, nCutoffValue, pSitesExtX, pSitesExtY, pSitesIntX, pSitesIntY, pIsInside);
-
-  // Step 2: Mark boundary pixels as sites
-  markBoundarySites_kernel<Npp32f><<<gridSize, blockSize, 0, stream>>>(
-      pSrc, nSrcStep, width, height, nCutoffValue, pIsInside, pSitesExtX, pSitesExtY, pSitesIntX, pSitesIntY);
-
-  // Step 3: Run PBA for exterior sites (boundary of inside region)
-  runPBA(pSitesExtX, pSitesExtY, width, height, stream);
-
-  // Step 4: Run PBA for interior sites (boundary of outside region)
-  runPBA(pSitesIntX, pSitesIntY, width, height, stream);
-
-  // Output Voronoi diagram if requested (use exterior sites)
-  if (pDstVoronoi != nullptr) {
-    computeVoronoi_kernel<<<gridSize, blockSize, 0, stream>>>(pSitesExtX, pSitesExtY, width, height, pDstVoronoi,
-                                                              nDstVoronoiStep);
-  }
-
-  // Output relative Manhattan distances if requested
-  if (pDstVoronoiRelativeManhattanDistances != nullptr) {
-    computeRelativeManhattanDistances_kernel<<<gridSize, blockSize, 0, stream>>>(
-        pSitesExtX, pSitesExtY, width, height, pDstVoronoiRelativeManhattanDistances,
-        nDstVoronoiRelativeManhattanDistancesStep);
-  }
-
-  // Merge distances for signed output
-  if (pDstTransform != nullptr) {
-    mergeSignedDistances_kernel<<<gridSize, blockSize, 0, stream>>>(pSitesExtX, pSitesExtY, pSitesIntX, pSitesIntY,
-                                                                    pIsInside, width, height, nSubPixelXShift,
-                                                                    nSubPixelYShift, pDstTransform, nDstTransformStep);
-  }
-
-  cudaError_t err = cudaGetLastError();
-  if (err != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_SUCCESS;
+  if (pSrc == nullptr || pDeviceBuffer == nullptr) return NPP_NULL_POINTER_ERROR;
+  // With an antialiasing workspace the reference emits the positive Euclidean
+  // distance to the nearest opposite-class pixel; without it the folded signed
+  // transform is produced (both measured).
+  const int mode = pAntialiasingDeviceBuffer != nullptr ? nppi_sdt::kEuclidOpposite : nppi_sdt::kSignedFolded;
+  int insideCount = 0;
+  const cudaError_t err = nppi_sdt::runKernels<Npp32f, Npp64f>(
+      pSrc, nSrcStep, nCutoffValue, nSubPixelXShift, nSubPixelYShift, pDstVoronoi, nDstVoronoiStep,
+      pDstVoronoiIndices, nDstVoronoiIndicesStep, (Npp16u *)pDstVoronoiRelativeManhattanDistances,
+      nDstVoronoiRelativeManhattanDistancesStep, pDstTransform, nDstTransformStep, width, height, pDeviceBuffer,
+      mode, &insideCount, stream);
+  return err == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiSignedDistanceTransformPBA_64f_C1R_Ctx_impl(
@@ -691,58 +654,17 @@ NppStatus nppiSignedDistanceTransformPBA_64f_C1R_Ctx_impl(
   int width = oSizeROI.width;
   int height = oSizeROI.height;
   cudaStream_t stream = nppStreamCtx.hStream;
-  size_t numPixels = (size_t)width * height;
 
-  // Buffer layout: ExtX, ExtY, IntX, IntY, IsInside
-  int *pSitesExtX = (int *)pDeviceBuffer;
-  int *pSitesExtY = pSitesExtX + numPixels;
-  int *pSitesIntX = pSitesExtY + numPixels;
-  int *pSitesIntY = pSitesIntX + numPixels;
-  bool *pIsInside = (bool *)(pSitesIntY + numPixels);
-
-  dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
-  dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
-
-  // Step 1: Initialize and determine inside/outside
-  initSignedBoundarySites_kernel<Npp64f><<<gridSize, blockSize, 0, stream>>>(
-      pSrc, nSrcStep, width, height, nCutoffValue, pSitesExtX, pSitesExtY, pSitesIntX, pSitesIntY, pIsInside);
-
-  // Step 2: Mark boundary pixels as sites
-  markBoundarySites_kernel<Npp64f><<<gridSize, blockSize, 0, stream>>>(
-      pSrc, nSrcStep, width, height, nCutoffValue, pIsInside, pSitesExtX, pSitesExtY, pSitesIntX, pSitesIntY);
-
-  // Step 3: Run PBA for exterior sites
-  runPBA(pSitesExtX, pSitesExtY, width, height, stream);
-
-  // Step 4: Run PBA for interior sites
-  runPBA(pSitesIntX, pSitesIntY, width, height, stream);
-
-  // Output Voronoi diagram if requested
-  if (pDstVoronoi != nullptr) {
-    computeVoronoi_kernel<<<gridSize, blockSize, 0, stream>>>(pSitesExtX, pSitesExtY, width, height, pDstVoronoi,
-                                                              nDstVoronoiStep);
-  }
-
-  // Output relative Manhattan distances if requested
-  if (pDstVoronoiRelativeManhattanDistances != nullptr) {
-    computeRelativeManhattanDistances_kernel<<<gridSize, blockSize, 0, stream>>>(
-        pSitesExtX, pSitesExtY, width, height, pDstVoronoiRelativeManhattanDistances,
-        nDstVoronoiRelativeManhattanDistancesStep);
-  }
-
-  // Merge distances for signed output
-  if (pDstTransform != nullptr) {
-    mergeSignedDistances_kernel<<<gridSize, blockSize, 0, stream>>>(pSitesExtX, pSitesExtY, pSitesIntX, pSitesIntY,
-                                                                    pIsInside, width, height, nSubPixelXShift,
-                                                                    nSubPixelYShift, pDstTransform, nDstTransformStep);
-  }
-
-  cudaError_t err = cudaGetLastError();
-  if (err != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_SUCCESS;
+  if (pSrc == nullptr || pDeviceBuffer == nullptr) return NPP_NULL_POINTER_ERROR;
+  // The reference ignores the AA workspace for the 64f entry points and
+  // always emits the folded signed transform (measured).
+  int insideCount = 0;
+  const cudaError_t err = nppi_sdt::runKernels<Npp64f, Npp64f>(
+      pSrc, nSrcStep, nCutoffValue, nSubPixelXShift, nSubPixelYShift, pDstVoronoi, nDstVoronoiStep,
+      pDstVoronoiIndices, nDstVoronoiIndicesStep, (Npp16u *)pDstVoronoiRelativeManhattanDistances,
+      nDstVoronoiRelativeManhattanDistancesStep, pDstTransform, nDstTransformStep, width, height, pDeviceBuffer,
+      nppi_sdt::kSignedFolded, &insideCount, stream);
+  return err == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 } // extern "C"

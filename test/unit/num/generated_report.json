@@ -134,7 +134,7 @@
   "skipped": []
  },
  "nppi_filtering_functions.h": {
-  "emitted": 929,
+  "emitted": 949,
   "skipped": [
    {
     "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx",
@@ -169,76 +169,6 @@
    {
     "function": "nppiContoursImageMarchingSquaresInterpolation_64f_C1R_Ctx",
     "family": "nppiContoursImageMarchingSquaresInterpolation",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformAbsPBA_16s16u_C1R_Ctx",
-    "family": "nppiDistanceTransformAbsPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformAbsPBA_16s32f_C1R_Ctx",
-    "family": "nppiDistanceTransformAbsPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformAbsPBA_16s64f_C1R_Ctx",
-    "family": "nppiDistanceTransformAbsPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformAbsPBA_16u16u_C1R_Ctx",
-    "family": "nppiDistanceTransformAbsPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformAbsPBA_16u32f_C1R_Ctx",
-    "family": "nppiDistanceTransformAbsPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformAbsPBA_16u64f_C1R_Ctx",
-    "family": "nppiDistanceTransformAbsPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformAbsPBA_32f64f_C1R_Ctx",
-    "family": "nppiDistanceTransformAbsPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformAbsPBA_64f_C1R_Ctx",
-    "family": "nppiDistanceTransformAbsPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformAbsPBA_8s16u_C1R_Ctx",
-    "family": "nppiDistanceTransformAbsPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformAbsPBA_8s32f_C1R_Ctx",
-    "family": "nppiDistanceTransformAbsPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformAbsPBA_8s64f_C1R_Ctx",
-    "family": "nppiDistanceTransformAbsPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformAbsPBA_8u16u_C1R_Ctx",
-    "family": "nppiDistanceTransformAbsPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformAbsPBA_8u32f_C1R_Ctx",
-    "family": "nppiDistanceTransformAbsPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformAbsPBA_8u64f_C1R_Ctx",
-    "family": "nppiDistanceTransformAbsPBA",
     "reason": "later filtering batch / unsupported"
    },
    {
@@ -309,36 +239,6 @@
    {
     "function": "nppiSegmentWatershed_8u_C1IR_Ctx",
     "family": "nppiSegmentWatershed",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiSignedDistanceTransformAbsPBA_32f64f_C1R_Ctx",
-    "family": "nppiSignedDistanceTransformAbsPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiSignedDistanceTransformAbsPBA_32f_C1R_Ctx",
-    "family": "nppiSignedDistanceTransformAbsPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiSignedDistanceTransformAbsPBA_64f_C1R_Ctx",
-    "family": "nppiSignedDistanceTransformAbsPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiSignedDistanceTransformPBA_32f64f_C1R_Ctx",
-    "family": "nppiSignedDistanceTransformPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiSignedDistanceTransformPBA_32f_C1R_Ctx",
-    "family": "nppiSignedDistanceTransformPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiSignedDistanceTransformPBA_64f_C1R_Ctx",
-    "family": "nppiSignedDistanceTransformPBA",
     "reason": "later filtering batch / unsupported"
    }
   ]

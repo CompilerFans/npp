@@ -394,18 +394,18 @@ PBA_DT = {"8u": "Npp8u", "8s": "Npp8s", "16u": "Npp16u", "16s": "Npp16s", "32f":
 
 def emit_distance_transform(row: dict) -> Optional[str]:
     fn = row["function_name"]
-    m = re.match(r"nppiDistanceTransformPBA_(8u|8s|16u|16s|32f|64f)(16u|32f|64f)?_C1R_Ctx$", fn)
+    m = re.match(r"nppiDistanceTransform(Abs)?PBA_(8u|8s|16u|16s|32f|64f)(16u|32f|64f)?_C1R_Ctx$", fn)
     if not m:
         return None
-    src = PBA_DT[m.group(1)]
-    dst = PBA_DT[m.group(2) or m.group(1)]
+    src = PBA_DT[m.group(2)]
+    dst = PBA_DT[m.group(3) or m.group(2)]
     name = re.sub(r"\W", "_", fn)
     has_abuf = fn.endswith("64f_C1R_Ctx")
     if has_abuf:
-        body = (f"return {fn}(sp, ss, minSite, maxSite, dv, dsv, di, dsi, dm, dsm, dt, dts, roi, "
+        body = (f"return {fn}(sp, ss, minSite, maxSite, nullptr, 0, nullptr, 0, nullptr, 0, dt, dts, roi, "
                 f"buf, abuf, ctx);")
     else:
-        body = (f"return {fn}(sp, ss, minSite, maxSite, dv, dsv, di, dsi, dm, dsm, dt, dts, roi, "
+        body = (f"return {fn}(sp, ss, minSite, maxSite, nullptr, 0, nullptr, 0, nullptr, 0, dt, dts, roi, "
                 f"buf, ctx);")
     lam = (f"[]({src} *sp, int ss, {src} minSite, {src} maxSite, Npp16s *dv, int dsv, Npp16s *di, "
            f"int dsi, Npp16s *dm, int dsm, {dst} *dt, int dts, NppiSize roi, Npp8u *buf, "
@@ -452,6 +452,40 @@ def emit_floodfill(row: dict) -> Optional[str]:
     return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
 
 
+
+def emit_signed_dt(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    m = re.match(r"nppiSignedDistanceTransform(Abs)?PBA_(32f64f|32f|64f)_C1R_Ctx$", fn)
+    if not m:
+        return None
+    absf = m.group(1) is not None
+    dt = m.group(2)
+    src = "Npp32f" if dt.startswith("32f") else "Npp64f"
+    out = "Npp32f" if dt == "32f" else "Npp64f"
+    name = re.sub(r"\W", "_", fn)
+    has_abuf = dt != "32f"
+    abuf_arg = ", abuf" if has_abuf else ""
+    man = "(Npp16u *)man" if absf else "(Npp16s *)man"
+    lam = (f"[]({src} *sp, int ss, {src} cutoff, {out} sx, {out} sy, Npp16s *vor, int vs, "
+           f"Npp16s *idx, int ix, void *man, int ms, {out} *dt, int dts, "
+           f"NppiSize roi, Npp8u *buf, Npp8u *abuf, NppStreamContext ctx) {{ (void)abuf; "
+           f"return {fn}(sp, ss, cutoff, sx, sy, vor, vs, idx, ix, {man}, ms, dt, dts, roi, "
+           f"buf{abuf_arg}, ctx); }}")
+    # Value model per entry point (see the header's Model enum).  Only the Abs
+    # 32f64f entry point receives the antialiasing workspace (it is mandatory
+    # there and its value rule is reproducible for closed regions); the other
+    # flavours are exercised in their documented non-AA mode, where the
+    # reference emits the folded signed / folded magnitude transforms.
+    if absf and dt == "32f64f":
+        model = "num::signeddt::kAaAbs"
+    elif absf and dt == "32f":
+        model = "num::signeddt::kAbsFolded"
+    else:
+        model = "num::signeddt::kSignedFolded"
+    prefix = f"num::signeddt::run_signed_dt<{src}, {out}, {model}>"
+    return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -465,7 +499,8 @@ def main() -> int:
                 or emit_generic(row) or emit_sumwindow(row) or emit_gradient(row)
                 or emit_tail(row) or emit_wiener(row) or emit_unsharp(row)
                 or emit_pyramid(row) or emit_hog(row) or emit_median_bufsize(row)
-                or emit_distance_transform(row) or emit_floodfill(row))
+                or emit_distance_transform(row) or emit_floodfill(row)
+                or emit_signed_dt(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
@@ -487,7 +522,8 @@ def main() -> int:
               "#include \"num_nppi_filter_hog.h\"\n\n"
               "#include \"num_nppi_median_bufsize.h\"\n\n"
               "#include \"num_nppi_distance_transform.h\"\n\n"
-              "#include \"num_nppi_floodfill.h\"\n\n")
+              "#include \"num_nppi_floodfill.h\"\n\n"
+              "#include \"num_nppi_signed_distance_transform.h\"\n\n")
     if args.emit:
         DEST.write_text(header + "\n".join(out))
         prev = {}
