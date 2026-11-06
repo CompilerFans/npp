@@ -57,7 +57,7 @@ template <Sub S> inline int chromaH(int h) { return S == Sub::S420 ? h / 2 : h; 
 
 // SrcPacked: packed C3 source (else three planes); DstC2: interleaved
 // Y0 U Y1 V destination (else three planes).
-template <Sub S, bool SrcPacked, bool DstC2, class Call>
+template <Sub S, bool SrcPacked, bool DstC2, bool Bgr = false, int SrcPp = 3, class Call>
 void run_yuv_fwd(const char *id, Call call) {
   NppStreamContext ctx{};
   if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
@@ -74,8 +74,8 @@ void run_yuv_fwd(const char *id, Call call) {
     const uint64_t seed = case_seed(id, cf.w, cf.h, 0, 0, 0, 0);
     std::vector<Buf<Npp8u> *> srcs;
     if constexpr (SrcPacked) {
-      Buf<Npp8u> *a = new Buf<Npp8u>(cf.w, cf.h, 3, 0, 0);
-      fill_regime(*a, 3, seed, kWide, 0, false, false, false);
+      Buf<Npp8u> *a = new Buf<Npp8u>(cf.w, cf.h, SrcPp, 0, 0);
+      fill_regime(*a, SrcPp, seed, kWide, 0, false, false, false);
       a->dev.copyFromHost(a->host);
       srcs.push_back(a);
     } else {
@@ -139,8 +139,9 @@ void run_yuv_fwd(const char *id, Call call) {
     const int ew = cf.w & ~1;
     const int eh = (S == Sub::S420) ? (cf.h & ~1) : cf.h;
     auto srcAt = [&](int c, int x, int y) -> int {
-      if constexpr (SrcPacked) return srcs[0]->hptr()[(size_t)y * srcs[0]->step + (size_t)x * 3 + (size_t)c];
-      else return srcs[(size_t)c]->hptr()[(size_t)y * srcs[(size_t)c]->step + (size_t)x];
+      const int p = Bgr ? 2 - c : c;
+      if constexpr (SrcPacked) return srcs[0]->hptr()[(size_t)y * srcs[0]->step + (size_t)x * SrcPp + (size_t)p];
+      else return srcs[(size_t)p]->hptr()[(size_t)y * srcs[(size_t)p]->step + (size_t)x];
     };
     std::vector<std::vector<uint8_t>> want = pre;
     for (int y = 0; y < eh; ++y)

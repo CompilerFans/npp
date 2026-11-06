@@ -130,18 +130,8 @@
   ]
  },
  "nppi_color_conversion.h": {
-  "emitted": 510,
+  "emitted": 517,
   "skipped": [
-   {
-    "function": "nppiAlphaCompColorKey_8u_AC4R_Ctx",
-    "family": "nppiAlphaCompColorKey",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiBGRToYUV420_8u_AC4P3R_Ctx",
-    "family": "nppiBGRToYUV420",
-    "reason": "later color batch / unsupported"
-   },
    {
     "function": "nppiCMYKOrYCCKToBGR_JPEG_8u_P4C3R_Ctx",
     "family": "nppiCMYKOrYCCKToBGR_JPEG",
@@ -160,21 +150,6 @@
    {
     "function": "nppiCMYKOrYCCKToRGB_JPEG_8u_P4P3R_Ctx",
     "family": "nppiCMYKOrYCCKToRGB_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiCompColorKey_8u_C1R_Ctx",
-    "family": "nppiCompColorKey",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiCompColorKey_8u_C3R_Ctx",
-    "family": "nppiCompColorKey",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiCompColorKey_8u_C4R_Ctx",
-    "family": "nppiCompColorKey",
     "reason": "later color batch / unsupported"
    },
    {
@@ -300,16 +275,6 @@
    {
     "function": "nppiYUV422ToRGBBatch_8u_P3C3R_Ctx",
     "family": "nppiYUV422ToRGBBatch",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYUV422ToRGB_16u_ColorTwist32f_P3AC4R_Ctx",
-    "family": "nppiYUV422ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYUV422ToRGB_8u_ColorTwist32f_P3AC4R_Ctx",
-    "family": "nppiYUV422ToRGB",
     "reason": "later color batch / unsupported"
    },
    {

@@ -483,7 +483,7 @@ def emit_cfa(row: dict) -> Optional[str]:
 
 
 YUV_FAMILIES = {"nppiYUV420ToRGB", "nppiYUV420ToBGR", "nppiYUV422ToRGB",
-                "nppiRGBToYUV420", "nppiRGBToYUV422"}
+                "nppiRGBToYUV420", "nppiRGBToYUV422", "nppiBGRToYUV420"}
 
 
 YCBCR420_TABLE = {
@@ -564,6 +564,32 @@ YCBCR422_FAMILIES = {
 }
 
 
+COLOR_KEY = "0x20, 0x40, 0x60, 0x80"
+
+
+def emit_color_key(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    name = re.sub(r"\W", "_", fn)
+    if fn == "nppiCompColorKey_8u_C1R_Ctx":
+        lam = ("[](const Npp8u *s1, int s1s, const Npp8u *s2, int s2s, Npp8u *d, int ds, NppiSize r, "
+               "const Npp8u *key, NppStreamContext c) "
+               "{ return nppiCompColorKey_8u_C1R_Ctx(s1, s1s, s2, s2s, d, ds, r, key[0], c); }")
+        return (f"TEST(NumGen, {name}) {{\n  num::colorkey::run_comp_key<1>(\n      \"{fn}\", kColorKey, {lam});\n}}\n")
+    if fn in ("nppiCompColorKey_8u_C3R_Ctx", "nppiCompColorKey_8u_C4R_Ctx"):
+        ch = 3 if "C3" in fn else 4
+        lam = (f"[](const Npp8u *s1, int s1s, const Npp8u *s2, int s2s, Npp8u *d, int ds, NppiSize r, "
+               f"const Npp8u *key, NppStreamContext c) "
+               f"{{ return {fn}(s1, s1s, s2, s2s, d, ds, r, const_cast<Npp8u *>(key), c); }}")
+        return (f"TEST(NumGen, {name}) {{\n  num::colorkey::run_comp_key<{ch}>(\n      \"{fn}\", kColorKey, {lam});\n}}\n")
+    if fn == "nppiAlphaCompColorKey_8u_AC4R_Ctx":
+        lam = ("[](const Npp8u *s1, int s1s, Npp8u a1, const Npp8u *s2, int s2s, Npp8u a2, Npp8u *d, int ds, "
+               "NppiSize r, const Npp8u *key, NppiAlphaOp op, NppStreamContext c) "
+               "{ return nppiAlphaCompColorKey_8u_AC4R_Ctx(s1, s1s, a1, s2, s2s, a2, d, ds, r, "
+               "const_cast<Npp8u *>(key), op, c); }")
+        return (f"TEST(NumGen, {name}) {{\n  num::colorkey::run_alpha_comp_key(\n      \"{fn}\", kColorKey, {lam});\n}}\n")
+    return None
+
+
 TWIST_MATRIX = "0.5f, 0.3f, 0.2f, 10.0f, -0.2f, 0.7f, 0.1f, 20.0f, 0.1f, -0.3f, 0.9f, 5.0f"
 
 YUV_TWIST_TABLE = {
@@ -584,6 +610,8 @@ YUV_TWIST_TABLE = {
     "nppiYUV422ToRGB_16u_ColorTwist32f_P3C3R_Ctx": ("Npp16u", "Inv422C", 0, 3, 0, 0, "inv"),
     "nppiYUV422ToRGB_16u_ColorTwist32f_P3C4R_Ctx": ("Npp16u", "Inv422C", 0, 4, 65535, 0, "inv"),
     "nppiYUV422ToRGB_16u_ColorTwist32f_P3R_Ctx": ("Npp16u", "Inv422P3", 0, 0, 0, 0, "invp3"),
+    "nppiYUV422ToRGB_8u_ColorTwist32f_P3AC4R_Ctx": ("Npp8u", "Inv422C", 0, 4, 0x37, 1, "inva"),
+    "nppiYUV422ToRGB_16u_ColorTwist32f_P3AC4R_Ctx": ("Npp16u", "Inv422C", 0, 4, 0x1234, 1, "inva"),
     "nppiRGBToYUV420_8u_ColorTwist32f_C3P3R_Ctx": ("Npp8u", "Fwd420P3", 3, 0, 0, 0, "fwdp3"),
     "nppiRGBToYUV420_8u_ColorTwist32f_P3R_Ctx": ("Npp8u", "Fwd420P3P3", 0, 0, 0, 0, "fwdp3p3"),
     "nppiRGBToYUV420_16u_ColorTwist32f_C3P3R_Ctx": ("Npp16u", "Fwd420P3", 3, 0, 0, 0, "fwdp3"),
@@ -815,7 +843,7 @@ def emit_yuv_planar(row: dict) -> Optional[str]:
     fam = row["family"]
     if fam not in YUV_FAMILIES or "ColorTwist" in fn:
         return None
-    m = re.search(r"_(8u)_(P3C3R|P3C4R|P3AC4R|P3R|C2C3R|C3P3R|C3C2R)_Ctx$", fn)
+    m = re.search(r"_(8u)_(P3C3R|P3C4R|P3AC4R|AC4P3R|P3R|C2C3R|C3P3R|C3C2R)_Ctx$", fn)
     if not m:
         return None
     suffix = m.group(2)
@@ -851,13 +879,15 @@ def emit_yuv_planar(row: dict) -> Optional[str]:
                    f"int ds, int *dsa, NppiSize r, NppStreamContext c) "
                    f"{{ {voids}return {fn}(ps, ss, pd, ds, r, c); }}")
             prefix = f"num::yuvplanar::run_yuv_fwd<num::yuvplanar::Sub::{sub}, true, true>"
-        elif suffix in ("C3P3R", "P3R"):
-            src = "ps" if suffix == "C3P3R" else "sp"
+        elif suffix in ("C3P3R", "AC4P3R", "P3R"):
+            src = "sp" if suffix == "P3R" else "ps"
             lam = (f"[](const Npp8u *const *sp, const Npp8u *ps, int ss, int *ssa, Npp8u *const *dp, Npp8u *pd, "
                    f"int ds, int *dsa, NppiSize r, NppStreamContext c) "
                    f"{{ {voids}return {fn}({src}, ss, const_cast<Npp8u **>(dp), dsa, r, c); }}")
+            bgr_flag = "true" if "BGR" in fn else "false"
+            pp = 4 if suffix == "AC4P3R" else 3
             prefix = (f"num::yuvplanar::run_yuv_fwd<num::yuvplanar::Sub::{sub}, "
-                      f"{'true' if suffix == 'C3P3R' else 'false'}, false>")
+                      f"{'false' if suffix == 'P3R' else 'true'}, false, {bgr_flag}, {pp}>")
         else:
             return None
     return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
@@ -993,7 +1023,7 @@ def main() -> int:
                 or emit_hls_layout(row) or emit_yuv(row) or emit_cs(row) or emit_cfa(row)
                 or emit_ycbcr_jpeg(row) or emit_yuv_planar(row) or emit_yuv_layout(row)
                 or emit_ycbcr422(row) or emit_ycbcr420(row) or emit_ycbcr420_layout(row)
-                or emit_yuv_twist(row) or emit_nv12(row)
+                or emit_yuv_twist(row) or emit_color_key(row) or emit_nv12(row)
                 or emit_nv12_twist(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
@@ -1013,13 +1043,15 @@ def main() -> int:
               "#include \"num_nppi_ycbcr420.h\"\n"
               "#include \"num_nppi_ycbcr420_layout.h\"\n"
               "#include \"num_nppi_yuv_twist.h\"\n"
+              "#include \"num_nppi_color_key.h\"\n"
               "#include \"num_nppi_colorspace.h\"\n"
               "#include \"num_nppi_cfa.h\"\n"
               "#include \"num_nppi_ycbcr.h\"\n"
               "#include \"num_nppi_yuv.h\"\n"
               "#include \"num_nppi_nv12.h\"\n"
               "\n"
-              "static const float kTwist[12] = {" + TWIST_MATRIX + "};\n")
+              "static const float kTwist[12] = {" + TWIST_MATRIX + "};\n"
+              "static const Npp8u kColorKey[4] = {" + COLOR_KEY + "};\n")
     dest = Path(args.out) if args.out else ROOT / "test" / "unit" / "num" / "test_gen_nppi_color.cpp"
     if args.emit:
         dest.write_text(header + "\n".join(out))
