@@ -385,7 +385,11 @@ TEST(ColorConversionContractTest, OddRoiDecodeMatchesEvenCrop) {
   auto runAndCompare = [&](const char *name, auto &&convert, int oddW, int oddH) {
     ASSERT_EQ(convert(NppiSize{W, H}), NPP_NO_ERROR);
     ASSERT_EQ(cudaMemcpy(even.data(), b.dst, even.size(), cudaMemcpyDeviceToHost), cudaSuccess);
-    ASSERT_EQ(convert(NppiSize{oddW, oddH}), NPP_NO_ERROR);
+    // Measured reference: odd dimensions return NPP_DOUBLE_SIZE_WARNING and
+    // the even part is still converted.
+    const NppStatus oddStatus = convert(NppiSize{oddW, oddH});
+    ASSERT_TRUE(oddStatus == NPP_NO_ERROR || oddStatus == NPP_DOUBLE_SIZE_WARNING)
+        << name << " status " << oddStatus;
     ASSERT_EQ(cudaMemcpy(odd.data(), b.dst, odd.size(), cudaMemcpyDeviceToHost), cudaSuccess);
     int diffs = 0;
     for (int row = 0; row < oddH; ++row) {
@@ -418,9 +422,9 @@ TEST(ColorConversionContractTest, OddRoiDecodeMatchesEvenCrop) {
   int dstSteps[3] = {W, W / 2, W / 2};
   const NppiSize oddRoi = {W - 1, H - 1};
   EXPECT_EQ(nppiRGBToYUV420_8u_C3P3R_Ctx(b.rgb, W * 3, dst3, dstSteps, oddRoi, ctx),
-            NPP_WRONG_INTERSECTION_ROI_ERROR);
+            NPP_DOUBLE_SIZE_WARNING);
   EXPECT_EQ(nppiRGBToYUV422_8u_C3C2R_Ctx(b.rgb, W * 3, b.dst, W * 2, oddRoi, ctx),
-            NPP_WRONG_INTERSECTION_ROI_ERROR);
+            NPP_DOUBLE_SIZE_WARNING);
 }
 
 // NV12ToYUV420 handles odd ROIs by writing ceil(width/2) x ceil(height/2)

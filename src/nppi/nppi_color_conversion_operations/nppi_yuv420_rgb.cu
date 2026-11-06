@@ -3,37 +3,23 @@
 #include <cuda_runtime.h>
 
 __device__ inline void yuv420_to_rgb_pixel(uint8_t y, uint8_t u, uint8_t v, uint8_t &r, uint8_t &g, uint8_t &b) {
-  // Fixed-point coefficients (scale = 128) tuned to match NVIDIA NPP YUV420 behavior.
-  int yv = static_cast<int>(y);
-  int ud = static_cast<int>(u) - 128;
-  int vd = static_cast<int>(v) - 128;
-
-  int r_val = yv + ((145 * vd) >> 7);
-  int g_val = yv + (((-22 * ud) + (-45 * vd)) >> 7);
-  int b_val = yv + ((255 * ud) >> 7);
-
-  r_val = max(0, min(255, r_val));
-  g_val = max(0, min(255, g_val));
-  b_val = max(0, min(255, b_val));
-
-  r = static_cast<uint8_t>(r_val);
-  g = static_cast<uint8_t>(g_val);
-  b = static_cast<uint8_t>(b_val);
+  // Measured NPP 13.4 JPEG-style full-range YUV matrix (see the num tests).
+  // Explicit round-to-nearest intrinsics keep the evaluation stepwise.
+  const float Y = static_cast<float>(y);
+  const float U = __fsub_rn(static_cast<float>(u), 128.0f);
+  const float V = __fsub_rn(static_cast<float>(v), 128.0f);
+  const float R = __fadd_rn(Y, __fmul_rn(1.13983f, V));
+  const float G = __fsub_rn(__fsub_rn(Y, __fmul_rn(0.39465f, U)), __fmul_rn(0.58060f, V));
+  const float B = __fadd_rn(Y, __fmul_rn(2.03211f, U));
+  int ri = static_cast<int>(R), gi = static_cast<int>(G), bi = static_cast<int>(B);
+  r = static_cast<uint8_t>(ri < 0 ? 0 : (ri > 255 ? 255 : ri));
+  g = static_cast<uint8_t>(gi < 0 ? 0 : (gi > 255 ? 255 : gi));
+  b = static_cast<uint8_t>(bi < 0 ? 0 : (bi > 255 ? 255 : bi));
 }
 
 __device__ inline void yuv420_to_rgb_bt601_pixel(uint8_t y, uint8_t u, uint8_t v, uint8_t &r, uint8_t &g,
                                                  uint8_t &b) {
-  float Y = static_cast<float>(y);
-  float U = static_cast<float>(u) - 128.0f;
-  float V = static_cast<float>(v) - 128.0f;
-
-  float R = Y + 1.140f * V;
-  float G = Y - 0.395f * U - 0.581f * V;
-  float B = Y + 2.032f * U;
-
-  r = static_cast<uint8_t>(fminf(fmaxf(R, 0.0f), 255.0f));
-  g = static_cast<uint8_t>(fminf(fmaxf(G, 0.0f), 255.0f));
-  b = static_cast<uint8_t>(fminf(fmaxf(B, 0.0f), 255.0f));
+  yuv420_to_rgb_pixel(y, u, v, r, g, b);
 }
 
 __global__ void yuv420_to_rgb_p3c3_kernel(const uint8_t *__restrict__ srcY, int srcYStep,
@@ -87,12 +73,23 @@ __global__ void yuv420_to_rgb_p3c4_kernel(const uint8_t *__restrict__ srcY, int 
   yuv420_to_rgb_pixel(Y, U, V, R, G, B);
 
   int dst_offset = y * dstStep + x * 4;
+  if (alpha_mode == 3) {
+    // Measured reference layout of YUV420ToRGB_8u_P3C4R: the constant alpha
+    // byte precedes the colour channels (ARGB).  The reference kernel's RGB
+    // addressing is broken (luma read at 4x the pixel index); we reproduce
+    // the observable layout with the correct RGB values.
+    dst[dst_offset] = 0xFF;
+    dst[dst_offset + 1] = R;
+    dst[dst_offset + 2] = G;
+    dst[dst_offset + 3] = B;
+    return;
+  }
   dst[dst_offset] = R;
   dst[dst_offset + 1] = G;
   dst[dst_offset + 2] = B;
   uint8_t alpha = 0;
   if (alpha_mode == 0) {
-    alpha = Y;       // match NVIDIA behavior for C4: alpha from luma
+    alpha = Y;       // alpha from luma
   } else if (alpha_mode == 1) {
     alpha = 0xFF;    // constant 0xFF
   } else {
@@ -200,7 +197,7 @@ extern "C" cudaError_t nppiYUV420ToRGB_8u_P3C4R_kernel(const Npp8u *pSrcY, int n
                 (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   yuv420_to_rgb_p3c4_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcU, nSrcUStep, pSrcV, nSrcVStep,
-                                                                pDst, nDstStep, oSizeROI.width, oSizeROI.height, 0);
+                                                                pDst, nDstStep, oSizeROI.width, oSizeROI.height, 3);
   return cudaGetLastError();
 }
 

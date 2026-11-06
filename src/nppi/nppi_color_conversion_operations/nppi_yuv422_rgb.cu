@@ -2,17 +2,17 @@
 #include <cuda_runtime.h>
 
 __device__ inline void yuv422_to_rgb_bt601(Npp8u y, Npp8u u, Npp8u v, Npp8u &r, Npp8u &g, Npp8u &b) {
-  float Y = static_cast<float>(y);
-  float U = static_cast<float>(u) - 128.0f;
-  float V = static_cast<float>(v) - 128.0f;
-
-  float R = Y + 1.140f * V;
-  float G = Y - 0.395f * U - 0.581f * V;
-  float B = Y + 2.032f * U;
-
-  r = static_cast<Npp8u>(fminf(fmaxf(R, 0.0f), 255.0f));
-  g = static_cast<Npp8u>(fminf(fmaxf(G, 0.0f), 255.0f));
-  b = static_cast<Npp8u>(fminf(fmaxf(B, 0.0f), 255.0f));
+  // Measured NPP 13.4 JPEG-style full-range YUV matrix (see the num tests).
+  const float Y = static_cast<float>(y);
+  const float U = __fsub_rn(static_cast<float>(u), 128.0f);
+  const float V = __fsub_rn(static_cast<float>(v), 128.0f);
+  const float R = __fadd_rn(Y, __fmul_rn(1.13983f, V));
+  const float G = __fsub_rn(__fsub_rn(Y, __fmul_rn(0.39465f, U)), __fmul_rn(0.58060f, V));
+  const float B = __fadd_rn(Y, __fmul_rn(2.03211f, U));
+  int ri = static_cast<int>(R), gi = static_cast<int>(G), bi = static_cast<int>(B);
+  r = static_cast<Npp8u>(ri < 0 ? 0 : (ri > 255 ? 255 : ri));
+  g = static_cast<Npp8u>(gi < 0 ? 0 : (gi > 255 ? 255 : gi));
+  b = static_cast<Npp8u>(bi < 0 ? 0 : (bi > 255 ? 255 : bi));
 }
 
 __global__ void yuv422_to_rgb_p3c3_kernel(const Npp8u *__restrict__ srcY, int srcYStep, const Npp8u *__restrict__ srcU,

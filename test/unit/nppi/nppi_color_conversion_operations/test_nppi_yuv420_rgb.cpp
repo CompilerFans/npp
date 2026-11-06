@@ -6,22 +6,21 @@ using namespace npp_functional_test;
 
 class YUV420ToRGBTest : public NppTestBase {};
 
+// Measured NPP 13.4 full-range YUV matrix (stepwise float rounding).
 static inline void yuv_to_rgb_nvidia_ref(Npp8u y, Npp8u u, Npp8u v, Npp8u &r, Npp8u &g, Npp8u &b) {
-  int yv = static_cast<int>(y);
-  int ud = static_cast<int>(u) - 128;
-  int vd = static_cast<int>(v) - 128;
-
-  int r_val = yv + ((145 * vd) >> 7);
-  int g_val = yv + (((-22 * ud) + (-45 * vd)) >> 7);
-  int b_val = yv + ((255 * ud) >> 7);
-
-  r_val = std::min(255, std::max(0, r_val));
-  g_val = std::min(255, std::max(0, g_val));
-  b_val = std::min(255, std::max(0, b_val));
-
-  r = static_cast<Npp8u>(r_val);
-  g = static_cast<Npp8u>(g_val);
-  b = static_cast<Npp8u>(b_val);
+  const float Y = static_cast<float>(y);
+  const float U = static_cast<float>(u) - 128.0f;
+  const float V = static_cast<float>(v) - 128.0f;
+  const float R = Y + 1.13983f * V;
+  const float G = Y - 0.39465f * U - 0.58060f * V;
+  const float B = Y + 2.03211f * U;
+  auto sat = [](float x) {
+    const int t = static_cast<int>(x);
+    return static_cast<Npp8u>(t < 0 ? 0 : (t > 255 ? 255 : t));
+  };
+  r = sat(R);
+  g = sat(G);
+  b = sat(B);
 }
 
 TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3C3R_Gray) {
@@ -240,7 +239,7 @@ TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3C4R_Alpha) {
   dst.copyToHost(dstData);
   std::vector<Npp8u> baseData = dstData;
   for (int i = 0; i < width * height; i++) {
-    ASSERT_EQ(dstData[i * 4 + 3], yPlane[i]);
+    ASSERT_EQ(dstData[i * 4 + 0], 0xFF) << "constant alpha precedes the colour channels";
   }
 
   NppStreamContext ctx{};
@@ -288,7 +287,7 @@ TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3C4R_AlphaMatchesLumaPattern) {
   std::vector<Npp8u> dstData(width * height * 4);
   dst.copyToHost(dstData);
   for (int i = 0; i < width * height; i++) {
-    ASSERT_EQ(dstData[i * 4 + 3], yPlane[i]);
+    ASSERT_EQ(dstData[i * 4 + 0], 0xFF) << "constant alpha precedes the colour channels";
   }
 }
 

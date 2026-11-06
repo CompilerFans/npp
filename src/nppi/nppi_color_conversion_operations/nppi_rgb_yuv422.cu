@@ -4,21 +4,18 @@
 __device__ inline Npp8u clamp_u8_int(int v) { return static_cast<Npp8u>(max(0, min(255, v))); }
 
 __device__ inline void rgb_to_yuv_pixel_floor(Npp8u r, Npp8u g, Npp8u b, Npp8u &y, Npp8u &u, Npp8u &v) {
-  float R = static_cast<float>(r);
-  float G = static_cast<float>(g);
-  float B = static_cast<float>(b);
+  // Measured NPP 13.4 full-range YUV matrix (see the num tests): luma is
+  // FMA-contracted, chroma is 0.492*(B-Y)/0.877*(R-Y) on the float luma.
+  const float R = static_cast<float>(r);
+  const float G = static_cast<float>(g);
+  const float B = static_cast<float>(b);
+  const float Y = __fmaf_rn(0.114f, B, __fmaf_rn(0.299f, R, __fmul_rn(0.587f, G)));
+  const float U = __fadd_rn(__fmul_rn(0.492f, __fsub_rn(B, Y)), 128.0f);
+  const float V = __fadd_rn(__fmul_rn(0.877f, __fsub_rn(R, Y)), 128.0f);
 
-  float Y = 0.299f * R + 0.587f * G + 0.114f * B;
-  float U = -0.147f * R - 0.289f * G + 0.436f * B + 128.0f;
-  float V = 0.615f * R - 0.515f * G - 0.100f * B + 128.0f;
-
-  int yi = static_cast<int>(Y);
-  int ui = static_cast<int>(U);
-  int vi = static_cast<int>(V);
-
-  y = clamp_u8_int(yi);
-  u = clamp_u8_int(ui);
-  v = clamp_u8_int(vi);
+  y = clamp_u8_int(static_cast<int>(Y));
+  u = clamp_u8_int(static_cast<int>(U));
+  v = clamp_u8_int(static_cast<int>(V));
 }
 
 __global__ void rgb_to_yuv422_y_c3_kernel(const Npp8u *__restrict__ src, int srcStep, Npp8u *__restrict__ dstY,
