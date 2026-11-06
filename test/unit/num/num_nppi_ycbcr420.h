@@ -35,6 +35,23 @@ inline void fwd_601(int r, int g, int b, int &y, int &cb, int &cr) {
   cr = sat(0.439 * R - 0.368 * G - 0.071 * B + 128.0);
 }
 
+// 0 = BT.601 video, 1 = BT.709 video (CSC), 2 = BT.709 full range (HDTV).
+inline void fwd_m(int m, int r, int g, int b, int &y, int &cb, int &cr) {
+  if (m == 0) { fwd_601(r, g, b, y, cb, cr); return; }
+  const double R = r, G = g, B = b;
+  if (m == 1) {
+    y = sat(0.183 * R + 0.614 * G + 0.062 * B + 16.0);
+    cb = sat(-0.101 * R - 0.338 * G + 0.439 * B + 128.0);
+    cr = sat(0.439 * R - 0.399 * G - 0.040 * B + 128.0);
+  } else {
+    y = sat(0.213 * R + 0.715 * G + 0.072 * B);
+    cb = sat(-0.117 * R - 0.394 * G + 0.511 * B + 128.0);
+    cr = sat(0.511 * R - 0.464 * G - 0.047 * B + 128.0);
+  }
+}
+
+
+
 inline void inv_601(int y, int cb, int cr, int &r, int &g, int &b) {
   const float Y = (float)y;
   const float dcb = (float)cb - 128.0f;
@@ -45,6 +62,22 @@ inline void inv_601(int y, int cb, int cr, int &r, int &g, int &b) {
   b = sat((double)warp_fma(2.017f, dcb, yt));
 }
 
+inline void inv_m(int m, int y, int cb, int cr, int &r, int &g, int &b) {
+  if (m == 0) { inv_601(y, cb, cr, r, g, b); return; }
+  const float fy = (float)y;
+  const float dcb = (float)cb - 128.0f;
+  const float dcr = (float)cr - 128.0f;
+  if (m == 1) {
+    const float yt = warp_fmul(1.164f, warp_fsub(fy, 16.0f));
+    r = sat((double)warp_fma(1.793f, dcr, yt));
+    g = sat((double)warp_fsub(warp_fsub(yt, warp_fmul(0.213f, dcb)), warp_fmul(0.534f, dcr)));
+    b = sat((double)warp_fma(2.115f, dcb, yt));
+  } else {
+    r = sat((double)warp_fma(1.54f, dcr, fy));
+    g = sat((double)warp_fsub(warp_fsub(fy, warp_fmul(0.183f, dcb)), warp_fmul(0.459f, dcr)));
+    b = sat((double)warp_fma(1.816f, dcb, fy));
+  }
+}
 enum class Kind { Fwd420, Fwd411, Inv420, Inv411 };
 
 // srcPp: packed source pitch (3 or 4) for the forward; dstPp: packed
@@ -52,7 +85,7 @@ enum class Kind { Fwd420, Fwd411, Inv420, Inv411 };
 // (forward source or inverse destination).  swap: YCrCb (chroma planes or
 // channels swapped).  aval: constant alpha for a C4 destination.
 template <class Call>
-void run_ycbcr420(const char *id, Kind kind, int srcPp, int dstPp, int bgr, int swap, int aval, Call call) {
+void run_ycbcr420(const char *id, Kind kind, int srcPp, int dstPp, int bgr, int swap, int aval, int matId, Call call) {
   NppStreamContext ctx{};
   if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
     GTEST_SKIP() << "[" << id << "] no stream context";
@@ -144,7 +177,7 @@ void run_ycbcr420(const char *id, Kind kind, int srcPp, int dstPp, int bgr, int 
         for (int x = 0; x < ew; ++x) {
           int r, g, b, Y, Cb, Cr;
           px(x, y, r, g, b);
-          fwd_601(r, g, b, Y, Cb, Cr);
+          fwd_m(matId, r, g, b, Y, Cb, Cr);
           want[0][(size_t)y * dsts[0]->step + (size_t)x] = (uint8_t)Y;
         }
       const int cw = w / spanX, ch = h / spanY;
@@ -155,7 +188,7 @@ void run_ycbcr420(const char *id, Kind kind, int srcPp, int dstPp, int bgr, int 
             for (int dx = 0; dx < spanX; ++dx) {
               int r, g, b, Y, Cb, Cr;
               px(cx * spanX + dx, cy * spanY + dy, r, g, b);
-              fwd_601(r, g, b, Y, Cb, Cr);
+              fwd_m(matId, r, g, b, Y, Cb, Cr);
               sum0 += swap ? Cr : Cb;
               sum1 += swap ? Cb : Cr;
             }
@@ -178,7 +211,7 @@ void run_ycbcr420(const char *id, Kind kind, int srcPp, int dstPp, int bgr, int 
           const int cb = swap ? c1 : c0;
           const int cr = swap ? c0 : c1;
           int r, g, b;
-          inv_601(Y, cb, cr, r, g, b);
+          inv_m(matId, Y, cb, cr, r, g, b);
           const size_t base = (size_t)y * dsts[0]->step + (size_t)x * dstPp;
           want[0][base + 0] = (uint8_t)(bgr ? b : r);
           want[0][base + 1] = (uint8_t)g;

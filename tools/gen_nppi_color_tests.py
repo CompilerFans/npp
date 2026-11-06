@@ -504,6 +504,15 @@ YCBCR420_TABLE = {
     "nppiYCbCr411ToRGB_8u_P3C4R_Ctx": ("Inv411", 4, 0, 0, 0x37),
     "nppiYCbCr411ToBGR_8u_P3C3R_Ctx": ("Inv411", 3, 1, 0, 0),
     "nppiYCbCr411ToBGR_8u_P3C4R_Ctx": ("Inv411", 4, 1, 0, 0x37),
+    "nppiBGRToYCbCr420_8u_C3P3R_Ctx": ("Fwd420", 3, 1, 0, 0),
+    "nppiBGRToYCbCr420_8u_AC4P3R_Ctx": ("Fwd420", 4, 1, 0, 0),
+    "nppiBGRToYCbCr420_709CSC_8u_C3P3R_Ctx": ("Fwd420m1", 3, 1, 0, 0),
+    "nppiBGRToYCbCr420_709CSC_8u_AC4P3R_Ctx": ("Fwd420m1", 4, 1, 0, 0),
+    "nppiBGRToYCbCr420_709HDTV_8u_AC4P3R_Ctx": ("Fwd420m2", 4, 1, 0, 0),
+    "nppiBGRToYCrCb420_709CSC_8u_C3P3R_Ctx": ("Fwd420m1", 3, 1, 1, 0),
+    "nppiBGRToYCrCb420_709CSC_8u_AC4P3R_Ctx": ("Fwd420m1", 4, 1, 1, 0),
+    "nppiYCbCr420ToBGR_709CSC_8u_P3C3R_Ctx": ("Inv420m1", 3, 1, 0, 0),
+    "nppiYCbCr420ToBGR_709HDTV_8u_P3C4R_Ctx": ("Inv420m2", 4, 1, 0, 0x37),
 }
 
 
@@ -512,6 +521,8 @@ def emit_ycbcr420(row: dict) -> Optional[str]:
     if fn not in YCBCR420_TABLE:
         return None
     kind, pp, bgr, swap, aval = YCBCR420_TABLE[fn]
+    mat = {"Fwd420m1": 1, "Fwd420m2": 2, "Inv420m1": 1, "Inv420m2": 2}.get(kind, 0)
+    kind = kind.replace("m1", "").replace("m2", "")
     name = re.sub(r"\W", "_", fn)
     sig = ("[](const Npp8u *const *sp, const Npp8u *ps, int ss, int *ssa, Npp8u *const *dp, Npp8u *pd, "
            "int ds, int *dsa, NppiSize r, NppStreamContext c) ")
@@ -528,7 +539,7 @@ def emit_ycbcr420(row: dict) -> Optional[str]:
         kind_arg = f"num::ycbcr420::Kind::{kind}, 0, {pp}"
     lam = f"{sig}{{ {voids}{body} }}"
     return (f"TEST(NumGen, {name}) {{\n"
-            f"  num::ycbcr420::run_ycbcr420(\n      \"{fn}\", {kind_arg}, {bgr}, {swap}, {aval},\n"
+            f"  num::ycbcr420::run_ycbcr420(\n      \"{fn}\", {kind_arg}, {bgr}, {swap}, {aval}, {mat},\n"
             f"      {lam});\n}}\n")
 
 
