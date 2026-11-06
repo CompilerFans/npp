@@ -364,6 +364,30 @@ def emit_hog(row: dict) -> Optional[str]:
     return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
 
 
+
+MBUF_DT = {"8u": 0, "16u": 1, "16s": 2, "32f": 3}
+
+
+def emit_median_bufsize(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    m = re.match(r"nppiFilterMedian(Border)?GetBufferSize_(8u|16u|16s|32f)_(C1R|C3R|C4R|AC4R)_Ctx$", fn)
+    if not m:
+        return None
+    border = m.group(1) is not None
+    dt = MBUF_DT[m.group(2)]
+    c, a = LAYOUT[m.group(3)]
+    name = re.sub(r"\W", "_", fn)
+    if border:
+        body = (f"return {fn}(roi, mask, size, (NppiBorderType)border, ctx);")
+    else:
+        body = f"(void)border; return {fn}(roi, mask, size, ctx);"
+    lam = (f"[](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) "
+           f"{{ {body} }}")
+    prefix = (f"num::mediabufdrv::run_median_bufsize<{dt}, {c}, {a}, "
+              f"{'true' if border else 'false'}>")
+    return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -376,7 +400,7 @@ def main() -> int:
         text = (emit_fixed(row) or emit_deriv(row) or emit_gauss(row) or emit_window(row)
                 or emit_generic(row) or emit_sumwindow(row) or emit_gradient(row)
                 or emit_tail(row) or emit_wiener(row) or emit_unsharp(row)
-                or emit_pyramid(row) or emit_hog(row))
+                or emit_pyramid(row) or emit_hog(row) or emit_median_bufsize(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
@@ -395,7 +419,8 @@ def main() -> int:
               "#include \"num_nppi_filter_wiener.h\"\n\n"
               "#include \"num_nppi_filter_unsharp.h\"\n\n"
               "#include \"num_nppi_filter_pyramid.h\"\n\n"
-              "#include \"num_nppi_filter_hog.h\"\n\n")
+              "#include \"num_nppi_filter_hog.h\"\n\n"
+              "#include \"num_nppi_median_bufsize.h\"\n\n")
     if args.emit:
         DEST.write_text(header + "\n".join(out))
         prev = {}

@@ -24,6 +24,8 @@
 
 #include "num_nppi_filter_hog.h"
 
+#include "num_nppi_median_bufsize.h"
+
 TEST(NumGen, nppiFilter32f_16f_C1R_Ctx) {
   num::filtgen::run_generic<Npp16f, Npp16f, 1, 1, 0, 1, false, false>(
       "nppiFilter32f_16f_C1R_Ctx",
@@ -2382,6 +2384,102 @@ TEST(NumGen, nppiFilterMax_8u_C4R_Ctx) {
       [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, NppiSize mask, NppiPoint anchor, int mode, Npp8u *pbuf, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mode; (void)pbuf; return nppiFilterMax_8u_C4R_Ctx(sp, ss, dp, ds, roi, mask, anchor, ctx); });
 }
 
+TEST(NumGen, nppiFilterMedianBorderGetBufferSize_16s_AC4R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<2, 4, 3, true>(
+      "nppiFilterMedianBorderGetBufferSize_16s_AC4R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { return nppiFilterMedianBorderGetBufferSize_16s_AC4R_Ctx(roi, mask, size, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianBorderGetBufferSize_16s_C1R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<2, 1, 1, true>(
+      "nppiFilterMedianBorderGetBufferSize_16s_C1R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { return nppiFilterMedianBorderGetBufferSize_16s_C1R_Ctx(roi, mask, size, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianBorderGetBufferSize_16s_C3R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<2, 3, 3, true>(
+      "nppiFilterMedianBorderGetBufferSize_16s_C3R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { return nppiFilterMedianBorderGetBufferSize_16s_C3R_Ctx(roi, mask, size, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianBorderGetBufferSize_16s_C4R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<2, 4, 4, true>(
+      "nppiFilterMedianBorderGetBufferSize_16s_C4R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { return nppiFilterMedianBorderGetBufferSize_16s_C4R_Ctx(roi, mask, size, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianBorderGetBufferSize_16u_AC4R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<1, 4, 3, true>(
+      "nppiFilterMedianBorderGetBufferSize_16u_AC4R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { return nppiFilterMedianBorderGetBufferSize_16u_AC4R_Ctx(roi, mask, size, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianBorderGetBufferSize_16u_C1R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<1, 1, 1, true>(
+      "nppiFilterMedianBorderGetBufferSize_16u_C1R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { return nppiFilterMedianBorderGetBufferSize_16u_C1R_Ctx(roi, mask, size, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianBorderGetBufferSize_16u_C3R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<1, 3, 3, true>(
+      "nppiFilterMedianBorderGetBufferSize_16u_C3R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { return nppiFilterMedianBorderGetBufferSize_16u_C3R_Ctx(roi, mask, size, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianBorderGetBufferSize_16u_C4R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<1, 4, 4, true>(
+      "nppiFilterMedianBorderGetBufferSize_16u_C4R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { return nppiFilterMedianBorderGetBufferSize_16u_C4R_Ctx(roi, mask, size, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianBorderGetBufferSize_32f_AC4R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<3, 4, 3, true>(
+      "nppiFilterMedianBorderGetBufferSize_32f_AC4R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { return nppiFilterMedianBorderGetBufferSize_32f_AC4R_Ctx(roi, mask, size, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianBorderGetBufferSize_32f_C1R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<3, 1, 1, true>(
+      "nppiFilterMedianBorderGetBufferSize_32f_C1R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { return nppiFilterMedianBorderGetBufferSize_32f_C1R_Ctx(roi, mask, size, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianBorderGetBufferSize_32f_C3R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<3, 3, 3, true>(
+      "nppiFilterMedianBorderGetBufferSize_32f_C3R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { return nppiFilterMedianBorderGetBufferSize_32f_C3R_Ctx(roi, mask, size, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianBorderGetBufferSize_32f_C4R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<3, 4, 4, true>(
+      "nppiFilterMedianBorderGetBufferSize_32f_C4R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { return nppiFilterMedianBorderGetBufferSize_32f_C4R_Ctx(roi, mask, size, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianBorderGetBufferSize_8u_AC4R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<0, 4, 3, true>(
+      "nppiFilterMedianBorderGetBufferSize_8u_AC4R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { return nppiFilterMedianBorderGetBufferSize_8u_AC4R_Ctx(roi, mask, size, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianBorderGetBufferSize_8u_C1R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<0, 1, 1, true>(
+      "nppiFilterMedianBorderGetBufferSize_8u_C1R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { return nppiFilterMedianBorderGetBufferSize_8u_C1R_Ctx(roi, mask, size, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianBorderGetBufferSize_8u_C3R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<0, 3, 3, true>(
+      "nppiFilterMedianBorderGetBufferSize_8u_C3R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { return nppiFilterMedianBorderGetBufferSize_8u_C3R_Ctx(roi, mask, size, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianBorderGetBufferSize_8u_C4R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<0, 4, 4, true>(
+      "nppiFilterMedianBorderGetBufferSize_8u_C4R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { return nppiFilterMedianBorderGetBufferSize_8u_C4R_Ctx(roi, mask, size, (NppiBorderType)border, ctx); });
+}
+
 TEST(NumGen, nppiFilterMedianBorder_16s_AC4R_Ctx) {
   num::filtwin::run_window<Npp16s, 4, 3, num::filtwin::kMedian, true, false>(
       "nppiFilterMedianBorder_16s_AC4R_Ctx",
@@ -2476,6 +2574,102 @@ TEST(NumGen, nppiFilterMedianBorder_8u_C4R_Ctx) {
   num::filtwin::run_window<Npp8u, 4, 4, num::filtwin::kMedian, true, false>(
       "nppiFilterMedianBorder_8u_C4R_Ctx",
       [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, NppiSize mask, NppiPoint anchor, int mode, Npp8u *pbuf, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mode; (void)pbuf; return nppiFilterMedianBorder_8u_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, mask, anchor, pbuf, (NppiBorderType)mode, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianGetBufferSize_16s_AC4R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<2, 4, 3, false>(
+      "nppiFilterMedianGetBufferSize_16s_AC4R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { (void)border; return nppiFilterMedianGetBufferSize_16s_AC4R_Ctx(roi, mask, size, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianGetBufferSize_16s_C1R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<2, 1, 1, false>(
+      "nppiFilterMedianGetBufferSize_16s_C1R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { (void)border; return nppiFilterMedianGetBufferSize_16s_C1R_Ctx(roi, mask, size, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianGetBufferSize_16s_C3R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<2, 3, 3, false>(
+      "nppiFilterMedianGetBufferSize_16s_C3R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { (void)border; return nppiFilterMedianGetBufferSize_16s_C3R_Ctx(roi, mask, size, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianGetBufferSize_16s_C4R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<2, 4, 4, false>(
+      "nppiFilterMedianGetBufferSize_16s_C4R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { (void)border; return nppiFilterMedianGetBufferSize_16s_C4R_Ctx(roi, mask, size, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianGetBufferSize_16u_AC4R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<1, 4, 3, false>(
+      "nppiFilterMedianGetBufferSize_16u_AC4R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { (void)border; return nppiFilterMedianGetBufferSize_16u_AC4R_Ctx(roi, mask, size, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianGetBufferSize_16u_C1R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<1, 1, 1, false>(
+      "nppiFilterMedianGetBufferSize_16u_C1R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { (void)border; return nppiFilterMedianGetBufferSize_16u_C1R_Ctx(roi, mask, size, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianGetBufferSize_16u_C3R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<1, 3, 3, false>(
+      "nppiFilterMedianGetBufferSize_16u_C3R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { (void)border; return nppiFilterMedianGetBufferSize_16u_C3R_Ctx(roi, mask, size, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianGetBufferSize_16u_C4R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<1, 4, 4, false>(
+      "nppiFilterMedianGetBufferSize_16u_C4R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { (void)border; return nppiFilterMedianGetBufferSize_16u_C4R_Ctx(roi, mask, size, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianGetBufferSize_32f_AC4R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<3, 4, 3, false>(
+      "nppiFilterMedianGetBufferSize_32f_AC4R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { (void)border; return nppiFilterMedianGetBufferSize_32f_AC4R_Ctx(roi, mask, size, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianGetBufferSize_32f_C1R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<3, 1, 1, false>(
+      "nppiFilterMedianGetBufferSize_32f_C1R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { (void)border; return nppiFilterMedianGetBufferSize_32f_C1R_Ctx(roi, mask, size, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianGetBufferSize_32f_C3R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<3, 3, 3, false>(
+      "nppiFilterMedianGetBufferSize_32f_C3R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { (void)border; return nppiFilterMedianGetBufferSize_32f_C3R_Ctx(roi, mask, size, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianGetBufferSize_32f_C4R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<3, 4, 4, false>(
+      "nppiFilterMedianGetBufferSize_32f_C4R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { (void)border; return nppiFilterMedianGetBufferSize_32f_C4R_Ctx(roi, mask, size, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianGetBufferSize_8u_AC4R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<0, 4, 3, false>(
+      "nppiFilterMedianGetBufferSize_8u_AC4R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { (void)border; return nppiFilterMedianGetBufferSize_8u_AC4R_Ctx(roi, mask, size, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianGetBufferSize_8u_C1R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<0, 1, 1, false>(
+      "nppiFilterMedianGetBufferSize_8u_C1R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { (void)border; return nppiFilterMedianGetBufferSize_8u_C1R_Ctx(roi, mask, size, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianGetBufferSize_8u_C3R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<0, 3, 3, false>(
+      "nppiFilterMedianGetBufferSize_8u_C3R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { (void)border; return nppiFilterMedianGetBufferSize_8u_C3R_Ctx(roi, mask, size, ctx); });
+}
+
+TEST(NumGen, nppiFilterMedianGetBufferSize_8u_C4R_Ctx) {
+  num::mediabufdrv::run_median_bufsize<0, 4, 4, false>(
+      "nppiFilterMedianGetBufferSize_8u_C4R_Ctx",
+      [](NppiSize roi, NppiSize mask, Npp32u *size, int border, NppStreamContext ctx) { (void)border; return nppiFilterMedianGetBufferSize_8u_C4R_Ctx(roi, mask, size, ctx); });
 }
 
 TEST(NumGen, nppiFilterMedian_16s_AC4R_Ctx) {
