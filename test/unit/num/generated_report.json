@@ -130,7 +130,7 @@
   ]
  },
  "nppi_color_conversion.h": {
-  "emitted": 486,
+  "emitted": 510,
   "skipped": [
    {
     "function": "nppiAlphaCompColorKey_8u_AC4R_Ctx",
@@ -175,56 +175,6 @@
    {
     "function": "nppiCompColorKey_8u_C4R_Ctx",
     "family": "nppiCompColorKey",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToYUV420_16u_ColorTwist32f_C3P3R_Ctx",
-    "family": "nppiRGBToYUV420",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToYUV420_16u_ColorTwist32f_P3R_Ctx",
-    "family": "nppiRGBToYUV420",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToYUV420_8u_ColorTwist32f_C3P3R_Ctx",
-    "family": "nppiRGBToYUV420",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToYUV420_8u_ColorTwist32f_P3R_Ctx",
-    "family": "nppiRGBToYUV420",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToYUV422_16u_ColorTwist32f_C3C2R_Ctx",
-    "family": "nppiRGBToYUV422",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToYUV422_16u_ColorTwist32f_C3P3R_Ctx",
-    "family": "nppiRGBToYUV422",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToYUV422_16u_ColorTwist32f_P3R_Ctx",
-    "family": "nppiRGBToYUV422",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToYUV422_8u_ColorTwist32f_C3C2R_Ctx",
-    "family": "nppiRGBToYUV422",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToYUV422_8u_ColorTwist32f_C3P3R_Ctx",
-    "family": "nppiRGBToYUV422",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToYUV422_8u_ColorTwist32f_P3R_Ctx",
-    "family": "nppiRGBToYUV422",
     "reason": "later color batch / unsupported"
    },
    {
@@ -333,46 +283,6 @@
     "reason": "later color batch / unsupported"
    },
    {
-    "function": "nppiYUV420ToRGB_16u_ColorTwist32f_P3AC4R_Ctx",
-    "family": "nppiYUV420ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYUV420ToRGB_16u_ColorTwist32f_P3C3R_Ctx",
-    "family": "nppiYUV420ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYUV420ToRGB_16u_ColorTwist32f_P3C4R_Ctx",
-    "family": "nppiYUV420ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYUV420ToRGB_16u_ColorTwist32f_P3R_Ctx",
-    "family": "nppiYUV420ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYUV420ToRGB_8u_ColorTwist32f_P3AC4R_Ctx",
-    "family": "nppiYUV420ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYUV420ToRGB_8u_ColorTwist32f_P3C3R_Ctx",
-    "family": "nppiYUV420ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYUV420ToRGB_8u_ColorTwist32f_P3C4R_Ctx",
-    "family": "nppiYUV420ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYUV420ToRGB_8u_ColorTwist32f_P3R_Ctx",
-    "family": "nppiYUV420ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
     "function": "nppiYUV422ToBGRBatch_8u_P3C3R_Advanced_Ctx",
     "family": "nppiYUV422ToBGRBatch",
     "reason": "later color batch / unsupported"
@@ -393,42 +303,12 @@
     "reason": "later color batch / unsupported"
    },
    {
-    "function": "nppiYUV422ToRGB_16u_ColorTwist32f_C2C3R_Ctx",
-    "family": "nppiYUV422ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
     "function": "nppiYUV422ToRGB_16u_ColorTwist32f_P3AC4R_Ctx",
     "family": "nppiYUV422ToRGB",
     "reason": "later color batch / unsupported"
    },
    {
-    "function": "nppiYUV422ToRGB_16u_ColorTwist32f_P3C3R_Ctx",
-    "family": "nppiYUV422ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYUV422ToRGB_16u_ColorTwist32f_P3R_Ctx",
-    "family": "nppiYUV422ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYUV422ToRGB_8u_ColorTwist32f_C2C3R_Ctx",
-    "family": "nppiYUV422ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
     "function": "nppiYUV422ToRGB_8u_ColorTwist32f_P3AC4R_Ctx",
-    "family": "nppiYUV422ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYUV422ToRGB_8u_ColorTwist32f_P3C3R_Ctx",
-    "family": "nppiYUV422ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYUV422ToRGB_8u_ColorTwist32f_P3R_Ctx",
     "family": "nppiYUV422ToRGB",
     "reason": "later color batch / unsupported"
    },

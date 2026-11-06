@@ -564,6 +564,69 @@ YCBCR422_FAMILIES = {
 }
 
 
+TWIST_MATRIX = "0.5f, 0.3f, 0.2f, 10.0f, -0.2f, 0.7f, 0.1f, 20.0f, 0.1f, -0.3f, 0.9f, 5.0f"
+
+YUV_TWIST_TABLE = {
+    # function: (T, kind, srcPp, dstPp, alpha, alphaParam, form)
+    "nppiYUV420ToRGB_8u_ColorTwist32f_P3C3R_Ctx": ("Npp8u", "Inv420C", 0, 3, 0, 0, "inv"),
+    "nppiYUV420ToRGB_8u_ColorTwist32f_P3C4R_Ctx": ("Npp8u", "Inv420C", 0, 4, 255, 0, "inv"),
+    "nppiYUV420ToRGB_8u_ColorTwist32f_P3AC4R_Ctx": ("Npp8u", "Inv420C", 0, 4, 0x37, 1, "inva"),
+    "nppiYUV420ToRGB_8u_ColorTwist32f_P3R_Ctx": ("Npp8u", "Inv420P3", 0, 0, 0, 0, "invp3"),
+    "nppiYUV420ToRGB_16u_ColorTwist32f_P3C3R_Ctx": ("Npp16u", "Inv420C", 0, 3, 0, 0, "inv"),
+    "nppiYUV420ToRGB_16u_ColorTwist32f_P3C4R_Ctx": ("Npp16u", "Inv420C", 0, 4, 65535, 0, "inv"),
+    "nppiYUV420ToRGB_16u_ColorTwist32f_P3AC4R_Ctx": ("Npp16u", "Inv420C", 0, 4, 0x1234, 1, "inva"),
+    "nppiYUV420ToRGB_16u_ColorTwist32f_P3R_Ctx": ("Npp16u", "Inv420P3", 0, 0, 0, 0, "invp3"),
+    "nppiYUV422ToRGB_8u_ColorTwist32f_C2C3R_Ctx": ("Npp8u", "Inv422C2", 2, 3, 0, 0, "invc2"),
+    "nppiYUV422ToRGB_8u_ColorTwist32f_P3C3R_Ctx": ("Npp8u", "Inv422C", 0, 3, 0, 0, "inv"),
+    "nppiYUV422ToRGB_8u_ColorTwist32f_P3C4R_Ctx": ("Npp8u", "Inv422C", 0, 4, 255, 0, "inv"),
+    "nppiYUV422ToRGB_8u_ColorTwist32f_P3R_Ctx": ("Npp8u", "Inv422P3", 0, 0, 0, 0, "invp3"),
+    "nppiYUV422ToRGB_16u_ColorTwist32f_C2C3R_Ctx": ("Npp16u", "Inv422C2", 2, 3, 0, 0, "invc2"),
+    "nppiYUV422ToRGB_16u_ColorTwist32f_P3C3R_Ctx": ("Npp16u", "Inv422C", 0, 3, 0, 0, "inv"),
+    "nppiYUV422ToRGB_16u_ColorTwist32f_P3C4R_Ctx": ("Npp16u", "Inv422C", 0, 4, 65535, 0, "inv"),
+    "nppiYUV422ToRGB_16u_ColorTwist32f_P3R_Ctx": ("Npp16u", "Inv422P3", 0, 0, 0, 0, "invp3"),
+    "nppiRGBToYUV420_8u_ColorTwist32f_C3P3R_Ctx": ("Npp8u", "Fwd420P3", 3, 0, 0, 0, "fwdp3"),
+    "nppiRGBToYUV420_8u_ColorTwist32f_P3R_Ctx": ("Npp8u", "Fwd420P3P3", 0, 0, 0, 0, "fwdp3p3"),
+    "nppiRGBToYUV420_16u_ColorTwist32f_C3P3R_Ctx": ("Npp16u", "Fwd420P3", 3, 0, 0, 0, "fwdp3"),
+    "nppiRGBToYUV420_16u_ColorTwist32f_P3R_Ctx": ("Npp16u", "Fwd420P3P3", 0, 0, 0, 0, "fwdp3p3"),
+    "nppiRGBToYUV422_8u_ColorTwist32f_C3C2R_Ctx": ("Npp8u", "Fwd422C2", 3, 0, 0, 0, "fwdc2"),
+    "nppiRGBToYUV422_8u_ColorTwist32f_C3P3R_Ctx": ("Npp8u", "Fwd422P3", 3, 0, 0, 0, "fwdp3"),
+    "nppiRGBToYUV422_8u_ColorTwist32f_P3R_Ctx": ("Npp8u", "Fwd422P3P3", 0, 0, 0, 0, "fwdp3p3"),
+    "nppiRGBToYUV422_16u_ColorTwist32f_C3C2R_Ctx": ("Npp16u", "Fwd422C2", 3, 0, 0, 0, "fwdc2"),
+    "nppiRGBToYUV422_16u_ColorTwist32f_C3P3R_Ctx": ("Npp16u", "Fwd422P3", 3, 0, 0, 0, "fwdp3"),
+    "nppiRGBToYUV422_16u_ColorTwist32f_P3R_Ctx": ("Npp16u", "Fwd422P3P3", 0, 0, 0, 0, "fwdp3p3"),
+}
+
+
+def emit_yuv_twist(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    if fn not in YUV_TWIST_TABLE:
+        return None
+    T, kind, spp, dpp, alpha, has_alpha, form = YUV_TWIST_TABLE[fn]
+    name = re.sub(r"\W", "_", fn)
+    sig = (f"[]({'const ' + T} *const *sp, const {T} *ps, int ss, int *ssa, {T} *const *dp, {T} *pd, "
+           f"int ds, int *dsa, NppiSize r, const float *tw, NppStreamContext c) ")
+    voids = "(void)sp; (void)ps; (void)ss; (void)ssa; (void)dp; (void)pd; (void)ds; (void)dsa; (void)r; (void)tw; (void)c; "
+    cast = "const Npp32f (*)[4]"
+    if form == "inv":
+        body = f"return {fn}(sp, ssa, pd, ds, r, ({cast})tw, c);"
+    elif form == "inva":
+        body = f"return {fn}(sp, ssa, pd, ds, r, ({cast})tw, ({T})0x{'37' if T == 'Npp8u' else '1234'}, c);"
+    elif form == "invp3":
+        body = f"return {fn}(sp, ssa, const_cast<{T} **>(dp), dsa, r, ({cast})tw, c);"
+    elif form == "invc2":
+        body = f"return {fn}(ps, ss, pd, ds, r, ({cast})tw, c);"
+    elif form == "fwdp3":
+        body = f"return {fn}(ps, ss, const_cast<{T} **>(dp), dsa, r, ({cast})tw, c);"
+    elif form == "fwdp3p3":
+        body = f"return {fn}(sp, ssa, const_cast<{T} **>(dp), dsa, r, ({cast})tw, c);"
+    else:  # fwdc2
+        body = f"return {fn}(ps, ss, pd, ds, r, ({cast})tw, c);"
+    lam = f"{sig}{{ {voids}{body} }}"
+    return (f"TEST(NumGen, {name}) {{\n"
+            f"  num::yuvtwist::run_twist<{T}>(\n      \"{fn}\", num::yuvtwist::Kind::{kind}, {spp}, {dpp}, "
+            f"({T}){alpha},\n      kTwist, {lam});\n}}\n")
+
+
 YCBCR420_LAYOUT = {
     # function: (kind, a0, lambda-form)
     "nppiYCbCr420_8u_P3P2R_Ctx": ("P3P2_420", 0, "p3p2"),
@@ -929,7 +992,8 @@ def main() -> int:
                 or emit_gamma(row) or emit_gray(row) or emit_gradient(row) or emit_hls(row)
                 or emit_hls_layout(row) or emit_yuv(row) or emit_cs(row) or emit_cfa(row)
                 or emit_ycbcr_jpeg(row) or emit_yuv_planar(row) or emit_yuv_layout(row)
-                or emit_ycbcr422(row) or emit_ycbcr420(row) or emit_ycbcr420_layout(row) or emit_nv12(row)
+                or emit_ycbcr422(row) or emit_ycbcr420(row) or emit_ycbcr420_layout(row)
+                or emit_yuv_twist(row) or emit_nv12(row)
                 or emit_nv12_twist(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
@@ -948,11 +1012,14 @@ def main() -> int:
               "#include \"num_nppi_ycbcr422.h\"\n"
               "#include \"num_nppi_ycbcr420.h\"\n"
               "#include \"num_nppi_ycbcr420_layout.h\"\n"
+              "#include \"num_nppi_yuv_twist.h\"\n"
               "#include \"num_nppi_colorspace.h\"\n"
               "#include \"num_nppi_cfa.h\"\n"
               "#include \"num_nppi_ycbcr.h\"\n"
               "#include \"num_nppi_yuv.h\"\n"
-              "#include \"num_nppi_nv12.h\"\n\n")
+              "#include \"num_nppi_nv12.h\"\n"
+              "\n"
+              "static const float kTwist[12] = {" + TWIST_MATRIX + "};\n")
     dest = Path(args.out) if args.out else ROOT / "test" / "unit" / "num" / "test_gen_nppi_color.cpp"
     if args.emit:
         dest.write_text(header + "\n".join(out))
