@@ -414,6 +414,44 @@ def emit_distance_transform(row: dict) -> Optional[str]:
     return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
 
 
+
+FLOOD_DT = {"8u": "Npp8u", "16u": "Npp16u", "32u": "Npp32u"}
+FLOOD_VAR = {"": "kPlain", "Boundary": "kBoundary", "Range": "kRange",
+             "Gradient": "kGradient", "RangeBoundary": "kRangeBoundary",
+             "GradientBoundary": "kGradientBoundary"}
+
+
+def emit_floodfill(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    m = re.match(r"nppiFloodFill(Boundary|GradientBoundary|RangeBoundary|Gradient|Range)?_"
+                 r"(8u|16u|32u)_(C1IR|C3IR)_Ctx$", fn)
+    if not m:
+        return None
+    var = FLOOD_VAR[m.group(1) or ""]
+    src = FLOOD_DT[m.group(2)]
+    c = 1 if m.group(3) == "C1IR" else 3
+    name = re.sub(r"\W", "_", fn)
+    scalar = c == 1
+    a = (lambda n: f"{n}[0]") if scalar else (lambda n: f"const_cast<{src} *>({n})")
+    kind = var.replace("k", "")
+    if kind in ("Plain", "Boundary"):
+        args = f"seed, {a('nv')}"
+        if kind == "Boundary":
+            args += f", {a('bv')}"
+        args += ", (NppiNorm)norm, roi, reg, buf, ctx"
+    else:
+        args = f"seed, {a('mn')}, {a('mx')}, {a('nv')}"
+        if kind.endswith("Boundary"):
+            args += f", {a('bv')}"
+        args += ", (NppiNorm)norm, roi, reg, buf, ctx"
+    body = f"return {fn}(p, step, {args});"
+    lam = (f"[]({src} *p, int step, NppiPoint seed, const {src} *nv, const {src} *bv, "
+           f"const {src} *mn, const {src} *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, "
+           f"Npp8u *buf, NppStreamContext ctx) {{ {body} }}")
+    prefix = f"num::floodfill::run_flood<{src}, {c}, num::floodfill::{var}>"
+    return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -427,7 +465,7 @@ def main() -> int:
                 or emit_generic(row) or emit_sumwindow(row) or emit_gradient(row)
                 or emit_tail(row) or emit_wiener(row) or emit_unsharp(row)
                 or emit_pyramid(row) or emit_hog(row) or emit_median_bufsize(row)
-                or emit_distance_transform(row))
+                or emit_distance_transform(row) or emit_floodfill(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
@@ -448,7 +486,8 @@ def main() -> int:
               "#include \"num_nppi_filter_pyramid.h\"\n\n"
               "#include \"num_nppi_filter_hog.h\"\n\n"
               "#include \"num_nppi_median_bufsize.h\"\n\n"
-              "#include \"num_nppi_distance_transform.h\"\n\n")
+              "#include \"num_nppi_distance_transform.h\"\n\n"
+              "#include \"num_nppi_floodfill.h\"\n\n")
     if args.emit:
         DEST.write_text(header + "\n".join(out))
         prev = {}

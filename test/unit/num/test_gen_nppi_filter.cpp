@@ -28,6 +28,8 @@
 
 #include "num_nppi_distance_transform.h"
 
+#include "num_nppi_floodfill.h"
+
 TEST(NumGen, nppiDistanceTransformPBA_16s16u_C1R_Ctx) {
   num::distxform::run_pba<Npp16s, Npp16u>(
       "nppiDistanceTransformPBA_16s16u_C1R_Ctx",
@@ -4976,6 +4978,222 @@ TEST(NumGen, nppiFilter_8u_C4R_Ctx) {
   num::filtgen::run_generic<Npp8u, Npp8u, 4, 4, 0, 0, false, false>(
       "nppiFilter_8u_C4R_Ctx",
       [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_8u_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillBoundary_16u_C1IR_Ctx) {
+  num::floodfill::run_flood<Npp16u, 1, num::floodfill::kBoundary>(
+      "nppiFloodFillBoundary_16u_C1IR_Ctx",
+      [](Npp16u *p, int step, NppiPoint seed, const Npp16u *nv, const Npp16u *bv, const Npp16u *mn, const Npp16u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillBoundary_16u_C1IR_Ctx(p, step, seed, nv[0], bv[0], (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillBoundary_16u_C3IR_Ctx) {
+  num::floodfill::run_flood<Npp16u, 3, num::floodfill::kBoundary>(
+      "nppiFloodFillBoundary_16u_C3IR_Ctx",
+      [](Npp16u *p, int step, NppiPoint seed, const Npp16u *nv, const Npp16u *bv, const Npp16u *mn, const Npp16u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillBoundary_16u_C3IR_Ctx(p, step, seed, const_cast<Npp16u *>(nv), const_cast<Npp16u *>(bv), (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillBoundary_32u_C1IR_Ctx) {
+  num::floodfill::run_flood<Npp32u, 1, num::floodfill::kBoundary>(
+      "nppiFloodFillBoundary_32u_C1IR_Ctx",
+      [](Npp32u *p, int step, NppiPoint seed, const Npp32u *nv, const Npp32u *bv, const Npp32u *mn, const Npp32u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillBoundary_32u_C1IR_Ctx(p, step, seed, nv[0], bv[0], (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillBoundary_32u_C3IR_Ctx) {
+  num::floodfill::run_flood<Npp32u, 3, num::floodfill::kBoundary>(
+      "nppiFloodFillBoundary_32u_C3IR_Ctx",
+      [](Npp32u *p, int step, NppiPoint seed, const Npp32u *nv, const Npp32u *bv, const Npp32u *mn, const Npp32u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillBoundary_32u_C3IR_Ctx(p, step, seed, const_cast<Npp32u *>(nv), const_cast<Npp32u *>(bv), (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillBoundary_8u_C1IR_Ctx) {
+  num::floodfill::run_flood<Npp8u, 1, num::floodfill::kBoundary>(
+      "nppiFloodFillBoundary_8u_C1IR_Ctx",
+      [](Npp8u *p, int step, NppiPoint seed, const Npp8u *nv, const Npp8u *bv, const Npp8u *mn, const Npp8u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillBoundary_8u_C1IR_Ctx(p, step, seed, nv[0], bv[0], (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillBoundary_8u_C3IR_Ctx) {
+  num::floodfill::run_flood<Npp8u, 3, num::floodfill::kBoundary>(
+      "nppiFloodFillBoundary_8u_C3IR_Ctx",
+      [](Npp8u *p, int step, NppiPoint seed, const Npp8u *nv, const Npp8u *bv, const Npp8u *mn, const Npp8u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillBoundary_8u_C3IR_Ctx(p, step, seed, const_cast<Npp8u *>(nv), const_cast<Npp8u *>(bv), (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillGradientBoundary_16u_C1IR_Ctx) {
+  num::floodfill::run_flood<Npp16u, 1, num::floodfill::kGradientBoundary>(
+      "nppiFloodFillGradientBoundary_16u_C1IR_Ctx",
+      [](Npp16u *p, int step, NppiPoint seed, const Npp16u *nv, const Npp16u *bv, const Npp16u *mn, const Npp16u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillGradientBoundary_16u_C1IR_Ctx(p, step, seed, mn[0], mx[0], nv[0], bv[0], (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillGradientBoundary_16u_C3IR_Ctx) {
+  num::floodfill::run_flood<Npp16u, 3, num::floodfill::kGradientBoundary>(
+      "nppiFloodFillGradientBoundary_16u_C3IR_Ctx",
+      [](Npp16u *p, int step, NppiPoint seed, const Npp16u *nv, const Npp16u *bv, const Npp16u *mn, const Npp16u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillGradientBoundary_16u_C3IR_Ctx(p, step, seed, const_cast<Npp16u *>(mn), const_cast<Npp16u *>(mx), const_cast<Npp16u *>(nv), const_cast<Npp16u *>(bv), (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillGradientBoundary_32u_C1IR_Ctx) {
+  num::floodfill::run_flood<Npp32u, 1, num::floodfill::kGradientBoundary>(
+      "nppiFloodFillGradientBoundary_32u_C1IR_Ctx",
+      [](Npp32u *p, int step, NppiPoint seed, const Npp32u *nv, const Npp32u *bv, const Npp32u *mn, const Npp32u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillGradientBoundary_32u_C1IR_Ctx(p, step, seed, mn[0], mx[0], nv[0], bv[0], (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillGradientBoundary_32u_C3IR_Ctx) {
+  num::floodfill::run_flood<Npp32u, 3, num::floodfill::kGradientBoundary>(
+      "nppiFloodFillGradientBoundary_32u_C3IR_Ctx",
+      [](Npp32u *p, int step, NppiPoint seed, const Npp32u *nv, const Npp32u *bv, const Npp32u *mn, const Npp32u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillGradientBoundary_32u_C3IR_Ctx(p, step, seed, const_cast<Npp32u *>(mn), const_cast<Npp32u *>(mx), const_cast<Npp32u *>(nv), const_cast<Npp32u *>(bv), (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillGradientBoundary_8u_C1IR_Ctx) {
+  num::floodfill::run_flood<Npp8u, 1, num::floodfill::kGradientBoundary>(
+      "nppiFloodFillGradientBoundary_8u_C1IR_Ctx",
+      [](Npp8u *p, int step, NppiPoint seed, const Npp8u *nv, const Npp8u *bv, const Npp8u *mn, const Npp8u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillGradientBoundary_8u_C1IR_Ctx(p, step, seed, mn[0], mx[0], nv[0], bv[0], (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillGradientBoundary_8u_C3IR_Ctx) {
+  num::floodfill::run_flood<Npp8u, 3, num::floodfill::kGradientBoundary>(
+      "nppiFloodFillGradientBoundary_8u_C3IR_Ctx",
+      [](Npp8u *p, int step, NppiPoint seed, const Npp8u *nv, const Npp8u *bv, const Npp8u *mn, const Npp8u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillGradientBoundary_8u_C3IR_Ctx(p, step, seed, const_cast<Npp8u *>(mn), const_cast<Npp8u *>(mx), const_cast<Npp8u *>(nv), const_cast<Npp8u *>(bv), (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillGradient_16u_C1IR_Ctx) {
+  num::floodfill::run_flood<Npp16u, 1, num::floodfill::kGradient>(
+      "nppiFloodFillGradient_16u_C1IR_Ctx",
+      [](Npp16u *p, int step, NppiPoint seed, const Npp16u *nv, const Npp16u *bv, const Npp16u *mn, const Npp16u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillGradient_16u_C1IR_Ctx(p, step, seed, mn[0], mx[0], nv[0], (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillGradient_16u_C3IR_Ctx) {
+  num::floodfill::run_flood<Npp16u, 3, num::floodfill::kGradient>(
+      "nppiFloodFillGradient_16u_C3IR_Ctx",
+      [](Npp16u *p, int step, NppiPoint seed, const Npp16u *nv, const Npp16u *bv, const Npp16u *mn, const Npp16u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillGradient_16u_C3IR_Ctx(p, step, seed, const_cast<Npp16u *>(mn), const_cast<Npp16u *>(mx), const_cast<Npp16u *>(nv), (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillGradient_32u_C1IR_Ctx) {
+  num::floodfill::run_flood<Npp32u, 1, num::floodfill::kGradient>(
+      "nppiFloodFillGradient_32u_C1IR_Ctx",
+      [](Npp32u *p, int step, NppiPoint seed, const Npp32u *nv, const Npp32u *bv, const Npp32u *mn, const Npp32u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillGradient_32u_C1IR_Ctx(p, step, seed, mn[0], mx[0], nv[0], (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillGradient_32u_C3IR_Ctx) {
+  num::floodfill::run_flood<Npp32u, 3, num::floodfill::kGradient>(
+      "nppiFloodFillGradient_32u_C3IR_Ctx",
+      [](Npp32u *p, int step, NppiPoint seed, const Npp32u *nv, const Npp32u *bv, const Npp32u *mn, const Npp32u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillGradient_32u_C3IR_Ctx(p, step, seed, const_cast<Npp32u *>(mn), const_cast<Npp32u *>(mx), const_cast<Npp32u *>(nv), (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillGradient_8u_C1IR_Ctx) {
+  num::floodfill::run_flood<Npp8u, 1, num::floodfill::kGradient>(
+      "nppiFloodFillGradient_8u_C1IR_Ctx",
+      [](Npp8u *p, int step, NppiPoint seed, const Npp8u *nv, const Npp8u *bv, const Npp8u *mn, const Npp8u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillGradient_8u_C1IR_Ctx(p, step, seed, mn[0], mx[0], nv[0], (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillGradient_8u_C3IR_Ctx) {
+  num::floodfill::run_flood<Npp8u, 3, num::floodfill::kGradient>(
+      "nppiFloodFillGradient_8u_C3IR_Ctx",
+      [](Npp8u *p, int step, NppiPoint seed, const Npp8u *nv, const Npp8u *bv, const Npp8u *mn, const Npp8u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillGradient_8u_C3IR_Ctx(p, step, seed, const_cast<Npp8u *>(mn), const_cast<Npp8u *>(mx), const_cast<Npp8u *>(nv), (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillRangeBoundary_16u_C1IR_Ctx) {
+  num::floodfill::run_flood<Npp16u, 1, num::floodfill::kRangeBoundary>(
+      "nppiFloodFillRangeBoundary_16u_C1IR_Ctx",
+      [](Npp16u *p, int step, NppiPoint seed, const Npp16u *nv, const Npp16u *bv, const Npp16u *mn, const Npp16u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillRangeBoundary_16u_C1IR_Ctx(p, step, seed, mn[0], mx[0], nv[0], bv[0], (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillRangeBoundary_16u_C3IR_Ctx) {
+  num::floodfill::run_flood<Npp16u, 3, num::floodfill::kRangeBoundary>(
+      "nppiFloodFillRangeBoundary_16u_C3IR_Ctx",
+      [](Npp16u *p, int step, NppiPoint seed, const Npp16u *nv, const Npp16u *bv, const Npp16u *mn, const Npp16u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillRangeBoundary_16u_C3IR_Ctx(p, step, seed, const_cast<Npp16u *>(mn), const_cast<Npp16u *>(mx), const_cast<Npp16u *>(nv), const_cast<Npp16u *>(bv), (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillRangeBoundary_32u_C1IR_Ctx) {
+  num::floodfill::run_flood<Npp32u, 1, num::floodfill::kRangeBoundary>(
+      "nppiFloodFillRangeBoundary_32u_C1IR_Ctx",
+      [](Npp32u *p, int step, NppiPoint seed, const Npp32u *nv, const Npp32u *bv, const Npp32u *mn, const Npp32u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillRangeBoundary_32u_C1IR_Ctx(p, step, seed, mn[0], mx[0], nv[0], bv[0], (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillRangeBoundary_32u_C3IR_Ctx) {
+  num::floodfill::run_flood<Npp32u, 3, num::floodfill::kRangeBoundary>(
+      "nppiFloodFillRangeBoundary_32u_C3IR_Ctx",
+      [](Npp32u *p, int step, NppiPoint seed, const Npp32u *nv, const Npp32u *bv, const Npp32u *mn, const Npp32u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillRangeBoundary_32u_C3IR_Ctx(p, step, seed, const_cast<Npp32u *>(mn), const_cast<Npp32u *>(mx), const_cast<Npp32u *>(nv), const_cast<Npp32u *>(bv), (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillRangeBoundary_8u_C1IR_Ctx) {
+  num::floodfill::run_flood<Npp8u, 1, num::floodfill::kRangeBoundary>(
+      "nppiFloodFillRangeBoundary_8u_C1IR_Ctx",
+      [](Npp8u *p, int step, NppiPoint seed, const Npp8u *nv, const Npp8u *bv, const Npp8u *mn, const Npp8u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillRangeBoundary_8u_C1IR_Ctx(p, step, seed, mn[0], mx[0], nv[0], bv[0], (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillRangeBoundary_8u_C3IR_Ctx) {
+  num::floodfill::run_flood<Npp8u, 3, num::floodfill::kRangeBoundary>(
+      "nppiFloodFillRangeBoundary_8u_C3IR_Ctx",
+      [](Npp8u *p, int step, NppiPoint seed, const Npp8u *nv, const Npp8u *bv, const Npp8u *mn, const Npp8u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillRangeBoundary_8u_C3IR_Ctx(p, step, seed, const_cast<Npp8u *>(mn), const_cast<Npp8u *>(mx), const_cast<Npp8u *>(nv), const_cast<Npp8u *>(bv), (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillRange_16u_C1IR_Ctx) {
+  num::floodfill::run_flood<Npp16u, 1, num::floodfill::kRange>(
+      "nppiFloodFillRange_16u_C1IR_Ctx",
+      [](Npp16u *p, int step, NppiPoint seed, const Npp16u *nv, const Npp16u *bv, const Npp16u *mn, const Npp16u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillRange_16u_C1IR_Ctx(p, step, seed, mn[0], mx[0], nv[0], (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillRange_16u_C3IR_Ctx) {
+  num::floodfill::run_flood<Npp16u, 3, num::floodfill::kRange>(
+      "nppiFloodFillRange_16u_C3IR_Ctx",
+      [](Npp16u *p, int step, NppiPoint seed, const Npp16u *nv, const Npp16u *bv, const Npp16u *mn, const Npp16u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillRange_16u_C3IR_Ctx(p, step, seed, const_cast<Npp16u *>(mn), const_cast<Npp16u *>(mx), const_cast<Npp16u *>(nv), (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillRange_32u_C1IR_Ctx) {
+  num::floodfill::run_flood<Npp32u, 1, num::floodfill::kRange>(
+      "nppiFloodFillRange_32u_C1IR_Ctx",
+      [](Npp32u *p, int step, NppiPoint seed, const Npp32u *nv, const Npp32u *bv, const Npp32u *mn, const Npp32u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillRange_32u_C1IR_Ctx(p, step, seed, mn[0], mx[0], nv[0], (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillRange_32u_C3IR_Ctx) {
+  num::floodfill::run_flood<Npp32u, 3, num::floodfill::kRange>(
+      "nppiFloodFillRange_32u_C3IR_Ctx",
+      [](Npp32u *p, int step, NppiPoint seed, const Npp32u *nv, const Npp32u *bv, const Npp32u *mn, const Npp32u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillRange_32u_C3IR_Ctx(p, step, seed, const_cast<Npp32u *>(mn), const_cast<Npp32u *>(mx), const_cast<Npp32u *>(nv), (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillRange_8u_C1IR_Ctx) {
+  num::floodfill::run_flood<Npp8u, 1, num::floodfill::kRange>(
+      "nppiFloodFillRange_8u_C1IR_Ctx",
+      [](Npp8u *p, int step, NppiPoint seed, const Npp8u *nv, const Npp8u *bv, const Npp8u *mn, const Npp8u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillRange_8u_C1IR_Ctx(p, step, seed, mn[0], mx[0], nv[0], (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFillRange_8u_C3IR_Ctx) {
+  num::floodfill::run_flood<Npp8u, 3, num::floodfill::kRange>(
+      "nppiFloodFillRange_8u_C3IR_Ctx",
+      [](Npp8u *p, int step, NppiPoint seed, const Npp8u *nv, const Npp8u *bv, const Npp8u *mn, const Npp8u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFillRange_8u_C3IR_Ctx(p, step, seed, const_cast<Npp8u *>(mn), const_cast<Npp8u *>(mx), const_cast<Npp8u *>(nv), (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFill_16u_C1IR_Ctx) {
+  num::floodfill::run_flood<Npp16u, 1, num::floodfill::kPlain>(
+      "nppiFloodFill_16u_C1IR_Ctx",
+      [](Npp16u *p, int step, NppiPoint seed, const Npp16u *nv, const Npp16u *bv, const Npp16u *mn, const Npp16u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFill_16u_C1IR_Ctx(p, step, seed, nv[0], (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFill_16u_C3IR_Ctx) {
+  num::floodfill::run_flood<Npp16u, 3, num::floodfill::kPlain>(
+      "nppiFloodFill_16u_C3IR_Ctx",
+      [](Npp16u *p, int step, NppiPoint seed, const Npp16u *nv, const Npp16u *bv, const Npp16u *mn, const Npp16u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFill_16u_C3IR_Ctx(p, step, seed, const_cast<Npp16u *>(nv), (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFill_32u_C1IR_Ctx) {
+  num::floodfill::run_flood<Npp32u, 1, num::floodfill::kPlain>(
+      "nppiFloodFill_32u_C1IR_Ctx",
+      [](Npp32u *p, int step, NppiPoint seed, const Npp32u *nv, const Npp32u *bv, const Npp32u *mn, const Npp32u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFill_32u_C1IR_Ctx(p, step, seed, nv[0], (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFill_32u_C3IR_Ctx) {
+  num::floodfill::run_flood<Npp32u, 3, num::floodfill::kPlain>(
+      "nppiFloodFill_32u_C3IR_Ctx",
+      [](Npp32u *p, int step, NppiPoint seed, const Npp32u *nv, const Npp32u *bv, const Npp32u *mn, const Npp32u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFill_32u_C3IR_Ctx(p, step, seed, const_cast<Npp32u *>(nv), (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFill_8u_C1IR_Ctx) {
+  num::floodfill::run_flood<Npp8u, 1, num::floodfill::kPlain>(
+      "nppiFloodFill_8u_C1IR_Ctx",
+      [](Npp8u *p, int step, NppiPoint seed, const Npp8u *nv, const Npp8u *bv, const Npp8u *mn, const Npp8u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFill_8u_C1IR_Ctx(p, step, seed, nv[0], (NppiNorm)norm, roi, reg, buf, ctx); });
+}
+
+TEST(NumGen, nppiFloodFill_8u_C3IR_Ctx) {
+  num::floodfill::run_flood<Npp8u, 3, num::floodfill::kPlain>(
+      "nppiFloodFill_8u_C3IR_Ctx",
+      [](Npp8u *p, int step, NppiPoint seed, const Npp8u *nv, const Npp8u *bv, const Npp8u *mn, const Npp8u *mx, int norm, NppiSize roi, NppiConnectedRegion *reg, Npp8u *buf, NppStreamContext ctx) { return nppiFloodFill_8u_C3IR_Ctx(p, step, seed, const_cast<Npp8u *>(nv), (NppiNorm)norm, roi, reg, buf, ctx); });
 }
 
 TEST(NumGen, nppiGradientVectorPrewittBorder_16s32f_C1R_Ctx) {
