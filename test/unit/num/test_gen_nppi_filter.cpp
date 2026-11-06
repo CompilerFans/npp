@@ -34,6 +34,26 @@
 
 #include "num_nppi_label_markers.h"
 
+#include "num_nppi_compress_labels.h"
+
+TEST(NumGen, nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx) {
+  num::compresslabels::run_compress_batch<true>(
+      "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx",
+      [](NppiImageDescriptor *p, NppiBufferDescriptor *b, unsigned int *n, int nb, NppiSize roi, int bufsz, NppStreamContext ctx) { return nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx(p, b, n, nb, roi, bufsz, ctx); });
+}
+
+TEST(NumGen, nppiCompressMarkerLabelsUFBatch_32u_C1IR_Ctx) {
+  num::compresslabels::run_compress_batch<false>(
+      "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Ctx",
+      [](NppiImageDescriptor *p, NppiBufferDescriptor *b, unsigned int *n, int nb, NppiSize roi, int bufsz, NppStreamContext ctx) { return nppiCompressMarkerLabelsUFBatch_32u_C1IR_Ctx(p, b, n, nb, roi, bufsz, ctx); });
+}
+
+TEST(NumGen, nppiCompressMarkerLabelsUF_32u_C1IR_Ctx) {
+  num::compresslabels::run_compress(
+      "nppiCompressMarkerLabelsUF_32u_C1IR_Ctx",
+      [](Npp32u *p, int step, NppiSize roi, int start, int *newNumber, Npp8u *buf, NppStreamContext ctx) { return nppiCompressMarkerLabelsUF_32u_C1IR_Ctx(p, step, roi, start, newNumber, buf, ctx); });
+}
+
 TEST(NumGen, nppiDistanceTransformAbsPBA_16s16u_C1R_Ctx) {
   num::distxform::run_pba<Npp16s, Npp16u>(
       "nppiDistanceTransformAbsPBA_16s16u_C1R_Ctx",

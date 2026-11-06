@@ -134,23 +134,8 @@
   "skipped": []
  },
  "nppi_filtering_functions.h": {
-  "emitted": 958,
+  "emitted": 961,
   "skipped": [
-   {
-    "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx",
-    "family": "nppiCompressMarkerLabelsUFBatch",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Ctx",
-    "family": "nppiCompressMarkerLabelsUFBatch",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiCompressMarkerLabelsUF_32u_C1IR_Ctx",
-    "family": "nppiCompressMarkerLabelsUF",
-    "reason": "later filtering batch / unsupported"
-   },
    {
     "function": "nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx",
     "family": "nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R",

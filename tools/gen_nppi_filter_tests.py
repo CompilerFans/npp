@@ -476,6 +476,24 @@ def emit_label_markers(row: dict) -> Optional[str]:
     return None
 
 
+def emit_compress_labels(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    if fn == "nppiCompressMarkerLabelsUF_32u_C1IR_Ctx":
+        lam = (f"[](Npp32u *p, int step, NppiSize roi, int start, int *newNumber, Npp8u *buf, "
+               f"NppStreamContext ctx) {{ return {fn}(p, step, roi, start, newNumber, buf, ctx); }}")
+        return ("TEST(NumGen, " + re.sub(r"\W", "_", fn) + ") {\n  num::compresslabels::run_compress(\n"
+                f"      \"{fn}\",\n      {lam});\n}}\n")
+    m = re.match(r"nppiCompressMarkerLabelsUFBatch_32u_C1IR(_Advanced)?_Ctx$", fn)
+    if m:
+        advanced = m.group(1) is not None
+        adv = "true" if advanced else "false"
+        lam = (f"[](NppiImageDescriptor *p, NppiBufferDescriptor *b, unsigned int *n, int nb, "
+               f"NppiSize roi, int bufsz, NppStreamContext ctx) {{ return {fn}(p, b, n, nb, roi, bufsz, ctx); }}")
+        return ("TEST(NumGen, " + re.sub(r"\W", "_", fn) + ") {\n"
+                f"  num::compresslabels::run_compress_batch<{adv}>(\n      \"{fn}\",\n      {lam});\n}}\n")
+    return None
+
+
 def emit_signed_dt(row: dict) -> Optional[str]:
     fn = row["function_name"]
     m = re.match(r"nppiSignedDistanceTransform(Abs)?PBA_(32f64f|32f|64f)_C1R_Ctx$", fn)
@@ -523,7 +541,7 @@ def main() -> int:
                 or emit_tail(row) or emit_wiener(row) or emit_unsharp(row)
                 or emit_pyramid(row) or emit_hog(row) or emit_median_bufsize(row)
                 or emit_distance_transform(row) or emit_floodfill(row)
-                or emit_signed_dt(row) or emit_label_markers(row))
+                or emit_signed_dt(row) or emit_label_markers(row) or emit_compress_labels(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
@@ -547,7 +565,8 @@ def main() -> int:
               "#include \"num_nppi_distance_transform.h\"\n\n"
               "#include \"num_nppi_floodfill.h\"\n\n"
               "#include \"num_nppi_signed_distance_transform.h\"\n\n"
-              "#include \"num_nppi_label_markers.h\"\n\n")
+              "#include \"num_nppi_label_markers.h\"\n\n"
+              "#include \"num_nppi_compress_labels.h\"\n\n")
     if args.emit:
         DEST.write_text(header + "\n".join(out))
         prev = {}
