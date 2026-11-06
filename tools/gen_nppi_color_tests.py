@@ -486,6 +486,66 @@ YUV_FAMILIES = {"nppiYUV420ToRGB", "nppiYUV420ToBGR", "nppiYUV422ToRGB",
                 "nppiRGBToYUV420", "nppiRGBToYUV422"}
 
 
+LAYOUT_KIND = {
+    "c2ToP3": ("C2P3", 4), "c2ToP2": ("C2P2", 3), "p3ToC2": ("P3C2", 3),
+    "p2ToC2_411": ("P2C2_411", 1), "p2ToP3_411": ("P2P3_411", 0),
+    "p2ToP3_422": ("P2P3_422", 0), "p2ToP3_420": ("P2P3_420", 1),
+    "c2Reorder": ("C2REORDER", 2), "p3Resample": ("P3RESAMPLE", 3),
+    "p3ToP2": ("P3P2", 2),
+}
+_LAYOUT_FILES: dict = {}
+
+
+def _layout_call(fn: str, fam: str):
+    path = ROOT / "src" / "nppi" / "nppi_color_conversion_operations" / f"nppi_c3_{fam}_generated.cpp"
+    if not path.exists():
+        return None
+    text = _LAYOUT_FILES.setdefault(str(path), path.read_text())
+    m = re.search(re.escape(fn) + r"\s*\(", text)
+    if not m:
+        return None
+    m2 = re.search(r"return nppi::c3yuv::(\w+)\(([^;]*)\);", text[m.end():])
+    if not m2 or m2.group(1) not in LAYOUT_KIND:
+        return None
+    tail = m2.group(2).split("nppStreamCtx.hStream")[-1]
+    ints = [int(x) for x in re.findall(r"-?\d+", tail)]
+    return m2.group(1), ints
+
+
+def emit_yuv_layout(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    fam = row["family"]
+    call = _layout_call(fn, fam)
+    if call is None:
+        return None
+    exec_name, ints = call
+    kind, nargs = LAYOUT_KIND[exec_name]
+    args = (ints + [0, 0, 0, 0])[:4]
+    name = re.sub(r"\W", "_", fn)
+    sig = ("[](const Npp8u *const *sp, const Npp8u *ps, int ss, int *ssa, Npp8u *const *dp, Npp8u *pd, "
+           "int ds, int *dsa, NppiSize r, NppStreamContext c) ")
+    if kind == "C2P3":
+        body = f"return {fn}(ps, ss, const_cast<Npp8u **>(dp), dsa, r, c);"
+    elif kind == "C2P2":
+        body = f"return {fn}(ps, ss, dp[0], dsa[0], dp[1], dsa[1], r, c);"
+    elif kind == "P3C2":
+        body = f"return {fn}(sp, ssa, pd, ds, r, c);"
+    elif kind == "P2C2_411":
+        body = f"return {fn}(sp[0], ssa[0], sp[1], ssa[1], pd, ds, r, c);"
+    elif kind in ("P2P3_411", "P2P3_422", "P2P3_420"):
+        body = f"return {fn}(sp[0], ssa[0], sp[1], ssa[1], const_cast<Npp8u **>(dp), dsa, r, c);"
+    elif kind == "C2REORDER":
+        body = f"return {fn}(ps, ss, pd, ds, r, c);"
+    elif kind == "P3RESAMPLE":
+        body = f"return {fn}(sp, ssa, const_cast<Npp8u **>(dp), dsa, r, c);"
+    else:  # P3P2
+        body = f"return {fn}(sp, ssa, dp[0], dsa[0], dp[1], dsa[1], r, c);"
+    lam = f"{sig}{{ (void)sp; (void)ps; (void)ss; (void)ssa; (void)dp; (void)pd; (void)ds; (void)dsa; (void)r; (void)c; {body} }}"
+    return (f"TEST(NumGen, {name}) {{\n"
+            f"  num::yuvlayout::run_layout(\n      \"{fn}\", num::yuvlayout::Kind::{kind}, "
+            f"{args[0]}, {args[1]}, {args[2]}, {args[3]},\n      {lam});\n}}\n")
+
+
 def emit_yuv_planar(row: dict) -> Optional[str]:
     fn = row["function_name"]
     fam = row["family"]
@@ -667,8 +727,8 @@ def main() -> int:
         text = (emit_lut(row) or emit_lut_palette(row) or emit_twist(row) or emit_twist_batch(row)
                 or emit_gamma(row) or emit_gray(row) or emit_gradient(row) or emit_hls(row)
                 or emit_hls_layout(row) or emit_yuv(row) or emit_cs(row) or emit_cfa(row)
-                or emit_ycbcr_jpeg(row) or emit_yuv_planar(row) or emit_nv12(row)
-                or emit_nv12_twist(row))
+                or emit_ycbcr_jpeg(row) or emit_yuv_planar(row) or emit_yuv_layout(row)
+                or emit_nv12(row) or emit_nv12_twist(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
                                 reason="later color batch / unsupported"))
@@ -682,6 +742,7 @@ def main() -> int:
               "#include \"num_nppi_hls.h\"\n"
               "#include \"num_nppi_yuv.h\"\n"
               "#include \"num_nppi_yuv420.h\"\n"
+              "#include \"num_nppi_yuv_layout.h\"\n"
               "#include \"num_nppi_colorspace.h\"\n"
               "#include \"num_nppi_cfa.h\"\n"
               "#include \"num_nppi_ycbcr.h\"\n"

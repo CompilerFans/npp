@@ -208,6 +208,9 @@ __global__ void k_p3_resample(const Npp8u *__restrict__ pSrcCb, const Npp8u *__r
     cw = width >> 2;
   } else if (MODE == 2 || MODE == 4) {
     ch = height >> 1;
+  } else if (MODE == 3) {
+    // Measured: the 4:2:0 -> 4:2:2 destination keeps only height & ~1 rows.
+    ch = height & ~1;
   }
   if (x >= cw || y >= ch) {
     return;
