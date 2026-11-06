@@ -482,6 +482,45 @@ def emit_cfa(row: dict) -> Optional[str]:
 
 
 
+YCBCR_SUB = {"444": "S444", "420": "S420", "422": "S422", "411": "S411"}
+
+
+def emit_ycbcr_jpeg(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    if "_JPEG_" not in fn:
+        return None
+    m = re.search(r"(444|420|422|411)\w*_JPEG_8u_(C3P3R|P3R|P3C3R)_Ctx$", fn)
+    if not m:
+        return None
+    sub = YCBCR_SUB[m.group(1)]
+    suffix = m.group(2)
+    bgr = "true" if "BGR" in fn else "false"
+    arr = sub != "S444"
+    name = re.sub(r"\W", "_", fn)
+    voids = "(void)sp; (void)ps; (void)ss; (void)ssa; (void)dp; (void)pd; (void)ds; (void)dsa; (void)r; (void)c; "
+    if "ToYCbCr" in fn:
+        src = "ps" if suffix == "C3P3R" else "sp"
+        dstep = "dsa" if arr else "ds"
+        lam = (f"[](const Npp8u *const *sp, const Npp8u *ps, int ss, int *ssa, Npp8u *const *dp, Npp8u *pd, "
+               f"int ds, int *dsa, NppiSize r, NppStreamContext c) "
+               f"{{ {voids}return {fn}({src}, ss, const_cast<Npp8u **>(dp), {dstep}, r, c); }}")
+        prefix = (f"num::ycbcr::run_ycbcr_jpeg<num::ycbcr::Sub::{sub}, true, "
+                  f"{'true' if suffix == 'C3P3R' else 'false'}, false, {bgr}>")
+    else:
+        sstep = "ssa" if arr else "ss"
+        if suffix == "P3C3R":
+            lam = (f"[](const Npp8u *const *sp, const Npp8u *ps, int ss, int *ssa, Npp8u *const *dp, Npp8u *pd, "
+                   f"int ds, int *dsa, NppiSize r, NppStreamContext c) "
+                   f"{{ {voids}return {fn}(sp, {sstep}, pd, ds, r, c); }}")
+        else:
+            lam = (f"[](const Npp8u *const *sp, const Npp8u *ps, int ss, int *ssa, Npp8u *const *dp, Npp8u *pd, "
+                   f"int ds, int *dsa, NppiSize r, NppStreamContext c) "
+                   f"{{ {voids}return {fn}(sp, {sstep}, const_cast<Npp8u **>(dp), ds, r, c); }}")
+        prefix = (f"num::ycbcr::run_ycbcr_jpeg<num::ycbcr::Sub::{sub}, false, false, "
+                  f"{'true' if suffix == 'P3C3R' else 'false'}, {bgr}>")
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
 def emit_nv12(row: dict) -> Optional[str]:
     fn = row["function_name"]
     fam = row["family"]
@@ -568,11 +607,10 @@ def main() -> int:
     skipped: List[dict] = []
     for row in rows:
         fam = row["family"]
-        text = (emit_lut(row) if fam in MODE
-                else emit_lut_palette(row) or emit_twist(row) or emit_twist_batch(row)
+        text = (emit_lut(row) or emit_lut_palette(row) or emit_twist(row) or emit_twist_batch(row)
                 or emit_gamma(row) or emit_gray(row) or emit_gradient(row) or emit_hls(row)
                 or emit_hls_layout(row) or emit_yuv(row) or emit_cs(row) or emit_cfa(row)
-                or emit_nv12(row) or emit_nv12_twist(row))
+                or emit_ycbcr_jpeg(row) or emit_nv12(row) or emit_nv12_twist(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
                                 reason="later color batch / unsupported"))
@@ -587,6 +625,7 @@ def main() -> int:
               "#include \"num_nppi_yuv.h\"\n"
               "#include \"num_nppi_colorspace.h\"\n"
               "#include \"num_nppi_cfa.h\"\n"
+              "#include \"num_nppi_ycbcr.h\"\n"
               "#include \"num_nppi_nv12.h\"\n\n")
     dest = Path(args.out) if args.out else ROOT / "test" / "unit" / "num" / "test_gen_nppi_color.cpp"
     if args.emit:

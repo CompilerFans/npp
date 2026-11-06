@@ -23,9 +23,12 @@ __device__ __forceinline__ int trunc_u8(float v) {
   return t < 0 ? 0 : (t > 255 ? 255 : t);
 }
 
-// --- JPEG forward: order validated against NVIDIA goldens ---------------
+// --- JPEG forward: bit-exact against NVIDIA goldens ----------------------
+// Exhaustively fitted over all 2^24 RGB triples on the 5090: the luma sum is
+// evaluated as fma(.114,B, fma(.299,R, .587*G)) and both chroma sums are
+// plain round-to-nearest products, truncated to u8.
 __device__ __forceinline__ void rgb_to_ycbcr_jpeg(float r, float g, float b, int &y, int &cb, int &cr) {
-  const float fy = __fadd_rn(__fadd_rn(__fmul_rn(0.299f, r), __fmul_rn(0.587f, g)), __fmul_rn(0.114f, b));
+  const float fy = __fmaf_rn(0.114f, b, __fmaf_rn(0.299f, r, __fmul_rn(0.587f, g)));
   const float fcb =
       __fadd_rn(__fadd_rn(__fsub_rn(__fmul_rn(-0.168736f, r), __fmul_rn(0.331264f, g)), __fmul_rn(0.5f, b)), 128.0f);
   const float fcr =
@@ -36,12 +39,15 @@ __device__ __forceinline__ void rgb_to_ycbcr_jpeg(float r, float g, float b, int
 }
 
 // --- JPEG inverse ---------------------------------------------------------
+// Fitted on the 5090: R and B are exact over all 2^24 (Y,Cb,Cr) triples;
+// G matches except for a handful of +/-1 knife-edge cases (the reference
+// kernel's own rounding differs there by one LSB).
 __device__ __forceinline__ void ycbcr_to_rgb_jpeg(float y, float cb, float cr, int &r, int &g, int &b) {
   const float dcb = __fsub_rn(cb, 128.0f);
   const float dcr = __fsub_rn(cr, 128.0f);
-  const float fr = __fadd_rn(y, __fmul_rn(1.402f, dcr));
-  const float fg = __fsub_rn(__fsub_rn(y, __fmul_rn(0.344136f, dcb)), __fmul_rn(0.714136f, dcr));
-  const float fb = __fadd_rn(y, __fmul_rn(1.772f, dcb));
+  const float fr = __fmaf_rn(1.402f, dcr, y);
+  const float fg = __fmaf_rn(-0.714136f, dcr, __fmaf_rn(-0.344136f, dcb, y));
+  const float fb = __fmaf_rn(1.772f, dcb, y);
   r = trunc_u8(fr);
   g = trunc_u8(fg);
   b = trunc_u8(fb);

@@ -130,7 +130,7 @@
   ]
  },
  "nppi_color_conversion.h": {
-  "emitted": 337,
+  "emitted": 369,
   "skipped": [
    {
     "function": "nppiAlphaCompColorKey_8u_AC4R_Ctx",
@@ -163,16 +163,6 @@
     "reason": "later color batch / unsupported"
    },
    {
-    "function": "nppiBGRToYCbCr411_JPEG_8u_C3P3R_Ctx",
-    "family": "nppiBGRToYCbCr411_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiBGRToYCbCr411_JPEG_8u_P3R_Ctx",
-    "family": "nppiBGRToYCbCr411_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
     "function": "nppiBGRToYCbCr420_709CSC_8u_AC4P3R_Ctx",
     "family": "nppiBGRToYCbCr420_709CSC",
     "reason": "later color batch / unsupported"
@@ -198,16 +188,6 @@
     "reason": "later color batch / unsupported"
    },
    {
-    "function": "nppiBGRToYCbCr420_JPEG_8u_C3P3R_Ctx",
-    "family": "nppiBGRToYCbCr420_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiBGRToYCbCr420_JPEG_8u_P3R_Ctx",
-    "family": "nppiBGRToYCbCr420_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
     "function": "nppiBGRToYCbCr422_8u_AC4C2R_Ctx",
     "family": "nppiBGRToYCbCr422",
     "reason": "later color batch / unsupported"
@@ -225,26 +205,6 @@
    {
     "function": "nppiBGRToYCbCr422_8u_C3P3R_Ctx",
     "family": "nppiBGRToYCbCr422",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiBGRToYCbCr422_JPEG_8u_C3P3R_Ctx",
-    "family": "nppiBGRToYCbCr422_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiBGRToYCbCr422_JPEG_8u_P3R_Ctx",
-    "family": "nppiBGRToYCbCr422_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiBGRToYCbCr444_JPEG_8u_C3P3R_Ctx",
-    "family": "nppiBGRToYCbCr444_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiBGRToYCbCr444_JPEG_8u_P3R_Ctx",
-    "family": "nppiBGRToYCbCr444_JPEG",
     "reason": "later color batch / unsupported"
    },
    {
@@ -378,28 +338,8 @@
     "reason": "later color batch / unsupported"
    },
    {
-    "function": "nppiRGBToYCbCr411_JPEG_8u_C3P3R_Ctx",
-    "family": "nppiRGBToYCbCr411_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToYCbCr411_JPEG_8u_P3R_Ctx",
-    "family": "nppiRGBToYCbCr411_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
     "function": "nppiRGBToYCbCr420_8u_C3P3R_Ctx",
     "family": "nppiRGBToYCbCr420",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToYCbCr420_JPEG_8u_C3P3R_Ctx",
-    "family": "nppiRGBToYCbCr420_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToYCbCr420_JPEG_8u_P3R_Ctx",
-    "family": "nppiRGBToYCbCr420_JPEG",
     "reason": "later color batch / unsupported"
    },
    {
@@ -415,26 +355,6 @@
    {
     "function": "nppiRGBToYCbCr422_8u_P3C2R_Ctx",
     "family": "nppiRGBToYCbCr422",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToYCbCr422_JPEG_8u_C3P3R_Ctx",
-    "family": "nppiRGBToYCbCr422_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToYCbCr422_JPEG_8u_P3R_Ctx",
-    "family": "nppiRGBToYCbCr422_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToYCbCr444_JPEG_8u_C3P3R_Ctx",
-    "family": "nppiRGBToYCbCr444_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToYCbCr444_JPEG_8u_P3R_Ctx",
-    "family": "nppiRGBToYCbCr444_JPEG",
     "reason": "later color batch / unsupported"
    },
    {
@@ -543,16 +463,6 @@
     "reason": "later color batch / unsupported"
    },
    {
-    "function": "nppiYCbCr411ToBGR_JPEG_8u_P3C3R_Ctx",
-    "family": "nppiYCbCr411ToBGR_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr411ToBGR_JPEG_8u_P3R_Ctx",
-    "family": "nppiYCbCr411ToBGR_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
     "function": "nppiYCbCr411ToRGB_8u_P3C3R_Ctx",
     "family": "nppiYCbCr411ToRGB",
     "reason": "later color batch / unsupported"
@@ -560,16 +470,6 @@
    {
     "function": "nppiYCbCr411ToRGB_8u_P3C4R_Ctx",
     "family": "nppiYCbCr411ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr411ToRGB_JPEG_8u_P3C3R_Ctx",
-    "family": "nppiYCbCr411ToRGB_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr411ToRGB_JPEG_8u_P3R_Ctx",
-    "family": "nppiYCbCr411ToRGB_JPEG",
     "reason": "later color batch / unsupported"
    },
    {
@@ -663,16 +563,6 @@
     "reason": "later color batch / unsupported"
    },
    {
-    "function": "nppiYCbCr420ToBGR_JPEG_8u_P3C3R_Ctx",
-    "family": "nppiYCbCr420ToBGR_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr420ToBGR_JPEG_8u_P3R_Ctx",
-    "family": "nppiYCbCr420ToBGR_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
     "function": "nppiYCbCr420ToCbYCr422_8u_P2C2R_Ctx",
     "family": "nppiYCbCr420ToCbYCr422",
     "reason": "later color batch / unsupported"
@@ -690,16 +580,6 @@
    {
     "function": "nppiYCbCr420ToRGB_8u_P3C3R_Ctx",
     "family": "nppiYCbCr420ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr420ToRGB_JPEG_8u_P3C3R_Ctx",
-    "family": "nppiYCbCr420ToRGB_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr420ToRGB_JPEG_8u_P3R_Ctx",
-    "family": "nppiYCbCr420ToRGB_JPEG",
     "reason": "later color batch / unsupported"
    },
    {
@@ -768,16 +648,6 @@
     "reason": "later color batch / unsupported"
    },
    {
-    "function": "nppiYCbCr422ToBGR_JPEG_8u_P3C3R_Ctx",
-    "family": "nppiYCbCr422ToBGR_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr422ToBGR_JPEG_8u_P3R_Ctx",
-    "family": "nppiYCbCr422ToBGR_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
     "function": "nppiYCbCr422ToCbYCr422_8u_C2R_Ctx",
     "family": "nppiYCbCr422ToCbYCr422",
     "reason": "later color batch / unsupported"
@@ -805,16 +675,6 @@
    {
     "function": "nppiYCbCr422ToRGB_8u_P3C3R_Ctx",
     "family": "nppiYCbCr422ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr422ToRGB_JPEG_8u_P3C3R_Ctx",
-    "family": "nppiYCbCr422ToRGB_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr422ToRGB_JPEG_8u_P3R_Ctx",
-    "family": "nppiYCbCr422ToRGB_JPEG",
     "reason": "later color batch / unsupported"
    },
    {
@@ -880,26 +740,6 @@
    {
     "function": "nppiYCbCr422_8u_P3C2R_Ctx",
     "family": "nppiYCbCr422",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr444ToBGR_JPEG_8u_P3C3R_Ctx",
-    "family": "nppiYCbCr444ToBGR_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr444ToBGR_JPEG_8u_P3R_Ctx",
-    "family": "nppiYCbCr444ToBGR_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr444ToRGB_JPEG_8u_P3C3R_Ctx",
-    "family": "nppiYCbCr444ToRGB_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr444ToRGB_JPEG_8u_P3R_Ctx",
-    "family": "nppiYCbCr444ToRGB_JPEG",
     "reason": "later color batch / unsupported"
    },
    {

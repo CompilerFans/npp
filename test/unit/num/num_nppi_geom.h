@@ -978,6 +978,8 @@ inline S warp_sample_channel(const S *base, int stepElems, int chStride, int wid
 inline float warp_fmul(float a, float b) { return (float)((double)a * (double)b); }
 inline float warp_fadd(float a, float b) { return (float)((double)a + (double)b); }
 inline float warp_fsub(float a, float b) { return (float)((double)a - (double)b); }
+// Single-rounding fused multiply-add (matches __fmaf_rn).
+inline float warp_fma(float a, float b, float c) { return (float)std::fma((double)a, (double)b, (double)c); }
 
 template <typename S, int C, int A>
 inline bool rotate_check(const char *id, const GenCase &c, int interp, const std::vector<uint8_t> &pre,

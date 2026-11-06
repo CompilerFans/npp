@@ -19,10 +19,15 @@ __device__ inline void rgb_to_ycbcr_pixel(Npp8u r, Npp8u g, Npp8u b, Npp8u &y, N
   double Cb;
   double Cr;
   if (fullRange) {
-    // JPEG / JFIF full range.
-    Y = 0.299 * R + 0.587 * G + 0.114 * B;
-    Cb = -0.168736 * R - 0.331264 * G + 0.5 * B + 128.0;
-    Cr = 0.5 * R - 0.418688 * G - 0.081312 * B + 128.0;
+    // JPEG / JFIF full range.  Measured on the 5090: the luma sum is
+    // contracted as fma(.114,B, fma(.299,R, .587*G)) while both chroma sums
+    // round each product separately (exhaustively verified over 2^24 RGB).
+    y = clamp_u8_double((double)__fmaf_rn(0.114f, (float)B, __fmaf_rn(0.299f, (float)R, __fmul_rn(0.587f, (float)G))));
+    cb = clamp_u8_double((double)__fadd_rn(__fadd_rn(__fsub_rn(__fmul_rn(-0.168736f, (float)R), __fmul_rn(0.331264f, (float)G)),
+                                             __fmul_rn(0.5f, (float)B)), 128.0f));
+    cr = clamp_u8_double((double)__fadd_rn(__fsub_rn(__fsub_rn(__fmul_rn(0.5f, (float)R), __fmul_rn(0.418688f, (float)G)),
+                                             __fmul_rn(0.081312f, (float)B)), 128.0f));
+    return;
   } else {
     Y = 0.257 * R + 0.504 * G + 0.098 * B + 16.0;
     Cb = -0.148 * R - 0.291 * G + 0.439 * B + 128.0;
@@ -42,11 +47,12 @@ __device__ inline void ycbcr_to_rgb_pixel(Npp8u y, Npp8u cb, Npp8u cr, Npp8u &r,
   double G;
   double B;
   if (fullRange) {
-    // JPEG / JFIF full range.
-    double Y = static_cast<double>(y);
-    R = Y + 1.402 * Cr;
-    G = Y - 0.344136 * Cb - 0.714136 * Cr;
-    B = Y + 1.772 * Cb;
+    // JPEG / JFIF full range, FMA-contracted as measured on the 5090.
+    const float fy = (float)y, fcb = (float)Cb, fcr = (float)Cr;
+    r = clamp_u8_double((double)__fmaf_rn(1.402f, fcr, fy));
+    g = clamp_u8_double((double)__fmaf_rn(-0.714136f, fcr, __fmaf_rn(-0.344136f, fcb, fy)));
+    b = clamp_u8_double((double)__fmaf_rn(1.772f, fcb, fy));
+    return;
   } else {
     double Y = 1.164 * (static_cast<double>(y) - 16.0);
     R = Y + 1.596 * Cr;
@@ -337,6 +343,19 @@ __global__ void rgb_to_ycbcr411_cbcr_p3_kernel(const Npp8u *pSrcR, const Npp8u *
   const Npp8u *rowR = (const Npp8u *)((const char *)pSrcR + y * nSrcStep);
   const Npp8u *rowG = (const Npp8u *)((const char *)pSrcG + y * nSrcStep);
   const Npp8u *rowB = (const Npp8u *)((const char *)pSrcB + y * nSrcStep);
+
+  Npp8u *dstRowCb = (Npp8u *)((char *)pDstCb + y * nDstCbStep);
+  Npp8u *dstRowCr = (Npp8u *)((char *)pDstCr + y * nDstCrStep);
+  if (fullRange) {
+    // Measured on the 5090: the JPEG planar-source 4:1:1 chroma is the first
+    // sample of each 4-column group (no averaging), unlike the packed-source
+    // forward which averages the four truncated chroma values.
+    Npp8u yv, cbv, crv;
+    rgb_to_ycbcr_pixel(rowR[baseX], rowG[baseX], rowB[baseX], yv, cbv, crv, fullRange);
+    dstRowCb[x] = cbv;
+    dstRowCr[x] = crv;
+    return;
+  }
   for (int dx = 0; dx < 4; ++dx) {
     Npp8u yv, cbv, crv;
     rgb_to_ycbcr_pixel(rowR[baseX + dx], rowG[baseX + dx], rowB[baseX + dx], yv, cbv, crv, fullRange);
@@ -344,8 +363,6 @@ __global__ void rgb_to_ycbcr411_cbcr_p3_kernel(const Npp8u *pSrcR, const Npp8u *
     sumCr += crv;
   }
 
-  Npp8u *dstRowCb = (Npp8u *)((char *)pDstCb + y * nDstCbStep);
-  Npp8u *dstRowCr = (Npp8u *)((char *)pDstCr + y * nDstCrStep);
   dstRowCb[x] = static_cast<Npp8u>(sumCb / 4);
   dstRowCr[x] = static_cast<Npp8u>(sumCr / 4);
 }
@@ -368,6 +385,19 @@ __global__ void bgr_to_ycbcr411_cbcr_p3_kernel(const Npp8u *pSrcB, const Npp8u *
   const Npp8u *rowB = (const Npp8u *)((const char *)pSrcB + y * nSrcStep);
   const Npp8u *rowG = (const Npp8u *)((const char *)pSrcG + y * nSrcStep);
   const Npp8u *rowR = (const Npp8u *)((const char *)pSrcR + y * nSrcStep);
+
+  Npp8u *dstRowCb = (Npp8u *)((char *)pDstCb + y * nDstCbStep);
+  Npp8u *dstRowCr = (Npp8u *)((char *)pDstCr + y * nDstCrStep);
+  if (fullRange) {
+    // Measured on the 5090: the JPEG planar-source 4:1:1 chroma is the first
+    // sample of each 4-column group (no averaging), unlike the packed-source
+    // forward which averages the four truncated chroma values.
+    Npp8u yv, cbv, crv;
+    rgb_to_ycbcr_pixel(rowR[baseX], rowG[baseX], rowB[baseX], yv, cbv, crv, fullRange);
+    dstRowCb[x] = cbv;
+    dstRowCr[x] = crv;
+    return;
+  }
   for (int dx = 0; dx < 4; ++dx) {
     Npp8u yv, cbv, crv;
     rgb_to_ycbcr_pixel(rowR[baseX + dx], rowG[baseX + dx], rowB[baseX + dx], yv, cbv, crv, fullRange);
@@ -375,8 +405,6 @@ __global__ void bgr_to_ycbcr411_cbcr_p3_kernel(const Npp8u *pSrcB, const Npp8u *
     sumCr += crv;
   }
 
-  Npp8u *dstRowCb = (Npp8u *)((char *)pDstCb + y * nDstCbStep);
-  Npp8u *dstRowCr = (Npp8u *)((char *)pDstCr + y * nDstCrStep);
   dstRowCb[x] = static_cast<Npp8u>(sumCb / 4);
   dstRowCr[x] = static_cast<Npp8u>(sumCr / 4);
 }
