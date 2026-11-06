@@ -22,6 +22,8 @@
 
 #include "num_nppi_filter_pyramid.h"
 
+#include "num_nppi_filter_hog.h"
+
 TEST(NumGen, nppiFilter32f_16f_C1R_Ctx) {
   num::filtgen::run_generic<Npp16f, Npp16f, 1, 1, 0, 1, false, false>(
       "nppiFilter32f_16f_C1R_Ctx",
@@ -4838,6 +4840,54 @@ TEST(NumGen, nppiGradientVectorSobelBorder_8u16s_C3C1R_Ctx) {
   num::filtgrad::run_gradient<Npp8u, Npp16s, 3, num::filtgrad::kSobel, true>(
       "nppiGradientVectorSobelBorder_8u16s_C3C1R_Ctx",
       [](const Npp8u *sp, int ss, NppiSize srcSize, NppiPoint off, Npp16s *dX, int sX, Npp16s *dY, int sY, Npp16s *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorSobelBorder_8u16s_C3C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiHistogramOfGradientsBorder_16s32f_C1R_Ctx) {
+  num::filthog::run_hog<Npp16s, 1>(
+      "nppiHistogramOfGradientsBorder_16s32f_C1R_Ctx",
+      [](const Npp16s *sp, int ss, NppiSize srcSize, NppiPoint off, const NppiPoint *locs, int nLoc, Npp32f *dp, NppiSize roi, NppiHOGConfig cfg, Npp8u *scratch, int border, NppStreamContext ctx) { return nppiHistogramOfGradientsBorder_16s32f_C1R_Ctx(sp, ss, srcSize, off, locs, nLoc, dp, roi, cfg, scratch, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiHistogramOfGradientsBorder_16s32f_C3R_Ctx) {
+  num::filthog::run_hog<Npp16s, 3>(
+      "nppiHistogramOfGradientsBorder_16s32f_C3R_Ctx",
+      [](const Npp16s *sp, int ss, NppiSize srcSize, NppiPoint off, const NppiPoint *locs, int nLoc, Npp32f *dp, NppiSize roi, NppiHOGConfig cfg, Npp8u *scratch, int border, NppStreamContext ctx) { return nppiHistogramOfGradientsBorder_16s32f_C3R_Ctx(sp, ss, srcSize, off, locs, nLoc, dp, roi, cfg, scratch, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiHistogramOfGradientsBorder_16u32f_C1R_Ctx) {
+  num::filthog::run_hog<Npp16u, 1>(
+      "nppiHistogramOfGradientsBorder_16u32f_C1R_Ctx",
+      [](const Npp16u *sp, int ss, NppiSize srcSize, NppiPoint off, const NppiPoint *locs, int nLoc, Npp32f *dp, NppiSize roi, NppiHOGConfig cfg, Npp8u *scratch, int border, NppStreamContext ctx) { return nppiHistogramOfGradientsBorder_16u32f_C1R_Ctx(sp, ss, srcSize, off, locs, nLoc, dp, roi, cfg, scratch, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiHistogramOfGradientsBorder_16u32f_C3R_Ctx) {
+  num::filthog::run_hog<Npp16u, 3>(
+      "nppiHistogramOfGradientsBorder_16u32f_C3R_Ctx",
+      [](const Npp16u *sp, int ss, NppiSize srcSize, NppiPoint off, const NppiPoint *locs, int nLoc, Npp32f *dp, NppiSize roi, NppiHOGConfig cfg, Npp8u *scratch, int border, NppStreamContext ctx) { return nppiHistogramOfGradientsBorder_16u32f_C3R_Ctx(sp, ss, srcSize, off, locs, nLoc, dp, roi, cfg, scratch, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiHistogramOfGradientsBorder_32f_C1R_Ctx) {
+  num::filthog::run_hog<Npp32f, 1>(
+      "nppiHistogramOfGradientsBorder_32f_C1R_Ctx",
+      [](const Npp32f *sp, int ss, NppiSize srcSize, NppiPoint off, const NppiPoint *locs, int nLoc, Npp32f *dp, NppiSize roi, NppiHOGConfig cfg, Npp8u *scratch, int border, NppStreamContext ctx) { return nppiHistogramOfGradientsBorder_32f_C1R_Ctx(sp, ss, srcSize, off, locs, nLoc, dp, roi, cfg, scratch, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiHistogramOfGradientsBorder_32f_C3R_Ctx) {
+  num::filthog::run_hog<Npp32f, 3>(
+      "nppiHistogramOfGradientsBorder_32f_C3R_Ctx",
+      [](const Npp32f *sp, int ss, NppiSize srcSize, NppiPoint off, const NppiPoint *locs, int nLoc, Npp32f *dp, NppiSize roi, NppiHOGConfig cfg, Npp8u *scratch, int border, NppStreamContext ctx) { return nppiHistogramOfGradientsBorder_32f_C3R_Ctx(sp, ss, srcSize, off, locs, nLoc, dp, roi, cfg, scratch, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiHistogramOfGradientsBorder_8u32f_C1R_Ctx) {
+  num::filthog::run_hog<Npp8u, 1>(
+      "nppiHistogramOfGradientsBorder_8u32f_C1R_Ctx",
+      [](const Npp8u *sp, int ss, NppiSize srcSize, NppiPoint off, const NppiPoint *locs, int nLoc, Npp32f *dp, NppiSize roi, NppiHOGConfig cfg, Npp8u *scratch, int border, NppStreamContext ctx) { return nppiHistogramOfGradientsBorder_8u32f_C1R_Ctx(sp, ss, srcSize, off, locs, nLoc, dp, roi, cfg, scratch, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiHistogramOfGradientsBorder_8u32f_C3R_Ctx) {
+  num::filthog::run_hog<Npp8u, 3>(
+      "nppiHistogramOfGradientsBorder_8u32f_C3R_Ctx",
+      [](const Npp8u *sp, int ss, NppiSize srcSize, NppiPoint off, const NppiPoint *locs, int nLoc, Npp32f *dp, NppiSize roi, NppiHOGConfig cfg, Npp8u *scratch, int border, NppStreamContext ctx) { return nppiHistogramOfGradientsBorder_8u32f_C3R_Ctx(sp, ss, srcSize, off, locs, nLoc, dp, roi, cfg, scratch, (NppiBorderType)border, ctx); });
 }
 
 TEST(NumGen, nppiSumWindowColumnBorder_16s32f_C1R_Ctx) {

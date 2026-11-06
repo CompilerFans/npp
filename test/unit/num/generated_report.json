@@ -134,7 +134,7 @@
   "skipped": []
  },
  "nppi_filtering_functions.h": {
-  "emitted": 839,
+  "emitted": 847,
   "skipped": [
    {
     "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx",
@@ -664,46 +664,6 @@
    {
     "function": "nppiFloodFill_8u_C3IR_Ctx",
     "family": "nppiFloodFill",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiHistogramOfGradientsBorder_16s32f_C1R_Ctx",
-    "family": "nppiHistogramOfGradientsBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiHistogramOfGradientsBorder_16s32f_C3R_Ctx",
-    "family": "nppiHistogramOfGradientsBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiHistogramOfGradientsBorder_16u32f_C1R_Ctx",
-    "family": "nppiHistogramOfGradientsBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiHistogramOfGradientsBorder_16u32f_C3R_Ctx",
-    "family": "nppiHistogramOfGradientsBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiHistogramOfGradientsBorder_32f_C1R_Ctx",
-    "family": "nppiHistogramOfGradientsBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiHistogramOfGradientsBorder_32f_C3R_Ctx",
-    "family": "nppiHistogramOfGradientsBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiHistogramOfGradientsBorder_8u32f_C1R_Ctx",
-    "family": "nppiHistogramOfGradientsBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiHistogramOfGradientsBorder_8u32f_C3R_Ctx",
-    "family": "nppiHistogramOfGradientsBorder",
     "reason": "later filtering batch / unsupported"
    },
    {

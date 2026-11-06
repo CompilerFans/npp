@@ -347,6 +347,23 @@ def emit_pyramid(row: dict) -> Optional[str]:
     return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
 
 
+
+def emit_hog(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    m = re.match(r"nppiHistogramOfGradientsBorder_(8u32f|16u32f|16s32f|32f)_(C1R|C3R)_Ctx$", fn)
+    if not m:
+        return None
+    src = {"8u32f": "Npp8u", "16u32f": "Npp16u", "16s32f": "Npp16s", "32f": "Npp32f"}[m.group(1)]
+    c = 1 if m.group(2) == "C1R" else 3
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[](const {src} *sp, int ss, NppiSize srcSize, NppiPoint off, const NppiPoint *locs, "
+           f"int nLoc, Npp32f *dp, NppiSize roi, NppiHOGConfig cfg, Npp8u *scratch, int border, "
+           f"NppStreamContext ctx) {{ return {fn}(sp, ss, srcSize, off, locs, nLoc, dp, roi, cfg, "
+           f"scratch, (NppiBorderType)border, ctx); }}")
+    prefix = f"num::filthog::run_hog<{src}, {c}>"
+    return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -359,7 +376,7 @@ def main() -> int:
         text = (emit_fixed(row) or emit_deriv(row) or emit_gauss(row) or emit_window(row)
                 or emit_generic(row) or emit_sumwindow(row) or emit_gradient(row)
                 or emit_tail(row) or emit_wiener(row) or emit_unsharp(row)
-                or emit_pyramid(row))
+                or emit_pyramid(row) or emit_hog(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
@@ -377,7 +394,8 @@ def main() -> int:
               "#include \"num_nppi_filter_tail.h\"\n\n"
               "#include \"num_nppi_filter_wiener.h\"\n\n"
               "#include \"num_nppi_filter_unsharp.h\"\n\n"
-              "#include \"num_nppi_filter_pyramid.h\"\n\n")
+              "#include \"num_nppi_filter_pyramid.h\"\n\n"
+              "#include \"num_nppi_filter_hog.h\"\n\n")
     if args.emit:
         DEST.write_text(header + "\n".join(out))
         prev = {}
