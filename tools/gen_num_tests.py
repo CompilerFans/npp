@@ -1085,6 +1085,7 @@ def main() -> int:
         f"// module: {args.module}\n"
         "#include \"num_suite.h\"\n"
         + ("#include \"num_nppi_fused_absdiff.h\"\n" if any("FusedAbsDiff" in r["function_name"] for r in rows) else "")
+
         + "\n"
     )
     body = header + "\n".join(out)

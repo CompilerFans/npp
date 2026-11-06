@@ -20,13 +20,8 @@
   "skipped": []
  },
  "npps_arithmetic_and_logical_operations.h": {
-  "emitted": 369,
-  "skipped": [
-   {
-    "function": "nppsDiv_32s16s_Sfs_Ctx",
-    "reason": "unsupported"
-   }
-  ]
+  "emitted": 370,
+  "skipped": []
  },
  "npps_statistics_functions.h": {
   "emitted": 383,
