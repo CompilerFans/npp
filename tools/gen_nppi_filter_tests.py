@@ -453,6 +453,29 @@ def emit_floodfill(row: dict) -> Optional[str]:
 
 
 
+def emit_label_markers(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    m = re.match(r"nppiLabelMarkersUF_(8u32u|16u32u|32u)_C1R_Ctx$", fn)
+    if m:
+        src = {"8u32u": "Npp8u", "16u32u": "Npp16u", "32u": "Npp32u"}[m.group(1)]
+        name = re.sub(r"\W", "_", fn)
+        lam = (f"[]({src} *sp, int ss, Npp32u *dp, int ds, NppiSize roi, int norm, Npp8u *buf, "
+               f"NppStreamContext ctx) {{ return {fn}(sp, ss, dp, ds, roi, (NppiNorm)norm, buf, ctx); }}")
+        prefix = f"num::labelmarkers::run_label<{src}>"
+        return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
+    m = re.match(r"nppiLabelMarkersUFBatch_(8u32u|16u32u|32u)_C1R(_Advanced)?_Ctx$", fn)
+    if m:
+        src = {"8u32u": "Npp8u", "16u32u": "Npp16u", "32u": "Npp32u"}[m.group(1)]
+        advanced = m.group(2) is not None
+        name = re.sub(r"\W", "_", fn)
+        lam = (f"[](const NppiImageDescriptor *sp, NppiImageDescriptor *dp, int nb, NppiSize roi, "
+               f"int norm, NppStreamContext ctx) {{ return {fn}(sp, dp, nb, roi, (NppiNorm)norm, ctx); }}")
+        adv = "true" if advanced else "false"
+        prefix = f"num::labelmarkers::run_label_batch<{src}, {adv}>"
+        return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
+    return None
+
+
 def emit_signed_dt(row: dict) -> Optional[str]:
     fn = row["function_name"]
     m = re.match(r"nppiSignedDistanceTransform(Abs)?PBA_(32f64f|32f|64f)_C1R_Ctx$", fn)
@@ -500,7 +523,7 @@ def main() -> int:
                 or emit_tail(row) or emit_wiener(row) or emit_unsharp(row)
                 or emit_pyramid(row) or emit_hog(row) or emit_median_bufsize(row)
                 or emit_distance_transform(row) or emit_floodfill(row)
-                or emit_signed_dt(row))
+                or emit_signed_dt(row) or emit_label_markers(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
@@ -523,7 +546,8 @@ def main() -> int:
               "#include \"num_nppi_median_bufsize.h\"\n\n"
               "#include \"num_nppi_distance_transform.h\"\n\n"
               "#include \"num_nppi_floodfill.h\"\n\n"
-              "#include \"num_nppi_signed_distance_transform.h\"\n\n")
+              "#include \"num_nppi_signed_distance_transform.h\"\n\n"
+              "#include \"num_nppi_label_markers.h\"\n\n")
     if args.emit:
         DEST.write_text(header + "\n".join(out))
         prev = {}

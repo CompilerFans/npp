@@ -134,7 +134,7 @@
   "skipped": []
  },
  "nppi_filtering_functions.h": {
-  "emitted": 949,
+  "emitted": 958,
   "skipped": [
    {
     "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx",
@@ -184,51 +184,6 @@
    {
     "function": "nppiFilterHoughLine_8u32f_C1R_Ctx",
     "family": "nppiFilterHoughLine",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiLabelMarkersUFBatch_16u32u_C1R_Advanced_Ctx",
-    "family": "nppiLabelMarkersUFBatch",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiLabelMarkersUFBatch_16u32u_C1R_Ctx",
-    "family": "nppiLabelMarkersUFBatch",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiLabelMarkersUFBatch_32u_C1R_Advanced_Ctx",
-    "family": "nppiLabelMarkersUFBatch",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiLabelMarkersUFBatch_32u_C1R_Ctx",
-    "family": "nppiLabelMarkersUFBatch",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiLabelMarkersUFBatch_8u32u_C1R_Advanced_Ctx",
-    "family": "nppiLabelMarkersUFBatch",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiLabelMarkersUFBatch_8u32u_C1R_Ctx",
-    "family": "nppiLabelMarkersUFBatch",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiLabelMarkersUF_16u32u_C1R_Ctx",
-    "family": "nppiLabelMarkersUF",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiLabelMarkersUF_32u_C1R_Ctx",
-    "family": "nppiLabelMarkersUF",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiLabelMarkersUF_8u32u_C1R_Ctx",
-    "family": "nppiLabelMarkersUF",
     "reason": "later filtering batch / unsupported"
    },
    {

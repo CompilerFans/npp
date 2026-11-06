@@ -32,6 +32,8 @@
 
 #include "num_nppi_signed_distance_transform.h"
 
+#include "num_nppi_label_markers.h"
+
 TEST(NumGen, nppiDistanceTransformAbsPBA_16s16u_C1R_Ctx) {
   num::distxform::run_pba<Npp16s, Npp16u>(
       "nppiDistanceTransformAbsPBA_16s16u_C1R_Ctx",
@@ -5472,6 +5474,60 @@ TEST(NumGen, nppiHistogramOfGradientsBorder_8u32f_C3R_Ctx) {
   num::filthog::run_hog<Npp8u, 3>(
       "nppiHistogramOfGradientsBorder_8u32f_C3R_Ctx",
       [](const Npp8u *sp, int ss, NppiSize srcSize, NppiPoint off, const NppiPoint *locs, int nLoc, Npp32f *dp, NppiSize roi, NppiHOGConfig cfg, Npp8u *scratch, int border, NppStreamContext ctx) { return nppiHistogramOfGradientsBorder_8u32f_C3R_Ctx(sp, ss, srcSize, off, locs, nLoc, dp, roi, cfg, scratch, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiLabelMarkersUFBatch_16u32u_C1R_Advanced_Ctx) {
+  num::labelmarkers::run_label_batch<Npp16u, true>(
+      "nppiLabelMarkersUFBatch_16u32u_C1R_Advanced_Ctx",
+      [](const NppiImageDescriptor *sp, NppiImageDescriptor *dp, int nb, NppiSize roi, int norm, NppStreamContext ctx) { return nppiLabelMarkersUFBatch_16u32u_C1R_Advanced_Ctx(sp, dp, nb, roi, (NppiNorm)norm, ctx); });
+}
+
+TEST(NumGen, nppiLabelMarkersUFBatch_16u32u_C1R_Ctx) {
+  num::labelmarkers::run_label_batch<Npp16u, false>(
+      "nppiLabelMarkersUFBatch_16u32u_C1R_Ctx",
+      [](const NppiImageDescriptor *sp, NppiImageDescriptor *dp, int nb, NppiSize roi, int norm, NppStreamContext ctx) { return nppiLabelMarkersUFBatch_16u32u_C1R_Ctx(sp, dp, nb, roi, (NppiNorm)norm, ctx); });
+}
+
+TEST(NumGen, nppiLabelMarkersUFBatch_32u_C1R_Advanced_Ctx) {
+  num::labelmarkers::run_label_batch<Npp32u, true>(
+      "nppiLabelMarkersUFBatch_32u_C1R_Advanced_Ctx",
+      [](const NppiImageDescriptor *sp, NppiImageDescriptor *dp, int nb, NppiSize roi, int norm, NppStreamContext ctx) { return nppiLabelMarkersUFBatch_32u_C1R_Advanced_Ctx(sp, dp, nb, roi, (NppiNorm)norm, ctx); });
+}
+
+TEST(NumGen, nppiLabelMarkersUFBatch_32u_C1R_Ctx) {
+  num::labelmarkers::run_label_batch<Npp32u, false>(
+      "nppiLabelMarkersUFBatch_32u_C1R_Ctx",
+      [](const NppiImageDescriptor *sp, NppiImageDescriptor *dp, int nb, NppiSize roi, int norm, NppStreamContext ctx) { return nppiLabelMarkersUFBatch_32u_C1R_Ctx(sp, dp, nb, roi, (NppiNorm)norm, ctx); });
+}
+
+TEST(NumGen, nppiLabelMarkersUFBatch_8u32u_C1R_Advanced_Ctx) {
+  num::labelmarkers::run_label_batch<Npp8u, true>(
+      "nppiLabelMarkersUFBatch_8u32u_C1R_Advanced_Ctx",
+      [](const NppiImageDescriptor *sp, NppiImageDescriptor *dp, int nb, NppiSize roi, int norm, NppStreamContext ctx) { return nppiLabelMarkersUFBatch_8u32u_C1R_Advanced_Ctx(sp, dp, nb, roi, (NppiNorm)norm, ctx); });
+}
+
+TEST(NumGen, nppiLabelMarkersUFBatch_8u32u_C1R_Ctx) {
+  num::labelmarkers::run_label_batch<Npp8u, false>(
+      "nppiLabelMarkersUFBatch_8u32u_C1R_Ctx",
+      [](const NppiImageDescriptor *sp, NppiImageDescriptor *dp, int nb, NppiSize roi, int norm, NppStreamContext ctx) { return nppiLabelMarkersUFBatch_8u32u_C1R_Ctx(sp, dp, nb, roi, (NppiNorm)norm, ctx); });
+}
+
+TEST(NumGen, nppiLabelMarkersUF_16u32u_C1R_Ctx) {
+  num::labelmarkers::run_label<Npp16u>(
+      "nppiLabelMarkersUF_16u32u_C1R_Ctx",
+      [](Npp16u *sp, int ss, Npp32u *dp, int ds, NppiSize roi, int norm, Npp8u *buf, NppStreamContext ctx) { return nppiLabelMarkersUF_16u32u_C1R_Ctx(sp, ss, dp, ds, roi, (NppiNorm)norm, buf, ctx); });
+}
+
+TEST(NumGen, nppiLabelMarkersUF_32u_C1R_Ctx) {
+  num::labelmarkers::run_label<Npp32u>(
+      "nppiLabelMarkersUF_32u_C1R_Ctx",
+      [](Npp32u *sp, int ss, Npp32u *dp, int ds, NppiSize roi, int norm, Npp8u *buf, NppStreamContext ctx) { return nppiLabelMarkersUF_32u_C1R_Ctx(sp, ss, dp, ds, roi, (NppiNorm)norm, buf, ctx); });
+}
+
+TEST(NumGen, nppiLabelMarkersUF_8u32u_C1R_Ctx) {
+  num::labelmarkers::run_label<Npp8u>(
+      "nppiLabelMarkersUF_8u32u_C1R_Ctx",
+      [](Npp8u *sp, int ss, Npp32u *dp, int ds, NppiSize roi, int norm, Npp8u *buf, NppStreamContext ctx) { return nppiLabelMarkersUF_8u32u_C1R_Ctx(sp, ss, dp, ds, roi, (NppiNorm)norm, buf, ctx); });
 }
 
 TEST(NumGen, nppiSignedDistanceTransformAbsPBA_32f64f_C1R_Ctx) {
