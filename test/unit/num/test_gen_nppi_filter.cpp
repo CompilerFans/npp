@@ -4,6 +4,392 @@
 
 #include "num_nppi_filter_deriv.h"
 
+#include "num_nppi_filter_gauss.h"
+
+TEST(NumGen, nppiFilterGaussAdvancedBorder_16s_AC4R_Ctx) {
+  num::filtgauss::run_gauss<Npp16s, Npp16s, 4, 3, true, true>(
+      "nppiFilterGaussAdvancedBorder_16s_AC4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvancedBorder_16s_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, taps, ker, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvancedBorder_16s_C1R_Ctx) {
+  num::filtgauss::run_gauss<Npp16s, Npp16s, 1, 1, true, true>(
+      "nppiFilterGaussAdvancedBorder_16s_C1R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvancedBorder_16s_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, taps, ker, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvancedBorder_16s_C3R_Ctx) {
+  num::filtgauss::run_gauss<Npp16s, Npp16s, 3, 3, true, true>(
+      "nppiFilterGaussAdvancedBorder_16s_C3R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvancedBorder_16s_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, taps, ker, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvancedBorder_16s_C4R_Ctx) {
+  num::filtgauss::run_gauss<Npp16s, Npp16s, 4, 4, true, true>(
+      "nppiFilterGaussAdvancedBorder_16s_C4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvancedBorder_16s_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, taps, ker, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvancedBorder_16u_AC4R_Ctx) {
+  num::filtgauss::run_gauss<Npp16u, Npp16u, 4, 3, true, true>(
+      "nppiFilterGaussAdvancedBorder_16u_AC4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvancedBorder_16u_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, taps, ker, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvancedBorder_16u_C1R_Ctx) {
+  num::filtgauss::run_gauss<Npp16u, Npp16u, 1, 1, true, true>(
+      "nppiFilterGaussAdvancedBorder_16u_C1R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvancedBorder_16u_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, taps, ker, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvancedBorder_16u_C3R_Ctx) {
+  num::filtgauss::run_gauss<Npp16u, Npp16u, 3, 3, true, true>(
+      "nppiFilterGaussAdvancedBorder_16u_C3R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvancedBorder_16u_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, taps, ker, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvancedBorder_16u_C4R_Ctx) {
+  num::filtgauss::run_gauss<Npp16u, Npp16u, 4, 4, true, true>(
+      "nppiFilterGaussAdvancedBorder_16u_C4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvancedBorder_16u_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, taps, ker, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvancedBorder_32f_AC4R_Ctx) {
+  num::filtgauss::run_gauss<Npp32f, Npp32f, 4, 3, true, true>(
+      "nppiFilterGaussAdvancedBorder_32f_AC4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvancedBorder_32f_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, taps, ker, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvancedBorder_32f_C1R_Ctx) {
+  num::filtgauss::run_gauss<Npp32f, Npp32f, 1, 1, true, true>(
+      "nppiFilterGaussAdvancedBorder_32f_C1R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, taps, ker, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvancedBorder_32f_C3R_Ctx) {
+  num::filtgauss::run_gauss<Npp32f, Npp32f, 3, 3, true, true>(
+      "nppiFilterGaussAdvancedBorder_32f_C3R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvancedBorder_32f_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, taps, ker, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvancedBorder_32f_C4R_Ctx) {
+  num::filtgauss::run_gauss<Npp32f, Npp32f, 4, 4, true, true>(
+      "nppiFilterGaussAdvancedBorder_32f_C4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvancedBorder_32f_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, taps, ker, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvancedBorder_8u_AC4R_Ctx) {
+  num::filtgauss::run_gauss<Npp8u, Npp8u, 4, 3, true, true>(
+      "nppiFilterGaussAdvancedBorder_8u_AC4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvancedBorder_8u_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, taps, ker, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvancedBorder_8u_C1R_Ctx) {
+  num::filtgauss::run_gauss<Npp8u, Npp8u, 1, 1, true, true>(
+      "nppiFilterGaussAdvancedBorder_8u_C1R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvancedBorder_8u_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, taps, ker, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvancedBorder_8u_C3R_Ctx) {
+  num::filtgauss::run_gauss<Npp8u, Npp8u, 3, 3, true, true>(
+      "nppiFilterGaussAdvancedBorder_8u_C3R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvancedBorder_8u_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, taps, ker, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvancedBorder_8u_C4R_Ctx) {
+  num::filtgauss::run_gauss<Npp8u, Npp8u, 4, 4, true, true>(
+      "nppiFilterGaussAdvancedBorder_8u_C4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvancedBorder_8u_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, taps, ker, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvanced_16s_AC4R_Ctx) {
+  num::filtgauss::run_gauss<Npp16s, Npp16s, 4, 3, true, false>(
+      "nppiFilterGaussAdvanced_16s_AC4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvanced_16s_AC4R_Ctx(sp, ss, dp, ds, roi, taps, ker, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvanced_16s_C1R_Ctx) {
+  num::filtgauss::run_gauss<Npp16s, Npp16s, 1, 1, true, false>(
+      "nppiFilterGaussAdvanced_16s_C1R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvanced_16s_C1R_Ctx(sp, ss, dp, ds, roi, taps, ker, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvanced_16s_C3R_Ctx) {
+  num::filtgauss::run_gauss<Npp16s, Npp16s, 3, 3, true, false>(
+      "nppiFilterGaussAdvanced_16s_C3R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvanced_16s_C3R_Ctx(sp, ss, dp, ds, roi, taps, ker, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvanced_16s_C4R_Ctx) {
+  num::filtgauss::run_gauss<Npp16s, Npp16s, 4, 4, true, false>(
+      "nppiFilterGaussAdvanced_16s_C4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvanced_16s_C4R_Ctx(sp, ss, dp, ds, roi, taps, ker, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvanced_16u_AC4R_Ctx) {
+  num::filtgauss::run_gauss<Npp16u, Npp16u, 4, 3, true, false>(
+      "nppiFilterGaussAdvanced_16u_AC4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvanced_16u_AC4R_Ctx(sp, ss, dp, ds, roi, taps, ker, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvanced_16u_C1R_Ctx) {
+  num::filtgauss::run_gauss<Npp16u, Npp16u, 1, 1, true, false>(
+      "nppiFilterGaussAdvanced_16u_C1R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvanced_16u_C1R_Ctx(sp, ss, dp, ds, roi, taps, ker, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvanced_16u_C3R_Ctx) {
+  num::filtgauss::run_gauss<Npp16u, Npp16u, 3, 3, true, false>(
+      "nppiFilterGaussAdvanced_16u_C3R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvanced_16u_C3R_Ctx(sp, ss, dp, ds, roi, taps, ker, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvanced_16u_C4R_Ctx) {
+  num::filtgauss::run_gauss<Npp16u, Npp16u, 4, 4, true, false>(
+      "nppiFilterGaussAdvanced_16u_C4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvanced_16u_C4R_Ctx(sp, ss, dp, ds, roi, taps, ker, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvanced_32f_AC4R_Ctx) {
+  num::filtgauss::run_gauss<Npp32f, Npp32f, 4, 3, true, false>(
+      "nppiFilterGaussAdvanced_32f_AC4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvanced_32f_AC4R_Ctx(sp, ss, dp, ds, roi, taps, ker, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvanced_32f_C1R_Ctx) {
+  num::filtgauss::run_gauss<Npp32f, Npp32f, 1, 1, true, false>(
+      "nppiFilterGaussAdvanced_32f_C1R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvanced_32f_C1R_Ctx(sp, ss, dp, ds, roi, taps, ker, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvanced_32f_C3R_Ctx) {
+  num::filtgauss::run_gauss<Npp32f, Npp32f, 3, 3, true, false>(
+      "nppiFilterGaussAdvanced_32f_C3R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvanced_32f_C3R_Ctx(sp, ss, dp, ds, roi, taps, ker, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvanced_32f_C4R_Ctx) {
+  num::filtgauss::run_gauss<Npp32f, Npp32f, 4, 4, true, false>(
+      "nppiFilterGaussAdvanced_32f_C4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvanced_32f_C4R_Ctx(sp, ss, dp, ds, roi, taps, ker, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvanced_8u_AC4R_Ctx) {
+  num::filtgauss::run_gauss<Npp8u, Npp8u, 4, 3, true, false>(
+      "nppiFilterGaussAdvanced_8u_AC4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvanced_8u_AC4R_Ctx(sp, ss, dp, ds, roi, taps, ker, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvanced_8u_C1R_Ctx) {
+  num::filtgauss::run_gauss<Npp8u, Npp8u, 1, 1, true, false>(
+      "nppiFilterGaussAdvanced_8u_C1R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvanced_8u_C1R_Ctx(sp, ss, dp, ds, roi, taps, ker, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvanced_8u_C3R_Ctx) {
+  num::filtgauss::run_gauss<Npp8u, Npp8u, 3, 3, true, false>(
+      "nppiFilterGaussAdvanced_8u_C3R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvanced_8u_C3R_Ctx(sp, ss, dp, ds, roi, taps, ker, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussAdvanced_8u_C4R_Ctx) {
+  num::filtgauss::run_gauss<Npp8u, Npp8u, 4, 4, true, false>(
+      "nppiFilterGaussAdvanced_8u_C4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussAdvanced_8u_C4R_Ctx(sp, ss, dp, ds, roi, taps, ker, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussBorder_16s_AC4R_Ctx) {
+  num::filtgauss::run_gauss<Npp16s, Npp16s, 4, 3, false, true>(
+      "nppiFilterGaussBorder_16s_AC4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussBorder_16s_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (NppiMaskSize)mask, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussBorder_16s_C1R_Ctx) {
+  num::filtgauss::run_gauss<Npp16s, Npp16s, 1, 1, false, true>(
+      "nppiFilterGaussBorder_16s_C1R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussBorder_16s_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (NppiMaskSize)mask, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussBorder_16s_C3R_Ctx) {
+  num::filtgauss::run_gauss<Npp16s, Npp16s, 3, 3, false, true>(
+      "nppiFilterGaussBorder_16s_C3R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussBorder_16s_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (NppiMaskSize)mask, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussBorder_16s_C4R_Ctx) {
+  num::filtgauss::run_gauss<Npp16s, Npp16s, 4, 4, false, true>(
+      "nppiFilterGaussBorder_16s_C4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussBorder_16s_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (NppiMaskSize)mask, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussBorder_16u_AC4R_Ctx) {
+  num::filtgauss::run_gauss<Npp16u, Npp16u, 4, 3, false, true>(
+      "nppiFilterGaussBorder_16u_AC4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussBorder_16u_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (NppiMaskSize)mask, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussBorder_16u_C1R_Ctx) {
+  num::filtgauss::run_gauss<Npp16u, Npp16u, 1, 1, false, true>(
+      "nppiFilterGaussBorder_16u_C1R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussBorder_16u_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (NppiMaskSize)mask, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussBorder_16u_C3R_Ctx) {
+  num::filtgauss::run_gauss<Npp16u, Npp16u, 3, 3, false, true>(
+      "nppiFilterGaussBorder_16u_C3R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussBorder_16u_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (NppiMaskSize)mask, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussBorder_16u_C4R_Ctx) {
+  num::filtgauss::run_gauss<Npp16u, Npp16u, 4, 4, false, true>(
+      "nppiFilterGaussBorder_16u_C4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussBorder_16u_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (NppiMaskSize)mask, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussBorder_32f_AC4R_Ctx) {
+  num::filtgauss::run_gauss<Npp32f, Npp32f, 4, 3, false, true>(
+      "nppiFilterGaussBorder_32f_AC4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussBorder_32f_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (NppiMaskSize)mask, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussBorder_32f_C1R_Ctx) {
+  num::filtgauss::run_gauss<Npp32f, Npp32f, 1, 1, false, true>(
+      "nppiFilterGaussBorder_32f_C1R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussBorder_32f_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (NppiMaskSize)mask, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussBorder_32f_C3R_Ctx) {
+  num::filtgauss::run_gauss<Npp32f, Npp32f, 3, 3, false, true>(
+      "nppiFilterGaussBorder_32f_C3R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussBorder_32f_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (NppiMaskSize)mask, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussBorder_32f_C4R_Ctx) {
+  num::filtgauss::run_gauss<Npp32f, Npp32f, 4, 4, false, true>(
+      "nppiFilterGaussBorder_32f_C4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussBorder_32f_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (NppiMaskSize)mask, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussBorder_8u_AC4R_Ctx) {
+  num::filtgauss::run_gauss<Npp8u, Npp8u, 4, 3, false, true>(
+      "nppiFilterGaussBorder_8u_AC4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussBorder_8u_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (NppiMaskSize)mask, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussBorder_8u_C1R_Ctx) {
+  num::filtgauss::run_gauss<Npp8u, Npp8u, 1, 1, false, true>(
+      "nppiFilterGaussBorder_8u_C1R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussBorder_8u_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (NppiMaskSize)mask, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussBorder_8u_C3R_Ctx) {
+  num::filtgauss::run_gauss<Npp8u, Npp8u, 3, 3, false, true>(
+      "nppiFilterGaussBorder_8u_C3R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussBorder_8u_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (NppiMaskSize)mask, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGaussBorder_8u_C4R_Ctx) {
+  num::filtgauss::run_gauss<Npp8u, Npp8u, 4, 4, false, true>(
+      "nppiFilterGaussBorder_8u_C4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGaussBorder_8u_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (NppiMaskSize)mask, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterGauss_16s_AC4R_Ctx) {
+  num::filtgauss::run_gauss<Npp16s, Npp16s, 4, 3, false, false>(
+      "nppiFilterGauss_16s_AC4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGauss_16s_AC4R_Ctx(sp, ss, dp, ds, roi, (NppiMaskSize)mask, ctx); });
+}
+
+TEST(NumGen, nppiFilterGauss_16s_C1R_Ctx) {
+  num::filtgauss::run_gauss<Npp16s, Npp16s, 1, 1, false, false>(
+      "nppiFilterGauss_16s_C1R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGauss_16s_C1R_Ctx(sp, ss, dp, ds, roi, (NppiMaskSize)mask, ctx); });
+}
+
+TEST(NumGen, nppiFilterGauss_16s_C3R_Ctx) {
+  num::filtgauss::run_gauss<Npp16s, Npp16s, 3, 3, false, false>(
+      "nppiFilterGauss_16s_C3R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGauss_16s_C3R_Ctx(sp, ss, dp, ds, roi, (NppiMaskSize)mask, ctx); });
+}
+
+TEST(NumGen, nppiFilterGauss_16s_C4R_Ctx) {
+  num::filtgauss::run_gauss<Npp16s, Npp16s, 4, 4, false, false>(
+      "nppiFilterGauss_16s_C4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGauss_16s_C4R_Ctx(sp, ss, dp, ds, roi, (NppiMaskSize)mask, ctx); });
+}
+
+TEST(NumGen, nppiFilterGauss_16u_AC4R_Ctx) {
+  num::filtgauss::run_gauss<Npp16u, Npp16u, 4, 3, false, false>(
+      "nppiFilterGauss_16u_AC4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGauss_16u_AC4R_Ctx(sp, ss, dp, ds, roi, (NppiMaskSize)mask, ctx); });
+}
+
+TEST(NumGen, nppiFilterGauss_16u_C1R_Ctx) {
+  num::filtgauss::run_gauss<Npp16u, Npp16u, 1, 1, false, false>(
+      "nppiFilterGauss_16u_C1R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGauss_16u_C1R_Ctx(sp, ss, dp, ds, roi, (NppiMaskSize)mask, ctx); });
+}
+
+TEST(NumGen, nppiFilterGauss_16u_C3R_Ctx) {
+  num::filtgauss::run_gauss<Npp16u, Npp16u, 3, 3, false, false>(
+      "nppiFilterGauss_16u_C3R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGauss_16u_C3R_Ctx(sp, ss, dp, ds, roi, (NppiMaskSize)mask, ctx); });
+}
+
+TEST(NumGen, nppiFilterGauss_16u_C4R_Ctx) {
+  num::filtgauss::run_gauss<Npp16u, Npp16u, 4, 4, false, false>(
+      "nppiFilterGauss_16u_C4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGauss_16u_C4R_Ctx(sp, ss, dp, ds, roi, (NppiMaskSize)mask, ctx); });
+}
+
+TEST(NumGen, nppiFilterGauss_32f_AC4R_Ctx) {
+  num::filtgauss::run_gauss<Npp32f, Npp32f, 4, 3, false, false>(
+      "nppiFilterGauss_32f_AC4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGauss_32f_AC4R_Ctx(sp, ss, dp, ds, roi, (NppiMaskSize)mask, ctx); });
+}
+
+TEST(NumGen, nppiFilterGauss_32f_C1R_Ctx) {
+  num::filtgauss::run_gauss<Npp32f, Npp32f, 1, 1, false, false>(
+      "nppiFilterGauss_32f_C1R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGauss_32f_C1R_Ctx(sp, ss, dp, ds, roi, (NppiMaskSize)mask, ctx); });
+}
+
+TEST(NumGen, nppiFilterGauss_32f_C3R_Ctx) {
+  num::filtgauss::run_gauss<Npp32f, Npp32f, 3, 3, false, false>(
+      "nppiFilterGauss_32f_C3R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGauss_32f_C3R_Ctx(sp, ss, dp, ds, roi, (NppiMaskSize)mask, ctx); });
+}
+
+TEST(NumGen, nppiFilterGauss_32f_C4R_Ctx) {
+  num::filtgauss::run_gauss<Npp32f, Npp32f, 4, 4, false, false>(
+      "nppiFilterGauss_32f_C4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGauss_32f_C4R_Ctx(sp, ss, dp, ds, roi, (NppiMaskSize)mask, ctx); });
+}
+
+TEST(NumGen, nppiFilterGauss_8u_AC4R_Ctx) {
+  num::filtgauss::run_gauss<Npp8u, Npp8u, 4, 3, false, false>(
+      "nppiFilterGauss_8u_AC4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGauss_8u_AC4R_Ctx(sp, ss, dp, ds, roi, (NppiMaskSize)mask, ctx); });
+}
+
+TEST(NumGen, nppiFilterGauss_8u_C1R_Ctx) {
+  num::filtgauss::run_gauss<Npp8u, Npp8u, 1, 1, false, false>(
+      "nppiFilterGauss_8u_C1R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGauss_8u_C1R_Ctx(sp, ss, dp, ds, roi, (NppiMaskSize)mask, ctx); });
+}
+
+TEST(NumGen, nppiFilterGauss_8u_C3R_Ctx) {
+  num::filtgauss::run_gauss<Npp8u, Npp8u, 3, 3, false, false>(
+      "nppiFilterGauss_8u_C3R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGauss_8u_C3R_Ctx(sp, ss, dp, ds, roi, (NppiMaskSize)mask, ctx); });
+}
+
+TEST(NumGen, nppiFilterGauss_8u_C4R_Ctx) {
+  num::filtgauss::run_gauss<Npp8u, Npp8u, 4, 4, false, false>(
+      "nppiFilterGauss_8u_C4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, int taps, const Npp32f *ker, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; (void)taps; (void)ker; return nppiFilterGauss_8u_C4R_Ctx(sp, ss, dp, ds, roi, (NppiMaskSize)mask, ctx); });
+}
+
 TEST(NumGen, nppiFilterHighPassBorder_16s_AC4R_Ctx) {
   num::filtfixed::run_fixed<Npp16s, Npp16s, 4, 3, num::filtfixed::kHighPass, true>(
       "nppiFilterHighPassBorder_16s_AC4R_Ctx",
