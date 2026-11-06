@@ -513,6 +513,8 @@ YCBCR420_TABLE = {
     "nppiBGRToYCrCb420_709CSC_8u_AC4P3R_Ctx": ("Fwd420m1", 4, 1, 1, 0),
     "nppiYCbCr420ToBGR_709CSC_8u_P3C3R_Ctx": ("Inv420m1", 3, 1, 0, 0),
     "nppiYCbCr420ToBGR_709HDTV_8u_P3C4R_Ctx": ("Inv420m2", 4, 1, 0, 0x37),
+    "nppiYCbCrToBGR_709CSC_8u_P3C3R_Ctx": ("Inv444m1", 3, 1, 0, 0),
+    "nppiYCbCrToBGR_709CSC_8u_P3C4R_Ctx": ("Inv444m1", 4, 1, 0, 0x37),
 }
 
 
@@ -521,21 +523,22 @@ def emit_ycbcr420(row: dict) -> Optional[str]:
     if fn not in YCBCR420_TABLE:
         return None
     kind, pp, bgr, swap, aval = YCBCR420_TABLE[fn]
-    mat = {"Fwd420m1": 1, "Fwd420m2": 2, "Inv420m1": 1, "Inv420m2": 2}.get(kind, 0)
+    mat = {"Fwd420m1": 1, "Fwd420m2": 2, "Inv420m1": 1, "Inv420m2": 2, "Inv444m1": 1}.get(kind, 0)
     kind = kind.replace("m1", "").replace("m2", "")
     name = re.sub(r"\W", "_", fn)
     sig = ("[](const Npp8u *const *sp, const Npp8u *ps, int ss, int *ssa, Npp8u *const *dp, Npp8u *pd, "
            "int ds, int *dsa, NppiSize r, NppStreamContext c) ")
     voids = "(void)sp; (void)ps; (void)ss; (void)ssa; (void)dp; (void)pd; (void)ds; (void)dsa; (void)r; (void)c; "
     fwd = kind.startswith("Fwd")
+    step = "ssa[0]" if str(kind).startswith("Inv444") else "ssa"
     if fwd:
         body = f"return {fn}(ps, ss, const_cast<Npp8u **>(dp), dsa, r, c);"
         kind_arg = f"num::ycbcr420::Kind::{kind}, {pp}, 0"
     else:
         if aval:
-            body = f"return {fn}(sp, ssa, pd, ds, r, (Npp8u)0x37, c);"
+            body = f"return {fn}(sp, {step}, pd, ds, r, (Npp8u)0x37, c);"
         else:
-            body = f"return {fn}(sp, ssa, pd, ds, r, c);"
+            body = f"return {fn}(sp, {step}, pd, ds, r, c);"
         kind_arg = f"num::ycbcr420::Kind::{kind}, 0, {pp}"
     lam = f"{sig}{{ {voids}{body} }}"
     return (f"TEST(NumGen, {name}) {{\n"
@@ -557,6 +560,7 @@ _YCBCR422_FILES: dict = {}
 YCBCR422_FAMILIES = {
     "nppiRGBToYCbCr422", "nppiBGRToYCbCr422", "nppiYCbCr422ToRGB", "nppiYCbCr422ToBGR",
     "nppiYCbCr422ToCbYCr422", "nppiRGBToCbYCr422Gamma",
+    "nppiRGBToCbYCr422", "nppiBGRToCbYCr422", "nppiCbYCr422ToRGB", "nppiCbYCr422ToBGR",
 }
 
 
@@ -610,6 +614,8 @@ YCBCR422_SPECIAL = {
     "nppiCbYCr422ToBGR_709HDTV_8u_C2C4R_Ctx": ("CbYCr709InvC2", 4, 0, 0, 0x37, "mat709f", 2, "c2a"),
     "nppiBGRToCbYCr422_709HDTV_8u_C3C2R_Ctx": ("BgrFwd709C2", 3, 1, 0, 0, "mat709f", 0, "c2"),
     "nppiBGRToCbYCr422_709HDTV_8u_AC4C2R_Ctx": ("BgrFwd709C2", 4, 1, 0, 0, "mat709f", 0, "c2"),
+    "nppiRGBToYCrCb422_8u_C3C2R_Ctx": ("YCrCbFwdC2", 3, 0, 0, 0, "mat601v", 0, "c2"),
+    "nppiRGBToYCrCb422_8u_P3C2R_Ctx": ("YCrCbFwdP3C2", 0, 0, 0, 0, "mat601v", 0, "p3c2"),
 }
 
 
@@ -625,6 +631,8 @@ def emit_ycbcr422(row: dict) -> Optional[str]:
                  "(void)r; (void)c; ")
         if form == "c2":
             body = f"return {fn}(ps, ss, pd, ds, r, c);"
+        elif form == "p3c2":
+            body = f"return {fn}(sp, ssa[0], pd, ds, r, c);"
         elif form == "c2a":
             body = f"return {fn}(ps, ss, pd, ds, r, (Npp8u)0x37, c);"
         else:

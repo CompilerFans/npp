@@ -78,7 +78,7 @@ inline void inv_m(int m, int y, int cb, int cr, int &r, int &g, int &b) {
     b = sat((double)warp_fma(1.816f, dcb, fy));
   }
 }
-enum class Kind { Fwd420, Fwd411, Inv420, Inv411 };
+enum class Kind { Fwd420, Fwd411, Inv420, Inv411, Inv444 };
 
 // srcPp: packed source pitch (3 or 4) for the forward; dstPp: packed
 // destination pitch (3 or 4) for the inverse.  bgr: packed RGB order is BGR
@@ -200,7 +200,7 @@ void run_ycbcr420(const char *id, Kind kind, int srcPp, int dstPp, int bgr, int 
       // destination and the whole 4:1:1 family convert the full extent.
       const int eh = (kind == Kind::Inv420 && dstPp == 3) ? (h & ~1) : h;
       const int ew = (kind == Kind::Inv411 && dstPp == 3) ? (w & ~3) : w;
-      const int spanX = (kind == Kind::Inv411) ? 4 : 2;
+      const int spanX = (kind == Kind::Inv411) ? 4 : (kind == Kind::Inv444 ? 1 : 2);
       for (int y = 0; y < eh; ++y)
         for (int x = 0; x < ew; ++x) {
           const int cx = x / spanX;

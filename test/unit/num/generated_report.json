@@ -130,16 +130,11 @@
   ]
  },
  "nppi_color_conversion.h": {
-  "emitted": 478,
+  "emitted": 486,
   "skipped": [
    {
     "function": "nppiAlphaCompColorKey_8u_AC4R_Ctx",
     "family": "nppiAlphaCompColorKey",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiBGRToCbYCr422_8u_AC4C2R_Ctx",
-    "family": "nppiBGRToCbYCr422",
     "reason": "later color batch / unsupported"
    },
    {
@@ -168,16 +163,6 @@
     "reason": "later color batch / unsupported"
    },
    {
-    "function": "nppiCbYCr422ToBGR_8u_C2C4R_Ctx",
-    "family": "nppiCbYCr422ToBGR",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiCbYCr422ToRGB_8u_C2C3R_Ctx",
-    "family": "nppiCbYCr422ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
     "function": "nppiCompColorKey_8u_C1R_Ctx",
     "family": "nppiCompColorKey",
     "reason": "later color batch / unsupported"
@@ -190,21 +175,6 @@
    {
     "function": "nppiCompColorKey_8u_C4R_Ctx",
     "family": "nppiCompColorKey",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToCbYCr422_8u_C3C2R_Ctx",
-    "family": "nppiRGBToCbYCr422",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToYCrCb422_8u_C3C2R_Ctx",
-    "family": "nppiRGBToYCrCb422",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiRGBToYCrCb422_8u_P3C2R_Ctx",
-    "family": "nppiRGBToYCrCb422",
     "reason": "later color batch / unsupported"
    },
    {
@@ -320,16 +290,6 @@
    {
     "function": "nppiYCbCrToBGRBatch_8u_P3C3R_Ctx",
     "family": "nppiYCbCrToBGRBatch",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCrToBGR_709CSC_8u_P3C3R_Ctx",
-    "family": "nppiYCbCrToBGR_709CSC",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCrToBGR_709CSC_8u_P3C4R_Ctx",
-    "family": "nppiYCbCrToBGR_709CSC",
     "reason": "later color batch / unsupported"
    },
    {

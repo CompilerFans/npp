@@ -90,6 +90,8 @@ enum class Kind {
   YCrCbInvP3, // same source -> planar RGB
   CbYCr709InvC2, // [Cb Y0 Cr Y1] -> packed BGR/BGRA (709 full, last pair)
   BgrFwd709C2,   // packed BGR -> [Cb Y0 Cr Y1] pairs (709 full)
+  YCrCbFwdC2,    // packed RGB -> [Y0 Cr Y1 Cb] pairs (601 video)
+  YCrCbFwdP3C2,  // planar RGB -> [Y0 Cr Y1 Cb] pairs (601 video)
 };
 
 // a0..a3: Kind::FwdC3C2/InvC2C: packed pitch, bgr, layout, ctx flags;
@@ -108,22 +110,24 @@ void run_ycbcr422(const char *id, Kind kind, const Mat *mat, int invStyle, int a
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {16, 12}, {32, 24}, {64, 48}, {128, 96}, {5, 4}, {17, 13}};
   const bool evenOnly = kind == Kind::YCrCbInvC2 || kind == Kind::YCrCbInvP3 ||
-                        kind == Kind::CbYCr709InvC2 || kind == Kind::BgrFwd709C2;
+                        kind == Kind::CbYCr709InvC2 || kind == Kind::BgrFwd709C2 ||
+                        kind == Kind::YCrCbFwdC2;
   for (const Cfg &cf : cfgs) {
     if (evenOnly && (cf.w & 1)) continue;
     const int w = cf.w, h = cf.h;
     const int we = w & ~1;
     const bool srcPacked = kind == Kind::FwdC3C2 || kind == Kind::FwdC3P3 || kind == Kind::GammaErr ||
-                           kind == Kind::BgrFwd709C2;
-    const bool srcPlanar = kind == Kind::FwdP3C2 || kind == Kind::InvP3C3;
+                           kind == Kind::BgrFwd709C2 || kind == Kind::YCrCbFwdC2;
+    const bool srcPlanar = kind == Kind::FwdP3C2 || kind == Kind::InvP3C3 || kind == Kind::YCrCbFwdP3C2;
     const bool srcC2 = kind == Kind::InvC2C || kind == Kind::InvC2P3 || kind == Kind::Reorder ||
                        kind == Kind::YCrCbInvC2 || kind == Kind::YCrCbInvP3 || kind == Kind::CbYCr709InvC2;
-    const bool dstPackedC2 =
-        kind == Kind::FwdC3C2 || kind == Kind::FwdP3C2 || kind == Kind::Reorder || kind == Kind::BgrFwd709C2;
+    const bool dstPackedC2 = kind == Kind::FwdC3C2 || kind == Kind::FwdP3C2 || kind == Kind::Reorder ||
+                             kind == Kind::BgrFwd709C2 || kind == Kind::YCrCbFwdC2 ||
+                             kind == Kind::YCrCbFwdP3C2;
     const bool dstPlanar = kind == Kind::FwdC3P3 || kind == Kind::InvC2P3 || kind == Kind::YCrCbInvP3;
     const bool dstC3C4 = kind == Kind::InvC2C || kind == Kind::InvP3C3 || kind == Kind::YCrCbInvC2 ||
                          kind == Kind::CbYCr709InvC2;
-    const int srcPp = kind == Kind::GammaErr ? 3
+    const int srcPp = (kind == Kind::GammaErr || kind == Kind::YCrCbFwdC2) ? 3
                       : kind == Kind::BgrFwd709C2 ? a0
                       : ((kind == Kind::FwdC3C2 || kind == Kind::FwdC3P3) ? a0 : 1);
     const uint64_t seed = case_seed(id, w, h, 0, 0, 0, 0);
@@ -424,6 +428,29 @@ void run_ycbcr422(const char *id, Kind kind, const Mat *mat, int invStyle, int a
           want[0][base + 1] = (uint8_t)Y0;
           want[0][base + 2] = (uint8_t)((Cr0 + Cr1) >> 1);
           want[0][base + 3] = (uint8_t)Y1;
+        }
+    } else if (kind == Kind::YCrCbFwdC2 || kind == Kind::YCrCbFwdP3C2) {
+      for (int y = 0; y < h; ++y)
+        for (int p = 0; p < (w >> 1); ++p) {
+          int r0, g0, b0, r1, g1, b1, Y0, Cb0, Cr0, Y1, Cb1, Cr1;
+          if (kind == Kind::YCrCbFwdC2) {
+            srcPx(2 * p, y, r0, g0, b0);
+            srcPx(2 * p + 1, y, r1, g1, b1);
+          } else {
+            r0 = srcs[0]->hptr()[(size_t)y * srcs[0]->step + (size_t)(2 * p)];
+            g0 = srcs[1]->hptr()[(size_t)y * srcs[1]->step + (size_t)(2 * p)];
+            b0 = srcs[2]->hptr()[(size_t)y * srcs[2]->step + (size_t)(2 * p)];
+            r1 = srcs[0]->hptr()[(size_t)y * srcs[0]->step + (size_t)(2 * p + 1)];
+            g1 = srcs[1]->hptr()[(size_t)y * srcs[1]->step + (size_t)(2 * p + 1)];
+            b1 = srcs[2]->hptr()[(size_t)y * srcs[2]->step + (size_t)(2 * p + 1)];
+          }
+          fwd_px(*mat, r0, g0, b0, Y0, Cb0, Cr0);
+          fwd_px(*mat, r1, g1, b1, Y1, Cb1, Cr1);
+          const size_t base = (size_t)y * dsts[0]->step + (size_t)p * 4;
+          want[0][base + 0] = (uint8_t)Y0;
+          want[0][base + 1] = (uint8_t)((Cr0 + Cr1) >> 1);
+          want[0][base + 2] = (uint8_t)Y1;
+          want[0][base + 3] = (uint8_t)((Cb0 + Cb1) >> 1);
         }
     } else {  // Reorder [Y0 Cb Y1 Cr] -> [Cb Y0 Cr Y1]
       for (int y = 0; y < h; ++y)
