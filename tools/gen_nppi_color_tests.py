@@ -486,6 +486,52 @@ YUV_FAMILIES = {"nppiYUV420ToRGB", "nppiYUV420ToBGR", "nppiYUV422ToRGB",
                 "nppiRGBToYUV420", "nppiRGBToYUV422"}
 
 
+YCBCR420_TABLE = {
+    # function: (kind, srcPp/dstPp, bgr, swap, aval)
+    "nppiRGBToYCbCr420_8u_C3P3R_Ctx": ("Fwd420", 3, 0, 0, 0),
+    "nppiRGBToYCrCb420_8u_AC4P3R_Ctx": ("Fwd420", 4, 0, 1, 0),
+    "nppiBGRToYCrCb420_8u_C3P3R_Ctx": ("Fwd420", 3, 1, 1, 0),
+    "nppiBGRToYCrCb420_8u_AC4P3R_Ctx": ("Fwd420", 4, 1, 1, 0),
+    "nppiRGBToYCbCr411_8u_C3P3R_Ctx": ("Fwd411", 3, 0, 0, 0),
+    "nppiRGBToYCbCr411_8u_AC4P3R_Ctx": ("Fwd411", 4, 0, 0, 0),
+    "nppiBGRToYCbCr411_8u_C3P3R_Ctx": ("Fwd411", 3, 1, 0, 0),
+    "nppiBGRToYCbCr411_8u_AC4P3R_Ctx": ("Fwd411", 4, 1, 0, 0),
+    "nppiYCbCr420ToRGB_8u_P3C3R_Ctx": ("Inv420", 3, 0, 0, 0),
+    "nppiYCbCr420ToBGR_8u_P3C3R_Ctx": ("Inv420", 3, 1, 0, 0),
+    "nppiYCbCr420ToBGR_8u_P3C4R_Ctx": ("Inv420", 4, 1, 0, 0x37),
+    "nppiYCrCb420ToRGB_8u_P3C4R_Ctx": ("Inv420", 4, 0, 1, 0x37),
+    "nppiYCbCr411ToRGB_8u_P3C3R_Ctx": ("Inv411", 3, 0, 0, 0),
+    "nppiYCbCr411ToRGB_8u_P3C4R_Ctx": ("Inv411", 4, 0, 0, 0x37),
+    "nppiYCbCr411ToBGR_8u_P3C3R_Ctx": ("Inv411", 3, 1, 0, 0),
+    "nppiYCbCr411ToBGR_8u_P3C4R_Ctx": ("Inv411", 4, 1, 0, 0x37),
+}
+
+
+def emit_ycbcr420(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    if fn not in YCBCR420_TABLE:
+        return None
+    kind, pp, bgr, swap, aval = YCBCR420_TABLE[fn]
+    name = re.sub(r"\W", "_", fn)
+    sig = ("[](const Npp8u *const *sp, const Npp8u *ps, int ss, int *ssa, Npp8u *const *dp, Npp8u *pd, "
+           "int ds, int *dsa, NppiSize r, NppStreamContext c) ")
+    voids = "(void)sp; (void)ps; (void)ss; (void)ssa; (void)dp; (void)pd; (void)ds; (void)dsa; (void)r; (void)c; "
+    fwd = kind.startswith("Fwd")
+    if fwd:
+        body = f"return {fn}(ps, ss, const_cast<Npp8u **>(dp), dsa, r, c);"
+        kind_arg = f"num::ycbcr420::Kind::{kind}, {pp}, 0"
+    else:
+        if aval:
+            body = f"return {fn}(sp, ssa, pd, ds, r, (Npp8u)0x37, c);"
+        else:
+            body = f"return {fn}(sp, ssa, pd, ds, r, c);"
+        kind_arg = f"num::ycbcr420::Kind::{kind}, 0, {pp}"
+    lam = f"{sig}{{ {voids}{body} }}"
+    return (f"TEST(NumGen, {name}) {{\n"
+            f"  num::ycbcr420::run_ycbcr420(\n      \"{fn}\", {kind_arg}, {bgr}, {swap}, {aval},\n"
+            f"      {lam});\n}}\n")
+
+
 C3CONV422_KIND = {
     "rgbToYCbCr422C3C2": ("FwdC3C2", 3, "0"),
     "rgbToYCbCr422C3P3": ("FwdC3P3", 2, "0"),
@@ -793,7 +839,8 @@ def main() -> int:
                 or emit_gamma(row) or emit_gray(row) or emit_gradient(row) or emit_hls(row)
                 or emit_hls_layout(row) or emit_yuv(row) or emit_cs(row) or emit_cfa(row)
                 or emit_ycbcr_jpeg(row) or emit_yuv_planar(row) or emit_yuv_layout(row)
-                or emit_ycbcr422(row) or emit_nv12(row) or emit_nv12_twist(row))
+                or emit_ycbcr422(row) or emit_ycbcr420(row) or emit_nv12(row)
+                or emit_nv12_twist(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
                                 reason="later color batch / unsupported"))
@@ -809,6 +856,7 @@ def main() -> int:
               "#include \"num_nppi_yuv420.h\"\n"
               "#include \"num_nppi_yuv_layout.h\"\n"
               "#include \"num_nppi_ycbcr422.h\"\n"
+              "#include \"num_nppi_ycbcr420.h\"\n"
               "#include \"num_nppi_colorspace.h\"\n"
               "#include \"num_nppi_cfa.h\"\n"
               "#include \"num_nppi_ycbcr.h\"\n"

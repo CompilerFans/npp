@@ -161,6 +161,15 @@ NppStatus nppiBGRToYCbCr420_8u_AC4P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pD
   return nppiBGRToYCbCr420_8u_AC4P3R_Ctx(pSrc, nSrcStep, pDst, rDstStep, oSizeROI, ctx);
 }
 
+// Measured reference extent rule for the 4:2:0 C3 inverse: the full width is
+// converted but only height & ~1 rows, with NPP_DOUBLE_SIZE_WARNING on an odd
+// height.  (The packed C4 variants convert every row without warning.)
+static inline NppiSize ycbcr420InvRoi(NppiSize roi) { roi.height &= ~1; return roi; }
+static inline NppStatus ycbcr420InvStatus(cudaError_t s, NppiSize roi) {
+  if (s != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (roi.height & 1) ? NPP_DOUBLE_SIZE_WARNING : NPP_NO_ERROR;
+}
+
 NppStatus nppiYCbCr420ToRGB_8u_P3C3R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
                                          NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   NppStatus status = validateYCbCr420ToRGBInputs(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, 3);
@@ -172,10 +181,11 @@ NppStatus nppiYCbCr420ToRGB_8u_P3C3R_Ctx(const Npp8u *const pSrc[3], int rSrcSte
     return NPP_NO_ERROR;
   }
 
+  const NppiSize roi = ycbcr420InvRoi(oSizeROI);
   cudaError_t cudaStatus = nppiYCbCr420ToRGB_8u_P3C3R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2],
-                                                             rSrcStep[2], pDst, nDstStep, oSizeROI,
+                                                             rSrcStep[2], pDst, nDstStep, roi,
                                                              nppStreamCtx.hStream);
-  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return ycbcr420InvStatus(cudaStatus, oSizeROI);
 }
 
 NppStatus nppiYCbCr420ToRGB_8u_P3C3R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
@@ -202,10 +212,11 @@ NppStatus nppiYCbCr420ToBGR_8u_P3C3R_Ctx(const Npp8u *const pSrc[3], int rSrcSte
     return NPP_NO_ERROR;
   }
 
+  const NppiSize roi = ycbcr420InvRoi(oSizeROI);
   cudaError_t cudaStatus = nppiYCbCr420ToBGR_8u_P3C3R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2],
-                                                              rSrcStep[2], pDst, nDstStep, oSizeROI,
+                                                              rSrcStep[2], pDst, nDstStep, roi,
                                                               nppStreamCtx.hStream);
-  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return ycbcr420InvStatus(cudaStatus, oSizeROI);
 }
 
 NppStatus nppiYCbCr420ToBGR_8u_P3C3R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
