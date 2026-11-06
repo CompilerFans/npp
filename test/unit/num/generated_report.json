@@ -4,19 +4,8 @@
   "skipped": []
  },
  "nppi_threshold_and_compare_operations.h": {
-  "emitted": 208,
-  "skipped": [
-   {
-    "function": "nppiFusedAbsDiff_Threshold_GTVal_Ctx",
-    "family": "nppiFusedAbsDiff_Threshold_GTVal",
-    "reason": "no family spec"
-   },
-   {
-    "function": "nppiFusedAbsDiff_Threshold_GTVal_I_Ctx",
-    "family": "nppiFusedAbsDiff_Threshold_GTVal_I",
-    "reason": "no family spec"
-   }
-  ]
+  "emitted": 210,
+  "skipped": []
  },
  "nppi_data_exchange_and_initialization.h": {
   "emitted": 483,
