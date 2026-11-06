@@ -132,5 +132,4240 @@
  "nppi_color_conversion.h": {
   "emitted": 554,
   "skipped": []
+ },
+ "nppi_filtering_functions.h": {
+  "emitted": 124,
+  "skipped": [
+   {
+    "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx",
+    "family": "nppiCompressMarkerLabelsUFBatch",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Ctx",
+    "family": "nppiCompressMarkerLabelsUFBatch",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiCompressMarkerLabelsUF_32u_C1IR_Ctx",
+    "family": "nppiCompressMarkerLabelsUF",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx",
+    "family": "nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx",
+    "family": "nppiCompressedMarkerLabelsUFInfo",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiContoursImageMarchingSquaresInterpolation_32f_C1R_Ctx",
+    "family": "nppiContoursImageMarchingSquaresInterpolation",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiContoursImageMarchingSquaresInterpolation_64f_C1R_Ctx",
+    "family": "nppiContoursImageMarchingSquaresInterpolation",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformAbsPBA_16s16u_C1R_Ctx",
+    "family": "nppiDistanceTransformAbsPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformAbsPBA_16s32f_C1R_Ctx",
+    "family": "nppiDistanceTransformAbsPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformAbsPBA_16s64f_C1R_Ctx",
+    "family": "nppiDistanceTransformAbsPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformAbsPBA_16u16u_C1R_Ctx",
+    "family": "nppiDistanceTransformAbsPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformAbsPBA_16u32f_C1R_Ctx",
+    "family": "nppiDistanceTransformAbsPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformAbsPBA_16u64f_C1R_Ctx",
+    "family": "nppiDistanceTransformAbsPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformAbsPBA_32f64f_C1R_Ctx",
+    "family": "nppiDistanceTransformAbsPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformAbsPBA_64f_C1R_Ctx",
+    "family": "nppiDistanceTransformAbsPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformAbsPBA_8s16u_C1R_Ctx",
+    "family": "nppiDistanceTransformAbsPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformAbsPBA_8s32f_C1R_Ctx",
+    "family": "nppiDistanceTransformAbsPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformAbsPBA_8s64f_C1R_Ctx",
+    "family": "nppiDistanceTransformAbsPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformAbsPBA_8u16u_C1R_Ctx",
+    "family": "nppiDistanceTransformAbsPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformAbsPBA_8u32f_C1R_Ctx",
+    "family": "nppiDistanceTransformAbsPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformAbsPBA_8u64f_C1R_Ctx",
+    "family": "nppiDistanceTransformAbsPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformPBA_16s16u_C1R_Ctx",
+    "family": "nppiDistanceTransformPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformPBA_16s32f_C1R_Ctx",
+    "family": "nppiDistanceTransformPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformPBA_16s64f_C1R_Ctx",
+    "family": "nppiDistanceTransformPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformPBA_16u16u_C1R_Ctx",
+    "family": "nppiDistanceTransformPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformPBA_16u32f_C1R_Ctx",
+    "family": "nppiDistanceTransformPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformPBA_16u64f_C1R_Ctx",
+    "family": "nppiDistanceTransformPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformPBA_32f64f_C1R_Ctx",
+    "family": "nppiDistanceTransformPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformPBA_64f_C1R_Ctx",
+    "family": "nppiDistanceTransformPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformPBA_8s16u_C1R_Ctx",
+    "family": "nppiDistanceTransformPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformPBA_8s32f_C1R_Ctx",
+    "family": "nppiDistanceTransformPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformPBA_8s64f_C1R_Ctx",
+    "family": "nppiDistanceTransformPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformPBA_8u16u_C1R_Ctx",
+    "family": "nppiDistanceTransformPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformPBA_8u32f_C1R_Ctx",
+    "family": "nppiDistanceTransformPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiDistanceTransformPBA_8u64f_C1R_Ctx",
+    "family": "nppiDistanceTransformPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_16f_C1R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_16f_C3R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_16f_C4R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_16s_AC4R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_16s_C1R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_16s_C3R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_16s_C4R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_16u_AC4R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_16u_C1R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_16u_C3R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_16u_C4R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_32s_AC4R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_32s_C1R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_32s_C3R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_32s_C4R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_8s16s_AC4R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_8s16s_C1R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_8s16s_C3R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_8s16s_C4R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_8s_AC4R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_8s_C1R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_8s_C2R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_8s_C3R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_8s_C4R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_8u16s_AC4R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_8u16s_C1R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_8u16s_C3R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_8u16s_C4R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_8u_AC4R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_8u_C1R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_8u_C2R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_8u_C3R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter32f_8u_C4R_Ctx",
+    "family": "nppiFilter32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBilateralGaussBorder_16u_C1R_Ctx",
+    "family": "nppiFilterBilateralGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBilateralGaussBorder_16u_C3R_Ctx",
+    "family": "nppiFilterBilateralGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBilateralGaussBorder_32f_C1R_Ctx",
+    "family": "nppiFilterBilateralGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBilateralGaussBorder_32f_C3R_Ctx",
+    "family": "nppiFilterBilateralGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBilateralGaussBorder_8u_C1R_Ctx",
+    "family": "nppiFilterBilateralGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBilateralGaussBorder_8u_C3R_Ctx",
+    "family": "nppiFilterBilateralGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_16f_C1R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_16f_C3R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_16f_C4R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_16s_AC4R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_16s_C1R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_16s_C3R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_16s_C4R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_16u_AC4R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_16u_C1R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_16u_C3R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_16u_C4R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_32s_AC4R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_32s_C1R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_32s_C3R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_32s_C4R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_8s16s_AC4R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_8s16s_C1R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_8s16s_C3R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_8s16s_C4R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_8s_AC4R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_8s_C1R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_8s_C2R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_8s_C3R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_8s_C4R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_8u16s_AC4R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_8u16s_C1R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_8u16s_C3R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_8u16s_C4R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_8u_AC4R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_8u_C1R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_8u_C2R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_8u_C3R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder32f_8u_C4R_Ctx",
+    "family": "nppiFilterBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder_16s_AC4R_Ctx",
+    "family": "nppiFilterBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder_16s_C1R_Ctx",
+    "family": "nppiFilterBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder_16s_C3R_Ctx",
+    "family": "nppiFilterBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder_16s_C4R_Ctx",
+    "family": "nppiFilterBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder_16u_AC4R_Ctx",
+    "family": "nppiFilterBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder_16u_C1R_Ctx",
+    "family": "nppiFilterBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder_16u_C3R_Ctx",
+    "family": "nppiFilterBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder_16u_C4R_Ctx",
+    "family": "nppiFilterBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder_32f_AC4R_Ctx",
+    "family": "nppiFilterBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder_32f_C1R_Ctx",
+    "family": "nppiFilterBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder_32f_C2R_Ctx",
+    "family": "nppiFilterBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder_32f_C3R_Ctx",
+    "family": "nppiFilterBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder_32f_C4R_Ctx",
+    "family": "nppiFilterBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder_8u_AC4R_Ctx",
+    "family": "nppiFilterBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder_8u_C1R_Ctx",
+    "family": "nppiFilterBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder_8u_C3R_Ctx",
+    "family": "nppiFilterBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBorder_8u_C4R_Ctx",
+    "family": "nppiFilterBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorderAdvanced_16s_C1R_Ctx",
+    "family": "nppiFilterBoxBorderAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorderAdvanced_16s_C3R_Ctx",
+    "family": "nppiFilterBoxBorderAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorderAdvanced_16s_C4R_Ctx",
+    "family": "nppiFilterBoxBorderAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorderAdvanced_16u_C1R_Ctx",
+    "family": "nppiFilterBoxBorderAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorderAdvanced_16u_C3R_Ctx",
+    "family": "nppiFilterBoxBorderAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorderAdvanced_16u_C4R_Ctx",
+    "family": "nppiFilterBoxBorderAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorderAdvanced_32f_C1R_Ctx",
+    "family": "nppiFilterBoxBorderAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorderAdvanced_32f_C3R_Ctx",
+    "family": "nppiFilterBoxBorderAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorderAdvanced_32f_C4R_Ctx",
+    "family": "nppiFilterBoxBorderAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorderAdvanced_64f_C1R_Ctx",
+    "family": "nppiFilterBoxBorderAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorderAdvanced_8u_C1R_Ctx",
+    "family": "nppiFilterBoxBorderAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorderAdvanced_8u_C3R_Ctx",
+    "family": "nppiFilterBoxBorderAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorderAdvanced_8u_C4R_Ctx",
+    "family": "nppiFilterBoxBorderAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorder_16s_AC4R_Ctx",
+    "family": "nppiFilterBoxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorder_16s_C1R_Ctx",
+    "family": "nppiFilterBoxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorder_16s_C3R_Ctx",
+    "family": "nppiFilterBoxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorder_16s_C4R_Ctx",
+    "family": "nppiFilterBoxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorder_16u_AC4R_Ctx",
+    "family": "nppiFilterBoxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorder_16u_C1R_Ctx",
+    "family": "nppiFilterBoxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorder_16u_C3R_Ctx",
+    "family": "nppiFilterBoxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorder_16u_C4R_Ctx",
+    "family": "nppiFilterBoxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorder_32f_AC4R_Ctx",
+    "family": "nppiFilterBoxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorder_32f_C1R_Ctx",
+    "family": "nppiFilterBoxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorder_32f_C3R_Ctx",
+    "family": "nppiFilterBoxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorder_32f_C4R_Ctx",
+    "family": "nppiFilterBoxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorder_8u_AC4R_Ctx",
+    "family": "nppiFilterBoxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorder_8u_C1R_Ctx",
+    "family": "nppiFilterBoxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorder_8u_C3R_Ctx",
+    "family": "nppiFilterBoxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBoxBorder_8u_C4R_Ctx",
+    "family": "nppiFilterBoxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBox_16s_AC4R_Ctx",
+    "family": "nppiFilterBox",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBox_16s_C1R_Ctx",
+    "family": "nppiFilterBox",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBox_16s_C3R_Ctx",
+    "family": "nppiFilterBox",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBox_16s_C4R_Ctx",
+    "family": "nppiFilterBox",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBox_16u_AC4R_Ctx",
+    "family": "nppiFilterBox",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBox_16u_C1R_Ctx",
+    "family": "nppiFilterBox",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBox_16u_C3R_Ctx",
+    "family": "nppiFilterBox",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBox_16u_C4R_Ctx",
+    "family": "nppiFilterBox",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBox_32f_AC4R_Ctx",
+    "family": "nppiFilterBox",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBox_32f_C1R_Ctx",
+    "family": "nppiFilterBox",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBox_32f_C3R_Ctx",
+    "family": "nppiFilterBox",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBox_32f_C4R_Ctx",
+    "family": "nppiFilterBox",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBox_64f_C1R_Ctx",
+    "family": "nppiFilterBox",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBox_8u_AC4R_Ctx",
+    "family": "nppiFilterBox",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBox_8u_C1R_Ctx",
+    "family": "nppiFilterBox",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBox_8u_C3R_Ctx",
+    "family": "nppiFilterBox",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterBox_8u_C4R_Ctx",
+    "family": "nppiFilterBox",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterCannyBorder_8u_C1R_Ctx",
+    "family": "nppiFilterCannyBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn32f_16s_AC4R_Ctx",
+    "family": "nppiFilterColumn32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn32f_16s_C1R_Ctx",
+    "family": "nppiFilterColumn32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn32f_16s_C3R_Ctx",
+    "family": "nppiFilterColumn32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn32f_16s_C4R_Ctx",
+    "family": "nppiFilterColumn32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn32f_16u_AC4R_Ctx",
+    "family": "nppiFilterColumn32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn32f_16u_C1R_Ctx",
+    "family": "nppiFilterColumn32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn32f_16u_C3R_Ctx",
+    "family": "nppiFilterColumn32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn32f_16u_C4R_Ctx",
+    "family": "nppiFilterColumn32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn32f_8u_AC4R_Ctx",
+    "family": "nppiFilterColumn32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn32f_8u_C1R_Ctx",
+    "family": "nppiFilterColumn32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn32f_8u_C3R_Ctx",
+    "family": "nppiFilterColumn32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn32f_8u_C4R_Ctx",
+    "family": "nppiFilterColumn32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder32f_16s_AC4R_Ctx",
+    "family": "nppiFilterColumnBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder32f_16s_C1R_Ctx",
+    "family": "nppiFilterColumnBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder32f_16s_C3R_Ctx",
+    "family": "nppiFilterColumnBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder32f_16s_C4R_Ctx",
+    "family": "nppiFilterColumnBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder32f_16u_AC4R_Ctx",
+    "family": "nppiFilterColumnBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder32f_16u_C1R_Ctx",
+    "family": "nppiFilterColumnBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder32f_16u_C3R_Ctx",
+    "family": "nppiFilterColumnBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder32f_16u_C4R_Ctx",
+    "family": "nppiFilterColumnBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder32f_8u_AC4R_Ctx",
+    "family": "nppiFilterColumnBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder32f_8u_C1R_Ctx",
+    "family": "nppiFilterColumnBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder32f_8u_C3R_Ctx",
+    "family": "nppiFilterColumnBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder32f_8u_C4R_Ctx",
+    "family": "nppiFilterColumnBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder_16s_AC4R_Ctx",
+    "family": "nppiFilterColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder_16s_C1R_Ctx",
+    "family": "nppiFilterColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder_16s_C3R_Ctx",
+    "family": "nppiFilterColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder_16s_C4R_Ctx",
+    "family": "nppiFilterColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder_16u_AC4R_Ctx",
+    "family": "nppiFilterColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder_16u_C1R_Ctx",
+    "family": "nppiFilterColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder_16u_C3R_Ctx",
+    "family": "nppiFilterColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder_16u_C4R_Ctx",
+    "family": "nppiFilterColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder_32f_AC4R_Ctx",
+    "family": "nppiFilterColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder_32f_C1R_Ctx",
+    "family": "nppiFilterColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder_32f_C3R_Ctx",
+    "family": "nppiFilterColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder_32f_C4R_Ctx",
+    "family": "nppiFilterColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder_8u_AC4R_Ctx",
+    "family": "nppiFilterColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder_8u_C1R_Ctx",
+    "family": "nppiFilterColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder_8u_C3R_Ctx",
+    "family": "nppiFilterColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumnBorder_8u_C4R_Ctx",
+    "family": "nppiFilterColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn_16s_AC4R_Ctx",
+    "family": "nppiFilterColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn_16s_C1R_Ctx",
+    "family": "nppiFilterColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn_16s_C3R_Ctx",
+    "family": "nppiFilterColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn_16s_C4R_Ctx",
+    "family": "nppiFilterColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn_16u_AC4R_Ctx",
+    "family": "nppiFilterColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn_16u_C1R_Ctx",
+    "family": "nppiFilterColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn_16u_C3R_Ctx",
+    "family": "nppiFilterColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn_16u_C4R_Ctx",
+    "family": "nppiFilterColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn_32f_AC4R_Ctx",
+    "family": "nppiFilterColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn_32f_C1R_Ctx",
+    "family": "nppiFilterColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn_32f_C3R_Ctx",
+    "family": "nppiFilterColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn_32f_C4R_Ctx",
+    "family": "nppiFilterColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn_64f_C1R_Ctx",
+    "family": "nppiFilterColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn_8u_AC4R_Ctx",
+    "family": "nppiFilterColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn_8u_C1R_Ctx",
+    "family": "nppiFilterColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn_8u_C3R_Ctx",
+    "family": "nppiFilterColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterColumn_8u_C4R_Ctx",
+    "family": "nppiFilterColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvancedBorder_16s_AC4R_Ctx",
+    "family": "nppiFilterGaussAdvancedBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvancedBorder_16s_C1R_Ctx",
+    "family": "nppiFilterGaussAdvancedBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvancedBorder_16s_C3R_Ctx",
+    "family": "nppiFilterGaussAdvancedBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvancedBorder_16s_C4R_Ctx",
+    "family": "nppiFilterGaussAdvancedBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvancedBorder_16u_AC4R_Ctx",
+    "family": "nppiFilterGaussAdvancedBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvancedBorder_16u_C1R_Ctx",
+    "family": "nppiFilterGaussAdvancedBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvancedBorder_16u_C3R_Ctx",
+    "family": "nppiFilterGaussAdvancedBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvancedBorder_16u_C4R_Ctx",
+    "family": "nppiFilterGaussAdvancedBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvancedBorder_32f_AC4R_Ctx",
+    "family": "nppiFilterGaussAdvancedBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvancedBorder_32f_C1R_Ctx",
+    "family": "nppiFilterGaussAdvancedBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvancedBorder_32f_C3R_Ctx",
+    "family": "nppiFilterGaussAdvancedBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvancedBorder_32f_C4R_Ctx",
+    "family": "nppiFilterGaussAdvancedBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvancedBorder_8u_AC4R_Ctx",
+    "family": "nppiFilterGaussAdvancedBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvancedBorder_8u_C1R_Ctx",
+    "family": "nppiFilterGaussAdvancedBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvancedBorder_8u_C3R_Ctx",
+    "family": "nppiFilterGaussAdvancedBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvancedBorder_8u_C4R_Ctx",
+    "family": "nppiFilterGaussAdvancedBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvanced_16s_AC4R_Ctx",
+    "family": "nppiFilterGaussAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvanced_16s_C1R_Ctx",
+    "family": "nppiFilterGaussAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvanced_16s_C3R_Ctx",
+    "family": "nppiFilterGaussAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvanced_16s_C4R_Ctx",
+    "family": "nppiFilterGaussAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvanced_16u_AC4R_Ctx",
+    "family": "nppiFilterGaussAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvanced_16u_C1R_Ctx",
+    "family": "nppiFilterGaussAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvanced_16u_C3R_Ctx",
+    "family": "nppiFilterGaussAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvanced_16u_C4R_Ctx",
+    "family": "nppiFilterGaussAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvanced_32f_AC4R_Ctx",
+    "family": "nppiFilterGaussAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvanced_32f_C1R_Ctx",
+    "family": "nppiFilterGaussAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvanced_32f_C3R_Ctx",
+    "family": "nppiFilterGaussAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvanced_32f_C4R_Ctx",
+    "family": "nppiFilterGaussAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvanced_8u_AC4R_Ctx",
+    "family": "nppiFilterGaussAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvanced_8u_C1R_Ctx",
+    "family": "nppiFilterGaussAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvanced_8u_C3R_Ctx",
+    "family": "nppiFilterGaussAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussAdvanced_8u_C4R_Ctx",
+    "family": "nppiFilterGaussAdvanced",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussBorder_16s_AC4R_Ctx",
+    "family": "nppiFilterGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussBorder_16s_C1R_Ctx",
+    "family": "nppiFilterGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussBorder_16s_C3R_Ctx",
+    "family": "nppiFilterGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussBorder_16s_C4R_Ctx",
+    "family": "nppiFilterGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussBorder_16u_AC4R_Ctx",
+    "family": "nppiFilterGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussBorder_16u_C1R_Ctx",
+    "family": "nppiFilterGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussBorder_16u_C3R_Ctx",
+    "family": "nppiFilterGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussBorder_16u_C4R_Ctx",
+    "family": "nppiFilterGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussBorder_32f_AC4R_Ctx",
+    "family": "nppiFilterGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussBorder_32f_C1R_Ctx",
+    "family": "nppiFilterGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussBorder_32f_C3R_Ctx",
+    "family": "nppiFilterGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussBorder_32f_C4R_Ctx",
+    "family": "nppiFilterGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussBorder_8u_AC4R_Ctx",
+    "family": "nppiFilterGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussBorder_8u_C1R_Ctx",
+    "family": "nppiFilterGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussBorder_8u_C3R_Ctx",
+    "family": "nppiFilterGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussBorder_8u_C4R_Ctx",
+    "family": "nppiFilterGaussBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussPyramidLayerDownBorder_16u_C1R_Ctx",
+    "family": "nppiFilterGaussPyramidLayerDownBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussPyramidLayerDownBorder_16u_C3R_Ctx",
+    "family": "nppiFilterGaussPyramidLayerDownBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussPyramidLayerDownBorder_32f_C1R_Ctx",
+    "family": "nppiFilterGaussPyramidLayerDownBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussPyramidLayerDownBorder_32f_C3R_Ctx",
+    "family": "nppiFilterGaussPyramidLayerDownBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussPyramidLayerDownBorder_8u_C1R_Ctx",
+    "family": "nppiFilterGaussPyramidLayerDownBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussPyramidLayerDownBorder_8u_C3R_Ctx",
+    "family": "nppiFilterGaussPyramidLayerDownBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussPyramidLayerUpBorder_16u_C1R_Ctx",
+    "family": "nppiFilterGaussPyramidLayerUpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussPyramidLayerUpBorder_16u_C3R_Ctx",
+    "family": "nppiFilterGaussPyramidLayerUpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussPyramidLayerUpBorder_32f_C1R_Ctx",
+    "family": "nppiFilterGaussPyramidLayerUpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussPyramidLayerUpBorder_32f_C3R_Ctx",
+    "family": "nppiFilterGaussPyramidLayerUpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussPyramidLayerUpBorder_8u_C1R_Ctx",
+    "family": "nppiFilterGaussPyramidLayerUpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGaussPyramidLayerUpBorder_8u_C3R_Ctx",
+    "family": "nppiFilterGaussPyramidLayerUpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGauss_16s_AC4R_Ctx",
+    "family": "nppiFilterGauss",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGauss_16s_C1R_Ctx",
+    "family": "nppiFilterGauss",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGauss_16s_C3R_Ctx",
+    "family": "nppiFilterGauss",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGauss_16s_C4R_Ctx",
+    "family": "nppiFilterGauss",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGauss_16u_AC4R_Ctx",
+    "family": "nppiFilterGauss",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGauss_16u_C1R_Ctx",
+    "family": "nppiFilterGauss",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGauss_16u_C3R_Ctx",
+    "family": "nppiFilterGauss",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGauss_16u_C4R_Ctx",
+    "family": "nppiFilterGauss",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGauss_32f_AC4R_Ctx",
+    "family": "nppiFilterGauss",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGauss_32f_C1R_Ctx",
+    "family": "nppiFilterGauss",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGauss_32f_C3R_Ctx",
+    "family": "nppiFilterGauss",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGauss_32f_C4R_Ctx",
+    "family": "nppiFilterGauss",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGauss_8u_AC4R_Ctx",
+    "family": "nppiFilterGauss",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGauss_8u_C1R_Ctx",
+    "family": "nppiFilterGauss",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGauss_8u_C3R_Ctx",
+    "family": "nppiFilterGauss",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterGauss_8u_C4R_Ctx",
+    "family": "nppiFilterGauss",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterHarrisCornersBorder_8u32f_C1R_Ctx",
+    "family": "nppiFilterHarrisCornersBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterHoughLineRegion_8u32f_C1R_Ctx",
+    "family": "nppiFilterHoughLineRegion",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterHoughLine_8u32f_C1R_Ctx",
+    "family": "nppiFilterHoughLine",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMaxBorder_16s_AC4R_Ctx",
+    "family": "nppiFilterMaxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMaxBorder_16s_C1R_Ctx",
+    "family": "nppiFilterMaxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMaxBorder_16s_C3R_Ctx",
+    "family": "nppiFilterMaxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMaxBorder_16s_C4R_Ctx",
+    "family": "nppiFilterMaxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMaxBorder_16u_AC4R_Ctx",
+    "family": "nppiFilterMaxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMaxBorder_16u_C1R_Ctx",
+    "family": "nppiFilterMaxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMaxBorder_16u_C3R_Ctx",
+    "family": "nppiFilterMaxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMaxBorder_16u_C4R_Ctx",
+    "family": "nppiFilterMaxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMaxBorder_32f_AC4R_Ctx",
+    "family": "nppiFilterMaxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMaxBorder_32f_C1R_Ctx",
+    "family": "nppiFilterMaxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMaxBorder_32f_C3R_Ctx",
+    "family": "nppiFilterMaxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMaxBorder_32f_C4R_Ctx",
+    "family": "nppiFilterMaxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMaxBorder_8u_AC4R_Ctx",
+    "family": "nppiFilterMaxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMaxBorder_8u_C1R_Ctx",
+    "family": "nppiFilterMaxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMaxBorder_8u_C3R_Ctx",
+    "family": "nppiFilterMaxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMaxBorder_8u_C4R_Ctx",
+    "family": "nppiFilterMaxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMax_16s_AC4R_Ctx",
+    "family": "nppiFilterMax",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMax_16s_C1R_Ctx",
+    "family": "nppiFilterMax",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMax_16s_C3R_Ctx",
+    "family": "nppiFilterMax",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMax_16s_C4R_Ctx",
+    "family": "nppiFilterMax",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMax_16u_AC4R_Ctx",
+    "family": "nppiFilterMax",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMax_16u_C1R_Ctx",
+    "family": "nppiFilterMax",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMax_16u_C3R_Ctx",
+    "family": "nppiFilterMax",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMax_16u_C4R_Ctx",
+    "family": "nppiFilterMax",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMax_32f_AC4R_Ctx",
+    "family": "nppiFilterMax",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMax_32f_C1R_Ctx",
+    "family": "nppiFilterMax",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMax_32f_C3R_Ctx",
+    "family": "nppiFilterMax",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMax_32f_C4R_Ctx",
+    "family": "nppiFilterMax",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMax_8u_AC4R_Ctx",
+    "family": "nppiFilterMax",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMax_8u_C1R_Ctx",
+    "family": "nppiFilterMax",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMax_8u_C3R_Ctx",
+    "family": "nppiFilterMax",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMax_8u_C4R_Ctx",
+    "family": "nppiFilterMax",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorderGetBufferSize_16s_AC4R_Ctx",
+    "family": "nppiFilterMedianBorderGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorderGetBufferSize_16s_C1R_Ctx",
+    "family": "nppiFilterMedianBorderGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorderGetBufferSize_16s_C3R_Ctx",
+    "family": "nppiFilterMedianBorderGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorderGetBufferSize_16s_C4R_Ctx",
+    "family": "nppiFilterMedianBorderGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorderGetBufferSize_16u_AC4R_Ctx",
+    "family": "nppiFilterMedianBorderGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorderGetBufferSize_16u_C1R_Ctx",
+    "family": "nppiFilterMedianBorderGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorderGetBufferSize_16u_C3R_Ctx",
+    "family": "nppiFilterMedianBorderGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorderGetBufferSize_16u_C4R_Ctx",
+    "family": "nppiFilterMedianBorderGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorderGetBufferSize_32f_AC4R_Ctx",
+    "family": "nppiFilterMedianBorderGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorderGetBufferSize_32f_C1R_Ctx",
+    "family": "nppiFilterMedianBorderGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorderGetBufferSize_32f_C3R_Ctx",
+    "family": "nppiFilterMedianBorderGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorderGetBufferSize_32f_C4R_Ctx",
+    "family": "nppiFilterMedianBorderGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorderGetBufferSize_8u_AC4R_Ctx",
+    "family": "nppiFilterMedianBorderGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorderGetBufferSize_8u_C1R_Ctx",
+    "family": "nppiFilterMedianBorderGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorderGetBufferSize_8u_C3R_Ctx",
+    "family": "nppiFilterMedianBorderGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorderGetBufferSize_8u_C4R_Ctx",
+    "family": "nppiFilterMedianBorderGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorder_16s_AC4R_Ctx",
+    "family": "nppiFilterMedianBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorder_16s_C1R_Ctx",
+    "family": "nppiFilterMedianBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorder_16s_C3R_Ctx",
+    "family": "nppiFilterMedianBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorder_16s_C4R_Ctx",
+    "family": "nppiFilterMedianBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorder_16u_AC4R_Ctx",
+    "family": "nppiFilterMedianBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorder_16u_C1R_Ctx",
+    "family": "nppiFilterMedianBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorder_16u_C3R_Ctx",
+    "family": "nppiFilterMedianBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorder_16u_C4R_Ctx",
+    "family": "nppiFilterMedianBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorder_32f_AC4R_Ctx",
+    "family": "nppiFilterMedianBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorder_32f_C1R_Ctx",
+    "family": "nppiFilterMedianBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorder_32f_C3R_Ctx",
+    "family": "nppiFilterMedianBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorder_32f_C4R_Ctx",
+    "family": "nppiFilterMedianBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorder_8u_AC4R_Ctx",
+    "family": "nppiFilterMedianBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorder_8u_C1R_Ctx",
+    "family": "nppiFilterMedianBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorder_8u_C3R_Ctx",
+    "family": "nppiFilterMedianBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianBorder_8u_C4R_Ctx",
+    "family": "nppiFilterMedianBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianGetBufferSize_16s_AC4R_Ctx",
+    "family": "nppiFilterMedianGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianGetBufferSize_16s_C1R_Ctx",
+    "family": "nppiFilterMedianGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianGetBufferSize_16s_C3R_Ctx",
+    "family": "nppiFilterMedianGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianGetBufferSize_16s_C4R_Ctx",
+    "family": "nppiFilterMedianGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianGetBufferSize_16u_AC4R_Ctx",
+    "family": "nppiFilterMedianGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianGetBufferSize_16u_C1R_Ctx",
+    "family": "nppiFilterMedianGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianGetBufferSize_16u_C3R_Ctx",
+    "family": "nppiFilterMedianGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianGetBufferSize_16u_C4R_Ctx",
+    "family": "nppiFilterMedianGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianGetBufferSize_32f_AC4R_Ctx",
+    "family": "nppiFilterMedianGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianGetBufferSize_32f_C1R_Ctx",
+    "family": "nppiFilterMedianGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianGetBufferSize_32f_C3R_Ctx",
+    "family": "nppiFilterMedianGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianGetBufferSize_32f_C4R_Ctx",
+    "family": "nppiFilterMedianGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianGetBufferSize_8u_AC4R_Ctx",
+    "family": "nppiFilterMedianGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianGetBufferSize_8u_C1R_Ctx",
+    "family": "nppiFilterMedianGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianGetBufferSize_8u_C3R_Ctx",
+    "family": "nppiFilterMedianGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedianGetBufferSize_8u_C4R_Ctx",
+    "family": "nppiFilterMedianGetBufferSize",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedian_16s_AC4R_Ctx",
+    "family": "nppiFilterMedian",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedian_16s_C1R_Ctx",
+    "family": "nppiFilterMedian",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedian_16s_C3R_Ctx",
+    "family": "nppiFilterMedian",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedian_16s_C4R_Ctx",
+    "family": "nppiFilterMedian",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedian_16u_AC4R_Ctx",
+    "family": "nppiFilterMedian",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedian_16u_C1R_Ctx",
+    "family": "nppiFilterMedian",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedian_16u_C3R_Ctx",
+    "family": "nppiFilterMedian",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedian_16u_C4R_Ctx",
+    "family": "nppiFilterMedian",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedian_32f_AC4R_Ctx",
+    "family": "nppiFilterMedian",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedian_32f_C1R_Ctx",
+    "family": "nppiFilterMedian",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedian_32f_C3R_Ctx",
+    "family": "nppiFilterMedian",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedian_32f_C4R_Ctx",
+    "family": "nppiFilterMedian",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedian_8u_AC4R_Ctx",
+    "family": "nppiFilterMedian",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedian_8u_C1R_Ctx",
+    "family": "nppiFilterMedian",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedian_8u_C3R_Ctx",
+    "family": "nppiFilterMedian",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMedian_8u_C4R_Ctx",
+    "family": "nppiFilterMedian",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMinBorder_16s_AC4R_Ctx",
+    "family": "nppiFilterMinBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMinBorder_16s_C1R_Ctx",
+    "family": "nppiFilterMinBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMinBorder_16s_C3R_Ctx",
+    "family": "nppiFilterMinBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMinBorder_16s_C4R_Ctx",
+    "family": "nppiFilterMinBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMinBorder_16u_AC4R_Ctx",
+    "family": "nppiFilterMinBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMinBorder_16u_C1R_Ctx",
+    "family": "nppiFilterMinBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMinBorder_16u_C3R_Ctx",
+    "family": "nppiFilterMinBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMinBorder_16u_C4R_Ctx",
+    "family": "nppiFilterMinBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMinBorder_32f_AC4R_Ctx",
+    "family": "nppiFilterMinBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMinBorder_32f_C1R_Ctx",
+    "family": "nppiFilterMinBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMinBorder_32f_C3R_Ctx",
+    "family": "nppiFilterMinBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMinBorder_32f_C4R_Ctx",
+    "family": "nppiFilterMinBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMinBorder_8u_AC4R_Ctx",
+    "family": "nppiFilterMinBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMinBorder_8u_C1R_Ctx",
+    "family": "nppiFilterMinBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMinBorder_8u_C3R_Ctx",
+    "family": "nppiFilterMinBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMinBorder_8u_C4R_Ctx",
+    "family": "nppiFilterMinBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMin_16s_AC4R_Ctx",
+    "family": "nppiFilterMin",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMin_16s_C1R_Ctx",
+    "family": "nppiFilterMin",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMin_16s_C3R_Ctx",
+    "family": "nppiFilterMin",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMin_16s_C4R_Ctx",
+    "family": "nppiFilterMin",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMin_16u_AC4R_Ctx",
+    "family": "nppiFilterMin",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMin_16u_C1R_Ctx",
+    "family": "nppiFilterMin",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMin_16u_C3R_Ctx",
+    "family": "nppiFilterMin",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMin_16u_C4R_Ctx",
+    "family": "nppiFilterMin",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMin_32f_AC4R_Ctx",
+    "family": "nppiFilterMin",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMin_32f_C1R_Ctx",
+    "family": "nppiFilterMin",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMin_32f_C3R_Ctx",
+    "family": "nppiFilterMin",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMin_32f_C4R_Ctx",
+    "family": "nppiFilterMin",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMin_8u_AC4R_Ctx",
+    "family": "nppiFilterMin",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMin_8u_C1R_Ctx",
+    "family": "nppiFilterMin",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMin_8u_C3R_Ctx",
+    "family": "nppiFilterMin",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterMin_8u_C4R_Ctx",
+    "family": "nppiFilterMin",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHorizBorder_16s_AC4R_Ctx",
+    "family": "nppiFilterPrewittHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHorizBorder_16s_C1R_Ctx",
+    "family": "nppiFilterPrewittHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHorizBorder_16s_C3R_Ctx",
+    "family": "nppiFilterPrewittHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHorizBorder_16s_C4R_Ctx",
+    "family": "nppiFilterPrewittHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHorizBorder_32f_AC4R_Ctx",
+    "family": "nppiFilterPrewittHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHorizBorder_32f_C1R_Ctx",
+    "family": "nppiFilterPrewittHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHorizBorder_32f_C3R_Ctx",
+    "family": "nppiFilterPrewittHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHorizBorder_32f_C4R_Ctx",
+    "family": "nppiFilterPrewittHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHorizBorder_8u_AC4R_Ctx",
+    "family": "nppiFilterPrewittHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHorizBorder_8u_C1R_Ctx",
+    "family": "nppiFilterPrewittHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHorizBorder_8u_C3R_Ctx",
+    "family": "nppiFilterPrewittHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHorizBorder_8u_C4R_Ctx",
+    "family": "nppiFilterPrewittHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHoriz_16s_AC4R_Ctx",
+    "family": "nppiFilterPrewittHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHoriz_16s_C1R_Ctx",
+    "family": "nppiFilterPrewittHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHoriz_16s_C3R_Ctx",
+    "family": "nppiFilterPrewittHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHoriz_16s_C4R_Ctx",
+    "family": "nppiFilterPrewittHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHoriz_32f_AC4R_Ctx",
+    "family": "nppiFilterPrewittHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHoriz_32f_C1R_Ctx",
+    "family": "nppiFilterPrewittHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHoriz_32f_C3R_Ctx",
+    "family": "nppiFilterPrewittHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHoriz_32f_C4R_Ctx",
+    "family": "nppiFilterPrewittHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHoriz_8u_AC4R_Ctx",
+    "family": "nppiFilterPrewittHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHoriz_8u_C1R_Ctx",
+    "family": "nppiFilterPrewittHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHoriz_8u_C3R_Ctx",
+    "family": "nppiFilterPrewittHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittHoriz_8u_C4R_Ctx",
+    "family": "nppiFilterPrewittHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVertBorder_16s_AC4R_Ctx",
+    "family": "nppiFilterPrewittVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVertBorder_16s_C1R_Ctx",
+    "family": "nppiFilterPrewittVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVertBorder_16s_C3R_Ctx",
+    "family": "nppiFilterPrewittVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVertBorder_16s_C4R_Ctx",
+    "family": "nppiFilterPrewittVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVertBorder_32f_AC4R_Ctx",
+    "family": "nppiFilterPrewittVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVertBorder_32f_C1R_Ctx",
+    "family": "nppiFilterPrewittVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVertBorder_32f_C3R_Ctx",
+    "family": "nppiFilterPrewittVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVertBorder_32f_C4R_Ctx",
+    "family": "nppiFilterPrewittVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVertBorder_8u_AC4R_Ctx",
+    "family": "nppiFilterPrewittVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVertBorder_8u_C1R_Ctx",
+    "family": "nppiFilterPrewittVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVertBorder_8u_C3R_Ctx",
+    "family": "nppiFilterPrewittVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVertBorder_8u_C4R_Ctx",
+    "family": "nppiFilterPrewittVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVert_16s_AC4R_Ctx",
+    "family": "nppiFilterPrewittVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVert_16s_C1R_Ctx",
+    "family": "nppiFilterPrewittVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVert_16s_C3R_Ctx",
+    "family": "nppiFilterPrewittVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVert_16s_C4R_Ctx",
+    "family": "nppiFilterPrewittVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVert_32f_AC4R_Ctx",
+    "family": "nppiFilterPrewittVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVert_32f_C1R_Ctx",
+    "family": "nppiFilterPrewittVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVert_32f_C3R_Ctx",
+    "family": "nppiFilterPrewittVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVert_32f_C4R_Ctx",
+    "family": "nppiFilterPrewittVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVert_8u_AC4R_Ctx",
+    "family": "nppiFilterPrewittVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVert_8u_C1R_Ctx",
+    "family": "nppiFilterPrewittVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVert_8u_C3R_Ctx",
+    "family": "nppiFilterPrewittVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterPrewittVert_8u_C4R_Ctx",
+    "family": "nppiFilterPrewittVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDownBorder_16s_AC4R_Ctx",
+    "family": "nppiFilterRobertsDownBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDownBorder_16s_C1R_Ctx",
+    "family": "nppiFilterRobertsDownBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDownBorder_16s_C3R_Ctx",
+    "family": "nppiFilterRobertsDownBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDownBorder_16s_C4R_Ctx",
+    "family": "nppiFilterRobertsDownBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDownBorder_32f_AC4R_Ctx",
+    "family": "nppiFilterRobertsDownBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDownBorder_32f_C1R_Ctx",
+    "family": "nppiFilterRobertsDownBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDownBorder_32f_C3R_Ctx",
+    "family": "nppiFilterRobertsDownBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDownBorder_32f_C4R_Ctx",
+    "family": "nppiFilterRobertsDownBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDownBorder_8u_AC4R_Ctx",
+    "family": "nppiFilterRobertsDownBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDownBorder_8u_C1R_Ctx",
+    "family": "nppiFilterRobertsDownBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDownBorder_8u_C3R_Ctx",
+    "family": "nppiFilterRobertsDownBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDownBorder_8u_C4R_Ctx",
+    "family": "nppiFilterRobertsDownBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDown_16s_AC4R_Ctx",
+    "family": "nppiFilterRobertsDown",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDown_16s_C1R_Ctx",
+    "family": "nppiFilterRobertsDown",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDown_16s_C3R_Ctx",
+    "family": "nppiFilterRobertsDown",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDown_16s_C4R_Ctx",
+    "family": "nppiFilterRobertsDown",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDown_32f_AC4R_Ctx",
+    "family": "nppiFilterRobertsDown",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDown_32f_C1R_Ctx",
+    "family": "nppiFilterRobertsDown",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDown_32f_C3R_Ctx",
+    "family": "nppiFilterRobertsDown",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDown_32f_C4R_Ctx",
+    "family": "nppiFilterRobertsDown",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDown_8u_AC4R_Ctx",
+    "family": "nppiFilterRobertsDown",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDown_8u_C1R_Ctx",
+    "family": "nppiFilterRobertsDown",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDown_8u_C3R_Ctx",
+    "family": "nppiFilterRobertsDown",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsDown_8u_C4R_Ctx",
+    "family": "nppiFilterRobertsDown",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUpBorder_16s_AC4R_Ctx",
+    "family": "nppiFilterRobertsUpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUpBorder_16s_C1R_Ctx",
+    "family": "nppiFilterRobertsUpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUpBorder_16s_C3R_Ctx",
+    "family": "nppiFilterRobertsUpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUpBorder_16s_C4R_Ctx",
+    "family": "nppiFilterRobertsUpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUpBorder_32f_AC4R_Ctx",
+    "family": "nppiFilterRobertsUpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUpBorder_32f_C1R_Ctx",
+    "family": "nppiFilterRobertsUpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUpBorder_32f_C3R_Ctx",
+    "family": "nppiFilterRobertsUpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUpBorder_32f_C4R_Ctx",
+    "family": "nppiFilterRobertsUpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUpBorder_8u_AC4R_Ctx",
+    "family": "nppiFilterRobertsUpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUpBorder_8u_C1R_Ctx",
+    "family": "nppiFilterRobertsUpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUpBorder_8u_C3R_Ctx",
+    "family": "nppiFilterRobertsUpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUpBorder_8u_C4R_Ctx",
+    "family": "nppiFilterRobertsUpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUp_16s_AC4R_Ctx",
+    "family": "nppiFilterRobertsUp",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUp_16s_C1R_Ctx",
+    "family": "nppiFilterRobertsUp",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUp_16s_C3R_Ctx",
+    "family": "nppiFilterRobertsUp",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUp_16s_C4R_Ctx",
+    "family": "nppiFilterRobertsUp",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUp_32f_AC4R_Ctx",
+    "family": "nppiFilterRobertsUp",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUp_32f_C1R_Ctx",
+    "family": "nppiFilterRobertsUp",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUp_32f_C3R_Ctx",
+    "family": "nppiFilterRobertsUp",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUp_32f_C4R_Ctx",
+    "family": "nppiFilterRobertsUp",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUp_8u_AC4R_Ctx",
+    "family": "nppiFilterRobertsUp",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUp_8u_C1R_Ctx",
+    "family": "nppiFilterRobertsUp",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUp_8u_C3R_Ctx",
+    "family": "nppiFilterRobertsUp",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRobertsUp_8u_C4R_Ctx",
+    "family": "nppiFilterRobertsUp",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow32f_16s_AC4R_Ctx",
+    "family": "nppiFilterRow32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow32f_16s_C1R_Ctx",
+    "family": "nppiFilterRow32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow32f_16s_C3R_Ctx",
+    "family": "nppiFilterRow32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow32f_16s_C4R_Ctx",
+    "family": "nppiFilterRow32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow32f_16u_AC4R_Ctx",
+    "family": "nppiFilterRow32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow32f_16u_C1R_Ctx",
+    "family": "nppiFilterRow32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow32f_16u_C3R_Ctx",
+    "family": "nppiFilterRow32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow32f_16u_C4R_Ctx",
+    "family": "nppiFilterRow32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow32f_8u_AC4R_Ctx",
+    "family": "nppiFilterRow32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow32f_8u_C1R_Ctx",
+    "family": "nppiFilterRow32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow32f_8u_C3R_Ctx",
+    "family": "nppiFilterRow32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow32f_8u_C4R_Ctx",
+    "family": "nppiFilterRow32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder32f_16s_AC4R_Ctx",
+    "family": "nppiFilterRowBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder32f_16s_C1R_Ctx",
+    "family": "nppiFilterRowBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder32f_16s_C3R_Ctx",
+    "family": "nppiFilterRowBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder32f_16s_C4R_Ctx",
+    "family": "nppiFilterRowBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder32f_16u_AC4R_Ctx",
+    "family": "nppiFilterRowBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder32f_16u_C1R_Ctx",
+    "family": "nppiFilterRowBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder32f_16u_C3R_Ctx",
+    "family": "nppiFilterRowBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder32f_16u_C4R_Ctx",
+    "family": "nppiFilterRowBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder32f_8u_AC4R_Ctx",
+    "family": "nppiFilterRowBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder32f_8u_C1R_Ctx",
+    "family": "nppiFilterRowBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder32f_8u_C3R_Ctx",
+    "family": "nppiFilterRowBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder32f_8u_C4R_Ctx",
+    "family": "nppiFilterRowBorder32f",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder_16s_AC4R_Ctx",
+    "family": "nppiFilterRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder_16s_C1R_Ctx",
+    "family": "nppiFilterRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder_16s_C3R_Ctx",
+    "family": "nppiFilterRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder_16s_C4R_Ctx",
+    "family": "nppiFilterRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder_16u_AC4R_Ctx",
+    "family": "nppiFilterRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder_16u_C1R_Ctx",
+    "family": "nppiFilterRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder_16u_C3R_Ctx",
+    "family": "nppiFilterRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder_16u_C4R_Ctx",
+    "family": "nppiFilterRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder_32f_AC4R_Ctx",
+    "family": "nppiFilterRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder_32f_C1R_Ctx",
+    "family": "nppiFilterRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder_32f_C3R_Ctx",
+    "family": "nppiFilterRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder_32f_C4R_Ctx",
+    "family": "nppiFilterRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder_8u_AC4R_Ctx",
+    "family": "nppiFilterRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder_8u_C1R_Ctx",
+    "family": "nppiFilterRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder_8u_C3R_Ctx",
+    "family": "nppiFilterRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRowBorder_8u_C4R_Ctx",
+    "family": "nppiFilterRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow_16s_AC4R_Ctx",
+    "family": "nppiFilterRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow_16s_C1R_Ctx",
+    "family": "nppiFilterRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow_16s_C3R_Ctx",
+    "family": "nppiFilterRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow_16s_C4R_Ctx",
+    "family": "nppiFilterRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow_16u_AC4R_Ctx",
+    "family": "nppiFilterRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow_16u_C1R_Ctx",
+    "family": "nppiFilterRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow_16u_C3R_Ctx",
+    "family": "nppiFilterRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow_16u_C4R_Ctx",
+    "family": "nppiFilterRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow_32f_AC4R_Ctx",
+    "family": "nppiFilterRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow_32f_C1R_Ctx",
+    "family": "nppiFilterRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow_32f_C3R_Ctx",
+    "family": "nppiFilterRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow_32f_C4R_Ctx",
+    "family": "nppiFilterRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow_64f_C1R_Ctx",
+    "family": "nppiFilterRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow_8u_AC4R_Ctx",
+    "family": "nppiFilterRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow_8u_C1R_Ctx",
+    "family": "nppiFilterRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow_8u_C3R_Ctx",
+    "family": "nppiFilterRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterRow_8u_C4R_Ctx",
+    "family": "nppiFilterRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterScharrHorizBorder_32f_C1R_Ctx",
+    "family": "nppiFilterScharrHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterScharrHorizBorder_8s16s_C1R_Ctx",
+    "family": "nppiFilterScharrHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterScharrHorizBorder_8u16s_C1R_Ctx",
+    "family": "nppiFilterScharrHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterScharrHoriz_32f_C1R_Ctx",
+    "family": "nppiFilterScharrHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterScharrHoriz_8s16s_C1R_Ctx",
+    "family": "nppiFilterScharrHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterScharrHoriz_8u16s_C1R_Ctx",
+    "family": "nppiFilterScharrHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterScharrVertBorder_32f_C1R_Ctx",
+    "family": "nppiFilterScharrVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterScharrVertBorder_8s16s_C1R_Ctx",
+    "family": "nppiFilterScharrVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterScharrVertBorder_8u16s_C1R_Ctx",
+    "family": "nppiFilterScharrVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterScharrVert_32f_C1R_Ctx",
+    "family": "nppiFilterScharrVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterScharrVert_8s16s_C1R_Ctx",
+    "family": "nppiFilterScharrVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterScharrVert_8u16s_C1R_Ctx",
+    "family": "nppiFilterScharrVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelCrossBorder_32f_C1R_Ctx",
+    "family": "nppiFilterSobelCrossBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelCrossBorder_8s16s_C1R_Ctx",
+    "family": "nppiFilterSobelCrossBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelCrossBorder_8u16s_C1R_Ctx",
+    "family": "nppiFilterSobelCrossBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelCross_32f_C1R_Ctx",
+    "family": "nppiFilterSobelCross",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelCross_8s16s_C1R_Ctx",
+    "family": "nppiFilterSobelCross",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelCross_8u16s_C1R_Ctx",
+    "family": "nppiFilterSobelCross",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizBorder_16s_AC4R_Ctx",
+    "family": "nppiFilterSobelHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizBorder_16s_C1R_Ctx",
+    "family": "nppiFilterSobelHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizBorder_16s_C3R_Ctx",
+    "family": "nppiFilterSobelHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizBorder_16s_C4R_Ctx",
+    "family": "nppiFilterSobelHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizBorder_32f_AC4R_Ctx",
+    "family": "nppiFilterSobelHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizBorder_32f_C1R_Ctx",
+    "family": "nppiFilterSobelHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizBorder_32f_C3R_Ctx",
+    "family": "nppiFilterSobelHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizBorder_32f_C4R_Ctx",
+    "family": "nppiFilterSobelHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizBorder_8s16s_C1R_Ctx",
+    "family": "nppiFilterSobelHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizBorder_8u16s_C1R_Ctx",
+    "family": "nppiFilterSobelHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizBorder_8u_AC4R_Ctx",
+    "family": "nppiFilterSobelHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizBorder_8u_C1R_Ctx",
+    "family": "nppiFilterSobelHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizBorder_8u_C3R_Ctx",
+    "family": "nppiFilterSobelHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizBorder_8u_C4R_Ctx",
+    "family": "nppiFilterSobelHorizBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizMaskBorder_32f_C1R_Ctx",
+    "family": "nppiFilterSobelHorizMaskBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizMask_32f_C1R_Ctx",
+    "family": "nppiFilterSobelHorizMask",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizSecondBorder_32f_C1R_Ctx",
+    "family": "nppiFilterSobelHorizSecondBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizSecondBorder_8s16s_C1R_Ctx",
+    "family": "nppiFilterSobelHorizSecondBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizSecondBorder_8u16s_C1R_Ctx",
+    "family": "nppiFilterSobelHorizSecondBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizSecond_32f_C1R_Ctx",
+    "family": "nppiFilterSobelHorizSecond",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizSecond_8s16s_C1R_Ctx",
+    "family": "nppiFilterSobelHorizSecond",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHorizSecond_8u16s_C1R_Ctx",
+    "family": "nppiFilterSobelHorizSecond",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHoriz_16s_AC4R_Ctx",
+    "family": "nppiFilterSobelHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHoriz_16s_C1R_Ctx",
+    "family": "nppiFilterSobelHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHoriz_16s_C3R_Ctx",
+    "family": "nppiFilterSobelHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHoriz_16s_C4R_Ctx",
+    "family": "nppiFilterSobelHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHoriz_32f_AC4R_Ctx",
+    "family": "nppiFilterSobelHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHoriz_32f_C1R_Ctx",
+    "family": "nppiFilterSobelHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHoriz_32f_C3R_Ctx",
+    "family": "nppiFilterSobelHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHoriz_32f_C4R_Ctx",
+    "family": "nppiFilterSobelHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHoriz_8s16s_C1R_Ctx",
+    "family": "nppiFilterSobelHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHoriz_8u16s_C1R_Ctx",
+    "family": "nppiFilterSobelHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHoriz_8u_AC4R_Ctx",
+    "family": "nppiFilterSobelHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHoriz_8u_C1R_Ctx",
+    "family": "nppiFilterSobelHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHoriz_8u_C3R_Ctx",
+    "family": "nppiFilterSobelHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelHoriz_8u_C4R_Ctx",
+    "family": "nppiFilterSobelHoriz",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertBorder_16s_AC4R_Ctx",
+    "family": "nppiFilterSobelVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertBorder_16s_C1R_Ctx",
+    "family": "nppiFilterSobelVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertBorder_16s_C3R_Ctx",
+    "family": "nppiFilterSobelVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertBorder_16s_C4R_Ctx",
+    "family": "nppiFilterSobelVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertBorder_32f_AC4R_Ctx",
+    "family": "nppiFilterSobelVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertBorder_32f_C1R_Ctx",
+    "family": "nppiFilterSobelVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertBorder_32f_C3R_Ctx",
+    "family": "nppiFilterSobelVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertBorder_32f_C4R_Ctx",
+    "family": "nppiFilterSobelVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertBorder_8s16s_C1R_Ctx",
+    "family": "nppiFilterSobelVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertBorder_8u16s_C1R_Ctx",
+    "family": "nppiFilterSobelVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertBorder_8u_AC4R_Ctx",
+    "family": "nppiFilterSobelVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertBorder_8u_C1R_Ctx",
+    "family": "nppiFilterSobelVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertBorder_8u_C3R_Ctx",
+    "family": "nppiFilterSobelVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertBorder_8u_C4R_Ctx",
+    "family": "nppiFilterSobelVertBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertMaskBorder_32f_C1R_Ctx",
+    "family": "nppiFilterSobelVertMaskBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertMask_32f_C1R_Ctx",
+    "family": "nppiFilterSobelVertMask",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertSecondBorder_32f_C1R_Ctx",
+    "family": "nppiFilterSobelVertSecondBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertSecondBorder_8s16s_C1R_Ctx",
+    "family": "nppiFilterSobelVertSecondBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertSecondBorder_8u16s_C1R_Ctx",
+    "family": "nppiFilterSobelVertSecondBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertSecond_32f_C1R_Ctx",
+    "family": "nppiFilterSobelVertSecond",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertSecond_8s16s_C1R_Ctx",
+    "family": "nppiFilterSobelVertSecond",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVertSecond_8u16s_C1R_Ctx",
+    "family": "nppiFilterSobelVertSecond",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVert_16s_AC4R_Ctx",
+    "family": "nppiFilterSobelVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVert_16s_C1R_Ctx",
+    "family": "nppiFilterSobelVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVert_16s_C3R_Ctx",
+    "family": "nppiFilterSobelVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVert_16s_C4R_Ctx",
+    "family": "nppiFilterSobelVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVert_32f_AC4R_Ctx",
+    "family": "nppiFilterSobelVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVert_32f_C1R_Ctx",
+    "family": "nppiFilterSobelVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVert_32f_C3R_Ctx",
+    "family": "nppiFilterSobelVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVert_32f_C4R_Ctx",
+    "family": "nppiFilterSobelVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVert_8s16s_C1R_Ctx",
+    "family": "nppiFilterSobelVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVert_8u16s_C1R_Ctx",
+    "family": "nppiFilterSobelVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVert_8u_AC4R_Ctx",
+    "family": "nppiFilterSobelVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVert_8u_C1R_Ctx",
+    "family": "nppiFilterSobelVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVert_8u_C3R_Ctx",
+    "family": "nppiFilterSobelVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterSobelVert_8u_C4R_Ctx",
+    "family": "nppiFilterSobelVert",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterThresholdAdaptiveBoxBorder_8u_C1R_Ctx",
+    "family": "nppiFilterThresholdAdaptiveBoxBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterUnsharpBorder_16s_AC4R_Ctx",
+    "family": "nppiFilterUnsharpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterUnsharpBorder_16s_C1R_Ctx",
+    "family": "nppiFilterUnsharpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterUnsharpBorder_16s_C3R_Ctx",
+    "family": "nppiFilterUnsharpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterUnsharpBorder_16s_C4R_Ctx",
+    "family": "nppiFilterUnsharpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterUnsharpBorder_16u_AC4R_Ctx",
+    "family": "nppiFilterUnsharpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterUnsharpBorder_16u_C1R_Ctx",
+    "family": "nppiFilterUnsharpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterUnsharpBorder_16u_C3R_Ctx",
+    "family": "nppiFilterUnsharpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterUnsharpBorder_16u_C4R_Ctx",
+    "family": "nppiFilterUnsharpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterUnsharpBorder_32f_AC4R_Ctx",
+    "family": "nppiFilterUnsharpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterUnsharpBorder_32f_C1R_Ctx",
+    "family": "nppiFilterUnsharpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterUnsharpBorder_32f_C3R_Ctx",
+    "family": "nppiFilterUnsharpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterUnsharpBorder_32f_C4R_Ctx",
+    "family": "nppiFilterUnsharpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterUnsharpBorder_8u_AC4R_Ctx",
+    "family": "nppiFilterUnsharpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterUnsharpBorder_8u_C1R_Ctx",
+    "family": "nppiFilterUnsharpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterUnsharpBorder_8u_C3R_Ctx",
+    "family": "nppiFilterUnsharpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterUnsharpBorder_8u_C4R_Ctx",
+    "family": "nppiFilterUnsharpBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterWienerBorder_16s_AC4R_Ctx",
+    "family": "nppiFilterWienerBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterWienerBorder_16s_C1R_Ctx",
+    "family": "nppiFilterWienerBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterWienerBorder_16s_C3R_Ctx",
+    "family": "nppiFilterWienerBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterWienerBorder_16s_C4R_Ctx",
+    "family": "nppiFilterWienerBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterWienerBorder_32f_AC4R_Ctx",
+    "family": "nppiFilterWienerBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterWienerBorder_32f_C1R_Ctx",
+    "family": "nppiFilterWienerBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterWienerBorder_32f_C3R_Ctx",
+    "family": "nppiFilterWienerBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterWienerBorder_32f_C4R_Ctx",
+    "family": "nppiFilterWienerBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterWienerBorder_8u_AC4R_Ctx",
+    "family": "nppiFilterWienerBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterWienerBorder_8u_C1R_Ctx",
+    "family": "nppiFilterWienerBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterWienerBorder_8u_C3R_Ctx",
+    "family": "nppiFilterWienerBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilterWienerBorder_8u_C4R_Ctx",
+    "family": "nppiFilterWienerBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter_16s_AC4R_Ctx",
+    "family": "nppiFilter",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter_16s_C1R_Ctx",
+    "family": "nppiFilter",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter_16s_C3R_Ctx",
+    "family": "nppiFilter",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter_16s_C4R_Ctx",
+    "family": "nppiFilter",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter_16u_AC4R_Ctx",
+    "family": "nppiFilter",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter_16u_C1R_Ctx",
+    "family": "nppiFilter",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter_16u_C3R_Ctx",
+    "family": "nppiFilter",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter_16u_C4R_Ctx",
+    "family": "nppiFilter",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter_32f_AC4R_Ctx",
+    "family": "nppiFilter",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter_32f_C1R_Ctx",
+    "family": "nppiFilter",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter_32f_C2R_Ctx",
+    "family": "nppiFilter",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter_32f_C3R_Ctx",
+    "family": "nppiFilter",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter_32f_C4R_Ctx",
+    "family": "nppiFilter",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter_64f_C1R_Ctx",
+    "family": "nppiFilter",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter_8u_AC4R_Ctx",
+    "family": "nppiFilter",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter_8u_C1R_Ctx",
+    "family": "nppiFilter",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter_8u_C3R_Ctx",
+    "family": "nppiFilter",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFilter_8u_C4R_Ctx",
+    "family": "nppiFilter",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillBoundary_16u_C1IR_Ctx",
+    "family": "nppiFloodFillBoundary",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillBoundary_16u_C3IR_Ctx",
+    "family": "nppiFloodFillBoundary",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillBoundary_32u_C1IR_Ctx",
+    "family": "nppiFloodFillBoundary",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillBoundary_32u_C3IR_Ctx",
+    "family": "nppiFloodFillBoundary",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillBoundary_8u_C1IR_Ctx",
+    "family": "nppiFloodFillBoundary",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillBoundary_8u_C3IR_Ctx",
+    "family": "nppiFloodFillBoundary",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillGradientBoundary_16u_C1IR_Ctx",
+    "family": "nppiFloodFillGradientBoundary",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillGradientBoundary_16u_C3IR_Ctx",
+    "family": "nppiFloodFillGradientBoundary",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillGradientBoundary_32u_C1IR_Ctx",
+    "family": "nppiFloodFillGradientBoundary",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillGradientBoundary_32u_C3IR_Ctx",
+    "family": "nppiFloodFillGradientBoundary",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillGradientBoundary_8u_C1IR_Ctx",
+    "family": "nppiFloodFillGradientBoundary",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillGradientBoundary_8u_C3IR_Ctx",
+    "family": "nppiFloodFillGradientBoundary",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillGradient_16u_C1IR_Ctx",
+    "family": "nppiFloodFillGradient",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillGradient_16u_C3IR_Ctx",
+    "family": "nppiFloodFillGradient",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillGradient_32u_C1IR_Ctx",
+    "family": "nppiFloodFillGradient",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillGradient_32u_C3IR_Ctx",
+    "family": "nppiFloodFillGradient",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillGradient_8u_C1IR_Ctx",
+    "family": "nppiFloodFillGradient",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillGradient_8u_C3IR_Ctx",
+    "family": "nppiFloodFillGradient",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillRangeBoundary_16u_C1IR_Ctx",
+    "family": "nppiFloodFillRangeBoundary",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillRangeBoundary_16u_C3IR_Ctx",
+    "family": "nppiFloodFillRangeBoundary",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillRangeBoundary_32u_C1IR_Ctx",
+    "family": "nppiFloodFillRangeBoundary",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillRangeBoundary_32u_C3IR_Ctx",
+    "family": "nppiFloodFillRangeBoundary",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillRangeBoundary_8u_C1IR_Ctx",
+    "family": "nppiFloodFillRangeBoundary",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillRangeBoundary_8u_C3IR_Ctx",
+    "family": "nppiFloodFillRangeBoundary",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillRange_16u_C1IR_Ctx",
+    "family": "nppiFloodFillRange",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillRange_16u_C3IR_Ctx",
+    "family": "nppiFloodFillRange",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillRange_32u_C1IR_Ctx",
+    "family": "nppiFloodFillRange",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillRange_32u_C3IR_Ctx",
+    "family": "nppiFloodFillRange",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillRange_8u_C1IR_Ctx",
+    "family": "nppiFloodFillRange",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFillRange_8u_C3IR_Ctx",
+    "family": "nppiFloodFillRange",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFill_16u_C1IR_Ctx",
+    "family": "nppiFloodFill",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFill_16u_C3IR_Ctx",
+    "family": "nppiFloodFill",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFill_32u_C1IR_Ctx",
+    "family": "nppiFloodFill",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFill_32u_C3IR_Ctx",
+    "family": "nppiFloodFill",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFill_8u_C1IR_Ctx",
+    "family": "nppiFloodFill",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiFloodFill_8u_C3IR_Ctx",
+    "family": "nppiFloodFill",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorPrewittBorder_16s32f_C1R_Ctx",
+    "family": "nppiGradientVectorPrewittBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorPrewittBorder_16s32f_C3C1R_Ctx",
+    "family": "nppiGradientVectorPrewittBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorPrewittBorder_16u32f_C1R_Ctx",
+    "family": "nppiGradientVectorPrewittBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorPrewittBorder_16u32f_C3C1R_Ctx",
+    "family": "nppiGradientVectorPrewittBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorPrewittBorder_32f_C1R_Ctx",
+    "family": "nppiGradientVectorPrewittBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorPrewittBorder_32f_C3C1R_Ctx",
+    "family": "nppiGradientVectorPrewittBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx",
+    "family": "nppiGradientVectorPrewittBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorPrewittBorder_8u16s_C3C1R_Ctx",
+    "family": "nppiGradientVectorPrewittBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorScharrBorder_16s32f_C1R_Ctx",
+    "family": "nppiGradientVectorScharrBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorScharrBorder_16s32f_C3C1R_Ctx",
+    "family": "nppiGradientVectorScharrBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorScharrBorder_16u32f_C1R_Ctx",
+    "family": "nppiGradientVectorScharrBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorScharrBorder_16u32f_C3C1R_Ctx",
+    "family": "nppiGradientVectorScharrBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorScharrBorder_32f_C1R_Ctx",
+    "family": "nppiGradientVectorScharrBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorScharrBorder_32f_C3C1R_Ctx",
+    "family": "nppiGradientVectorScharrBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorScharrBorder_8u16s_C1R_Ctx",
+    "family": "nppiGradientVectorScharrBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorScharrBorder_8u16s_C3C1R_Ctx",
+    "family": "nppiGradientVectorScharrBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorSobelBorder_16s32f_C1R_Ctx",
+    "family": "nppiGradientVectorSobelBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorSobelBorder_16s32f_C3C1R_Ctx",
+    "family": "nppiGradientVectorSobelBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorSobelBorder_16u32f_C1R_Ctx",
+    "family": "nppiGradientVectorSobelBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorSobelBorder_16u32f_C3C1R_Ctx",
+    "family": "nppiGradientVectorSobelBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorSobelBorder_32f_C1R_Ctx",
+    "family": "nppiGradientVectorSobelBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorSobelBorder_32f_C3C1R_Ctx",
+    "family": "nppiGradientVectorSobelBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorSobelBorder_8u16s_C1R_Ctx",
+    "family": "nppiGradientVectorSobelBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiGradientVectorSobelBorder_8u16s_C3C1R_Ctx",
+    "family": "nppiGradientVectorSobelBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiHistogramOfGradientsBorder_16s32f_C1R_Ctx",
+    "family": "nppiHistogramOfGradientsBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiHistogramOfGradientsBorder_16s32f_C3R_Ctx",
+    "family": "nppiHistogramOfGradientsBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiHistogramOfGradientsBorder_16u32f_C1R_Ctx",
+    "family": "nppiHistogramOfGradientsBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiHistogramOfGradientsBorder_16u32f_C3R_Ctx",
+    "family": "nppiHistogramOfGradientsBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiHistogramOfGradientsBorder_32f_C1R_Ctx",
+    "family": "nppiHistogramOfGradientsBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiHistogramOfGradientsBorder_32f_C3R_Ctx",
+    "family": "nppiHistogramOfGradientsBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiHistogramOfGradientsBorder_8u32f_C1R_Ctx",
+    "family": "nppiHistogramOfGradientsBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiHistogramOfGradientsBorder_8u32f_C3R_Ctx",
+    "family": "nppiHistogramOfGradientsBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiLabelMarkersUFBatch_16u32u_C1R_Advanced_Ctx",
+    "family": "nppiLabelMarkersUFBatch",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiLabelMarkersUFBatch_16u32u_C1R_Ctx",
+    "family": "nppiLabelMarkersUFBatch",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiLabelMarkersUFBatch_32u_C1R_Advanced_Ctx",
+    "family": "nppiLabelMarkersUFBatch",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiLabelMarkersUFBatch_32u_C1R_Ctx",
+    "family": "nppiLabelMarkersUFBatch",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiLabelMarkersUFBatch_8u32u_C1R_Advanced_Ctx",
+    "family": "nppiLabelMarkersUFBatch",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiLabelMarkersUFBatch_8u32u_C1R_Ctx",
+    "family": "nppiLabelMarkersUFBatch",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiLabelMarkersUF_16u32u_C1R_Ctx",
+    "family": "nppiLabelMarkersUF",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiLabelMarkersUF_32u_C1R_Ctx",
+    "family": "nppiLabelMarkersUF",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiLabelMarkersUF_8u32u_C1R_Ctx",
+    "family": "nppiLabelMarkersUF",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSegmentWatershed_16u_C1IR_Ctx",
+    "family": "nppiSegmentWatershed",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSegmentWatershed_8u_C1IR_Ctx",
+    "family": "nppiSegmentWatershed",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSignedDistanceTransformAbsPBA_32f64f_C1R_Ctx",
+    "family": "nppiSignedDistanceTransformAbsPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSignedDistanceTransformAbsPBA_32f_C1R_Ctx",
+    "family": "nppiSignedDistanceTransformAbsPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSignedDistanceTransformAbsPBA_64f_C1R_Ctx",
+    "family": "nppiSignedDistanceTransformAbsPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSignedDistanceTransformPBA_32f64f_C1R_Ctx",
+    "family": "nppiSignedDistanceTransformPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSignedDistanceTransformPBA_32f_C1R_Ctx",
+    "family": "nppiSignedDistanceTransformPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSignedDistanceTransformPBA_64f_C1R_Ctx",
+    "family": "nppiSignedDistanceTransformPBA",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowColumnBorder_16s32f_C1R_Ctx",
+    "family": "nppiSumWindowColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowColumnBorder_16s32f_C3R_Ctx",
+    "family": "nppiSumWindowColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowColumnBorder_16s32f_C4R_Ctx",
+    "family": "nppiSumWindowColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowColumnBorder_16u32f_C1R_Ctx",
+    "family": "nppiSumWindowColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowColumnBorder_16u32f_C3R_Ctx",
+    "family": "nppiSumWindowColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowColumnBorder_16u32f_C4R_Ctx",
+    "family": "nppiSumWindowColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowColumnBorder_8u32f_C1R_Ctx",
+    "family": "nppiSumWindowColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowColumnBorder_8u32f_C3R_Ctx",
+    "family": "nppiSumWindowColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowColumnBorder_8u32f_C4R_Ctx",
+    "family": "nppiSumWindowColumnBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowColumn_16s32f_C1R_Ctx",
+    "family": "nppiSumWindowColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowColumn_16s32f_C3R_Ctx",
+    "family": "nppiSumWindowColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowColumn_16s32f_C4R_Ctx",
+    "family": "nppiSumWindowColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowColumn_16u32f_C1R_Ctx",
+    "family": "nppiSumWindowColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowColumn_16u32f_C3R_Ctx",
+    "family": "nppiSumWindowColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowColumn_16u32f_C4R_Ctx",
+    "family": "nppiSumWindowColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowColumn_8u32f_C1R_Ctx",
+    "family": "nppiSumWindowColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowColumn_8u32f_C3R_Ctx",
+    "family": "nppiSumWindowColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowColumn_8u32f_C4R_Ctx",
+    "family": "nppiSumWindowColumn",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowRowBorder_16s32f_C1R_Ctx",
+    "family": "nppiSumWindowRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowRowBorder_16s32f_C3R_Ctx",
+    "family": "nppiSumWindowRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowRowBorder_16s32f_C4R_Ctx",
+    "family": "nppiSumWindowRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowRowBorder_16u32f_C1R_Ctx",
+    "family": "nppiSumWindowRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowRowBorder_16u32f_C3R_Ctx",
+    "family": "nppiSumWindowRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowRowBorder_16u32f_C4R_Ctx",
+    "family": "nppiSumWindowRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowRowBorder_8u32f_C1R_Ctx",
+    "family": "nppiSumWindowRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowRowBorder_8u32f_C3R_Ctx",
+    "family": "nppiSumWindowRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowRowBorder_8u32f_C4R_Ctx",
+    "family": "nppiSumWindowRowBorder",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowRow_16s32f_C1R_Ctx",
+    "family": "nppiSumWindowRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowRow_16s32f_C3R_Ctx",
+    "family": "nppiSumWindowRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowRow_16s32f_C4R_Ctx",
+    "family": "nppiSumWindowRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowRow_16u32f_C1R_Ctx",
+    "family": "nppiSumWindowRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowRow_16u32f_C3R_Ctx",
+    "family": "nppiSumWindowRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowRow_16u32f_C4R_Ctx",
+    "family": "nppiSumWindowRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowRow_8u32f_C1R_Ctx",
+    "family": "nppiSumWindowRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowRow_8u32f_C3R_Ctx",
+    "family": "nppiSumWindowRow",
+    "reason": "later filtering batch / unsupported"
+   },
+   {
+    "function": "nppiSumWindowRow_8u32f_C4R_Ctx",
+    "family": "nppiSumWindowRow",
+    "reason": "later filtering batch / unsupported"
+   }
+  ]
  }
 }
