@@ -549,9 +549,38 @@ YCBCR422_FAMILIES = {
 }
 
 
+YCBCR422_SPECIAL = {
+    # function: (kind, a0, a1, a2, a3, matrix, invStyle, body-form)
+    "nppiYCrCb422ToRGB_8u_C2C3R_Ctx": ("YCrCbInvC2", 3, 0, 0, 0, "mat601v", 0, "c2"),
+    "nppiYCrCb422ToRGB_8u_C2P3R_Ctx": ("YCrCbInvP3", 0, 0, 0, 0, "mat601v", 0, "c2p3"),
+    "nppiCbYCr422ToBGR_709HDTV_8u_C2C3R_Ctx": ("CbYCr709InvC2", 3, 0, 0, 0, "mat709f", 2, "c2"),
+    "nppiCbYCr422ToBGR_709HDTV_8u_C2C4R_Ctx": ("CbYCr709InvC2", 4, 0, 0, 0x37, "mat709f", 2, "c2a"),
+    "nppiBGRToCbYCr422_709HDTV_8u_C3C2R_Ctx": ("BgrFwd709C2", 3, 1, 0, 0, "mat709f", 0, "c2"),
+    "nppiBGRToCbYCr422_709HDTV_8u_AC4C2R_Ctx": ("BgrFwd709C2", 4, 1, 0, 0, "mat709f", 0, "c2"),
+}
+
+
 def emit_ycbcr422(row: dict) -> Optional[str]:
     fn = row["function_name"]
     fam = row["family"]
+    if fn in YCBCR422_SPECIAL:
+        kind, a0, a1, a2, a3, mat, style, form = YCBCR422_SPECIAL[fn]
+        name = re.sub(r"\W", "_", fn)
+        sig = ("[](const Npp8u *const *sp, const Npp8u *ps, int ss, int *ssa, Npp8u *const *dp, Npp8u *pd, "
+               "int ds, int *dsa, NppiSize r, NppStreamContext c) ")
+        voids = ("(void)sp; (void)ps; (void)ss; (void)ssa; (void)dp; (void)pd; (void)ds; (void)dsa; "
+                 "(void)r; (void)c; ")
+        if form == "c2":
+            body = f"return {fn}(ps, ss, pd, ds, r, c);"
+        elif form == "c2a":
+            body = f"return {fn}(ps, ss, pd, ds, r, (Npp8u)0x37, c);"
+        else:
+            body = f"return {fn}(ps, ss, const_cast<Npp8u **>(dp), ds, r, c);"
+        lam = f"{sig}{{ {voids}{body} }}"
+        return (f"TEST(NumGen, {name}) {{\n"
+                f"  num::ycbcr422::run_ycbcr422(\n      \"{fn}\", num::ycbcr422::Kind::{kind}, "
+                f"&num::ycbcr422::{mat}(), {style},\n      {a0}, {a1}, {a2}, {a3},\n"
+                f"      {lam});\n}}\n")
     if fam not in YCBCR422_FAMILIES:
         return None
     path = ROOT / "src" / "nppi" / "nppi_color_conversion_operations" / f"nppi_c3_{fam}_generated.cpp"

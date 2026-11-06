@@ -86,6 +86,10 @@ enum class Kind {
   InvP3C3,    // planar source -> packed (full width, even height)
   Reorder,    // packed C2 -> packed C2 component reorder
   GammaErr,   // reference returns NPP_STEP_ERROR and writes nothing
+  YCrCbInvC2, // [Y0 Cr Y1 Cb] -> packed RGB (last-pair reuse, 601 video)
+  YCrCbInvP3, // same source -> planar RGB
+  CbYCr709InvC2, // [Cb Y0 Cr Y1] -> packed BGR/BGRA (709 full, last pair)
+  BgrFwd709C2,   // packed BGR -> [Cb Y0 Cr Y1] pairs (709 full)
 };
 
 // a0..a3: Kind::FwdC3C2/InvC2C: packed pitch, bgr, layout, ctx flags;
@@ -103,16 +107,25 @@ void run_ycbcr422(const char *id, Kind kind, const Mat *mat, int invStyle, int a
   std::string first;
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {16, 12}, {32, 24}, {64, 48}, {128, 96}, {5, 4}, {17, 13}};
+  const bool evenOnly = kind == Kind::YCrCbInvC2 || kind == Kind::YCrCbInvP3 ||
+                        kind == Kind::CbYCr709InvC2 || kind == Kind::BgrFwd709C2;
   for (const Cfg &cf : cfgs) {
+    if (evenOnly && (cf.w & 1)) continue;
     const int w = cf.w, h = cf.h;
     const int we = w & ~1;
-    const bool srcPacked = kind == Kind::FwdC3C2 || kind == Kind::FwdC3P3 || kind == Kind::GammaErr;
+    const bool srcPacked = kind == Kind::FwdC3C2 || kind == Kind::FwdC3P3 || kind == Kind::GammaErr ||
+                           kind == Kind::BgrFwd709C2;
     const bool srcPlanar = kind == Kind::FwdP3C2 || kind == Kind::InvP3C3;
-    const bool srcC2 = kind == Kind::InvC2C || kind == Kind::InvC2P3 || kind == Kind::Reorder;
-    const bool dstPackedC2 = kind == Kind::FwdC3C2 || kind == Kind::FwdP3C2 || kind == Kind::Reorder;
-    const bool dstPlanar = kind == Kind::FwdC3P3 || kind == Kind::InvC2P3;
-    const bool dstC3C4 = kind == Kind::InvC2C || kind == Kind::InvP3C3;
-    const int srcPp = kind == Kind::GammaErr ? 3 : ((kind == Kind::FwdC3C2 || kind == Kind::FwdC3P3) ? a0 : 1);
+    const bool srcC2 = kind == Kind::InvC2C || kind == Kind::InvC2P3 || kind == Kind::Reorder ||
+                       kind == Kind::YCrCbInvC2 || kind == Kind::YCrCbInvP3 || kind == Kind::CbYCr709InvC2;
+    const bool dstPackedC2 =
+        kind == Kind::FwdC3C2 || kind == Kind::FwdP3C2 || kind == Kind::Reorder || kind == Kind::BgrFwd709C2;
+    const bool dstPlanar = kind == Kind::FwdC3P3 || kind == Kind::InvC2P3 || kind == Kind::YCrCbInvP3;
+    const bool dstC3C4 = kind == Kind::InvC2C || kind == Kind::InvP3C3 || kind == Kind::YCrCbInvC2 ||
+                         kind == Kind::CbYCr709InvC2;
+    const int srcPp = kind == Kind::GammaErr ? 3
+                      : kind == Kind::BgrFwd709C2 ? a0
+                      : ((kind == Kind::FwdC3C2 || kind == Kind::FwdC3P3) ? a0 : 1);
     const uint64_t seed = case_seed(id, w, h, 0, 0, 0, 0);
     std::vector<Buf<Npp8u> *> srcs;
     if (srcPacked) {
@@ -148,7 +161,7 @@ void run_ycbcr422(const char *id, Kind kind, const Mat *mat, int invStyle, int a
       dsts.push_back(d);
       pre.push_back(d->host);
     } else if (dstC3C4) {
-      const int pp = (kind == Kind::InvC2C) ? std::max(3, a0) : 3;
+      const int pp = (kind == Kind::InvC2C || kind == Kind::CbYCr709InvC2) ? std::max(3, a0) : 3;
       Buf<Npp8u> *d = new Buf<Npp8u>(w, h, pp, 0, 0x5A);
       d->dev.copyFromHost(d->host);
       dsts.push_back(d);
@@ -345,6 +358,72 @@ void run_ycbcr422(const char *id, Kind kind, const Mat *mat, int invStyle, int a
           want[0][base + 0] = (uint8_t)(bgr ? b : r);
           want[0][base + 1] = (uint8_t)g;
           want[0][base + 2] = (uint8_t)(bgr ? r : b);
+        }
+    } else if (kind == Kind::YCrCbInvC2 || kind == Kind::CbYCr709InvC2) {
+      const int dstPp = a0;
+      const int lastPair = (w >> 1) - 1;
+      for (int y = 0; y < h; ++y)
+        for (int x = 0; x < w; ++x) {
+          int p = x >> 1;
+          if (p > lastPair) p = lastPair;
+          const Npp8u *row = srcs[0]->hptr() + (size_t)y * srcs[0]->step + (size_t)p * 4;
+          int yv, cb, cr;
+          if (kind == Kind::YCrCbInvC2) {
+            yv = row[(x & 1) ? 2 : 0];
+            cr = row[1];
+            cb = row[3];
+          } else {
+            yv = row[(x & 1) ? 3 : 1];
+            cb = row[0];
+            cr = row[2];
+          }
+          int r, g, b;
+          inv_px(invStyle, yv, cb, cr, r, g, b);
+          const size_t base = (size_t)y * dsts[0]->step + (size_t)x * dstPp;
+          if (dstPp == 4) {
+            want[0][base + 0] = (uint8_t)b;
+            want[0][base + 1] = (uint8_t)g;
+            want[0][base + 2] = (uint8_t)r;
+            want[0][base + 3] = (uint8_t)a3;
+          } else if (kind == Kind::CbYCr709InvC2) {
+            want[0][base + 0] = (uint8_t)b;
+            want[0][base + 1] = (uint8_t)g;
+            want[0][base + 2] = (uint8_t)r;
+          } else {
+            want[0][base + 0] = (uint8_t)r;
+            want[0][base + 1] = (uint8_t)g;
+            want[0][base + 2] = (uint8_t)b;
+          }
+        }
+    } else if (kind == Kind::YCrCbInvP3) {
+      const int lastPair = (w >> 1) - 1;
+      for (int y = 0; y < h; ++y)
+        for (int x = 0; x < w; ++x) {
+          int p = x >> 1;
+          if (p > lastPair) p = lastPair;
+          const Npp8u *row = srcs[0]->hptr() + (size_t)y * srcs[0]->step + (size_t)p * 4;
+          const int yv = row[(x & 1) ? 2 : 0];
+          const int cr = row[1];
+          const int cb = row[3];
+          int r, g, b;
+          inv_px(invStyle, yv, cb, cr, r, g, b);
+          want[0][(size_t)y * dsts[0]->step + (size_t)x] = (uint8_t)r;
+          want[1][(size_t)y * dsts[1]->step + (size_t)x] = (uint8_t)g;
+          want[2][(size_t)y * dsts[2]->step + (size_t)x] = (uint8_t)b;
+        }
+    } else if (kind == Kind::BgrFwd709C2) {
+      for (int y = 0; y < h; ++y)
+        for (int p = 0; p < (w >> 1); ++p) {
+          int r0, g0, b0, r1, g1, b1, Y0, Cb0, Cr0, Y1, Cb1, Cr1;
+          srcPx(2 * p, y, r0, g0, b0);
+          srcPx(2 * p + 1, y, r1, g1, b1);
+          fwd_px(*mat, r0, g0, b0, Y0, Cb0, Cr0);
+          fwd_px(*mat, r1, g1, b1, Y1, Cb1, Cr1);
+          const size_t base = (size_t)y * dsts[0]->step + (size_t)p * 4;
+          want[0][base + 0] = (uint8_t)((Cb0 + Cb1) >> 1);
+          want[0][base + 1] = (uint8_t)Y0;
+          want[0][base + 2] = (uint8_t)((Cr0 + Cr1) >> 1);
+          want[0][base + 3] = (uint8_t)Y1;
         }
     } else {  // Reorder [Y0 Cb Y1 Cr] -> [Cb Y0 Cr Y1]
       for (int y = 0; y < h; ++y)

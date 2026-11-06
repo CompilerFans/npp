@@ -130,21 +130,11 @@
   ]
  },
  "nppi_color_conversion.h": {
-  "emitted": 451,
+  "emitted": 457,
   "skipped": [
    {
     "function": "nppiAlphaCompColorKey_8u_AC4R_Ctx",
     "family": "nppiAlphaCompColorKey",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiBGRToCbYCr422_709HDTV_8u_AC4C2R_Ctx",
-    "family": "nppiBGRToCbYCr422_709HDTV",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiBGRToCbYCr422_709HDTV_8u_C3C2R_Ctx",
-    "family": "nppiBGRToCbYCr422_709HDTV",
     "reason": "later color batch / unsupported"
    },
    {
@@ -210,16 +200,6 @@
    {
     "function": "nppiCMYKOrYCCKToRGB_JPEG_8u_P4P3R_Ctx",
     "family": "nppiCMYKOrYCCKToRGB_JPEG",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiCbYCr422ToBGR_709HDTV_8u_C2C3R_Ctx",
-    "family": "nppiCbYCr422ToBGR_709HDTV",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiCbYCr422ToBGR_709HDTV_8u_C2C4R_Ctx",
-    "family": "nppiCbYCr422ToBGR_709HDTV",
     "reason": "later color batch / unsupported"
    },
    {
@@ -475,16 +455,6 @@
    {
     "function": "nppiYCrCb420ToYCbCr420_8u_P3P2R_Ctx",
     "family": "nppiYCrCb420ToYCbCr420",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCrCb422ToRGB_8u_C2C3R_Ctx",
-    "family": "nppiYCrCb422ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCrCb422ToRGB_8u_C2P3R_Ctx",
-    "family": "nppiYCrCb422ToRGB",
     "reason": "later color batch / unsupported"
    },
    {
