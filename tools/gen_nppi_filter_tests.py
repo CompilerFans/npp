@@ -210,6 +210,32 @@ def emit_generic(row: dict) -> Optional[str]:
     return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
 
 
+SUMW_RE = r"nppiSumWindow(Row|Column)(Border)?_(8u|16u|16s)32f_(C1R|C3R|C4R)_Ctx$"
+SUMW_SRC = {"8u": "Npp8u", "16u": "Npp16u", "16s": "Npp16s"}
+
+
+def emit_sumwindow(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    m = re.match(SUMW_RE, fn)
+    if not m:
+        return None
+    orient, border, dt, lay = m.group(1), m.group(2) is not None, m.group(3), m.group(4)
+    src = SUMW_SRC[dt]
+    c = LAYOUT[lay][0]
+    name = re.sub(r"\W", "_", fn)
+    if border:
+        body = (f"return {fn}(sp, ss, srcSize, off, dp, ds, roi, mask, anchor, "
+                f"NPP_BORDER_REPLICATE, ctx);")
+    else:
+        body = f"return {fn}(sp, ss, dp, ds, roi, mask, anchor, ctx);"
+    lam = (f"[](const {src} *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, "
+           f"NppiPoint off, int mask, int anchor, int border, NppStreamContext ctx) "
+           f"{{ (void)srcSize; (void)off; (void)border; {body} }}")
+    prefix = (f"num::filtsum::run_sumwindow<{src}, {c}, {'true' if orient == 'Row' else 'false'}, "
+              f"{'true' if border else 'false'}>")
+    return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -220,7 +246,7 @@ def main() -> int:
     skipped: List[dict] = []
     for row in rows:
         text = (emit_fixed(row) or emit_deriv(row) or emit_gauss(row) or emit_window(row)
-                or emit_generic(row))
+                or emit_generic(row) or emit_sumwindow(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
@@ -232,7 +258,8 @@ def main() -> int:
               "#include \"num_nppi_filter_deriv.h\"\n\n"
               "#include \"num_nppi_filter_gauss.h\"\n\n"
               "#include \"num_nppi_filter_window.h\"\n\n"
-              "#include \"num_nppi_filter_generic.h\"\n\n")
+              "#include \"num_nppi_filter_generic.h\"\n\n"
+              "#include \"num_nppi_filter_sumwindow.h\"\n\n")
     if args.emit:
         DEST.write_text(header + "\n".join(out))
         prev = {}
