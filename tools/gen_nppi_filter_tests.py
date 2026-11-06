@@ -20,7 +20,8 @@ REPORT = ROOT / "test" / "unit" / "num" / "generated_report.json"
 
 DT = {"8u": ("Npp8u", "Npp8u"), "16u": ("Npp16u", "Npp16u"),
       "16s": ("Npp16s", "Npp16s"), "32f": ("Npp32f", "Npp32f"),
-      "8u16s": ("Npp8u", "Npp16s"), "8s16s": ("Npp8s", "Npp16s")}
+      "8u16s": ("Npp8u", "Npp16s"), "8s16s": ("Npp8s", "Npp16s"),
+      "64f": ("Npp64f", "Npp64f")}
 LAYOUT = {"C1R": (1, 1), "C3R": (3, 3), "C4R": (4, 4), "AC4R": (4, 3)}
 
 FIXED_OPS = {"HighPass": "kHighPass", "LowPass": "kLowPass",
@@ -120,6 +121,38 @@ def emit_gauss(row: dict) -> Optional[str]:
     return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
 
 
+BOX_RE = r"nppiFilter(BoxBorderAdvanced|BoxBorder|Box)_(\w+)_(C1R|C3R|C4R|AC4R)_Ctx$"
+
+
+def emit_box(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    m = re.match(BOX_RE, fn)
+    if not m:
+        return None
+    fam, dt, lay = m.group(1), m.group(2), m.group(3)
+    if dt not in DT or lay not in LAYOUT:
+        return None
+    src, dst = DT[dt]
+    c, a = LAYOUT[lay]
+    adv = fam == "BoxBorderAdvanced"
+    border = fam != "Box"
+    name = re.sub(r"\W", "_", fn)
+    if adv:
+        body = (f"return {fn}(sp, ss, srcSize, off, dp, ds, roi, mask, anchor, "
+                f"(NppiBorderType)mode, pbuf, ctx);")
+    elif border:
+        body = (f"return {fn}(sp, ss, srcSize, off, dp, ds, roi, mask, anchor, "
+                f"(NppiBorderType)mode, ctx);")
+    else:
+        body = f"return {fn}(sp, ss, dp, ds, roi, mask, anchor, ctx);"
+    lam = (f"[](const {src} *sp, int ss, {dst} *dp, int ds, NppiSize roi, NppiSize srcSize, "
+           f"NppiPoint off, NppiSize mask, NppiPoint anchor, int mode, Npp8u *pbuf, "
+           f"NppStreamContext ctx) {{ (void)srcSize; (void)off; (void)mode; (void)pbuf; {body} }}")
+    prefix = (f"num::filtwin::run_window<{src}, {c}, {a}, num::filtwin::kBox, "
+              f"{'true' if border else 'false'}, {'true' if adv else 'false'}>")
+    return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -129,7 +162,7 @@ def main() -> int:
     out: List[str] = []
     skipped: List[dict] = []
     for row in rows:
-        text = emit_fixed(row) or emit_deriv(row) or emit_gauss(row)
+        text = emit_fixed(row) or emit_deriv(row) or emit_gauss(row) or emit_box(row)
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
@@ -139,7 +172,8 @@ def main() -> int:
               "// module: nppi_filtering_functions.h\n"
               "#include \"num_nppi_filter_fixed.h\"\n\n"
               "#include \"num_nppi_filter_deriv.h\"\n\n"
-              "#include \"num_nppi_filter_gauss.h\"\n\n")
+              "#include \"num_nppi_filter_gauss.h\"\n\n"
+              "#include \"num_nppi_filter_window.h\"\n\n")
     if args.emit:
         DEST.write_text(header + "\n".join(out))
         prev = {}
