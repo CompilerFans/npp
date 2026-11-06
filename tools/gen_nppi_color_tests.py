@@ -147,7 +147,7 @@ def emit_twist(row: dict) -> Optional[str]:
     if "Batch" in fn or not fn.startswith("nppiColorTwist"):
         return None
     name = re.sub(r"\W", "_", fn)
-    m = re.search(r"_(8u|8s|16u|16s|16f|32f)_", fn)
+    m = re.search(r"_(8u|8s|16u|16s|16f|32f)C?_", fn)
     if m is None:
         return None
     S = CTW.get(m.group(1))
@@ -381,6 +381,182 @@ def emit_yuv(row: dict) -> Optional[str]:
     return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
 
 
+
+HLS_LAYOUTS = {
+    "AC4P4R": (False, 4, True, 4), "AC4R": (False, 4, False, 4),
+    "AP4C4R": (True, 4, False, 4), "AP4R": (True, 4, True, 4),
+    "C3P3R": (False, 3, True, 3), "P3C3R": (True, 3, False, 3),
+    "P3R": (True, 3, True, 3),
+}
+
+
+def emit_hls_layout(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    fam = row["family"]
+    if fam not in ("nppiBGRToHLS", "nppiHLSToBGR"):
+        return None
+    m = re.match(r"nppi(?:BGRToHLS|HLSToBGR)_8u_(\w+?)_Ctx$", fn)
+    if not m:
+        return None
+    tok = m.group(1)
+    if tok not in HLS_LAYOUTS:
+        return None
+    spl, sc, dpl, dc = HLS_LAYOUTS[tok]
+    kind = "BGR2HLS" if fam == "nppiBGRToHLS" else "HLS2BGR"
+    name = re.sub(r"\W", "_", fn)
+    lam = ("[](const Npp8u *const *sp, const Npp8u *ps, int ss, Npp8u *const *dp, Npp8u *pd, int ds, "
+           "NppiSize r, NppStreamContext c) "
+           "{ (void)sp; (void)ps; (void)ss; (void)dp; (void)pd; (void)ds; (void)r; (void)c; "
+           f"return {fn}(")
+    if spl and dpl:
+        lam += "sp, ss, const_cast<Npp8u **>(dp), ds, r, c); }"
+    elif spl:
+        lam += "sp, ss, pd, ds, r, c); }"
+    elif dpl:
+        lam += "ps, ss, const_cast<Npp8u **>(dp), ds, r, c); }"
+    else:
+        lam += "ps, ss, pd, ds, r, c); }"
+    prefix = (f"num::hls::run_hls_layout<num::hls::HKind::{kind}, {str(spl).lower()}, {sc}, "
+              f"{str(dpl).lower()}, {dc}>")
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
+
+CS_KIND = {"nppiRGBToXYZ": "RGB2XYZ", "nppiXYZToRGB": "XYZ2RGB",
+           "nppiRGBToLUV": "RGB2LUV", "nppiLUVToRGB": "LUV2RGB",
+           "nppiRGBToYCC": "RGB2YCC", "nppiYCCToRGB": "YCC2RGB"}
+
+
+def emit_cs(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    fam = row["family"]
+    if fam in CS_KIND:
+        m = re.search(r"_(C3|AC4)R_Ctx$", fn)
+        if not m:
+            return None
+        ac4 = m.group(1) == "AC4"
+        name = re.sub(r"\W", "_", fn)
+        lam = (f"[](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) "
+               f"{{ (void)sa; (void)ds; (void)r; (void)c; return {fn}(a, sa, d, ds, r, c); }}")
+        prefix = f"num::cs::run_cs<num::cs::CS::{CS_KIND[fam]}, {str(ac4).lower()}>"
+        return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+    if fam in ("nppiBGRToLab", "nppiLabToBGR"):
+        m = re.search(r"_8u_C3R_Ctx$", fn)
+        if not m:
+            return None
+        kind = "BGR2Lab" if fam == "nppiBGRToLab" else "Lab2BGR"
+        name = re.sub(r"\W", "_", fn)
+        lam = (f"[](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) "
+               f"{{ (void)sa; (void)ds; (void)r; (void)c; return {fn}(a, sa, d, ds, r, c); }}")
+        prefix = f"num::cs::run_lab<num::cs::LabDir::{kind}>"
+        return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+    return None
+
+
+
+def emit_cfa(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    fam = row["family"]
+    if fam not in ("nppiCFAToRGB", "nppiCFAToRGBA"):
+        return None
+    m = re.match(r"nppiCFAToRGBA?_(8u|16u|32u)_C1(C3|AC4)R_Ctx$", fn)
+    if not m:
+        return None
+    S = {"8u": "Npp8u", "16u": "Npp16u", "32u": "Npp32u"}[m.group(1)]
+    out_c = 3 if m.group(2) == "C3" else 4
+    name = re.sub(r"\W", "_", fn)
+    if fam == "nppiCFAToRGB":
+        lam = (f"[](const {S} *a, int ss, NppiSize sz, NppiRect roi, {S} *d, int ds, int grid, "
+               f"unsigned alpha, NppStreamContext c) "
+               f"{{ (void)alpha; (void)ss; (void)sz; (void)roi; (void)ds; (void)grid; (void)c; "
+               f"return {fn}(a, ss, sz, roi, d, ds, (NppiBayerGridPosition)grid, "
+               f"(NppiInterpolationMode)NPPI_INTER_UNDEFINED, c); }}")
+    else:
+        lam = (f"[](const {S} *a, int ss, NppiSize sz, NppiRect roi, {S} *d, int ds, int grid, "
+               f"unsigned alpha, NppStreamContext c) "
+               f"{{ (void)ss; (void)sz; (void)roi; (void)ds; (void)grid; (void)c; "
+               f"return {fn}(a, ss, sz, roi, d, ds, (NppiBayerGridPosition)grid, "
+               f"(NppiInterpolationMode)NPPI_INTER_UNDEFINED, ({S})alpha, c); }}")
+    prefix = f"num::cfa::run_cfa<{S}, {out_c}>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
+
+def emit_nv12(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    fam = row["family"]
+    name = re.sub(r"\W", "_", fn)
+    if fam in ("nppiNV12ToRGB", "nppiNV12ToBGR", "nppiNV12ToRGB_709CSC",
+               "nppiNV12ToRGB_709HDTV", "nppiNV12ToBGR_709CSC", "nppiNV12ToBGR_709HDTV",
+               "nppiNV21ToRGB", "nppiNV21ToBGR"):
+        if "_ColorTwist32f_" in fn:
+            return None
+        m = re.search(r"_(8u|16u)_P2C(3|4)R_Ctx$", fn)
+        if not m:
+            return None
+        if "NV21" in fn:
+            var = "NV21_FIXED"
+        elif "709CSC" in fn:
+            var = "NV12_709_CSC"
+        elif "709" in fn:
+            var = "NV12_709"
+        else:
+            var = "NV12_601"
+        order = "BGR" if "BGR" in fn else "RGB"
+        dstc = int(m.group(2))
+        lam = ("[](const Npp8u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppStreamContext c) "
+               "{ (void)ss; (void)ds; (void)r; (void)c; "
+               f"return {fn}(sp, ss, d, ds, r, c); }}")
+        prefix = f"num::nv12::run_nv12_to_rgb<num::nv12::Var::{var}, num::nv12::OutOrder::{order}, {dstc}>"
+        return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+    if fam == "nppiNV12ToYUV420":
+        m = re.search(r"_8u_P2P3R_Ctx$", fn)
+        if not m:
+            return None
+        lam = ("[](const Npp8u *const *sp, int ss, Npp8u *const *dp, int *dss, NppiSize r, "
+               "NppStreamContext c) "
+               "{ (void)ss; (void)dss; (void)r; (void)c; "
+               f"return {fn}(sp, ss, const_cast<Npp8u **>(dp), dss, r, c); }}")
+        return (f"TEST(NumGen, {name}) {{\n  num::nv12::run_nv12_to_yuv420(\n      \"{fn}\",\n"
+                f"      {lam});\n}}\n")
+    return None
+
+
+
+def emit_nv12_twist(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    if "ColorTwist32f" not in fn:
+        return None
+    m = re.search(r"_(8u|16u)_ColorTwist32f_", fn)
+    if not m:
+        return None
+    S = {"8u": "Npp8u", "16u": "Npp16u"}[m.group(1)]
+    name = re.sub(r"\W", "_", fn)
+    if "RGBToNV12" in fn:
+        planar = "P3P2R" in fn
+        if planar:
+            lam = (f"[](const {S} *const *sp, int *ss, {S} *const *dp, int *ds, NppiSize r, const float *tw, "
+                   f"NppStreamContext c) "
+                   f"{{ (void)ss; (void)ds; (void)r; (void)tw; (void)c; "
+                   f"return {fn}(sp, ss, const_cast<{S} **>(dp), ds, r, (const Npp32f (*)[4])tw, c); }}")
+            prefix = f"num::nv12::run_rgb_twist_to_nv12<{S}, true>"
+        else:
+            lam = (f"[](const {S} *sp, int ss, {S} *const *dp, int *ds, NppiSize r, const float *tw, "
+                   f"NppStreamContext c) "
+                   f"{{ (void)ss; (void)ds; (void)r; (void)tw; (void)c; "
+                   f"return {fn}(sp, ss, const_cast<{S} **>(dp), ds, r, (const Npp32f (*)[4])tw, c); }}")
+            prefix = f"num::nv12::run_rgb_twist_to_nv12<{S}, false>"
+        return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+    if "NV12ToRGB" in fn:
+        lam = (f"[](const {S} *const *sp, int *ss, {S} *d, int ds, NppiSize r, const float *tw, "
+               f"NppStreamContext c) "
+               f"{{ (void)ss; (void)ds; (void)r; (void)tw; (void)c; "
+               f"return {fn}(sp, ss, d, ds, r, (const Npp32f (*)[4])tw, c); }}")
+        prefix = f"num::nv12::run_nv12_twist_to_rgb<{S}>"
+        return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+    return None
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -395,7 +571,8 @@ def main() -> int:
         text = (emit_lut(row) if fam in MODE
                 else emit_lut_palette(row) or emit_twist(row) or emit_twist_batch(row)
                 or emit_gamma(row) or emit_gray(row) or emit_gradient(row) or emit_hls(row)
-                or emit_yuv(row))
+                or emit_hls_layout(row) or emit_yuv(row) or emit_cs(row) or emit_cfa(row)
+                or emit_nv12(row) or emit_nv12_twist(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
                                 reason="later color batch / unsupported"))
@@ -407,7 +584,10 @@ def main() -> int:
               "#include \"num_nppi_color_twist.h\"\n"
               "#include \"num_nppi_color_cvt.h\"\n"
               "#include \"num_nppi_hls.h\"\n"
-              "#include \"num_nppi_yuv.h\"\n\n")
+              "#include \"num_nppi_yuv.h\"\n"
+              "#include \"num_nppi_colorspace.h\"\n"
+              "#include \"num_nppi_cfa.h\"\n"
+              "#include \"num_nppi_nv12.h\"\n\n")
     dest = Path(args.out) if args.out else ROOT / "test" / "unit" / "num" / "test_gen_nppi_color.cpp"
     if args.emit:
         dest.write_text(header + "\n".join(out))

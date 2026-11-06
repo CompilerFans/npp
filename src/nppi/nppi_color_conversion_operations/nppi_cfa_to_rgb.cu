@@ -1,4 +1,5 @@
 #include "npp.h"
+#include "nppi_cfa_executor.h"
 #include <cuda_runtime.h>
 
 
@@ -195,35 +196,19 @@ extern "C" {
 NppStatus nppiCFAToRGB_8u_C1C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI,
                                          Npp8u *pDst, int nDstStep, NppiBayerGridPosition eGrid,
                                          NppiInterpolationMode eInterpolation, NppStreamContext nppStreamCtx) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSrcROI.width + blockSize.x - 1) / blockSize.x, (oSrcROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiCFAToRGB_bilinear_kernel<Npp8u>
-      <<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, oSrcSize, oSrcROI, pDst, nDstStep, eGrid);
-
-  cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_SUCCESS;
+  // The legacy bilinear kernel did not reproduce the measured
+  // chroma-correlated demosaic; use the shared executor.
+  return nppi::cfa::cfaToRgb(pSrc, nSrcStep, oSrcSize, oSrcROI, pDst, nDstStep, eGrid, eInterpolation,
+                             nppStreamCtx.hStream);
 }
 
 // 16-bit unsigned implementation
 NppStatus nppiCFAToRGB_16u_C1C3R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI,
                                           Npp16u *pDst, int nDstStep, NppiBayerGridPosition eGrid,
                                           NppiInterpolationMode eInterpolation, NppStreamContext nppStreamCtx) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSrcROI.width + blockSize.x - 1) / blockSize.x, (oSrcROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiCFAToRGB_bilinear_kernel<Npp16u>
-      <<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, oSrcSize, oSrcROI, pDst, nDstStep, eGrid);
-
-  cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_SUCCESS;
+  // The legacy bilinear kernel did not reproduce the measured
+  // chroma-correlated demosaic; use the shared executor.
+  return nppi::cfa::cfaToRgb(pSrc, nSrcStep, oSrcSize, oSrcROI, pDst, nDstStep, eGrid, eInterpolation,
+                             nppStreamCtx.hStream);
 }
 }

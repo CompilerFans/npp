@@ -530,10 +530,9 @@ TEST_F(NV12ToBGRTest, NV21ToBGR_CtxParameterContract) {
 }
 
 #ifndef USE_NVIDIA_NPP_TESTS
-// The plain NV12 path implements BT.601 limited range (Y 16..235,
-// Cb/Cr 16..240).  Keep that model stable: NVIDIA NPP 13's plain entry point
-// uses full-range luma instead, so this test is intentionally MPP-only.
-TEST_F(NV12ToBGRTest, NV12ToBGR_UsesBt601LimitedRange) {
+// Measured NVIDIA NPP 13.4 behavior: the plain NV12 path applies the
+// FULL-RANGE BT.601 matrix (no 16/128 studio offsets) and rounds half up.
+TEST_F(NV12ToBGRTest, NV12ToBGR_UsesBt601FullRange) {
   const int W = 8;
   const int H = 8;
   Npp8u *dY = nullptr;
@@ -563,11 +562,11 @@ TEST_F(NV12ToBGRTest, NV12ToBGR_UsesBt601LimitedRange) {
   struct Case {
     int y, u, v, b, g, r;
   } cases[] = {
-      {16, 128, 128, 0, 0, 0},
-      {128, 128, 128, 130, 130, 130},
-      {235, 128, 128, 255, 255, 255},
-      {128, 0, 128, 0, 181, 130},
-      {128, 128, 192, 130, 78, 233},
+      {16, 128, 128, 16, 16, 16},
+      {128, 128, 128, 128, 128, 128},
+      {235, 128, 128, 235, 235, 235},
+      {128, 0, 128, 0, 179, 128},
+      {128, 128, 192, 128, 91, 201},
   };
   for (const auto &c : cases) {
     Npp8u out[3] = {0, 0, 0};
@@ -611,7 +610,38 @@ TEST_F(NV12ToBGRTest, NV12ToBGR_709HDTVMatchesCSC) {
   std::vector<Npp8u> cscHost(hdtvHost.size());
   ASSERT_EQ(cudaMemcpy(hdtvHost.data(), hdtv, hdtvHost.size(), cudaMemcpyDeviceToHost), cudaSuccess);
   ASSERT_EQ(cudaMemcpy(cscHost.data(), csc, cscHost.size(), cudaMemcpyDeviceToHost), cudaSuccess);
-  EXPECT_EQ(std::memcmp(hdtvHost.data(), cscHost.data(), hdtvHost.size()), 0);
+
+  // NPP 13.4 distinguishes the two: HDTV uses the full-range BT.709 matrix,
+  // CSC the studio-range one.  Verify both models and that they differ.
+  auto roundClamp = [](float v) {
+    float r = std::floor(v + 0.5f);
+    return (Npp8u)(r < 0.0f ? 0.0f : (r > 255.0f ? 255.0f : r));
+  };
+  bool anyDifferent = false;
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      const int yi = y * width + x;
+      const int uvi = (y / 2) * width + (x & ~1);
+      const float Y = (float)hostY[yi];
+      const float U = (float)hostUV[uvi] - 128.0f;
+      const float V = (float)hostUV[uvi + 1] - 128.0f;
+      const int o = (y * width + x) * 3;
+      const float hb = Y + 2.125f * U, hg = Y - 0.2109375f * U - 0.3828125f * V, hr = Y + 1.28125f * V;
+      const float yc = Y - 16.0f;
+      const float cb = 1.164f * yc + 2.112f * U, cg = 1.164f * yc - 0.213f * U - 0.533f * V,
+                  cr = 1.164f * yc + 1.793f * V;
+      EXPECT_NEAR(hdtvHost[(size_t)o + 0], roundClamp(hb), 1) << "HDTV B at " << x << "," << y;
+      EXPECT_NEAR(hdtvHost[(size_t)o + 1], roundClamp(hg), 1) << "HDTV G at " << x << "," << y;
+      EXPECT_NEAR(hdtvHost[(size_t)o + 2], roundClamp(hr), 1) << "HDTV R at " << x << "," << y;
+      EXPECT_NEAR(cscHost[(size_t)o + 0], roundClamp(cb), 1) << "CSC B at " << x << "," << y;
+      EXPECT_NEAR(cscHost[(size_t)o + 1], roundClamp(cg), 1) << "CSC G at " << x << "," << y;
+      EXPECT_NEAR(cscHost[(size_t)o + 2], roundClamp(cr), 1) << "CSC R at " << x << "," << y;
+      if (std::abs((int)hdtvHost[(size_t)o] - (int)cscHost[(size_t)o]) > 2 ||
+          std::abs((int)hdtvHost[(size_t)o + 1] - (int)cscHost[(size_t)o + 1]) > 2)
+        anyDifferent = true;
+    }
+  }
+  EXPECT_TRUE(anyDifferent);
 
   cudaFree(dY);
   cudaFree(dUV);

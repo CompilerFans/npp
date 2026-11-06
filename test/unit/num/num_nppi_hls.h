@@ -180,5 +180,180 @@ void run_hls(const char *id, Call call) {
   finish(id, cnt, first);
 }
 
+
+// ---------------------------------------------------------------------------
+// BGR <-> HLS with planar / cross layouts.  SrcC/DstC are 3 or 4 (4 = alpha
+// plane).  Packed 4-channel destinations either keep their previous alpha
+// (packed -> packed) or receive the source alpha (planar source); planar
+// destinations copy the source alpha into their fourth plane.
+// ---------------------------------------------------------------------------
+enum class HKind { BGR2HLS, HLS2BGR };
+
+template <HKind K, bool SrcPlanar, int SrcC, bool DstPlanar, int DstC, class Call>
+void run_hls_layout(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  for (const GenCase &c : make_gen_cases(0)) {
+    if (c.w < 2 || c.h < 2) continue;
+    std::vector<Buf<Npp8u> *> srcs, dsts;
+    std::vector<std::vector<uint8_t>> pre, orig;
+    const uint64_t seed = case_seed(id, c.w, c.h, c.pad, 0, (int)c.regime, 0);
+    if constexpr (SrcPlanar) {
+      planar_fill_src(srcs, SrcC, c.w, c.h, c.ox, c.oy, c.pad, seed, c.regime);
+    } else {
+      Buf<Npp8u> *a = new Buf<Npp8u>(c.w + c.ox, c.h + c.oy, SrcC, c.pad, 0);
+      fill_regime(*a, SrcC, seed, c.regime, 0, false, false, false);
+      a->dev.copyFromHost(a->host);
+      srcs.push_back(a);
+    }
+    const int dn = DstPlanar ? DstC : 1;
+    for (int p = 0; p < dn; ++p) {
+      Buf<Npp8u> *d = new Buf<Npp8u>(c.w, c.h, DstPlanar ? 1 : DstC, 0, 0x5A);
+      d->dev.copyFromHost(d->host);
+      dsts.push_back(d);
+      pre.push_back(d->host);
+    }
+    const Npp8u *hsrcp[4] = {nullptr, nullptr, nullptr, nullptr};
+    const Npp8u *dsrcp[4] = {nullptr, nullptr, nullptr, nullptr};
+    Npp8u *ddstp[4] = {nullptr, nullptr, nullptr, nullptr};
+    const Npp8u *hpacked = nullptr;
+    const Npp8u *dpacked = nullptr;
+    Npp8u *dpackedOut = nullptr;
+    if constexpr (SrcPlanar) {
+      for (int p = 0; p < SrcC; ++p) {
+        hsrcp[p] = srcs[(size_t)p]->hptr() + off_bytes<Npp8u>(c.oy, c.ox, srcs[(size_t)p]->step, 1);
+        dsrcp[p] = srcs[(size_t)p]->dptr() + off_bytes<Npp8u>(c.oy, c.ox, srcs[(size_t)p]->step, 1);
+      }
+    } else {
+      hpacked = srcs[0]->hptr() + off_bytes<Npp8u>(c.oy, c.ox, srcs[0]->step, SrcC);
+      dpacked = srcs[0]->dptr() + off_bytes<Npp8u>(c.oy, c.ox, srcs[0]->step, SrcC);
+    }
+    if constexpr (DstPlanar) {
+      for (int p = 0; p < DstC; ++p) ddstp[p] = dsts[(size_t)p]->dptr();
+    } else {
+      dpackedOut = dsts[0]->dptr();
+    }
+    const int sstep = srcs[0]->step;
+    const int dstep = dsts[0]->step;
+    npp_diff::clear_cuda_error();
+    NppStatus st;
+    if constexpr (SrcPlanar && DstPlanar) {
+      st = call(dsrcp, nullptr, sstep, ddstp, nullptr, dstep, NppiSize{c.w, c.h}, ctx);
+    } else if constexpr (SrcPlanar) {
+      st = call(dsrcp, nullptr, sstep, nullptr, dpackedOut, dstep, NppiSize{c.w, c.h}, ctx);
+    } else if constexpr (DstPlanar) {
+      st = call(nullptr, dpacked, sstep, ddstp, nullptr, dstep, NppiSize{c.w, c.h}, ctx);
+    } else {
+      st = call(nullptr, dpacked, sstep, nullptr, dpackedOut, dstep, NppiSize{c.w, c.h}, ctx);
+    }
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      for (auto *p : srcs) delete p;
+      for (auto *p : dsts) delete p;
+      continue;
+    }
+    const cudaError_t se = cudaDeviceSynchronize();
+    ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+    ++cnt.executed;
+    bool failed = false;
+    if constexpr (DstPlanar) {
+      for (int p = 0; p < DstC && !failed; ++p) {
+        dsts[(size_t)p]->dev.copyToHost(dsts[(size_t)p]->host);
+        std::vector<uint8_t> want = pre[(size_t)p];
+        for (int y = 0; y < c.h; ++y)
+          for (int x = 0; x < c.w; ++x) {
+            Npp8u a0, a1, a2;
+            if constexpr (SrcPlanar) {
+              const size_t so = (size_t)y * sstep + (size_t)x;
+              a0 = hsrcp[0][so];
+              a1 = hsrcp[1][so];
+              a2 = hsrcp[2][so];
+            } else {
+              const size_t so = (size_t)y * sstep + (size_t)x * SrcC;
+              a0 = hpacked[so];
+              a1 = hpacked[so + 1];
+              a2 = hpacked[so + 2];
+            }
+            Npp8u o0, o1, o2;
+            if constexpr (K == HKind::BGR2HLS) {
+              rgb_to_hls(a2, a1, a0, o0, o1, o2);  // packed order is B,G,R
+            } else {
+              hls_to_rgb(a0, a1, a2, o0, o1, o2);
+              const Npp8u t = o0;  // planes are B,G,R
+              o0 = o2;
+              o2 = t;
+            }
+            const size_t db = (size_t)y * dstep + (size_t)x;
+            if (p == 0) want[db] = o0;
+            else if (p == 1) want[db] = o1;
+            else if (p == 2) want[db] = o2;
+            else {
+              if constexpr (SrcC == 4) {
+                if constexpr (SrcPlanar) want[db] = hsrcp[3][(size_t)y * sstep + (size_t)x];
+                else want[db] = hpacked[(size_t)y * sstep + (size_t)x * SrcC + 3];
+              }
+            }
+          }
+        const GenCase dc{c.w, c.h, 0, 0, 0, kSmall, 0};
+        if (!rotate_check<Npp8u, 1, 1>(id, dc, NPPI_INTER_NN, pre[(size_t)p], dsts[(size_t)p]->host, want,
+                                       dsts[(size_t)p]->step, std::vector<uint8_t>(), cnt, first))
+          failed = true;
+      }
+    } else {
+      dsts[0]->dev.copyToHost(dsts[0]->host);
+      std::vector<uint8_t> want = pre[0];
+      for (int y = 0; y < c.h; ++y)
+        for (int x = 0; x < c.w; ++x) {
+          Npp8u a0, a1, a2;
+          if constexpr (SrcPlanar) {
+            const size_t so = (size_t)y * sstep + (size_t)x;
+            a0 = hsrcp[0][so];
+            a1 = hsrcp[1][so];
+            a2 = hsrcp[2][so];
+          } else {
+            const size_t so = (size_t)y * sstep + (size_t)x * SrcC;
+            a0 = hpacked[so];
+            a1 = hpacked[so + 1];
+            a2 = hpacked[so + 2];
+          }
+          Npp8u o0, o1, o2;
+          if constexpr (K == HKind::BGR2HLS) {
+            rgb_to_hls(a2, a1, a0, o0, o1, o2);
+          } else {
+            hls_to_rgb(a0, a1, a2, o0, o1, o2);
+            // BGR output order: channel 0 = B (converted b), 2 = R.
+            const Npp8u t = o0;
+            o0 = o2;
+            o2 = t;
+          }
+          const size_t db = off_bytes<Npp8u>(y, x, dstep, DstC);
+          want[db] = o0;
+          want[db + 1] = o1;
+          want[db + 2] = o2;
+          if constexpr (DstC == 4) {
+            if constexpr (SrcPlanar) {
+              if constexpr (SrcC == 4) want[db + 3] = hsrcp[3][(size_t)y * sstep + (size_t)x];
+            }
+          }
+        }
+      const GenCase dc{c.w, c.h, 0, 0, 0, kSmall, 0};
+      constexpr int atA = (DstC == 4 && SrcPlanar) ? 4 : (DstC == 4 ? 3 : 3);
+      if (!rotate_check<Npp8u, DstC, atA>(id, dc, NPPI_INTER_NN, pre[0], dsts[0]->host, want, dstep,
+                                          std::vector<uint8_t>(), cnt, first))
+        failed = true;
+    }
+    for (auto *p : srcs) delete p;
+    for (auto *p : dsts) delete p;
+    if (failed || cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
 }  // namespace hls
 }  // namespace num

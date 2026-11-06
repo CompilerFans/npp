@@ -9,6 +9,9 @@ cudaError_t nppiNV12ToRGB_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, con
 
 cudaError_t nppiNV12ToRGB_709CSC_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV, int nSrcUVStep,
                                                  Npp8u *pDst, int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
+cudaError_t nppiNV12ToRGB_709HDTV_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV,
+                                                  int nSrcUVStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                                  cudaStream_t stream);
 
 cudaError_t nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV,
                                                         int nSrcUVStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
@@ -19,6 +22,9 @@ cudaError_t nppiNV12ToBGR_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, con
 
 cudaError_t nppiNV12ToBGR_709CSC_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV, int nSrcUVStep,
                                                  Npp8u *pDst, int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
+cudaError_t nppiNV12ToBGR_709HDTV_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV,
+                                                  int nSrcUVStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                                  cudaStream_t stream);
 
 cudaError_t nppiNV21ToRGB_8u_P2C4R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcVU, int nSrcVUStep,
                                           Npp8u *pDst, int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
@@ -127,7 +133,14 @@ NppStatus nppiNV12ToRGB_709CSC_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep
 
 NppStatus nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  if (!pSrc || !pSrc[0] || !pSrc[1] || !pDst) return NPP_NULL_POINTER_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width % 2 != 0) return NPP_SIZE_ERROR;
+  if (rSrcStep <= 0 || nDstStep <= 0) return NPP_STEP_ERROR;
+  if (nDstStep < oSizeROI.width * 3) return NPP_STEP_ERROR;
+  cudaError_t st = nppiNV12ToRGB_709HDTV_8u_P2C3R_kernel(pSrc[0], rSrcStep, pSrc[1], rSrcStep, pDst, nDstStep,
+                                                         oSizeROI, nppStreamCtx.hStream);
+  return st == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiNV12ToRGB_709HDTV_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
@@ -379,7 +392,14 @@ NppStatus nppiNV21ToBGR_8u_P2C4R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u
 
 NppStatus nppiNV12ToBGR_709HDTV_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  if (!pSrc || !pSrc[0] || !pSrc[1] || !pDst) return NPP_NULL_POINTER_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width % 2 != 0) return NPP_SIZE_ERROR;
+  if (rSrcStep <= 0 || nDstStep <= 0) return NPP_STEP_ERROR;
+  if (nDstStep < oSizeROI.width * 3) return NPP_STEP_ERROR;
+  cudaError_t st = nppiNV12ToBGR_709HDTV_8u_P2C3R_kernel(pSrc[0], rSrcStep, pSrc[1], rSrcStep, pDst, nDstStep,
+                                                         oSizeROI, nppStreamCtx.hStream);
+  return st == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiNV12ToBGR_709HDTV_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,

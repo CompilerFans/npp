@@ -5,6 +5,57 @@
 #include "num_nppi_color_cvt.h"
 #include "num_nppi_hls.h"
 #include "num_nppi_yuv.h"
+#include "num_nppi_colorspace.h"
+#include "num_nppi_cfa.h"
+#include "num_nppi_nv12.h"
+
+TEST(NumGen, nppiBGRToHLS_8u_AC4P4R_Ctx) {
+  num::hls::run_hls_layout<num::hls::HKind::BGR2HLS, false, 4, true, 4>(
+      "nppiBGRToHLS_8u_AC4P4R_Ctx",
+      [](const Npp8u *const *sp, const Npp8u *ps, int ss, Npp8u *const *dp, Npp8u *pd, int ds, NppiSize r, NppStreamContext c) { (void)sp; (void)ps; (void)ss; (void)dp; (void)pd; (void)ds; (void)r; (void)c; return nppiBGRToHLS_8u_AC4P4R_Ctx(ps, ss, const_cast<Npp8u **>(dp), ds, r, c); });
+}
+
+TEST(NumGen, nppiBGRToHLS_8u_AC4R_Ctx) {
+  num::hls::run_hls_layout<num::hls::HKind::BGR2HLS, false, 4, false, 4>(
+      "nppiBGRToHLS_8u_AC4R_Ctx",
+      [](const Npp8u *const *sp, const Npp8u *ps, int ss, Npp8u *const *dp, Npp8u *pd, int ds, NppiSize r, NppStreamContext c) { (void)sp; (void)ps; (void)ss; (void)dp; (void)pd; (void)ds; (void)r; (void)c; return nppiBGRToHLS_8u_AC4R_Ctx(ps, ss, pd, ds, r, c); });
+}
+
+TEST(NumGen, nppiBGRToHLS_8u_AP4C4R_Ctx) {
+  num::hls::run_hls_layout<num::hls::HKind::BGR2HLS, true, 4, false, 4>(
+      "nppiBGRToHLS_8u_AP4C4R_Ctx",
+      [](const Npp8u *const *sp, const Npp8u *ps, int ss, Npp8u *const *dp, Npp8u *pd, int ds, NppiSize r, NppStreamContext c) { (void)sp; (void)ps; (void)ss; (void)dp; (void)pd; (void)ds; (void)r; (void)c; return nppiBGRToHLS_8u_AP4C4R_Ctx(sp, ss, pd, ds, r, c); });
+}
+
+TEST(NumGen, nppiBGRToHLS_8u_AP4R_Ctx) {
+  num::hls::run_hls_layout<num::hls::HKind::BGR2HLS, true, 4, true, 4>(
+      "nppiBGRToHLS_8u_AP4R_Ctx",
+      [](const Npp8u *const *sp, const Npp8u *ps, int ss, Npp8u *const *dp, Npp8u *pd, int ds, NppiSize r, NppStreamContext c) { (void)sp; (void)ps; (void)ss; (void)dp; (void)pd; (void)ds; (void)r; (void)c; return nppiBGRToHLS_8u_AP4R_Ctx(sp, ss, const_cast<Npp8u **>(dp), ds, r, c); });
+}
+
+TEST(NumGen, nppiBGRToHLS_8u_C3P3R_Ctx) {
+  num::hls::run_hls_layout<num::hls::HKind::BGR2HLS, false, 3, true, 3>(
+      "nppiBGRToHLS_8u_C3P3R_Ctx",
+      [](const Npp8u *const *sp, const Npp8u *ps, int ss, Npp8u *const *dp, Npp8u *pd, int ds, NppiSize r, NppStreamContext c) { (void)sp; (void)ps; (void)ss; (void)dp; (void)pd; (void)ds; (void)r; (void)c; return nppiBGRToHLS_8u_C3P3R_Ctx(ps, ss, const_cast<Npp8u **>(dp), ds, r, c); });
+}
+
+TEST(NumGen, nppiBGRToHLS_8u_P3C3R_Ctx) {
+  num::hls::run_hls_layout<num::hls::HKind::BGR2HLS, true, 3, false, 3>(
+      "nppiBGRToHLS_8u_P3C3R_Ctx",
+      [](const Npp8u *const *sp, const Npp8u *ps, int ss, Npp8u *const *dp, Npp8u *pd, int ds, NppiSize r, NppStreamContext c) { (void)sp; (void)ps; (void)ss; (void)dp; (void)pd; (void)ds; (void)r; (void)c; return nppiBGRToHLS_8u_P3C3R_Ctx(sp, ss, pd, ds, r, c); });
+}
+
+TEST(NumGen, nppiBGRToHLS_8u_P3R_Ctx) {
+  num::hls::run_hls_layout<num::hls::HKind::BGR2HLS, true, 3, true, 3>(
+      "nppiBGRToHLS_8u_P3R_Ctx",
+      [](const Npp8u *const *sp, const Npp8u *ps, int ss, Npp8u *const *dp, Npp8u *pd, int ds, NppiSize r, NppStreamContext c) { (void)sp; (void)ps; (void)ss; (void)dp; (void)pd; (void)ds; (void)r; (void)c; return nppiBGRToHLS_8u_P3R_Ctx(sp, ss, const_cast<Npp8u **>(dp), ds, r, c); });
+}
+
+TEST(NumGen, nppiBGRToLab_8u_C3R_Ctx) {
+  num::cs::run_lab<num::cs::LabDir::BGR2Lab>(
+      "nppiBGRToLab_8u_C3R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)c; return nppiBGRToLab_8u_C3R_Ctx(a, sa, d, ds, r, c); });
+}
 
 TEST(NumGen, nppiBGRToYCbCr_8u_AC4P3R_Ctx) {
   num::yuv::run_yuv<num::yuv::Conv::RGB2YCbCr, num::yuv::SL::AC4, num::yuv::DL::P3, true>(
@@ -52,6 +103,42 @@ TEST(NumGen, nppiBGRToYUV_8u_P3R_Ctx) {
   num::yuv::run_yuv<num::yuv::Conv::RGB2YUV, num::yuv::SL::P3, num::yuv::DL::P3, true>(
       "nppiBGRToYUV_8u_P3R_Ctx",
       [](const Npp8u *const *sp, const Npp8u *ps, int ss, Npp8u *const *dp, Npp8u *pd, int ds, NppiSize r, int alpha, NppStreamContext c) { (void)sp; (void)ps; (void)ss; (void)dp; (void)pd; (void)ds; (void)r; (void)alpha; (void)c; return nppiBGRToYUV_8u_P3R_Ctx(sp, ss, const_cast<Npp8u **>(dp), ds, r, c); });
+}
+
+TEST(NumGen, nppiCFAToRGBA_16u_C1AC4R_Ctx) {
+  num::cfa::run_cfa<Npp16u, 4>(
+      "nppiCFAToRGBA_16u_C1AC4R_Ctx",
+      [](const Npp16u *a, int ss, NppiSize sz, NppiRect roi, Npp16u *d, int ds, int grid, unsigned alpha, NppStreamContext c) { (void)ss; (void)sz; (void)roi; (void)ds; (void)grid; (void)c; return nppiCFAToRGBA_16u_C1AC4R_Ctx(a, ss, sz, roi, d, ds, (NppiBayerGridPosition)grid, (NppiInterpolationMode)NPPI_INTER_UNDEFINED, (Npp16u)alpha, c); });
+}
+
+TEST(NumGen, nppiCFAToRGBA_32u_C1AC4R_Ctx) {
+  num::cfa::run_cfa<Npp32u, 4>(
+      "nppiCFAToRGBA_32u_C1AC4R_Ctx",
+      [](const Npp32u *a, int ss, NppiSize sz, NppiRect roi, Npp32u *d, int ds, int grid, unsigned alpha, NppStreamContext c) { (void)ss; (void)sz; (void)roi; (void)ds; (void)grid; (void)c; return nppiCFAToRGBA_32u_C1AC4R_Ctx(a, ss, sz, roi, d, ds, (NppiBayerGridPosition)grid, (NppiInterpolationMode)NPPI_INTER_UNDEFINED, (Npp32u)alpha, c); });
+}
+
+TEST(NumGen, nppiCFAToRGBA_8u_C1AC4R_Ctx) {
+  num::cfa::run_cfa<Npp8u, 4>(
+      "nppiCFAToRGBA_8u_C1AC4R_Ctx",
+      [](const Npp8u *a, int ss, NppiSize sz, NppiRect roi, Npp8u *d, int ds, int grid, unsigned alpha, NppStreamContext c) { (void)ss; (void)sz; (void)roi; (void)ds; (void)grid; (void)c; return nppiCFAToRGBA_8u_C1AC4R_Ctx(a, ss, sz, roi, d, ds, (NppiBayerGridPosition)grid, (NppiInterpolationMode)NPPI_INTER_UNDEFINED, (Npp8u)alpha, c); });
+}
+
+TEST(NumGen, nppiCFAToRGB_16u_C1C3R_Ctx) {
+  num::cfa::run_cfa<Npp16u, 3>(
+      "nppiCFAToRGB_16u_C1C3R_Ctx",
+      [](const Npp16u *a, int ss, NppiSize sz, NppiRect roi, Npp16u *d, int ds, int grid, unsigned alpha, NppStreamContext c) { (void)alpha; (void)ss; (void)sz; (void)roi; (void)ds; (void)grid; (void)c; return nppiCFAToRGB_16u_C1C3R_Ctx(a, ss, sz, roi, d, ds, (NppiBayerGridPosition)grid, (NppiInterpolationMode)NPPI_INTER_UNDEFINED, c); });
+}
+
+TEST(NumGen, nppiCFAToRGB_32u_C1C3R_Ctx) {
+  num::cfa::run_cfa<Npp32u, 3>(
+      "nppiCFAToRGB_32u_C1C3R_Ctx",
+      [](const Npp32u *a, int ss, NppiSize sz, NppiRect roi, Npp32u *d, int ds, int grid, unsigned alpha, NppStreamContext c) { (void)alpha; (void)ss; (void)sz; (void)roi; (void)ds; (void)grid; (void)c; return nppiCFAToRGB_32u_C1C3R_Ctx(a, ss, sz, roi, d, ds, (NppiBayerGridPosition)grid, (NppiInterpolationMode)NPPI_INTER_UNDEFINED, c); });
+}
+
+TEST(NumGen, nppiCFAToRGB_8u_C1C3R_Ctx) {
+  num::cfa::run_cfa<Npp8u, 3>(
+      "nppiCFAToRGB_8u_C1C3R_Ctx",
+      [](const Npp8u *a, int ss, NppiSize sz, NppiRect roi, Npp8u *d, int ds, int grid, unsigned alpha, NppStreamContext c) { (void)alpha; (void)ss; (void)sz; (void)roi; (void)ds; (void)grid; (void)c; return nppiCFAToRGB_8u_C1C3R_Ctx(a, ss, sz, roi, d, ds, (NppiBayerGridPosition)grid, (NppiInterpolationMode)NPPI_INTER_UNDEFINED, c); });
 }
 
 TEST(NumGen, nppiColorToGray_16s_AC4C1R_Ctx) {
@@ -630,6 +717,18 @@ TEST(NumGen, nppiColorTwistBatch_32f_C4R_Ctx) {
       [](Npp32f mn, Npp32f mx, NppiSize r, NppiColorTwistBatchCXR *l, int n, NppStreamContext c) { (void)mn; (void)mx; (void)r; (void)l; (void)n; (void)c; return nppiColorTwistBatch_32f_C4R_Ctx(mn, mx, r, l, n, c); });
 }
 
+TEST(NumGen, nppiColorTwist_32fC_C4IR_Ctx) {
+  num::twist::run_twist_c<Npp32f, true>(
+      "nppiColorTwist_32fC_C4IR_Ctx",
+      [](Npp32f *a, int sa, NppiSize r, const float *tw, const float *ac, NppStreamContext c) { (void)sa; (void)r; (void)tw; (void)ac; (void)c; return nppiColorTwist_32fC_C4IR_Ctx(a, sa, r, (const Npp32f (*)[4])tw, ac, c); });
+}
+
+TEST(NumGen, nppiColorTwist_32fC_C4R_Ctx) {
+  num::twist::run_twist_c<Npp32f, false>(
+      "nppiColorTwist_32fC_C4R_Ctx",
+      [](const Npp32f *a, int sa, Npp32f *d, int ds, NppiSize r, const float *tw, const float *ac, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)tw; (void)ac; (void)c; return nppiColorTwist_32fC_C4R_Ctx(a, sa, d, ds, r, (const Npp32f (*)[4])tw, ac, c); });
+}
+
 TEST(NumGen, nppiColorTwist_32f_AC4IR_Ctx) {
   num::twist::run_twist<Npp32f, 4, 3, true>(
       "nppiColorTwist_32f_AC4IR_Ctx",
@@ -796,6 +895,42 @@ TEST(NumGen, nppiGradientColorToGray_8u_C3C1R_Ctx) {
   num::cvt::run_gradient_gray<Npp8u>(
       "nppiGradientColorToGray_8u_C3C1R_Ctx",
       [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, int norm, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)norm; (void)c; return nppiGradientColorToGray_8u_C3C1R_Ctx(a, sa, d, ds, r, (NppiNorm)norm, c); });
+}
+
+TEST(NumGen, nppiHLSToBGR_8u_AC4P4R_Ctx) {
+  num::hls::run_hls_layout<num::hls::HKind::HLS2BGR, false, 4, true, 4>(
+      "nppiHLSToBGR_8u_AC4P4R_Ctx",
+      [](const Npp8u *const *sp, const Npp8u *ps, int ss, Npp8u *const *dp, Npp8u *pd, int ds, NppiSize r, NppStreamContext c) { (void)sp; (void)ps; (void)ss; (void)dp; (void)pd; (void)ds; (void)r; (void)c; return nppiHLSToBGR_8u_AC4P4R_Ctx(ps, ss, const_cast<Npp8u **>(dp), ds, r, c); });
+}
+
+TEST(NumGen, nppiHLSToBGR_8u_AP4C4R_Ctx) {
+  num::hls::run_hls_layout<num::hls::HKind::HLS2BGR, true, 4, false, 4>(
+      "nppiHLSToBGR_8u_AP4C4R_Ctx",
+      [](const Npp8u *const *sp, const Npp8u *ps, int ss, Npp8u *const *dp, Npp8u *pd, int ds, NppiSize r, NppStreamContext c) { (void)sp; (void)ps; (void)ss; (void)dp; (void)pd; (void)ds; (void)r; (void)c; return nppiHLSToBGR_8u_AP4C4R_Ctx(sp, ss, pd, ds, r, c); });
+}
+
+TEST(NumGen, nppiHLSToBGR_8u_AP4R_Ctx) {
+  num::hls::run_hls_layout<num::hls::HKind::HLS2BGR, true, 4, true, 4>(
+      "nppiHLSToBGR_8u_AP4R_Ctx",
+      [](const Npp8u *const *sp, const Npp8u *ps, int ss, Npp8u *const *dp, Npp8u *pd, int ds, NppiSize r, NppStreamContext c) { (void)sp; (void)ps; (void)ss; (void)dp; (void)pd; (void)ds; (void)r; (void)c; return nppiHLSToBGR_8u_AP4R_Ctx(sp, ss, const_cast<Npp8u **>(dp), ds, r, c); });
+}
+
+TEST(NumGen, nppiHLSToBGR_8u_C3P3R_Ctx) {
+  num::hls::run_hls_layout<num::hls::HKind::HLS2BGR, false, 3, true, 3>(
+      "nppiHLSToBGR_8u_C3P3R_Ctx",
+      [](const Npp8u *const *sp, const Npp8u *ps, int ss, Npp8u *const *dp, Npp8u *pd, int ds, NppiSize r, NppStreamContext c) { (void)sp; (void)ps; (void)ss; (void)dp; (void)pd; (void)ds; (void)r; (void)c; return nppiHLSToBGR_8u_C3P3R_Ctx(ps, ss, const_cast<Npp8u **>(dp), ds, r, c); });
+}
+
+TEST(NumGen, nppiHLSToBGR_8u_P3C3R_Ctx) {
+  num::hls::run_hls_layout<num::hls::HKind::HLS2BGR, true, 3, false, 3>(
+      "nppiHLSToBGR_8u_P3C3R_Ctx",
+      [](const Npp8u *const *sp, const Npp8u *ps, int ss, Npp8u *const *dp, Npp8u *pd, int ds, NppiSize r, NppStreamContext c) { (void)sp; (void)ps; (void)ss; (void)dp; (void)pd; (void)ds; (void)r; (void)c; return nppiHLSToBGR_8u_P3C3R_Ctx(sp, ss, pd, ds, r, c); });
+}
+
+TEST(NumGen, nppiHLSToBGR_8u_P3R_Ctx) {
+  num::hls::run_hls_layout<num::hls::HKind::HLS2BGR, true, 3, true, 3>(
+      "nppiHLSToBGR_8u_P3R_Ctx",
+      [](const Npp8u *const *sp, const Npp8u *ps, int ss, Npp8u *const *dp, Npp8u *pd, int ds, NppiSize r, NppStreamContext c) { (void)sp; (void)ps; (void)ss; (void)dp; (void)pd; (void)ds; (void)r; (void)c; return nppiHLSToBGR_8u_P3R_Ctx(sp, ss, const_cast<Npp8u **>(dp), ds, r, c); });
 }
 
 TEST(NumGen, nppiHLSToRGB_8u_AC4R_Ctx) {
@@ -1506,6 +1641,90 @@ TEST(NumGen, nppiLUT_Trilinear_8u_C4R_Ctx) {
       [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, Npp32u *vals, Npp8u **lev, int *nl, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)vals; (void)lev; (void)nl; (void)c; return nppiLUT_Trilinear_8u_C4R_Ctx(a, sa, d, ds, r, vals, lev, nl, c); });
 }
 
+TEST(NumGen, nppiLUVToRGB_8u_AC4R_Ctx) {
+  num::cs::run_cs<num::cs::CS::LUV2RGB, true>(
+      "nppiLUVToRGB_8u_AC4R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)c; return nppiLUVToRGB_8u_AC4R_Ctx(a, sa, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiLUVToRGB_8u_C3R_Ctx) {
+  num::cs::run_cs<num::cs::CS::LUV2RGB, false>(
+      "nppiLUVToRGB_8u_C3R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)c; return nppiLUVToRGB_8u_C3R_Ctx(a, sa, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiLabToBGR_8u_C3R_Ctx) {
+  num::cs::run_lab<num::cs::LabDir::Lab2BGR>(
+      "nppiLabToBGR_8u_C3R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)c; return nppiLabToBGR_8u_C3R_Ctx(a, sa, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx) {
+  num::nv12::run_nv12_to_rgb<num::nv12::Var::NV12_709_CSC, num::nv12::OutOrder::BGR, 3>(
+      "nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx",
+      [](const Npp8u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)ss; (void)ds; (void)r; (void)c; return nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(sp, ss, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiNV12ToBGR_709HDTV_8u_P2C3R_Ctx) {
+  num::nv12::run_nv12_to_rgb<num::nv12::Var::NV12_709, num::nv12::OutOrder::BGR, 3>(
+      "nppiNV12ToBGR_709HDTV_8u_P2C3R_Ctx",
+      [](const Npp8u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)ss; (void)ds; (void)r; (void)c; return nppiNV12ToBGR_709HDTV_8u_P2C3R_Ctx(sp, ss, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiNV12ToBGR_8u_P2C3R_Ctx) {
+  num::nv12::run_nv12_to_rgb<num::nv12::Var::NV12_601, num::nv12::OutOrder::BGR, 3>(
+      "nppiNV12ToBGR_8u_P2C3R_Ctx",
+      [](const Npp8u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)ss; (void)ds; (void)r; (void)c; return nppiNV12ToBGR_8u_P2C3R_Ctx(sp, ss, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiNV12ToRGB_16u_ColorTwist32f_P2C3R_Ctx) {
+  num::nv12::run_nv12_twist_to_rgb<Npp16u>(
+      "nppiNV12ToRGB_16u_ColorTwist32f_P2C3R_Ctx",
+      [](const Npp16u *const *sp, int *ss, Npp16u *d, int ds, NppiSize r, const float *tw, NppStreamContext c) { (void)ss; (void)ds; (void)r; (void)tw; (void)c; return nppiNV12ToRGB_16u_ColorTwist32f_P2C3R_Ctx(sp, ss, d, ds, r, (const Npp32f (*)[4])tw, c); });
+}
+
+TEST(NumGen, nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx) {
+  num::nv12::run_nv12_to_rgb<num::nv12::Var::NV12_709_CSC, num::nv12::OutOrder::RGB, 3>(
+      "nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx",
+      [](const Npp8u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)ss; (void)ds; (void)r; (void)c; return nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(sp, ss, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx) {
+  num::nv12::run_nv12_to_rgb<num::nv12::Var::NV12_709, num::nv12::OutOrder::RGB, 3>(
+      "nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx",
+      [](const Npp8u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)ss; (void)ds; (void)r; (void)c; return nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx(sp, ss, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx) {
+  num::nv12::run_nv12_twist_to_rgb<Npp8u>(
+      "nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx",
+      [](const Npp8u *const *sp, int *ss, Npp8u *d, int ds, NppiSize r, const float *tw, NppStreamContext c) { (void)ss; (void)ds; (void)r; (void)tw; (void)c; return nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(sp, ss, d, ds, r, (const Npp32f (*)[4])tw, c); });
+}
+
+TEST(NumGen, nppiNV12ToRGB_8u_P2C3R_Ctx) {
+  num::nv12::run_nv12_to_rgb<num::nv12::Var::NV12_601, num::nv12::OutOrder::RGB, 3>(
+      "nppiNV12ToRGB_8u_P2C3R_Ctx",
+      [](const Npp8u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)ss; (void)ds; (void)r; (void)c; return nppiNV12ToRGB_8u_P2C3R_Ctx(sp, ss, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiNV12ToYUV420_8u_P2P3R_Ctx) {
+  num::nv12::run_nv12_to_yuv420(
+      "nppiNV12ToYUV420_8u_P2P3R_Ctx",
+      [](const Npp8u *const *sp, int ss, Npp8u *const *dp, int *dss, NppiSize r, NppStreamContext c) { (void)ss; (void)dss; (void)r; (void)c; return nppiNV12ToYUV420_8u_P2P3R_Ctx(sp, ss, const_cast<Npp8u **>(dp), dss, r, c); });
+}
+
+TEST(NumGen, nppiNV21ToBGR_8u_P2C4R_Ctx) {
+  num::nv12::run_nv12_to_rgb<num::nv12::Var::NV21_FIXED, num::nv12::OutOrder::BGR, 4>(
+      "nppiNV21ToBGR_8u_P2C4R_Ctx",
+      [](const Npp8u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)ss; (void)ds; (void)r; (void)c; return nppiNV21ToBGR_8u_P2C4R_Ctx(sp, ss, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiNV21ToRGB_8u_P2C4R_Ctx) {
+  num::nv12::run_nv12_to_rgb<num::nv12::Var::NV21_FIXED, num::nv12::OutOrder::RGB, 4>(
+      "nppiNV21ToRGB_8u_P2C4R_Ctx",
+      [](const Npp8u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)ss; (void)ds; (void)r; (void)c; return nppiNV21ToRGB_8u_P2C4R_Ctx(sp, ss, d, ds, r, c); });
+}
+
 TEST(NumGen, nppiRGBToGray_16s_AC4C1R_Ctx) {
   num::cvt::run_color_to_gray<Npp16s, 2, true>(
       "nppiRGBToGray_16s_AC4C1R_Ctx",
@@ -1578,6 +1797,66 @@ TEST(NumGen, nppiRGBToHSV_8u_C3R_Ctx) {
       [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)c; return nppiRGBToHSV_8u_C3R_Ctx(a, sa, d, ds, r, c); });
 }
 
+TEST(NumGen, nppiRGBToLUV_8u_AC4R_Ctx) {
+  num::cs::run_cs<num::cs::CS::RGB2LUV, true>(
+      "nppiRGBToLUV_8u_AC4R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)c; return nppiRGBToLUV_8u_AC4R_Ctx(a, sa, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiRGBToLUV_8u_C3R_Ctx) {
+  num::cs::run_cs<num::cs::CS::RGB2LUV, false>(
+      "nppiRGBToLUV_8u_C3R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)c; return nppiRGBToLUV_8u_C3R_Ctx(a, sa, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiRGBToNV12_16u_ColorTwist32f_C3P2R_Ctx) {
+  num::nv12::run_rgb_twist_to_nv12<Npp16u, false>(
+      "nppiRGBToNV12_16u_ColorTwist32f_C3P2R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *const *dp, int *ds, NppiSize r, const float *tw, NppStreamContext c) { (void)ss; (void)ds; (void)r; (void)tw; (void)c; return nppiRGBToNV12_16u_ColorTwist32f_C3P2R_Ctx(sp, ss, const_cast<Npp16u **>(dp), ds, r, (const Npp32f (*)[4])tw, c); });
+}
+
+TEST(NumGen, nppiRGBToNV12_16u_ColorTwist32f_P3P2R_Ctx) {
+  num::nv12::run_rgb_twist_to_nv12<Npp16u, true>(
+      "nppiRGBToNV12_16u_ColorTwist32f_P3P2R_Ctx",
+      [](const Npp16u *const *sp, int *ss, Npp16u *const *dp, int *ds, NppiSize r, const float *tw, NppStreamContext c) { (void)ss; (void)ds; (void)r; (void)tw; (void)c; return nppiRGBToNV12_16u_ColorTwist32f_P3P2R_Ctx(sp, ss, const_cast<Npp16u **>(dp), ds, r, (const Npp32f (*)[4])tw, c); });
+}
+
+TEST(NumGen, nppiRGBToNV12_8u_ColorTwist32f_C3P2R_Ctx) {
+  num::nv12::run_rgb_twist_to_nv12<Npp8u, false>(
+      "nppiRGBToNV12_8u_ColorTwist32f_C3P2R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *const *dp, int *ds, NppiSize r, const float *tw, NppStreamContext c) { (void)ss; (void)ds; (void)r; (void)tw; (void)c; return nppiRGBToNV12_8u_ColorTwist32f_C3P2R_Ctx(sp, ss, const_cast<Npp8u **>(dp), ds, r, (const Npp32f (*)[4])tw, c); });
+}
+
+TEST(NumGen, nppiRGBToNV12_8u_ColorTwist32f_P3P2R_Ctx) {
+  num::nv12::run_rgb_twist_to_nv12<Npp8u, true>(
+      "nppiRGBToNV12_8u_ColorTwist32f_P3P2R_Ctx",
+      [](const Npp8u *const *sp, int *ss, Npp8u *const *dp, int *ds, NppiSize r, const float *tw, NppStreamContext c) { (void)ss; (void)ds; (void)r; (void)tw; (void)c; return nppiRGBToNV12_8u_ColorTwist32f_P3P2R_Ctx(sp, ss, const_cast<Npp8u **>(dp), ds, r, (const Npp32f (*)[4])tw, c); });
+}
+
+TEST(NumGen, nppiRGBToXYZ_8u_AC4R_Ctx) {
+  num::cs::run_cs<num::cs::CS::RGB2XYZ, true>(
+      "nppiRGBToXYZ_8u_AC4R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)c; return nppiRGBToXYZ_8u_AC4R_Ctx(a, sa, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiRGBToXYZ_8u_C3R_Ctx) {
+  num::cs::run_cs<num::cs::CS::RGB2XYZ, false>(
+      "nppiRGBToXYZ_8u_C3R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)c; return nppiRGBToXYZ_8u_C3R_Ctx(a, sa, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiRGBToYCC_8u_AC4R_Ctx) {
+  num::cs::run_cs<num::cs::CS::RGB2YCC, true>(
+      "nppiRGBToYCC_8u_AC4R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)c; return nppiRGBToYCC_8u_AC4R_Ctx(a, sa, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiRGBToYCC_8u_C3R_Ctx) {
+  num::cs::run_cs<num::cs::CS::RGB2YCC, false>(
+      "nppiRGBToYCC_8u_C3R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)c; return nppiRGBToYCC_8u_C3R_Ctx(a, sa, d, ds, r, c); });
+}
+
 TEST(NumGen, nppiRGBToYCbCr_8u_AC4P3R_Ctx) {
   num::yuv::run_yuv<num::yuv::Conv::RGB2YCbCr, num::yuv::SL::AC4, num::yuv::DL::P3, false>(
       "nppiRGBToYCbCr_8u_AC4P3R_Ctx",
@@ -1636,6 +1915,30 @@ TEST(NumGen, nppiRGBToYUV_8u_P3R_Ctx) {
   num::yuv::run_yuv<num::yuv::Conv::RGB2YUV, num::yuv::SL::P3, num::yuv::DL::P3, false>(
       "nppiRGBToYUV_8u_P3R_Ctx",
       [](const Npp8u *const *sp, const Npp8u *ps, int ss, Npp8u *const *dp, Npp8u *pd, int ds, NppiSize r, int alpha, NppStreamContext c) { (void)sp; (void)ps; (void)ss; (void)dp; (void)pd; (void)ds; (void)r; (void)alpha; (void)c; return nppiRGBToYUV_8u_P3R_Ctx(sp, ss, const_cast<Npp8u **>(dp), ds, r, c); });
+}
+
+TEST(NumGen, nppiXYZToRGB_8u_AC4R_Ctx) {
+  num::cs::run_cs<num::cs::CS::XYZ2RGB, true>(
+      "nppiXYZToRGB_8u_AC4R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)c; return nppiXYZToRGB_8u_AC4R_Ctx(a, sa, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiXYZToRGB_8u_C3R_Ctx) {
+  num::cs::run_cs<num::cs::CS::XYZ2RGB, false>(
+      "nppiXYZToRGB_8u_C3R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)c; return nppiXYZToRGB_8u_C3R_Ctx(a, sa, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiYCCToRGB_8u_AC4R_Ctx) {
+  num::cs::run_cs<num::cs::CS::YCC2RGB, true>(
+      "nppiYCCToRGB_8u_AC4R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)c; return nppiYCCToRGB_8u_AC4R_Ctx(a, sa, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiYCCToRGB_8u_C3R_Ctx) {
+  num::cs::run_cs<num::cs::CS::YCC2RGB, false>(
+      "nppiYCCToRGB_8u_C3R_Ctx",
+      [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)c; return nppiYCCToRGB_8u_C3R_Ctx(a, sa, d, ds, r, c); });
 }
 
 TEST(NumGen, nppiYCbCrToBGR_8u_P3C3R_Ctx) {

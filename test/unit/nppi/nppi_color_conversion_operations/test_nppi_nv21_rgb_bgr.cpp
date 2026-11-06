@@ -49,9 +49,11 @@ protected:
     const int ud = static_cast<int>(u) - 128;
     const int vd = static_cast<int>(v) - 128;
 
-    int r_val = yv + shiftRightFloor(455 * vd, 8);
-    int g_val = yv + shiftRightFloor(181 * ud - 89 * vd, 8);
-    int b_val = yv + shiftRightFloor(359 * ud, 8);
+    // Measured NPP 13.4 coefficient set (452/183/88/360) with round half up.
+    auto rnd = [](int n) { return (n + 128) >> 8; };
+    int r_val = yv + rnd(452 * vd);
+    int g_val = yv + rnd(183 * ud - 88 * vd);
+    int b_val = yv + rnd(360 * ud);
 
     r_val = std::max(0, std::min(255, r_val));
     g_val = std::max(0, std::min(255, g_val));

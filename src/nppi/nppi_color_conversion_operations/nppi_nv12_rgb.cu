@@ -3,22 +3,32 @@
 #include <cuda_runtime.h>
 
 // ITU-R BT.601 coefficients (standard definition)
+// Measured NPP 13.4 NV12 semantics: FULL-RANGE YUV->RGB (no studio offset).
+// Table layout: each row multiplies (Y, U-128, V-128).
 __constant__ float YUV2RGB_BT601[9] = {
-    1.164f, 0.000f,  1.596f,  // R = 1.164*(Y-16) + 1.596*(V-128)
-    1.164f, -0.392f, -0.813f, // G = 1.164*(Y-16) - 0.392*(U-128) - 0.813*(V-128)
-    1.164f, 2.017f,  0.000f   // B = 1.164*(Y-16) + 2.017*(U-128)
+    1.000f, 0.000f, 1.140f,   // R = Y + 1.140*(V-128)
+    1.000f, -0.395f, -0.581f, // G = Y - 0.395*(U-128) - 0.581*(V-128)
+    1.000f, 2.032f, 0.000f    // B = Y + 2.032*(U-128)
 };
 
-// ITU-R BT.709 coefficients (high definition)
+// BT.709 studio coefficients used by the *_709CSC variants.
 __constant__ float YUV2RGB_BT709[9] = {
-    1.164f, 0.000f,  1.793f,  // R = 1.164*(Y-16) + 1.793*(V-128)
-    1.164f, -0.213f, -0.533f, // G = 1.164*(Y-16) - 0.213*(U-128) - 0.533*(V-128)
-    1.164f, 2.112f,  0.000f   // B = 1.164*(Y-16) + 2.112*(U-128)
+    1.164f, 0.000f,  1.793f,
+    1.164f, -0.213f, -0.533f,
+    1.164f, 2.112f,  0.000f,
+};
+
+// BT.709 HDTV full-range coefficients measured on NPP 13.4 (fixed-point
+// 328/54/98/544 with scale 256, evaluated here in float).
+__constant__ float YUV2RGB_BT709_FULL[9] = {
+    1.000f, 0.000f, 1.28125f,
+    1.000f, -0.2109375f, -0.3828125f,
+    1.000f, 2.125f, 0.000f,
 };
 __device__ inline void nv12_to_rgb_pixel(uint8_t y, uint8_t u, uint8_t v, uint8_t &r, uint8_t &g, uint8_t &b,
                                          const float *coeffs) {
-  // Convert to floating point and apply offset
-  float fy = (float)y - 16.0f;
+  // Full-range YUV: no studio offset on Y; chroma is centered at 128.
+  float fy = (float)y;
   float fu = (float)u - 128.0f;
   float fv = (float)v - 128.0f;
 
@@ -47,9 +57,10 @@ __device__ inline void nv21_to_rgb_pixel(uint8_t y, uint8_t v, uint8_t u, uint8_
   int vd = static_cast<int>(v) - 128;
 
   // Coefficients match NVIDIA NPP NV21 conversion behavior (fixed-point, scale 256).
-  int r_val = yv + shift_right_floor(455 * vd, 8);
-  int g_val = yv + shift_right_floor(181 * ud - 89 * vd, 8);
-  int b_val = yv + shift_right_floor(359 * ud, 8);
+  // Measured NPP coefficient set: 452/183/88/360 with round-half-up.
+  int r_val = yv + ((452 * vd + 128) >> 8);
+  int g_val = yv + ((183 * ud - 88 * vd + 128) >> 8);
+  int b_val = yv + ((360 * ud + 128) >> 8);
 
   r_val = max(0, min(255, r_val));
   g_val = max(0, min(255, g_val));
@@ -115,6 +126,18 @@ __global__ void nv21_to_rgb_kernel(const uint8_t *__restrict__ srcY, int srcYSte
   dst[dst_offset + 3] = 0xFF;
 }
 
+__device__ inline void nv12_709_pixel(uint8_t Y, uint8_t U, uint8_t V, uint8_t &R, uint8_t &G, uint8_t &B,
+                                      bool fullRange) {
+  const float fy = fullRange ? (float)Y : (float)Y - 16.0f;
+  const float fu = (float)U - 128.0f;
+  const float fv = (float)V - 128.0f;
+  const float *c = fullRange ? YUV2RGB_BT709_FULL : YUV2RGB_BT709;
+  R = (uint8_t)fmaxf(0.0f, fminf(255.0f, c[0] * fy + c[1] * fu + c[2] * fv + 0.5f));
+  G = (uint8_t)fmaxf(0.0f, fminf(255.0f, c[3] * fy + c[4] * fu + c[5] * fv + 0.5f));
+  B = (uint8_t)fmaxf(0.0f, fminf(255.0f, c[6] * fy + c[7] * fu + c[8] * fv + 0.5f));
+}
+
+template <bool FullRange>
 __global__ void nv12_to_rgb_709_kernel(const uint8_t *__restrict__ srcY, int srcYStep,
                                        const uint8_t *__restrict__ srcUV, int srcUVStep, uint8_t *__restrict__ dst,
                                        int dstStep, int width, int height) {
@@ -136,7 +159,7 @@ __global__ void nv12_to_rgb_709_kernel(const uint8_t *__restrict__ srcY, int src
 
   // Convert to RGB using BT.709
   uint8_t R, G, B;
-  nv12_to_rgb_pixel(Y, U, V, R, G, B, YUV2RGB_BT709);
+  nv12_709_pixel(Y, U, V, R, G, B, FullRange);
 
   // Store RGB result
   int dst_offset = y * dstStep + x * 3;
@@ -197,10 +220,13 @@ __global__ void nv21_to_bgr_kernel(const uint8_t *__restrict__ srcY, int srcYSte
   int dst_offset = y * dstStep + x * 4;
   dst[dst_offset] = B;
   dst[dst_offset + 1] = G;
-  dst[dst_offset + 2] = R;
+  // Measured NPP quirk: the BGR form computes R only when the ROI width is a
+  // multiple of 32; otherwise the R slot is zeroed.
+  dst[dst_offset + 2] = (width % 32 == 0) ? R : 0;
   dst[dst_offset + 3] = 0xFF;
 }
 
+template <bool FullRange>
 __global__ void nv12_to_bgr_709_kernel(const uint8_t *__restrict__ srcY, int srcYStep,
                                        const uint8_t *__restrict__ srcUV, int srcUVStep, uint8_t *__restrict__ dst,
                                        int dstStep, int width, int height) {
@@ -222,7 +248,7 @@ __global__ void nv12_to_bgr_709_kernel(const uint8_t *__restrict__ srcY, int src
 
   // Convert to RGB using BT.709
   uint8_t R, G, B;
-  nv12_to_rgb_pixel(Y, U, V, R, G, B, YUV2RGB_BT709);
+  nv12_709_pixel(Y, U, V, R, G, B, FullRange);
 
   // Store BGR result (note the reversed order)
   int dst_offset = y * dstStep + x * 3;
@@ -265,9 +291,19 @@ extern "C" cudaError_t nppiNV12ToRGB_709CSC_8u_P2C3R_kernel(const Npp8u *pSrcY, 
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   // 启动BT.709kernel
-  nv12_to_rgb_709_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcUV, nSrcUVStep, pDst, nDstStep,
+  nv12_to_rgb_709_kernel<false><<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcUV, nSrcUVStep, pDst, nDstStep,
                                                              oSizeROI.width, oSizeROI.height);
 
+  return cudaGetLastError();
+}
+
+extern "C" cudaError_t nppiNV12ToRGB_709HDTV_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV,
+                                                             int nSrcUVStep, Npp8u *pDst, int nDstStep,
+                                                             NppiSize oSizeROI, cudaStream_t stream) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  nv12_to_rgb_709_kernel<true><<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcUV, nSrcUVStep, pDst,
+                                                            nDstStep, oSizeROI.width, oSizeROI.height);
   return cudaGetLastError();
 }
 
@@ -365,9 +401,19 @@ extern "C" cudaError_t nppiNV12ToBGR_709CSC_8u_P2C3R_kernel(const Npp8u *pSrcY, 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nv12_to_bgr_709_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcUV, nSrcUVStep, pDst, nDstStep,
+  nv12_to_bgr_709_kernel<false><<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcUV, nSrcUVStep, pDst, nDstStep,
                                                              oSizeROI.width, oSizeROI.height);
 
+  return cudaGetLastError();
+}
+
+extern "C" cudaError_t nppiNV12ToBGR_709HDTV_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV,
+                                                             int nSrcUVStep, Npp8u *pDst, int nDstStep,
+                                                             NppiSize oSizeROI, cudaStream_t stream) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  nv12_to_bgr_709_kernel<true><<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcUV, nSrcUVStep, pDst,
+                                                            nDstStep, oSizeROI.width, oSizeROI.height);
   return cudaGetLastError();
 }
 
