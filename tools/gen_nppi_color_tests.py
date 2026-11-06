@@ -564,6 +564,35 @@ YCBCR422_FAMILIES = {
 }
 
 
+CMYK_TABLE = {
+    "nppiCMYKOrYCCKToRGB_JPEG_8u_P4C3R_Ctx": ("C3", 0, "c3"),
+    "nppiCMYKOrYCCKToRGB_JPEG_8u_P4P3R_Ctx": ("P3", 0, "p3"),
+    "nppiCMYKOrYCCKToBGR_JPEG_8u_P4C3R_Ctx": ("C3", 1, "c3"),
+    "nppiCMYKOrYCCKToBGR_JPEG_8u_P4P3R_Ctx": ("P3", 1, "p3"),
+}
+
+
+def emit_cmyk(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    name = re.sub(r"\W", "_", fn)
+    sig = ("[](const Npp8u *const *sp, int ss, Npp8u *const *dp, Npp8u *pd, int ds, int *dsa, "
+           "NppiSize r, NppStreamContext c) ")
+    voids = "(void)sp; (void)ss; (void)dp; (void)pd; (void)ds; (void)dsa; (void)r; (void)c; "
+    if fn in CMYK_TABLE:
+        out, bgr, form = CMYK_TABLE[fn]
+        body = (f"return {fn}(const_cast<const Npp8u **>(sp), ss, pd, ds, r, c);" if form == "c3"
+                else f"return {fn}(const_cast<const Npp8u **>(sp), ss, const_cast<Npp8u **>(dp), ds, r, c);")
+        lam = f"{sig}{{ {voids}{body} }}"
+        return (f"TEST(NumGen, {name}) {{\n"
+                f"  num::cmyk::run_cmyk_to_rgb<num::cmyk::Out::{out}, {'true' if bgr else 'false'}>(\n"
+                f"      \"{fn}\",\n      {lam});\n}}\n")
+    if fn == "nppiYCCKToCMYK_JPEG_601_8u_P4R_Ctx":
+        lam = ("[](const Npp8u *const *sp, int ss, Npp8u *const *dp, int ds, NppiSize r, NppStreamContext c) "
+               "{ return nppiYCCKToCMYK_JPEG_601_8u_P4R_Ctx(const_cast<const Npp8u **>(sp), ss, const_cast<Npp8u **>(dp), ds, r, c); }")
+        return (f"TEST(NumGen, {name}) {{\n  num::cmyk::run_ycck_to_cmyk(\n      \"{fn}\",\n      {lam});\n}}\n")
+    return None
+
+
 COLOR_KEY = "0x20, 0x40, 0x60, 0x80"
 
 
@@ -1007,6 +1036,29 @@ def emit_nv12_twist(row: dict) -> Optional[str]:
     return None
 
 
+def emit_color_batch(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    m = re.match(r"nppi(YCbCr|YUV)(420|422)?To(RGB|BGR)Batch_8u_(P3C3R|C3R)(_Advanced)?_Ctx$", fn)
+    if not m:
+        return None
+    yuv = m.group(1) == "YUV"
+    sub = m.group(2) or "444"
+    form = m.group(4)
+    if sub != "444" and form != "P3C3R":
+        return None
+    kind = f"k{yuv and 'YUV' or 'YCbCr'}{sub}{'P3' if form == 'P3C3R' else 'C3'}"
+    bgr = "true" if m.group(3) == "BGR" else "false"
+    adv = "true" if m.group(5) else "false"
+    name = re.sub(r"\W", "_", fn)
+    lam = ("[](const NppiImageDescriptor *const *sp, NppiImageDescriptor *pd, int n, NppiSize r, "
+           "NppStreamContext c) { "
+           + (f"return {fn}(sp, pd, n, r, c);" if form == "P3C3R"
+              else f"return {fn}(sp[0], pd, n, r, c);")
+           + " }")
+    prefix = f"num::colbatch::run_batch<num::colbatch::{kind}, {bgr}, {adv}>"
+    return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -1023,8 +1075,8 @@ def main() -> int:
                 or emit_hls_layout(row) or emit_yuv(row) or emit_cs(row) or emit_cfa(row)
                 or emit_ycbcr_jpeg(row) or emit_yuv_planar(row) or emit_yuv_layout(row)
                 or emit_ycbcr422(row) or emit_ycbcr420(row) or emit_ycbcr420_layout(row)
-                or emit_yuv_twist(row) or emit_color_key(row) or emit_nv12(row)
-                or emit_nv12_twist(row))
+                or emit_yuv_twist(row) or emit_color_key(row) or emit_cmyk(row) or emit_nv12(row)
+                or emit_nv12_twist(row) or emit_color_batch(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
                                 reason="later color batch / unsupported"))
@@ -1044,11 +1096,13 @@ def main() -> int:
               "#include \"num_nppi_ycbcr420_layout.h\"\n"
               "#include \"num_nppi_yuv_twist.h\"\n"
               "#include \"num_nppi_color_key.h\"\n"
+              "#include \"num_nppi_cmyk.h\"\n"
               "#include \"num_nppi_colorspace.h\"\n"
               "#include \"num_nppi_cfa.h\"\n"
               "#include \"num_nppi_ycbcr.h\"\n"
               "#include \"num_nppi_yuv.h\"\n"
               "#include \"num_nppi_nv12.h\"\n"
+              "#include \"num_nppi_color_batch.h\"\n"
               "\n"
               "static const float kTwist[12] = {" + TWIST_MATRIX + "};\n"
               "static const Npp8u kColorKey[4] = {" + COLOR_KEY + "};\n")
