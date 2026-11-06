@@ -22,7 +22,7 @@ DT = {"8u": ("Npp8u", "Npp8u"), "16u": ("Npp16u", "Npp16u"),
       "16s": ("Npp16s", "Npp16s"), "32f": ("Npp32f", "Npp32f"),
       "8u16s": ("Npp8u", "Npp16s"), "8s16s": ("Npp8s", "Npp16s"),
       "64f": ("Npp64f", "Npp64f"), "32s": ("Npp32s", "Npp32s"),
-      "8s": ("Npp8s", "Npp8s")}
+      "8s": ("Npp8s", "Npp8s"), "16f": ("Npp16f", "Npp16f")}
 LAYOUT = {"C1R": (1, 1), "C2R": (2, 2), "C3R": (3, 3), "C4R": (4, 4), "AC4R": (4, 3)}
 
 FIXED_OPS = {"HighPass": "kHighPass", "LowPass": "kLowPass",
@@ -261,6 +261,40 @@ def emit_gradient(row: dict) -> Optional[str]:
     return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
 
 
+TAIL_DT = {"8u": "Npp8u", "16u": "Npp16u", "32f": "Npp32f"}
+
+
+def emit_tail(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    name = re.sub(r"\W", "_", fn)
+    m = re.match(r"nppiFilterBilateralGaussBorder_(8u|16u|32f)_(C1R|C3R)_Ctx$", fn)
+    if m:
+        src = TAIL_DT[m.group(1)]
+        c = 1 if m.group(2) == "C1R" else 3
+        lam = (f"[](const {src} *sp, int ss, NppiSize srcSize, NppiPoint off, {src} *dp, int ds, "
+               f"NppiSize roi, int radius, int step, float vs, float ps, int border, "
+               f"NppStreamContext ctx) {{ return {fn}(sp, ss, srcSize, off, dp, ds, roi, radius, "
+               f"step, vs, ps, (NppiBorderType)border, ctx); }}")
+        return (f"TEST(NumGen, {name}) {{\n  num::filttail::run_bilateral<{src}, {src}, {c}>("
+                f"\n      \"{fn}\",\n      {lam});\n}}\n")
+    if fn == "nppiFilterThresholdAdaptiveBoxBorder_8u_C1R_Ctx":
+        lam = (f"[](const Npp8u *sp, int ss, NppiSize srcSize, NppiPoint off, Npp8u *dp, int ds, "
+               f"NppiSize roi, NppiSize mask, float delta, int gt, int le, int border, "
+               f"NppStreamContext ctx) {{ return {fn}(sp, ss, srcSize, off, dp, ds, roi, mask, "
+               f"delta, (Npp8u)gt, (Npp8u)le, (NppiBorderType)border, ctx); }}")
+        return (f"TEST(NumGen, {name}) {{\n  num::filttail::run_threshold_adaptive("
+                f"\n      \"{fn}\",\n      {lam});\n}}\n")
+    if fn == "nppiFilterHarrisCornersBorder_8u32f_C1R_Ctx":
+        lam = (f"[](const Npp8u *sp, int ss, NppiSize srcSize, NppiPoint off, Npp32f *dp, int ds, "
+               f"NppiSize roi, int ft, int mask, int avg, float k, float scale, int border, "
+               f"Npp8u *pbuf, NppStreamContext ctx) {{ return {fn}(sp, ss, srcSize, off, dp, ds, "
+               f"roi, (NppiDifferentialKernel)ft, (NppiMaskSize)mask, (NppiMaskSize)avg, k, scale, "
+               f"(NppiBorderType)border, pbuf, ctx); }}")
+        return (f"TEST(NumGen, {name}) {{\n  num::filttail::run_harris("
+                f"\n      \"{fn}\",\n      {lam});\n}}\n")
+    return None
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -271,7 +305,8 @@ def main() -> int:
     skipped: List[dict] = []
     for row in rows:
         text = (emit_fixed(row) or emit_deriv(row) or emit_gauss(row) or emit_window(row)
-                or emit_generic(row) or emit_sumwindow(row) or emit_gradient(row))
+                or emit_generic(row) or emit_sumwindow(row) or emit_gradient(row)
+                or emit_tail(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
@@ -285,7 +320,8 @@ def main() -> int:
               "#include \"num_nppi_filter_window.h\"\n\n"
               "#include \"num_nppi_filter_generic.h\"\n\n"
               "#include \"num_nppi_filter_sumwindow.h\"\n\n"
-              "#include \"num_nppi_filter_gradient.h\"\n\n")
+              "#include \"num_nppi_filter_gradient.h\"\n\n"
+              "#include \"num_nppi_filter_tail.h\"\n\n")
     if args.emit:
         DEST.write_text(header + "\n".join(out))
         prev = {}

@@ -134,7 +134,7 @@
   "skipped": []
  },
  "nppi_filtering_functions.h": {
-  "emitted": 785,
+  "emitted": 799,
   "skipped": [
    {
     "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx",
@@ -312,66 +312,6 @@
     "reason": "later filtering batch / unsupported"
    },
    {
-    "function": "nppiFilter32f_16f_C1R_Ctx",
-    "family": "nppiFilter32f",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilter32f_16f_C3R_Ctx",
-    "family": "nppiFilter32f",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilter32f_16f_C4R_Ctx",
-    "family": "nppiFilter32f",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterBilateralGaussBorder_16u_C1R_Ctx",
-    "family": "nppiFilterBilateralGaussBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterBilateralGaussBorder_16u_C3R_Ctx",
-    "family": "nppiFilterBilateralGaussBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterBilateralGaussBorder_32f_C1R_Ctx",
-    "family": "nppiFilterBilateralGaussBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterBilateralGaussBorder_32f_C3R_Ctx",
-    "family": "nppiFilterBilateralGaussBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterBilateralGaussBorder_8u_C1R_Ctx",
-    "family": "nppiFilterBilateralGaussBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterBilateralGaussBorder_8u_C3R_Ctx",
-    "family": "nppiFilterBilateralGaussBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterBorder32f_16f_C1R_Ctx",
-    "family": "nppiFilterBorder32f",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterBorder32f_16f_C3R_Ctx",
-    "family": "nppiFilterBorder32f",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterBorder32f_16f_C4R_Ctx",
-    "family": "nppiFilterBorder32f",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
     "function": "nppiFilterCannyBorder_8u_C1R_Ctx",
     "family": "nppiFilterCannyBorder",
     "reason": "later filtering batch / unsupported"
@@ -434,11 +374,6 @@
    {
     "function": "nppiFilterGaussPyramidLayerUpBorder_8u_C3R_Ctx",
     "family": "nppiFilterGaussPyramidLayerUpBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterHarrisCornersBorder_8u32f_C1R_Ctx",
-    "family": "nppiFilterHarrisCornersBorder",
     "reason": "later filtering batch / unsupported"
    },
    {
@@ -609,11 +544,6 @@
    {
     "function": "nppiFilterMedianGetBufferSize_8u_C4R_Ctx",
     "family": "nppiFilterMedianGetBufferSize",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterThresholdAdaptiveBoxBorder_8u_C1R_Ctx",
-    "family": "nppiFilterThresholdAdaptiveBoxBorder",
     "reason": "later filtering batch / unsupported"
    },
    {
