@@ -388,6 +388,32 @@ def emit_median_bufsize(row: dict) -> Optional[str]:
     return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
 
 
+
+PBA_DT = {"8u": "Npp8u", "8s": "Npp8s", "16u": "Npp16u", "16s": "Npp16s", "32f": "Npp32f", "64f": "Npp64f"}
+
+
+def emit_distance_transform(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    m = re.match(r"nppiDistanceTransformPBA_(8u|8s|16u|16s|32f|64f)(16u|32f|64f)?_C1R_Ctx$", fn)
+    if not m:
+        return None
+    src = PBA_DT[m.group(1)]
+    dst = PBA_DT[m.group(2) or m.group(1)]
+    name = re.sub(r"\W", "_", fn)
+    has_abuf = fn.endswith("64f_C1R_Ctx")
+    if has_abuf:
+        body = (f"return {fn}(sp, ss, minSite, maxSite, dv, dsv, di, dsi, dm, dsm, dt, dts, roi, "
+                f"buf, abuf, ctx);")
+    else:
+        body = (f"return {fn}(sp, ss, minSite, maxSite, dv, dsv, di, dsi, dm, dsm, dt, dts, roi, "
+                f"buf, ctx);")
+    lam = (f"[]({src} *sp, int ss, {src} minSite, {src} maxSite, Npp16s *dv, int dsv, Npp16s *di, "
+           f"int dsi, Npp16s *dm, int dsm, {dst} *dt, int dts, NppiSize roi, Npp8u *buf, "
+           f"Npp8u *abuf, NppStreamContext ctx) {{ (void)abuf; {body} }}")
+    prefix = f"num::distxform::run_pba<{src}, {dst}>"
+    return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -400,7 +426,8 @@ def main() -> int:
         text = (emit_fixed(row) or emit_deriv(row) or emit_gauss(row) or emit_window(row)
                 or emit_generic(row) or emit_sumwindow(row) or emit_gradient(row)
                 or emit_tail(row) or emit_wiener(row) or emit_unsharp(row)
-                or emit_pyramid(row) or emit_hog(row) or emit_median_bufsize(row))
+                or emit_pyramid(row) or emit_hog(row) or emit_median_bufsize(row)
+                or emit_distance_transform(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
@@ -420,7 +447,8 @@ def main() -> int:
               "#include \"num_nppi_filter_unsharp.h\"\n\n"
               "#include \"num_nppi_filter_pyramid.h\"\n\n"
               "#include \"num_nppi_filter_hog.h\"\n\n"
-              "#include \"num_nppi_median_bufsize.h\"\n\n")
+              "#include \"num_nppi_median_bufsize.h\"\n\n"
+              "#include \"num_nppi_distance_transform.h\"\n\n")
     if args.emit:
         DEST.write_text(header + "\n".join(out))
         prev = {}

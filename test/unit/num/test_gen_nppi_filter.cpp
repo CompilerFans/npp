@@ -26,6 +26,92 @@
 
 #include "num_nppi_median_bufsize.h"
 
+#include "num_nppi_distance_transform.h"
+
+TEST(NumGen, nppiDistanceTransformPBA_16s16u_C1R_Ctx) {
+  num::distxform::run_pba<Npp16s, Npp16u>(
+      "nppiDistanceTransformPBA_16s16u_C1R_Ctx",
+      [](Npp16s *sp, int ss, Npp16s minSite, Npp16s maxSite, Npp16s *dv, int dsv, Npp16s *di, int dsi, Npp16s *dm, int dsm, Npp16u *dt, int dts, NppiSize roi, Npp8u *buf, Npp8u *abuf, NppStreamContext ctx) { (void)abuf; return nppiDistanceTransformPBA_16s16u_C1R_Ctx(sp, ss, minSite, maxSite, dv, dsv, di, dsi, dm, dsm, dt, dts, roi, buf, ctx); });
+}
+
+TEST(NumGen, nppiDistanceTransformPBA_16s32f_C1R_Ctx) {
+  num::distxform::run_pba<Npp16s, Npp32f>(
+      "nppiDistanceTransformPBA_16s32f_C1R_Ctx",
+      [](Npp16s *sp, int ss, Npp16s minSite, Npp16s maxSite, Npp16s *dv, int dsv, Npp16s *di, int dsi, Npp16s *dm, int dsm, Npp32f *dt, int dts, NppiSize roi, Npp8u *buf, Npp8u *abuf, NppStreamContext ctx) { (void)abuf; return nppiDistanceTransformPBA_16s32f_C1R_Ctx(sp, ss, minSite, maxSite, dv, dsv, di, dsi, dm, dsm, dt, dts, roi, buf, ctx); });
+}
+
+TEST(NumGen, nppiDistanceTransformPBA_16s64f_C1R_Ctx) {
+  num::distxform::run_pba<Npp16s, Npp64f>(
+      "nppiDistanceTransformPBA_16s64f_C1R_Ctx",
+      [](Npp16s *sp, int ss, Npp16s minSite, Npp16s maxSite, Npp16s *dv, int dsv, Npp16s *di, int dsi, Npp16s *dm, int dsm, Npp64f *dt, int dts, NppiSize roi, Npp8u *buf, Npp8u *abuf, NppStreamContext ctx) { (void)abuf; return nppiDistanceTransformPBA_16s64f_C1R_Ctx(sp, ss, minSite, maxSite, dv, dsv, di, dsi, dm, dsm, dt, dts, roi, buf, abuf, ctx); });
+}
+
+TEST(NumGen, nppiDistanceTransformPBA_16u16u_C1R_Ctx) {
+  num::distxform::run_pba<Npp16u, Npp16u>(
+      "nppiDistanceTransformPBA_16u16u_C1R_Ctx",
+      [](Npp16u *sp, int ss, Npp16u minSite, Npp16u maxSite, Npp16s *dv, int dsv, Npp16s *di, int dsi, Npp16s *dm, int dsm, Npp16u *dt, int dts, NppiSize roi, Npp8u *buf, Npp8u *abuf, NppStreamContext ctx) { (void)abuf; return nppiDistanceTransformPBA_16u16u_C1R_Ctx(sp, ss, minSite, maxSite, dv, dsv, di, dsi, dm, dsm, dt, dts, roi, buf, ctx); });
+}
+
+TEST(NumGen, nppiDistanceTransformPBA_16u32f_C1R_Ctx) {
+  num::distxform::run_pba<Npp16u, Npp32f>(
+      "nppiDistanceTransformPBA_16u32f_C1R_Ctx",
+      [](Npp16u *sp, int ss, Npp16u minSite, Npp16u maxSite, Npp16s *dv, int dsv, Npp16s *di, int dsi, Npp16s *dm, int dsm, Npp32f *dt, int dts, NppiSize roi, Npp8u *buf, Npp8u *abuf, NppStreamContext ctx) { (void)abuf; return nppiDistanceTransformPBA_16u32f_C1R_Ctx(sp, ss, minSite, maxSite, dv, dsv, di, dsi, dm, dsm, dt, dts, roi, buf, ctx); });
+}
+
+TEST(NumGen, nppiDistanceTransformPBA_16u64f_C1R_Ctx) {
+  num::distxform::run_pba<Npp16u, Npp64f>(
+      "nppiDistanceTransformPBA_16u64f_C1R_Ctx",
+      [](Npp16u *sp, int ss, Npp16u minSite, Npp16u maxSite, Npp16s *dv, int dsv, Npp16s *di, int dsi, Npp16s *dm, int dsm, Npp64f *dt, int dts, NppiSize roi, Npp8u *buf, Npp8u *abuf, NppStreamContext ctx) { (void)abuf; return nppiDistanceTransformPBA_16u64f_C1R_Ctx(sp, ss, minSite, maxSite, dv, dsv, di, dsi, dm, dsm, dt, dts, roi, buf, abuf, ctx); });
+}
+
+TEST(NumGen, nppiDistanceTransformPBA_32f64f_C1R_Ctx) {
+  num::distxform::run_pba<Npp32f, Npp64f>(
+      "nppiDistanceTransformPBA_32f64f_C1R_Ctx",
+      [](Npp32f *sp, int ss, Npp32f minSite, Npp32f maxSite, Npp16s *dv, int dsv, Npp16s *di, int dsi, Npp16s *dm, int dsm, Npp64f *dt, int dts, NppiSize roi, Npp8u *buf, Npp8u *abuf, NppStreamContext ctx) { (void)abuf; return nppiDistanceTransformPBA_32f64f_C1R_Ctx(sp, ss, minSite, maxSite, dv, dsv, di, dsi, dm, dsm, dt, dts, roi, buf, abuf, ctx); });
+}
+
+TEST(NumGen, nppiDistanceTransformPBA_64f_C1R_Ctx) {
+  num::distxform::run_pba<Npp64f, Npp64f>(
+      "nppiDistanceTransformPBA_64f_C1R_Ctx",
+      [](Npp64f *sp, int ss, Npp64f minSite, Npp64f maxSite, Npp16s *dv, int dsv, Npp16s *di, int dsi, Npp16s *dm, int dsm, Npp64f *dt, int dts, NppiSize roi, Npp8u *buf, Npp8u *abuf, NppStreamContext ctx) { (void)abuf; return nppiDistanceTransformPBA_64f_C1R_Ctx(sp, ss, minSite, maxSite, dv, dsv, di, dsi, dm, dsm, dt, dts, roi, buf, abuf, ctx); });
+}
+
+TEST(NumGen, nppiDistanceTransformPBA_8s16u_C1R_Ctx) {
+  num::distxform::run_pba<Npp8s, Npp16u>(
+      "nppiDistanceTransformPBA_8s16u_C1R_Ctx",
+      [](Npp8s *sp, int ss, Npp8s minSite, Npp8s maxSite, Npp16s *dv, int dsv, Npp16s *di, int dsi, Npp16s *dm, int dsm, Npp16u *dt, int dts, NppiSize roi, Npp8u *buf, Npp8u *abuf, NppStreamContext ctx) { (void)abuf; return nppiDistanceTransformPBA_8s16u_C1R_Ctx(sp, ss, minSite, maxSite, dv, dsv, di, dsi, dm, dsm, dt, dts, roi, buf, ctx); });
+}
+
+TEST(NumGen, nppiDistanceTransformPBA_8s32f_C1R_Ctx) {
+  num::distxform::run_pba<Npp8s, Npp32f>(
+      "nppiDistanceTransformPBA_8s32f_C1R_Ctx",
+      [](Npp8s *sp, int ss, Npp8s minSite, Npp8s maxSite, Npp16s *dv, int dsv, Npp16s *di, int dsi, Npp16s *dm, int dsm, Npp32f *dt, int dts, NppiSize roi, Npp8u *buf, Npp8u *abuf, NppStreamContext ctx) { (void)abuf; return nppiDistanceTransformPBA_8s32f_C1R_Ctx(sp, ss, minSite, maxSite, dv, dsv, di, dsi, dm, dsm, dt, dts, roi, buf, ctx); });
+}
+
+TEST(NumGen, nppiDistanceTransformPBA_8s64f_C1R_Ctx) {
+  num::distxform::run_pba<Npp8s, Npp64f>(
+      "nppiDistanceTransformPBA_8s64f_C1R_Ctx",
+      [](Npp8s *sp, int ss, Npp8s minSite, Npp8s maxSite, Npp16s *dv, int dsv, Npp16s *di, int dsi, Npp16s *dm, int dsm, Npp64f *dt, int dts, NppiSize roi, Npp8u *buf, Npp8u *abuf, NppStreamContext ctx) { (void)abuf; return nppiDistanceTransformPBA_8s64f_C1R_Ctx(sp, ss, minSite, maxSite, dv, dsv, di, dsi, dm, dsm, dt, dts, roi, buf, abuf, ctx); });
+}
+
+TEST(NumGen, nppiDistanceTransformPBA_8u16u_C1R_Ctx) {
+  num::distxform::run_pba<Npp8u, Npp16u>(
+      "nppiDistanceTransformPBA_8u16u_C1R_Ctx",
+      [](Npp8u *sp, int ss, Npp8u minSite, Npp8u maxSite, Npp16s *dv, int dsv, Npp16s *di, int dsi, Npp16s *dm, int dsm, Npp16u *dt, int dts, NppiSize roi, Npp8u *buf, Npp8u *abuf, NppStreamContext ctx) { (void)abuf; return nppiDistanceTransformPBA_8u16u_C1R_Ctx(sp, ss, minSite, maxSite, dv, dsv, di, dsi, dm, dsm, dt, dts, roi, buf, ctx); });
+}
+
+TEST(NumGen, nppiDistanceTransformPBA_8u32f_C1R_Ctx) {
+  num::distxform::run_pba<Npp8u, Npp32f>(
+      "nppiDistanceTransformPBA_8u32f_C1R_Ctx",
+      [](Npp8u *sp, int ss, Npp8u minSite, Npp8u maxSite, Npp16s *dv, int dsv, Npp16s *di, int dsi, Npp16s *dm, int dsm, Npp32f *dt, int dts, NppiSize roi, Npp8u *buf, Npp8u *abuf, NppStreamContext ctx) { (void)abuf; return nppiDistanceTransformPBA_8u32f_C1R_Ctx(sp, ss, minSite, maxSite, dv, dsv, di, dsi, dm, dsm, dt, dts, roi, buf, ctx); });
+}
+
+TEST(NumGen, nppiDistanceTransformPBA_8u64f_C1R_Ctx) {
+  num::distxform::run_pba<Npp8u, Npp64f>(
+      "nppiDistanceTransformPBA_8u64f_C1R_Ctx",
+      [](Npp8u *sp, int ss, Npp8u minSite, Npp8u maxSite, Npp16s *dv, int dsv, Npp16s *di, int dsi, Npp16s *dm, int dsm, Npp64f *dt, int dts, NppiSize roi, Npp8u *buf, Npp8u *abuf, NppStreamContext ctx) { (void)abuf; return nppiDistanceTransformPBA_8u64f_C1R_Ctx(sp, ss, minSite, maxSite, dv, dsv, di, dsi, dm, dsm, dt, dts, roi, buf, abuf, ctx); });
+}
+
 TEST(NumGen, nppiFilter32f_16f_C1R_Ctx) {
   num::filtgen::run_generic<Npp16f, Npp16f, 1, 1, 0, 1, false, false>(
       "nppiFilter32f_16f_C1R_Ctx",

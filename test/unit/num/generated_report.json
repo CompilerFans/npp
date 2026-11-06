@@ -134,7 +134,7 @@
   "skipped": []
  },
  "nppi_filtering_functions.h": {
-  "emitted": 879,
+  "emitted": 893,
   "skipped": [
    {
     "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx",
@@ -239,76 +239,6 @@
    {
     "function": "nppiDistanceTransformAbsPBA_8u64f_C1R_Ctx",
     "family": "nppiDistanceTransformAbsPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformPBA_16s16u_C1R_Ctx",
-    "family": "nppiDistanceTransformPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformPBA_16s32f_C1R_Ctx",
-    "family": "nppiDistanceTransformPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformPBA_16s64f_C1R_Ctx",
-    "family": "nppiDistanceTransformPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformPBA_16u16u_C1R_Ctx",
-    "family": "nppiDistanceTransformPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformPBA_16u32f_C1R_Ctx",
-    "family": "nppiDistanceTransformPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformPBA_16u64f_C1R_Ctx",
-    "family": "nppiDistanceTransformPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformPBA_32f64f_C1R_Ctx",
-    "family": "nppiDistanceTransformPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformPBA_64f_C1R_Ctx",
-    "family": "nppiDistanceTransformPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformPBA_8s16u_C1R_Ctx",
-    "family": "nppiDistanceTransformPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformPBA_8s32f_C1R_Ctx",
-    "family": "nppiDistanceTransformPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformPBA_8s64f_C1R_Ctx",
-    "family": "nppiDistanceTransformPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformPBA_8u16u_C1R_Ctx",
-    "family": "nppiDistanceTransformPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformPBA_8u32f_C1R_Ctx",
-    "family": "nppiDistanceTransformPBA",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiDistanceTransformPBA_8u64f_C1R_Ctx",
-    "family": "nppiDistanceTransformPBA",
     "reason": "later filtering batch / unsupported"
    },
    {

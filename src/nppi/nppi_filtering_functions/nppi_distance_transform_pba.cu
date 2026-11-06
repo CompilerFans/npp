@@ -4,8 +4,8 @@
 //   * sites are pixels with nMinSiteValue <= value <= nMaxSiteValue;
 //   * every pixel reports the nearest site by squared Euclidean distance;
 //     ties prefer the smaller x, then the larger y;
-//   * with no sites the reported site is (-1, -1) and the transform is
-//     distance to that point;
+//   * with no sites the reported site is (-1,-1) for integer destinations
+//     and (-1,0) for floating-point destinations (measured quirk);
 //   * pDstVoronoi and pDstVoronoiIndices both hold (site.x, site.y);
 //     the relative Manhattan output holds (x - site.x, y - site.y) and the
 //     absolute one holds (|x - site.x|, |y - site.y|);
@@ -63,8 +63,12 @@ __global__ void pbaBruteKernel(const Src *pSrc, int nSrcStep, Src minSiteValue, 
     }
   }
   if (!found) {
+    // Measured NPP 13.4 quirk: with no site at all the reported site is
+    // (-1,-1) for integer destinations but (-1,0) for floating-point ones.
     const long long dx = static_cast<long long>(x) + 1;
-    const long long dy = static_cast<long long>(y) + 1;
+    const long long dy = std::is_same_v<Dst, Npp64f> || std::is_same_v<Dst, Npp32f>
+                             ? static_cast<long long>(y)
+                             : static_cast<long long>(y) + 1;
     bestDistance = dx * dx + dy * dy;
   }
 
