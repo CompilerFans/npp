@@ -18,6 +18,8 @@
 
 #include "num_nppi_filter_wiener.h"
 
+#include "num_nppi_filter_unsharp.h"
+
 TEST(NumGen, nppiFilter32f_16f_C1R_Ctx) {
   num::filtgen::run_generic<Npp16f, Npp16f, 1, 1, 0, 1, false, false>(
       "nppiFilter32f_16f_C1R_Ctx",
@@ -4342,6 +4344,102 @@ TEST(NumGen, nppiFilterThresholdAdaptiveBoxBorder_8u_C1R_Ctx) {
   num::filttail::run_threshold_adaptive(
       "nppiFilterThresholdAdaptiveBoxBorder_8u_C1R_Ctx",
       [](const Npp8u *sp, int ss, NppiSize srcSize, NppiPoint off, Npp8u *dp, int ds, NppiSize roi, NppiSize mask, float delta, int gt, int le, int border, NppStreamContext ctx) { return nppiFilterThresholdAdaptiveBoxBorder_8u_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, mask, delta, (Npp8u)gt, (Npp8u)le, (NppiBorderType)border, ctx); });
+}
+
+TEST(NumGen, nppiFilterUnsharpBorder_16s_AC4R_Ctx) {
+  num::filtunsharp::run_unsharp<Npp16s, Npp16s, 4, 3, 2>(
+      "nppiFilterUnsharpBorder_16s_AC4R_Ctx",
+      [](const Npp16s *sp, int ss, NppiPoint off, Npp16s *dp, int ds, NppiSize roi, float radius, float sigma, float weight, float threshold, int border, Npp8u *pbuf, NppStreamContext ctx) { return nppiFilterUnsharpBorder_16s_AC4R_Ctx(sp, ss, off, dp, ds, roi, radius, sigma, weight, threshold, (NppiBorderType)border, pbuf, ctx); });
+}
+
+TEST(NumGen, nppiFilterUnsharpBorder_16s_C1R_Ctx) {
+  num::filtunsharp::run_unsharp<Npp16s, Npp16s, 1, 1, 2>(
+      "nppiFilterUnsharpBorder_16s_C1R_Ctx",
+      [](const Npp16s *sp, int ss, NppiPoint off, Npp16s *dp, int ds, NppiSize roi, float radius, float sigma, float weight, float threshold, int border, Npp8u *pbuf, NppStreamContext ctx) { return nppiFilterUnsharpBorder_16s_C1R_Ctx(sp, ss, off, dp, ds, roi, radius, sigma, weight, threshold, (NppiBorderType)border, pbuf, ctx); });
+}
+
+TEST(NumGen, nppiFilterUnsharpBorder_16s_C3R_Ctx) {
+  num::filtunsharp::run_unsharp<Npp16s, Npp16s, 3, 3, 2>(
+      "nppiFilterUnsharpBorder_16s_C3R_Ctx",
+      [](const Npp16s *sp, int ss, NppiPoint off, Npp16s *dp, int ds, NppiSize roi, float radius, float sigma, float weight, float threshold, int border, Npp8u *pbuf, NppStreamContext ctx) { return nppiFilterUnsharpBorder_16s_C3R_Ctx(sp, ss, off, dp, ds, roi, radius, sigma, weight, threshold, (NppiBorderType)border, pbuf, ctx); });
+}
+
+TEST(NumGen, nppiFilterUnsharpBorder_16s_C4R_Ctx) {
+  num::filtunsharp::run_unsharp<Npp16s, Npp16s, 4, 4, 2>(
+      "nppiFilterUnsharpBorder_16s_C4R_Ctx",
+      [](const Npp16s *sp, int ss, NppiPoint off, Npp16s *dp, int ds, NppiSize roi, float radius, float sigma, float weight, float threshold, int border, Npp8u *pbuf, NppStreamContext ctx) { return nppiFilterUnsharpBorder_16s_C4R_Ctx(sp, ss, off, dp, ds, roi, radius, sigma, weight, threshold, (NppiBorderType)border, pbuf, ctx); });
+}
+
+TEST(NumGen, nppiFilterUnsharpBorder_16u_AC4R_Ctx) {
+  num::filtunsharp::run_unsharp<Npp16u, Npp16u, 4, 3, 1>(
+      "nppiFilterUnsharpBorder_16u_AC4R_Ctx",
+      [](const Npp16u *sp, int ss, NppiPoint off, Npp16u *dp, int ds, NppiSize roi, float radius, float sigma, float weight, float threshold, int border, Npp8u *pbuf, NppStreamContext ctx) { return nppiFilterUnsharpBorder_16u_AC4R_Ctx(sp, ss, off, dp, ds, roi, radius, sigma, weight, threshold, (NppiBorderType)border, pbuf, ctx); });
+}
+
+TEST(NumGen, nppiFilterUnsharpBorder_16u_C1R_Ctx) {
+  num::filtunsharp::run_unsharp<Npp16u, Npp16u, 1, 1, 1>(
+      "nppiFilterUnsharpBorder_16u_C1R_Ctx",
+      [](const Npp16u *sp, int ss, NppiPoint off, Npp16u *dp, int ds, NppiSize roi, float radius, float sigma, float weight, float threshold, int border, Npp8u *pbuf, NppStreamContext ctx) { return nppiFilterUnsharpBorder_16u_C1R_Ctx(sp, ss, off, dp, ds, roi, radius, sigma, weight, threshold, (NppiBorderType)border, pbuf, ctx); });
+}
+
+TEST(NumGen, nppiFilterUnsharpBorder_16u_C3R_Ctx) {
+  num::filtunsharp::run_unsharp<Npp16u, Npp16u, 3, 3, 1>(
+      "nppiFilterUnsharpBorder_16u_C3R_Ctx",
+      [](const Npp16u *sp, int ss, NppiPoint off, Npp16u *dp, int ds, NppiSize roi, float radius, float sigma, float weight, float threshold, int border, Npp8u *pbuf, NppStreamContext ctx) { return nppiFilterUnsharpBorder_16u_C3R_Ctx(sp, ss, off, dp, ds, roi, radius, sigma, weight, threshold, (NppiBorderType)border, pbuf, ctx); });
+}
+
+TEST(NumGen, nppiFilterUnsharpBorder_16u_C4R_Ctx) {
+  num::filtunsharp::run_unsharp<Npp16u, Npp16u, 4, 4, 1>(
+      "nppiFilterUnsharpBorder_16u_C4R_Ctx",
+      [](const Npp16u *sp, int ss, NppiPoint off, Npp16u *dp, int ds, NppiSize roi, float radius, float sigma, float weight, float threshold, int border, Npp8u *pbuf, NppStreamContext ctx) { return nppiFilterUnsharpBorder_16u_C4R_Ctx(sp, ss, off, dp, ds, roi, radius, sigma, weight, threshold, (NppiBorderType)border, pbuf, ctx); });
+}
+
+TEST(NumGen, nppiFilterUnsharpBorder_32f_AC4R_Ctx) {
+  num::filtunsharp::run_unsharp<Npp32f, Npp32f, 4, 3, 3>(
+      "nppiFilterUnsharpBorder_32f_AC4R_Ctx",
+      [](const Npp32f *sp, int ss, NppiPoint off, Npp32f *dp, int ds, NppiSize roi, float radius, float sigma, float weight, float threshold, int border, Npp8u *pbuf, NppStreamContext ctx) { return nppiFilterUnsharpBorder_32f_AC4R_Ctx(sp, ss, off, dp, ds, roi, radius, sigma, weight, threshold, (NppiBorderType)border, pbuf, ctx); });
+}
+
+TEST(NumGen, nppiFilterUnsharpBorder_32f_C1R_Ctx) {
+  num::filtunsharp::run_unsharp<Npp32f, Npp32f, 1, 1, 3>(
+      "nppiFilterUnsharpBorder_32f_C1R_Ctx",
+      [](const Npp32f *sp, int ss, NppiPoint off, Npp32f *dp, int ds, NppiSize roi, float radius, float sigma, float weight, float threshold, int border, Npp8u *pbuf, NppStreamContext ctx) { return nppiFilterUnsharpBorder_32f_C1R_Ctx(sp, ss, off, dp, ds, roi, radius, sigma, weight, threshold, (NppiBorderType)border, pbuf, ctx); });
+}
+
+TEST(NumGen, nppiFilterUnsharpBorder_32f_C3R_Ctx) {
+  num::filtunsharp::run_unsharp<Npp32f, Npp32f, 3, 3, 3>(
+      "nppiFilterUnsharpBorder_32f_C3R_Ctx",
+      [](const Npp32f *sp, int ss, NppiPoint off, Npp32f *dp, int ds, NppiSize roi, float radius, float sigma, float weight, float threshold, int border, Npp8u *pbuf, NppStreamContext ctx) { return nppiFilterUnsharpBorder_32f_C3R_Ctx(sp, ss, off, dp, ds, roi, radius, sigma, weight, threshold, (NppiBorderType)border, pbuf, ctx); });
+}
+
+TEST(NumGen, nppiFilterUnsharpBorder_32f_C4R_Ctx) {
+  num::filtunsharp::run_unsharp<Npp32f, Npp32f, 4, 4, 3>(
+      "nppiFilterUnsharpBorder_32f_C4R_Ctx",
+      [](const Npp32f *sp, int ss, NppiPoint off, Npp32f *dp, int ds, NppiSize roi, float radius, float sigma, float weight, float threshold, int border, Npp8u *pbuf, NppStreamContext ctx) { return nppiFilterUnsharpBorder_32f_C4R_Ctx(sp, ss, off, dp, ds, roi, radius, sigma, weight, threshold, (NppiBorderType)border, pbuf, ctx); });
+}
+
+TEST(NumGen, nppiFilterUnsharpBorder_8u_AC4R_Ctx) {
+  num::filtunsharp::run_unsharp<Npp8u, Npp8u, 4, 3, 0>(
+      "nppiFilterUnsharpBorder_8u_AC4R_Ctx",
+      [](const Npp8u *sp, int ss, NppiPoint off, Npp8u *dp, int ds, NppiSize roi, float radius, float sigma, float weight, float threshold, int border, Npp8u *pbuf, NppStreamContext ctx) { return nppiFilterUnsharpBorder_8u_AC4R_Ctx(sp, ss, off, dp, ds, roi, radius, sigma, weight, threshold, (NppiBorderType)border, pbuf, ctx); });
+}
+
+TEST(NumGen, nppiFilterUnsharpBorder_8u_C1R_Ctx) {
+  num::filtunsharp::run_unsharp<Npp8u, Npp8u, 1, 1, 0>(
+      "nppiFilterUnsharpBorder_8u_C1R_Ctx",
+      [](const Npp8u *sp, int ss, NppiPoint off, Npp8u *dp, int ds, NppiSize roi, float radius, float sigma, float weight, float threshold, int border, Npp8u *pbuf, NppStreamContext ctx) { return nppiFilterUnsharpBorder_8u_C1R_Ctx(sp, ss, off, dp, ds, roi, radius, sigma, weight, threshold, (NppiBorderType)border, pbuf, ctx); });
+}
+
+TEST(NumGen, nppiFilterUnsharpBorder_8u_C3R_Ctx) {
+  num::filtunsharp::run_unsharp<Npp8u, Npp8u, 3, 3, 0>(
+      "nppiFilterUnsharpBorder_8u_C3R_Ctx",
+      [](const Npp8u *sp, int ss, NppiPoint off, Npp8u *dp, int ds, NppiSize roi, float radius, float sigma, float weight, float threshold, int border, Npp8u *pbuf, NppStreamContext ctx) { return nppiFilterUnsharpBorder_8u_C3R_Ctx(sp, ss, off, dp, ds, roi, radius, sigma, weight, threshold, (NppiBorderType)border, pbuf, ctx); });
+}
+
+TEST(NumGen, nppiFilterUnsharpBorder_8u_C4R_Ctx) {
+  num::filtunsharp::run_unsharp<Npp8u, Npp8u, 4, 4, 0>(
+      "nppiFilterUnsharpBorder_8u_C4R_Ctx",
+      [](const Npp8u *sp, int ss, NppiPoint off, Npp8u *dp, int ds, NppiSize roi, float radius, float sigma, float weight, float threshold, int border, Npp8u *pbuf, NppStreamContext ctx) { return nppiFilterUnsharpBorder_8u_C4R_Ctx(sp, ss, off, dp, ds, roi, radius, sigma, weight, threshold, (NppiBorderType)border, pbuf, ctx); });
 }
 
 TEST(NumGen, nppiFilterWienerBorder_16s_AC4R_Ctx) {

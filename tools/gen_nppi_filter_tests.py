@@ -311,6 +311,25 @@ def emit_wiener(row: dict) -> Optional[str]:
     return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
 
 
+UNSHARP_DT = {"8u": ("Npp8u", 0), "16u": ("Npp16u", 1), "16s": ("Npp16s", 2), "32f": ("Npp32f", 3)}
+
+
+def emit_unsharp(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    m = re.match(r"nppiFilterUnsharpBorder_(8u|16u|16s|32f)_(C1R|C3R|C4R|AC4R)_Ctx$", fn)
+    if not m:
+        return None
+    src, dtcode = UNSHARP_DT[m.group(1)]
+    c, a = LAYOUT[m.group(2)]
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[](const {src} *sp, int ss, NppiPoint off, {src} *dp, int ds, NppiSize roi, float radius, "
+           f"float sigma, float weight, float threshold, int border, Npp8u *pbuf, NppStreamContext ctx) "
+           f"{{ return {fn}(sp, ss, off, dp, ds, roi, radius, sigma, weight, threshold, "
+           f"(NppiBorderType)border, pbuf, ctx); }}")
+    prefix = f"num::filtunsharp::run_unsharp<{src}, {src}, {c}, {a}, {dtcode}>"
+    return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -322,7 +341,7 @@ def main() -> int:
     for row in rows:
         text = (emit_fixed(row) or emit_deriv(row) or emit_gauss(row) or emit_window(row)
                 or emit_generic(row) or emit_sumwindow(row) or emit_gradient(row)
-                or emit_tail(row) or emit_wiener(row))
+                or emit_tail(row) or emit_wiener(row) or emit_unsharp(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
@@ -338,7 +357,8 @@ def main() -> int:
               "#include \"num_nppi_filter_sumwindow.h\"\n\n"
               "#include \"num_nppi_filter_gradient.h\"\n\n"
               "#include \"num_nppi_filter_tail.h\"\n\n"
-              "#include \"num_nppi_filter_wiener.h\"\n\n")
+              "#include \"num_nppi_filter_wiener.h\"\n\n"
+              "#include \"num_nppi_filter_unsharp.h\"\n\n")
     if args.emit:
         DEST.write_text(header + "\n".join(out))
         prev = {}
