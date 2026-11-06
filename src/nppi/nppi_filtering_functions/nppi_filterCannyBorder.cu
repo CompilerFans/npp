@@ -1,334 +1,187 @@
+// Canny edge detector (nppiFilterCannyBorder_8u_C1R), decoded from NPP 13.4.
+//
+// The reference pipeline (measured on an RTX 5090; see
+// test/unit/num/num_nppi_canny.h) is:
+//   1. gradient: the GradientVectorBorder filter (Sobel or Scharr, mask 3x3 or
+//      5x5) over the ROI, taps clamped to the oSrcSize image in pSrc-relative
+//      coordinates, magnitude truncated to a saturated Npp16s, angle
+//      atan2(Y, X) radians;
+//   2. non-maximum suppression with the four direction bins of [0,180)
+//      degrees (horizontal, anti-diagonal (1,-1), vertical, main diagonal
+//      (1,1)); a pixel survives when its magnitude is positive and >= both
+//      directional neighbours, which are clamped to the ROI edge;
+//   3. single-pass hysteresis on the suppressed magnitudes: accept when
+//      m >= high, or when m >= low and any of the eight neighbours in the
+//      unsuppressed magnitude image is >= low;
+//   4. output 0x00 / 0xFF; only NPP_BORDER_REPLICATE is supported.
 #include "npp.h"
 #include <cmath>
 #include <cuda_runtime.h>
 
+namespace {
 
-// Sobel X and Y direction kernels
-__constant__ float c_sobelX[9] = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
-__constant__ float c_sobelY[9] = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
+struct CannyCoef {
+  int size;
+  int k[5][5];
+};
 
-// Gaussian filter kernel (3x3)
-__constant__ float c_gaussianKernel3x3[9] = {1.0f / 16, 2.0f / 16, 1.0f / 16, 2.0f / 16, 4.0f / 16,
-                                             2.0f / 16, 1.0f / 16, 2.0f / 16, 1.0f / 16};
-
-// Gaussian filter kernel (5x5)
-__constant__ float c_gaussianKernel5x5[25] = {
-    1.0f / 256,  4.0f / 256, 6.0f / 256,  4.0f / 256,  1.0f / 256,  4.0f / 256, 16.0f / 256, 24.0f / 256, 16.0f / 256,
-    4.0f / 256,  6.0f / 256, 24.0f / 256, 36.0f / 256, 24.0f / 256, 6.0f / 256, 4.0f / 256,  16.0f / 256, 24.0f / 256,
-    16.0f / 256, 4.0f / 256, 1.0f / 256,  4.0f / 256,  6.0f / 256,  4.0f / 256, 1.0f / 256};
-
-template <typename T>
-__device__ T getBorderPixelCanny(const T *pSrc, int nSrcStep, int width, int height, int x, int y,
-                                 NppiBorderType eBorderType) {
-  if (x >= 0 && x < width && y >= 0 && y < height) {
-    const T *src_row = (const T *)((const char *)pSrc + y * nSrcStep);
-    return src_row[x];
-  }
-
-  switch (eBorderType) {
-  case NPP_BORDER_REPLICATE:
-    x = max(0, min(x, width - 1));
-    y = max(0, min(y, height - 1));
-    break;
-  case NPP_BORDER_CONSTANT:
-  default:
-    return T(0);
-  }
-
-  const T *src_row = (const T *)((const char *)pSrc + y * nSrcStep);
-  return src_row[x];
+inline CannyCoef coefOf(const int *k, int n) {
+  CannyCoef c{};
+  c.size = n;
+  for (int a = 0; a < n; ++a)
+    for (int b = 0; b < n; ++b) c.k[a][b] = k[a * n + b];
+  return c;
 }
 
-// Step 1: Gaussian filtering for noise reduction
-__global__ void cannyGaussianBlur_kernel(const Npp8u *pSrc, int nSrcStep, float *pBlurred, int nBlurredStep,
-                                         int srcWidth, int srcHeight, NppiMaskSize eMaskSize,
-                                         NppiBorderType eBorderType) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
+// Same tap tables as the GradientVectorBorder executor: X is the negated
+// vertical response for Sobel and the positive one for Scharr; Y is the
+// positive horizontal response.
+void cannyTaps(NppiDifferentialKernel type, NppiMaskSize maskSize, CannyCoef &cx, CannyCoef &cy) {
+  static const int SobelHoriz3[9] = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
+  static const int SobelVert3[9] = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
+  static const int SobelHoriz5[25] = {-1, -4, -6, -4, -1, -2, -8, -12, -8, -2, 0, 0, 0, 0, 0,
+                                      2, 8,  12, 8,  2,  1,  4,  6,   4,  1};
+  static const int SobelVert5[25] = {-1, -2, 0,  2,  1,  -4, -8, 0,  8,  4,  -6, -12, 0,  12, 6,
+                                     -4, -8, 0,  8,  4,  -1, -2, 0,  2,  1};
+  static const int ScharrHoriz3[9] = {-3, -10, -3, 0, 0, 0, 3, 10, 3};
+  static const int ScharrVert3[9] = {-3, 0, 3, -10, 0, 10, -3, 0, 3};
+  const bool scharr = type == NPP_FILTER_SCHARR;
+  if (!scharr && maskSize == NPP_MASK_SIZE_5_X_5) {
+    cx = coefOf(SobelVert5, 5);
+    cy = coefOf(SobelHoriz5, 5);
+  } else {
+    cx = coefOf(scharr ? ScharrVert3 : SobelVert3, 3);
+    cy = coefOf(scharr ? ScharrHoriz3 : SobelHoriz3, 3);
+  }
+  if (!scharr)
+    for (int a = 0; a < cx.size; ++a)
+      for (int b = 0; b < cx.size; ++b) cx.k[a][b] = -cx.k[a][b];
+}
 
-  if (x >= srcWidth || y >= srcHeight)
-    return;
+__device__ __forceinline__ int clampi(int v, int lo, int hi) { return v < lo ? lo : (v > hi ? hi : v); }
 
-  float sum = 0.0f;
-  int maskSize = (eMaskSize == NPP_MASK_SIZE_3_X_3) ? 3 : 5;
-  int half = maskSize / 2;
+struct CannyDirs {
+  int dx1, dy1, dx2, dy2;
+};
 
-  for (int dy = -half; dy <= half; dy++) {
-    for (int dx = -half; dx <= half; dx++) {
-      float pixel = (float)getBorderPixelCanny<Npp8u>(pSrc, nSrcStep, srcWidth, srcHeight, x + dx, y + dy, eBorderType);
+__device__ __forceinline__ CannyDirs cannyDirsOf(double deg) {
+  while (deg < 0) deg += 180.0;
+  if (deg >= 180.0) deg -= 180.0;
+  if (deg < 22.5 || deg >= 157.5) return {1, 0, -1, 0};
+  if (deg < 67.5) return {1, -1, -1, 1};
+  if (deg < 112.5) return {0, 1, 0, -1};
+  return {1, 1, -1, -1};
+}
 
-      if (eMaskSize == NPP_MASK_SIZE_3_X_3) {
-        sum += pixel * c_gaussianKernel3x3[(dy + half) * 3 + (dx + half)];
-      } else {
-        sum += pixel * c_gaussianKernel5x5[(dy + half) * 5 + (dx + half)];
-      }
+__global__ void cannyGradientKernel(const Npp8u *pSrc, int nSrcStep, Npp16s *pMag, int nMagStep,
+                                    Npp32f *pAngle, int nAngleStep, int width, int height, CannyCoef cx,
+                                    CannyCoef cy, int srcW, int srcH, int offX, int offY, int normL1) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= width || y >= height) return;
+  const int r = cx.size >> 1;
+  const int loX = -offX, hiX = srcW - 1 - offX;
+  const int loY = -offY, hiY = srcH - 1 - offY;
+  int ax = 0, ay = 0;
+  for (int a = 0; a < cx.size; ++a) {
+    const int ry = clampi(y + a - r, loY, hiY);
+    const Npp8u *row = (const Npp8u *)((const char *)pSrc + (size_t)ry * nSrcStep);
+    for (int b = 0; b < cx.size; ++b) {
+      const int rx = clampi(x + b - r, loX, hiX);
+      const int v = (int)row[rx];
+      ax += cx.k[a][b] * v;
+      ay += cy.k[a][b] * v;
     }
   }
-
-  float *blurred_row = (float *)((char *)pBlurred + y * nBlurredStep);
-  blurred_row[x] = sum;
+  const double mag = normL1 ? (std::fabs((double)ax) + std::fabs((double)ay))
+                            : std::sqrt((double)ax * ax + (double)ay * ay);
+  const Npp16s m16 = mag >= 32767.0 ? (Npp16s)32767 : (Npp16s)(float)mag;
+  ((Npp16s *)((char *)pMag + (size_t)y * nMagStep))[x] = m16;
+  ((Npp32f *)((char *)pAngle + (size_t)y * nAngleStep))[x] = (Npp32f)std::atan2((double)ay, (double)ax);
 }
 
-// 第二步：Compute gradient magnitude和方向
-__global__ void cannySobelGradient_kernel(const float *pBlurred, int nBlurredStep, float *pGradMag, int nMagStep,
-                                          float *pGradDir, int nDirStep, int width, int height,
-                                          NppiBorderType eBorderType) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
-    return;
-
-  float gx = 0.0f, gy = 0.0f;
-
-  // Apply Sobel operator
-  for (int dy = -1; dy <= 1; dy++) {
-    for (int dx = -1; dx <= 1; dx++) {
-      int px = x + dx;
-      int py = y + dy;
-
-      float pixel;
-      if (px >= 0 && px < width && py >= 0 && py < height) {
-        const float *blurred_row = (const float *)((const char *)pBlurred + py * nBlurredStep);
-        pixel = blurred_row[px];
-      } else {
-        // Boundary handling
-        if (eBorderType == NPP_BORDER_REPLICATE) {
-          px = max(0, min(px, width - 1));
-          py = max(0, min(py, height - 1));
-          const float *blurred_row = (const float *)((const char *)pBlurred + py * nBlurredStep);
-          pixel = blurred_row[px];
-        } else {
-          pixel = 0.0f;
-        }
-      }
-
-      int kernelIdx = (dy + 1) * 3 + (dx + 1);
-      gx += pixel * c_sobelX[kernelIdx];
-      gy += pixel * c_sobelY[kernelIdx];
-    }
-  }
-
-  // Compute gradient magnitude和方向
-  float magnitude = sqrtf(gx * gx + gy * gy);
-  float direction = atan2f(gy, gx) * 180.0f / M_PI; // Convert to degrees
-
-  // Normalize direction to 0-180 degrees
-  if (direction < 0)
-    direction += 180.0f;
-
-  float *mag_row = (float *)((char *)pGradMag + y * nMagStep);
-  float *dir_row = (float *)((char *)pGradDir + y * nDirStep);
-
-  mag_row[x] = magnitude;
-  dir_row[x] = direction;
+__device__ __forceinline__ int cannyMagAt(const Npp16s *pMag, int step, int x, int y, int w, int h) {
+  return (int)((const Npp16s *)((const char *)pMag + (size_t)clampi(y, 0, h - 1) * step))[clampi(x, 0, w - 1)];
 }
 
-// Step 3: Non-maximum suppression
-__global__ void cannyNonMaxSuppression_kernel(const float *pGradMag, int nMagStep, const float *pGradDir, int nDirStep,
-                                              float *pSuppressed, int nSuppressedStep, int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
-    return;
-
-  const float *mag_row = (const float *)((const char *)pGradMag + y * nMagStep);
-  const float *dir_row = (const float *)((const char *)pGradDir + y * nDirStep);
-  float *supp_row = (float *)((char *)pSuppressed + y * nSuppressedStep);
-
-  float magnitude = mag_row[x];
-  float direction = dir_row[x];
-
-  // Quantize direction to 4 main directions
-  float angle = direction;
-  if (angle > 180)
-    angle -= 180;
-
-  int dx1=0, dy1=0, dx2=0, dy2=0;
-  if ((angle >= 0 && angle < 22.5) || (angle >= 157.5 && angle <= 180)) {
-    // Horizontal direction
-    dx1 = 1;
-    dy1 = 0;
-    dx2 = -1;
-    dy2 = 0;
-  } else if (angle >= 22.5 && angle < 67.5) {
-    // Diagonal direction /
-    dx1 = 1;
-    dy1 = -1;
-    dx2 = -1;
-    dy2 = 1;
-  } else if (angle >= 67.5 && angle < 112.5) {
-    // Vertical direction
-    dx1 = 0;
-    dy1 = 1;
-    dx2 = 0;
-    dy2 = -1;
-  } else {
-    // Diagonal direction \
-    dx1 = -1; dy1 = -1; dx2 = 1; dy2 = 1;
-  }
-
-  // Check adjacent pixels
-  float mag1 = 0.0f, mag2 = 0.0f;
-
-  int x1 = x + dx1, y1 = y + dy1;
-  int x2 = x + dx2, y2 = y + dy2;
-
-  if (x1 >= 0 && x1 < width && y1 >= 0 && y1 < height) {
-    const float *mag1_row = (const float *)((const char *)pGradMag + y1 * nMagStep);
-    mag1 = mag1_row[x1];
-  }
-
-  if (x2 >= 0 && x2 < width && y2 >= 0 && y2 < height) {
-    const float *mag2_row = (const float *)((const char *)pGradMag + y2 * nMagStep);
-    mag2 = mag2_row[x2];
-  }
-
-  // Non-maximum suppression
-  if (magnitude >= mag1 && magnitude >= mag2) {
-    supp_row[x] = magnitude;
-  } else {
-    supp_row[x] = 0.0f;
-  }
+__global__ void cannyNmsKernel(const Npp16s *pMag, int nMagStep, const Npp32f *pAngle, int nAngleStep,
+                               Npp16s *pNms, int nNmsStep, int width, int height) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= width || y >= height) return;
+  const Npp32f angle = ((const Npp32f *)((const char *)pAngle + (size_t)y * nAngleStep))[x];
+  const CannyDirs d = cannyDirsOf((double)angle * 180.0 / M_PI);
+  const int m = cannyMagAt(pMag, nMagStep, x, y, width, height);
+  const int m1 = cannyMagAt(pMag, nMagStep, x + d.dx1, y + d.dy1, width, height);
+  const int m2 = cannyMagAt(pMag, nMagStep, x + d.dx2, y + d.dy2, width, height);
+  const Npp16s out = (m > 0 && m >= m1 && m >= m2) ? (Npp16s)m : (Npp16s)0;
+  ((Npp16s *)((char *)pNms + (size_t)y * nNmsStep))[x] = out;
 }
 
-// Step 4: Double threshold detection and edge linking
-__global__ void cannyDoubleThreshold_kernel(const float *pSuppressed, int nSuppressedStep, Npp8u *pDst, int nDstStep,
-                                            int width, int height, float nLowThreshold, float nHighThreshold) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
-    return;
-
-  const float *supp_row = (const float *)((const char *)pSuppressed + y * nSuppressedStep);
-  Npp8u *dst_row = (Npp8u *)((char *)pDst + y * nDstStep);
-
-  float magnitude = supp_row[x];
-
-  if (magnitude >= nHighThreshold) {
-    dst_row[x] = 255; // Strong edge
-  } else if (magnitude >= nLowThreshold) {
-    dst_row[x] = 128; // Weak edge
-  } else {
-    dst_row[x] = 0; // Non-edge
-  }
+__global__ void cannyHysteresisKernel(const Npp16s *pMag, int nMagStep, const Npp16s *pNms, int nNmsStep,
+                                      Npp8u *pDst, int nDstStep, int width, int height, int lo, int hi) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= width || y >= height) return;
+  const int m = (int)((const Npp16s *)((const char *)pNms + (size_t)y * nNmsStep))[x];
+  int rmax = 0;
+  for (int dy = -1; dy <= 1; ++dy)
+    for (int dx = -1; dx <= 1; ++dx)
+      if (dx != 0 || dy != 0) rmax = max(rmax, cannyMagAt(pMag, nMagStep, x + dx, y + dy, width, height));
+  const bool accept = (m >= hi) || (m >= lo && rmax >= lo);
+  ((Npp8u *)((char *)pDst + (size_t)y * nDstStep))[x] = accept ? (Npp8u)0xFF : (Npp8u)0x00;
 }
 
-// Edge linking (simplified version)
-
-__global__ void cannyEdgeTracing_kernel(Npp8u *pDst, int nDstStep, int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
-    return;
-
-  Npp8u *dst_row = (Npp8u *)((char *)pDst + y * nDstStep);
-
-  if (dst_row[x] == 128) { // Weak edge
-    // 检查8邻域是否有Strong edge
-    bool hasStrongNeighbor = false;
-
-    for (int dy = -1; dy <= 1; dy++) {
-      for (int dx = -1; dx <= 1; dx++) {
-        if (dx == 0 && dy == 0)
-          continue;
-
-        int nx = x + dx;
-        int ny = y + dy;
-
-        if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-          const Npp8u *neighbor_row = (const Npp8u *)((const char *)pDst + ny * nDstStep);
-          if (neighbor_row[nx] == 255) {
-            hasStrongNeighbor = true;
-            break;
-          }
-        }
-      }
-      if (hasStrongNeighbor)
-        break;
-    }
-
-    dst_row[x] = hasStrongNeighbor ? 255 : 0;
-  }
-}
+}  // namespace
 
 extern "C" {
 
-// Get required buffer size
-
 NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, int *hpBufferSize) {
-  size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
-
-  // 需要多个临时缓冲区：
-  // 1. Gaussian filtering结果 (float)
-  // 2. 梯度强度 (float)
-  // 3. 梯度方向 (float)
-  // 4. Non-maximum suppression结果 (float)
-
-  size_t tempBufferSize = imageSize * sizeof(float) * 4; // 4个float缓冲区
-  size_t alignedSize = (tempBufferSize + 511) & ~511;    // 512byte alignment
-
-  *hpBufferSize = (int)alignedSize;
+  const size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
+  // Magnitude (2 bytes), angle (4 bytes) and the suppressed magnitude
+  // (2 bytes) per pixel.
+  const size_t total = imageSize * 8;
+  *hpBufferSize = (int)((total + 511) & ~(size_t)511);
   return NPP_SUCCESS;
 }
 
-// CannyEdge detection主函数
 NppStatus nppiFilterCannyBorder_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize,
                                                 NppiPoint oSrcOffset, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                                 NppiDifferentialKernel eFilterType, NppiMaskSize eMaskSize,
                                                 Npp16s nLowThreshold, Npp16s nHighThreshold, NppiNorm eNorm,
                                                 NppiBorderType eBorderType, Npp8u *pDeviceBuffer,
                                                 NppStreamContext nppStreamCtx) {
+  if (pSrc == nullptr || pDst == nullptr || pDeviceBuffer == nullptr) return NPP_NULL_POINTER_ERROR;
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
+  if (eBorderType != NPP_BORDER_REPLICATE) return NPP_NOT_SUPPORTED_MODE_ERROR;
 
-  int srcWidth = oSrcSize.width;
-  int srcHeight = oSrcSize.height;
-  int dstWidth = oSizeROI.width;
-  int dstHeight = oSizeROI.height;
+  const int width = oSizeROI.width, height = oSizeROI.height;
+  const size_t numPixels = (size_t)width * height;
+  Npp16s *pMag = (Npp16s *)pDeviceBuffer;
+  Npp32f *pAngle = (Npp32f *)(pMag + numPixels);
+  Npp16s *pNms = (Npp16s *)(pAngle + numPixels);
 
-  // 设置临时缓冲区
-  size_t imageSize = srcWidth * srcHeight;
-  float *pBlurred = (float *)pDeviceBuffer;
-  float *pGradMag = pBlurred + imageSize;
-  float *pGradDir = pGradMag + imageSize;
-  float *pSuppressed = pGradDir + imageSize;
+  CannyCoef cx, cy;
+  cannyTaps(eFilterType, eMaskSize, cx, cy);
+  const int normL1 = eNorm == nppiNormL1 ? 1 : 0;
+  cudaStream_t stream = nppStreamCtx.hStream;
 
-  int floatStep = srcWidth * sizeof(float);
+  dim3 block(16, 16);
+  dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y);
+  cannyGradientKernel<<<grid, block, 0, stream>>>(pSrc, nSrcStep, pMag, width * (int)sizeof(Npp16s), pAngle,
+                                                  width * (int)sizeof(Npp32f), width, height, cx, cy,
+                                                  oSrcSize.width, oSrcSize.height, oSrcOffset.x, oSrcOffset.y,
+                                                  normL1);
+  cannyNmsKernel<<<grid, block, 0, stream>>>(pMag, width * (int)sizeof(Npp16s), pAngle,
+                                             width * (int)sizeof(Npp32f), pNms, width * (int)sizeof(Npp16s),
+                                             width, height);
+  cannyHysteresisKernel<<<grid, block, 0, stream>>>(pMag, width * (int)sizeof(Npp16s), pNms,
+                                                    width * (int)sizeof(Npp16s), pDst, nDstStep, width, height,
+                                                    (int)nLowThreshold, (int)nHighThreshold);
 
-  dim3 blockSize(16, 16);
-  dim3 gridSize((srcWidth + blockSize.x - 1) / blockSize.x, (srcHeight + blockSize.y - 1) / blockSize.y);
-
-  // 第一步：Gaussian filtering
-  cannyGaussianBlur_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, nSrcStep, pBlurred, floatStep, srcWidth, srcHeight, eMaskSize, eBorderType);
-
-  // 第二步：计算梯度
-  cannySobelGradient_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pBlurred, floatStep, pGradMag, floatStep, pGradDir, floatStep, srcWidth, srcHeight, eBorderType);
-
-  // Step 3: Non-maximum suppression
-  cannyNonMaxSuppression_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pGradMag, floatStep, pGradDir, floatStep, pSuppressed, floatStep, srcWidth, srcHeight);
-
-  // 调整网格大小用于输出
-  dim3 dstGridSize((dstWidth + blockSize.x - 1) / blockSize.x, (dstHeight + blockSize.y - 1) / blockSize.y);
-
-  // 第四步：双threshold检测
-  cannyDoubleThreshold_kernel<<<dstGridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSuppressed, floatStep, pDst, nDstStep, dstWidth, dstHeight, nLowThreshold, nHighThreshold);
-
-  // 第五步：边缘connection（多次迭代）
-  for (int i = 0; i < 3; i++) {
-    cannyEdgeTracing_kernel<<<dstGridSize, blockSize, 0, nppStreamCtx.hStream>>>(pDst, nDstStep, dstWidth, dstHeight);
-  }
-
-  cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
+  cudaError_t err = cudaGetLastError();
+  if (err != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_SUCCESS;
 }
-}
+
+}  // namespace

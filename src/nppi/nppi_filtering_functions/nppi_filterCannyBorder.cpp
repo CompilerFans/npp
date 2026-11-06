@@ -73,12 +73,14 @@ NppStatus nppiFilterCannyBorder_8u_C1R(const Npp8u *pSrc, int nSrcStep, NppiSize
     return NPP_MASK_SIZE_ERROR;
   }
 
-  if (nLowThreshold < 0 || nHighThreshold < 0 || nLowThreshold >= nHighThreshold) {
+  if (nLowThreshold > nHighThreshold) {
     return NPP_BAD_ARGUMENT_ERROR;
   }
 
-  if (eBorderType != NPP_BORDER_REPLICATE && eBorderType != NPP_BORDER_CONSTANT) {
-    return NPP_BAD_ARGUMENT_ERROR;
+  // The reference supports only the replicate border (measured: constant
+  // borders are rejected with NPP_NOT_SUPPORTED_MODE_ERROR).
+  if (eBorderType != NPP_BORDER_REPLICATE) {
+    return NPP_NOT_SUPPORTED_MODE_ERROR;
   }
 
   NppStreamContext nppStreamCtx = nppCreateDefaultStreamContext();
@@ -111,12 +113,14 @@ NppStatus nppiFilterCannyBorder_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Nppi
     return NPP_MASK_SIZE_ERROR;
   }
 
-  if (nLowThreshold < 0 || nHighThreshold < 0 || nLowThreshold >= nHighThreshold) {
+  if (nLowThreshold > nHighThreshold) {
     return NPP_BAD_ARGUMENT_ERROR;
   }
 
-  if (eBorderType != NPP_BORDER_REPLICATE && eBorderType != NPP_BORDER_CONSTANT) {
-    return NPP_BAD_ARGUMENT_ERROR;
+  // The reference supports only the replicate border (measured: constant
+  // borders are rejected with NPP_NOT_SUPPORTED_MODE_ERROR).
+  if (eBorderType != NPP_BORDER_REPLICATE) {
+    return NPP_NOT_SUPPORTED_MODE_ERROR;
   }
 
   return nppiFilterCannyBorder_8u_C1R_Ctx_impl(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI,

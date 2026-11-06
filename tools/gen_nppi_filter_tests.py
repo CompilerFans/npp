@@ -476,6 +476,19 @@ def emit_label_markers(row: dict) -> Optional[str]:
     return None
 
 
+def emit_canny(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    if fn != "nppiFilterCannyBorder_8u_C1R_Ctx":
+        return None
+    lam = (f"[](const Npp8u *sp, int ss, NppiSize ssSize, NppiPoint off, Npp8u *dp, int ds, NppiSize roi, "
+           f"int ftype, int mask, Npp16s lo, Npp16s hi, int norm, int border, Npp8u *buf, "
+           f"NppStreamContext ctx) {{ return {fn}(sp, ss, ssSize, off, dp, ds, roi, "
+           f"(NppiDifferentialKernel)ftype, (NppiMaskSize)mask, lo, hi, (NppiNorm)norm, "
+           f"(NppiBorderType)border, buf, ctx); }}")
+    name = re.sub(r"\W", "_", fn)
+    return f"TEST(NumGen, {name}) {{\n  num::canny::run_canny(\n      \"{fn}\",\n      {lam});\n}}\n"
+
+
 def emit_compress_labels(row: dict) -> Optional[str]:
     fn = row["function_name"]
     if fn == "nppiCompressMarkerLabelsUF_32u_C1IR_Ctx":
@@ -541,7 +554,8 @@ def main() -> int:
                 or emit_tail(row) or emit_wiener(row) or emit_unsharp(row)
                 or emit_pyramid(row) or emit_hog(row) or emit_median_bufsize(row)
                 or emit_distance_transform(row) or emit_floodfill(row)
-                or emit_signed_dt(row) or emit_label_markers(row) or emit_compress_labels(row))
+                or emit_signed_dt(row) or emit_label_markers(row) or emit_compress_labels(row)
+                or emit_canny(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
@@ -566,7 +580,8 @@ def main() -> int:
               "#include \"num_nppi_floodfill.h\"\n\n"
               "#include \"num_nppi_signed_distance_transform.h\"\n\n"
               "#include \"num_nppi_label_markers.h\"\n\n"
-              "#include \"num_nppi_compress_labels.h\"\n\n")
+              "#include \"num_nppi_compress_labels.h\"\n\n"
+              "#include \"num_nppi_canny.h\"\n\n")
     if args.emit:
         DEST.write_text(header + "\n".join(out))
         prev = {}

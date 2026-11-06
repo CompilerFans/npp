@@ -36,6 +36,8 @@
 
 #include "num_nppi_compress_labels.h"
 
+#include "num_nppi_canny.h"
+
 TEST(NumGen, nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx) {
   num::compresslabels::run_compress_batch<true>(
       "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx",
@@ -1030,6 +1032,12 @@ TEST(NumGen, nppiFilterBox_8u_C4R_Ctx) {
   num::filtwin::run_window<Npp8u, 4, 4, num::filtwin::kBox, false, false>(
       "nppiFilterBox_8u_C4R_Ctx",
       [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, NppiSize mask, NppiPoint anchor, int mode, Npp8u *pbuf, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mode; (void)pbuf; return nppiFilterBox_8u_C4R_Ctx(sp, ss, dp, ds, roi, mask, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilterCannyBorder_8u_C1R_Ctx) {
+  num::canny::run_canny(
+      "nppiFilterCannyBorder_8u_C1R_Ctx",
+      [](const Npp8u *sp, int ss, NppiSize ssSize, NppiPoint off, Npp8u *dp, int ds, NppiSize roi, int ftype, int mask, Npp16s lo, Npp16s hi, int norm, int border, Npp8u *buf, NppStreamContext ctx) { return nppiFilterCannyBorder_8u_C1R_Ctx(sp, ss, ssSize, off, dp, ds, roi, (NppiDifferentialKernel)ftype, (NppiMaskSize)mask, lo, hi, (NppiNorm)norm, (NppiBorderType)border, buf, ctx); });
 }
 
 TEST(NumGen, nppiFilterColumn32f_16s_AC4R_Ctx) {
