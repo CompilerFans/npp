@@ -42,6 +42,8 @@
 
 #include "num_nppi_watershed.h"
 
+#include "num_nppi_contours.h"
+
 TEST(NumGen, nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx) {
   num::compresslabels::run_compress_batch<true>(
       "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx",
@@ -58,6 +60,24 @@ TEST(NumGen, nppiCompressMarkerLabelsUF_32u_C1IR_Ctx) {
   num::compresslabels::run_compress(
       "nppiCompressMarkerLabelsUF_32u_C1IR_Ctx",
       [](Npp32u *p, int step, NppiSize roi, int start, int *newNumber, Npp8u *buf, NppStreamContext ctx) { return nppiCompressMarkerLabelsUF_32u_C1IR_Ctx(p, step, roi, start, newNumber, buf, ctx); });
+}
+
+TEST(NumGen, nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx) {
+  num::contours::run_geometry("nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx");
+}
+
+TEST(NumGen, nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx) {
+  num::contours::run_info(
+      "nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx",
+      [](Npp32u *lb, int ls, NppiSize roi, unsigned mx, void *info, Npp8u *ci, int cs, void *dir, int ds, void *tot, Npp32u *cd, Npp32u *ch, Npp32u *od, Npp32u *oh, NppStreamContext ctx) { return nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx(lb, ls, roi, mx, (NppiCompressedMarkerLabelsInfo *)info, ci, cs, (NppiContourPixelDirectionInfo *)dir, ds, (NppiContourTotalsInfo *)tot, cd, ch, od, oh, ctx); });
+}
+
+TEST(NumGen, nppiContoursImageMarchingSquaresInterpolation_32f_C1R_Ctx) {
+  num::contours::run_marching32("nppiContoursImageMarchingSquaresInterpolation_32f_C1R_Ctx");
+}
+
+TEST(NumGen, nppiContoursImageMarchingSquaresInterpolation_64f_C1R_Ctx) {
+  num::contours::run_marching64("nppiContoursImageMarchingSquaresInterpolation_64f_C1R_Ctx");
 }
 
 TEST(NumGen, nppiDistanceTransformAbsPBA_16s16u_C1R_Ctx) {

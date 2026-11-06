@@ -476,6 +476,24 @@ def emit_label_markers(row: dict) -> Optional[str]:
     return None
 
 
+def emit_contours(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    name = re.sub(r"\W", "_", fn)
+    if fn == "nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx":
+        lam = (f"[](Npp32u *lb, int ls, NppiSize roi, unsigned mx, void *info, Npp8u *ci, int cs, void *dir, "
+               f"int ds, void *tot, Npp32u *cd, Npp32u *ch, Npp32u *od, Npp32u *oh, NppStreamContext ctx) {{ "
+               f"return {fn}(lb, ls, roi, mx, (NppiCompressedMarkerLabelsInfo *)info, ci, cs, "
+               f"(NppiContourPixelDirectionInfo *)dir, ds, (NppiContourTotalsInfo *)tot, cd, ch, od, oh, ctx); }}")
+        return (f"TEST(NumGen, {name}) {{\n  num::contours::run_info(\n      \"{fn}\",\n      {lam});\n}}\n")
+    if fn == "nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx":
+        return f"TEST(NumGen, {name}) {{\n  num::contours::run_geometry(\"{fn}\");\n}}\n"
+    if fn == "nppiContoursImageMarchingSquaresInterpolation_32f_C1R_Ctx":
+        return f"TEST(NumGen, {name}) {{\n  num::contours::run_marching32(\"{fn}\");\n}}\n"
+    if fn == "nppiContoursImageMarchingSquaresInterpolation_64f_C1R_Ctx":
+        return f"TEST(NumGen, {name}) {{\n  num::contours::run_marching64(\"{fn}\");\n}}\n"
+    return None
+
+
 def emit_watershed(row: dict) -> Optional[str]:
     fn = row["function_name"]
     m = re.match(r"nppiSegmentWatershed_(8u|16u)_C1IR_Ctx$", fn)
@@ -585,7 +603,8 @@ def main() -> int:
                 or emit_pyramid(row) or emit_hog(row) or emit_median_bufsize(row)
                 or emit_distance_transform(row) or emit_floodfill(row)
                 or emit_signed_dt(row) or emit_label_markers(row) or emit_compress_labels(row)
-                or emit_canny(row) or emit_hough(row) or emit_watershed(row))
+                or emit_canny(row) or emit_hough(row) or emit_watershed(row)
+                or emit_contours(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
@@ -613,7 +632,8 @@ def main() -> int:
               "#include \"num_nppi_compress_labels.h\"\n\n"
               "#include \"num_nppi_canny.h\"\n\n"
               "#include \"num_nppi_hough.h\"\n\n"
-              "#include \"num_nppi_watershed.h\"\n\n")
+              "#include \"num_nppi_watershed.h\"\n\n"
+              "#include \"num_nppi_contours.h\"\n\n")
     if args.emit:
         DEST.write_text(header + "\n".join(out))
         prev = {}

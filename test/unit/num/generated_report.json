@@ -134,28 +134,7 @@
   "skipped": []
  },
  "nppi_filtering_functions.h": {
-  "emitted": 966,
-  "skipped": [
-   {
-    "function": "nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx",
-    "family": "nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx",
-    "family": "nppiCompressedMarkerLabelsUFInfo",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiContoursImageMarchingSquaresInterpolation_32f_C1R_Ctx",
-    "family": "nppiContoursImageMarchingSquaresInterpolation",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiContoursImageMarchingSquaresInterpolation_64f_C1R_Ctx",
-    "family": "nppiContoursImageMarchingSquaresInterpolation",
-    "reason": "later filtering batch / unsupported"
-   }
-  ]
+  "emitted": 970,
+  "skipped": []
  }
 }

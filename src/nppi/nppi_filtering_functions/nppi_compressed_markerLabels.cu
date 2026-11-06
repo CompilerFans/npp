@@ -97,7 +97,7 @@ __global__ void detectContourPixels_kernel(const Npp32u *pMarkerLabels, int nMar
   if (label > nMaxMarkerLabelID) {
     if (pContoursImage != nullptr) {
       Npp8u *contourRow = reinterpret_cast<Npp8u *>(reinterpret_cast<char *>(pContoursImage) + y * nContoursStep);
-      contourRow[x] = 0;
+      contourRow[x] = 255;  // not part of any traced region
     }
     return;
   }
@@ -121,7 +121,7 @@ __global__ void detectContourPixels_kernel(const Npp32u *pMarkerLabels, int nMar
 
   if (pContoursImage != nullptr) {
     Npp8u *contourRow = reinterpret_cast<Npp8u *>(reinterpret_cast<char *>(pContoursImage) + y * nContoursStep);
-    contourRow[x] = isContour ? 255 : 0;
+    contourRow[x] = isContour ? 0 : 255;  // reference convention: 0 marks contour pixels
   }
   if (isContour && pContourCounts != nullptr) {
     atomicAdd(&pContourCounts[label], 1u);
