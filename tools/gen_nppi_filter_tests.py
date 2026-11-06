@@ -21,8 +21,9 @@ REPORT = ROOT / "test" / "unit" / "num" / "generated_report.json"
 DT = {"8u": ("Npp8u", "Npp8u"), "16u": ("Npp16u", "Npp16u"),
       "16s": ("Npp16s", "Npp16s"), "32f": ("Npp32f", "Npp32f"),
       "8u16s": ("Npp8u", "Npp16s"), "8s16s": ("Npp8s", "Npp16s"),
-      "64f": ("Npp64f", "Npp64f")}
-LAYOUT = {"C1R": (1, 1), "C3R": (3, 3), "C4R": (4, 4), "AC4R": (4, 3)}
+      "64f": ("Npp64f", "Npp64f"), "32s": ("Npp32s", "Npp32s"),
+      "8s": ("Npp8s", "Npp8s")}
+LAYOUT = {"C1R": (1, 1), "C2R": (2, 2), "C3R": (3, 3), "C4R": (4, 4), "AC4R": (4, 3)}
 
 FIXED_OPS = {"HighPass": "kHighPass", "LowPass": "kLowPass",
              "Sharpen": "kSharpen", "Laplace": "kLaplace"}
@@ -160,6 +161,55 @@ def emit_window(row: dict) -> Optional[str]:
     return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
 
 
+GEN_RE = re.compile(r"nppiFilter(Border32f|Border|RowBorder32f|RowBorder|ColumnBorder32f|"
+                    r"ColumnBorder|Row32f|Row|Column32f|Column|32f)?_(\w+)_"
+                    r"(C1R|C2R|C3R|C4R|AC4R)_Ctx$")
+
+
+def emit_generic(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    m = GEN_RE.match(fn)
+    if not m:
+        return None
+    fam, dt, lay = m.group(1), m.group(2), m.group(3)
+    if dt not in DT or lay not in LAYOUT:
+        return None
+    src, dst = DT[dt]
+    c, a = LAYOUT[lay]
+    border = bool(fam and "Border" in fam)
+    g = 1 if (fam and "Row" in fam) else (2 if (fam and "Column" in fam) else 0)
+    if dt == "64f" and fam in (None, "Row", "Column"):
+        k = 2
+        assert not border
+    elif (fam and "32f" in fam) or dt == "32f":
+        # 32f sources of the integer families also take a float kernel and no
+        # divisor (measured against the NPP 13.4 headers).
+        k = 1
+    else:
+        k = 0
+    clamp = (not border) and dt == "32f" and lay == "C1R"
+    kt = {0: "Npp32s", 1: "Npp32f", 2: "Npp64f"}[k]
+    name = re.sub(r"\W", "_", fn)
+    if g == 0:
+        argmid = f"roi, (const {kt} *)ker, ksize, anchor"
+    else:
+        argmid = f"roi, (const {kt} *)ker, mask, anchor.{'x' if g == 1 else 'y'}"
+    if k == 0:
+        argmid += ", divisor"
+    if border:
+        call = f"return {fn}(sp, ss, srcSize, off, dp, ds, {argmid}, NPP_BORDER_REPLICATE, ctx);"
+    else:
+        call = f"return {fn}(sp, ss, dp, ds, {argmid}, ctx);"
+    lam = (f"[](const {src} *sp, int ss, {dst} *dp, int ds, NppiSize roi, NppiSize srcSize, "
+           f"NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, "
+           f"int divisor, int border, NppStreamContext ctx) "
+           f"{{ (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; "
+           f"(void)border; {call} }}")
+    prefix = (f"num::filtgen::run_generic<{src}, {dst}, {c}, {a}, {g}, {k}, "
+              f"{'true' if border else 'false'}, {'true' if clamp else 'false'}>")
+    return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -169,7 +219,8 @@ def main() -> int:
     out: List[str] = []
     skipped: List[dict] = []
     for row in rows:
-        text = emit_fixed(row) or emit_deriv(row) or emit_gauss(row) or emit_window(row)
+        text = (emit_fixed(row) or emit_deriv(row) or emit_gauss(row) or emit_window(row)
+                or emit_generic(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
@@ -180,7 +231,8 @@ def main() -> int:
               "#include \"num_nppi_filter_fixed.h\"\n\n"
               "#include \"num_nppi_filter_deriv.h\"\n\n"
               "#include \"num_nppi_filter_gauss.h\"\n\n"
-              "#include \"num_nppi_filter_window.h\"\n\n")
+              "#include \"num_nppi_filter_window.h\"\n\n"
+              "#include \"num_nppi_filter_generic.h\"\n\n")
     if args.emit:
         DEST.write_text(header + "\n".join(out))
         prev = {}

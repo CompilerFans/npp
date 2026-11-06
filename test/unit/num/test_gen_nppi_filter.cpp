@@ -8,6 +8,470 @@
 
 #include "num_nppi_filter_window.h"
 
+#include "num_nppi_filter_generic.h"
+
+TEST(NumGen, nppiFilter32f_16s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 3, 0, 1, false, false>(
+      "nppiFilter32f_16s_AC4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_16s_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_16s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 1, 1, 0, 1, false, false>(
+      "nppiFilter32f_16s_C1R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_16s_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_16s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 3, 3, 0, 1, false, false>(
+      "nppiFilter32f_16s_C3R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_16s_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_16s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 4, 0, 1, false, false>(
+      "nppiFilter32f_16s_C4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_16s_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_16u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 3, 0, 1, false, false>(
+      "nppiFilter32f_16u_AC4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_16u_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_16u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 1, 1, 0, 1, false, false>(
+      "nppiFilter32f_16u_C1R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_16u_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_16u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 3, 3, 0, 1, false, false>(
+      "nppiFilter32f_16u_C3R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_16u_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_16u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 4, 0, 1, false, false>(
+      "nppiFilter32f_16u_C4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_16u_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_32s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp32s, Npp32s, 4, 3, 0, 1, false, false>(
+      "nppiFilter32f_32s_AC4R_Ctx",
+      [](const Npp32s *sp, int ss, Npp32s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_32s_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_32s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp32s, Npp32s, 1, 1, 0, 1, false, false>(
+      "nppiFilter32f_32s_C1R_Ctx",
+      [](const Npp32s *sp, int ss, Npp32s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_32s_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_32s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp32s, Npp32s, 3, 3, 0, 1, false, false>(
+      "nppiFilter32f_32s_C3R_Ctx",
+      [](const Npp32s *sp, int ss, Npp32s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_32s_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_32s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp32s, Npp32s, 4, 4, 0, 1, false, false>(
+      "nppiFilter32f_32s_C4R_Ctx",
+      [](const Npp32s *sp, int ss, Npp32s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_32s_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_8s16s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp8s, Npp16s, 4, 3, 0, 1, false, false>(
+      "nppiFilter32f_8s16s_AC4R_Ctx",
+      [](const Npp8s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_8s16s_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_8s16s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp8s, Npp16s, 1, 1, 0, 1, false, false>(
+      "nppiFilter32f_8s16s_C1R_Ctx",
+      [](const Npp8s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_8s16s_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_8s16s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp8s, Npp16s, 3, 3, 0, 1, false, false>(
+      "nppiFilter32f_8s16s_C3R_Ctx",
+      [](const Npp8s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_8s16s_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_8s16s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp8s, Npp16s, 4, 4, 0, 1, false, false>(
+      "nppiFilter32f_8s16s_C4R_Ctx",
+      [](const Npp8s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_8s16s_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_8s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp8s, Npp8s, 4, 3, 0, 1, false, false>(
+      "nppiFilter32f_8s_AC4R_Ctx",
+      [](const Npp8s *sp, int ss, Npp8s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_8s_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_8s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp8s, Npp8s, 1, 1, 0, 1, false, false>(
+      "nppiFilter32f_8s_C1R_Ctx",
+      [](const Npp8s *sp, int ss, Npp8s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_8s_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_8s_C2R_Ctx) {
+  num::filtgen::run_generic<Npp8s, Npp8s, 2, 2, 0, 1, false, false>(
+      "nppiFilter32f_8s_C2R_Ctx",
+      [](const Npp8s *sp, int ss, Npp8s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_8s_C2R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_8s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp8s, Npp8s, 3, 3, 0, 1, false, false>(
+      "nppiFilter32f_8s_C3R_Ctx",
+      [](const Npp8s *sp, int ss, Npp8s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_8s_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_8s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp8s, Npp8s, 4, 4, 0, 1, false, false>(
+      "nppiFilter32f_8s_C4R_Ctx",
+      [](const Npp8s *sp, int ss, Npp8s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_8s_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_8u16s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp16s, 4, 3, 0, 1, false, false>(
+      "nppiFilter32f_8u16s_AC4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_8u16s_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_8u16s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp16s, 1, 1, 0, 1, false, false>(
+      "nppiFilter32f_8u16s_C1R_Ctx",
+      [](const Npp8u *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_8u16s_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_8u16s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp16s, 3, 3, 0, 1, false, false>(
+      "nppiFilter32f_8u16s_C3R_Ctx",
+      [](const Npp8u *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_8u16s_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_8u16s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp16s, 4, 4, 0, 1, false, false>(
+      "nppiFilter32f_8u16s_C4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_8u16s_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_8u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 3, 0, 1, false, false>(
+      "nppiFilter32f_8u_AC4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_8u_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_8u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 1, 1, 0, 1, false, false>(
+      "nppiFilter32f_8u_C1R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_8u_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_8u_C2R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 2, 2, 0, 1, false, false>(
+      "nppiFilter32f_8u_C2R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_8u_C2R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_8u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 3, 3, 0, 1, false, false>(
+      "nppiFilter32f_8u_C3R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_8u_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter32f_8u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 4, 0, 1, false, false>(
+      "nppiFilter32f_8u_C4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter32f_8u_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_16s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 3, 0, 1, true, false>(
+      "nppiFilterBorder32f_16s_AC4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_16s_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_16s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 1, 1, 0, 1, true, false>(
+      "nppiFilterBorder32f_16s_C1R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_16s_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_16s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 3, 3, 0, 1, true, false>(
+      "nppiFilterBorder32f_16s_C3R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_16s_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_16s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 4, 0, 1, true, false>(
+      "nppiFilterBorder32f_16s_C4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_16s_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_16u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 3, 0, 1, true, false>(
+      "nppiFilterBorder32f_16u_AC4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_16u_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_16u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 1, 1, 0, 1, true, false>(
+      "nppiFilterBorder32f_16u_C1R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_16u_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_16u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 3, 3, 0, 1, true, false>(
+      "nppiFilterBorder32f_16u_C3R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_16u_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_16u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 4, 0, 1, true, false>(
+      "nppiFilterBorder32f_16u_C4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_16u_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_32s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp32s, Npp32s, 4, 3, 0, 1, true, false>(
+      "nppiFilterBorder32f_32s_AC4R_Ctx",
+      [](const Npp32s *sp, int ss, Npp32s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_32s_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_32s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp32s, Npp32s, 1, 1, 0, 1, true, false>(
+      "nppiFilterBorder32f_32s_C1R_Ctx",
+      [](const Npp32s *sp, int ss, Npp32s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_32s_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_32s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp32s, Npp32s, 3, 3, 0, 1, true, false>(
+      "nppiFilterBorder32f_32s_C3R_Ctx",
+      [](const Npp32s *sp, int ss, Npp32s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_32s_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_32s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp32s, Npp32s, 4, 4, 0, 1, true, false>(
+      "nppiFilterBorder32f_32s_C4R_Ctx",
+      [](const Npp32s *sp, int ss, Npp32s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_32s_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_8s16s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp8s, Npp16s, 4, 3, 0, 1, true, false>(
+      "nppiFilterBorder32f_8s16s_AC4R_Ctx",
+      [](const Npp8s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_8s16s_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_8s16s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp8s, Npp16s, 1, 1, 0, 1, true, false>(
+      "nppiFilterBorder32f_8s16s_C1R_Ctx",
+      [](const Npp8s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_8s16s_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_8s16s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp8s, Npp16s, 3, 3, 0, 1, true, false>(
+      "nppiFilterBorder32f_8s16s_C3R_Ctx",
+      [](const Npp8s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_8s16s_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_8s16s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp8s, Npp16s, 4, 4, 0, 1, true, false>(
+      "nppiFilterBorder32f_8s16s_C4R_Ctx",
+      [](const Npp8s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_8s16s_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_8s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp8s, Npp8s, 4, 3, 0, 1, true, false>(
+      "nppiFilterBorder32f_8s_AC4R_Ctx",
+      [](const Npp8s *sp, int ss, Npp8s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_8s_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_8s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp8s, Npp8s, 1, 1, 0, 1, true, false>(
+      "nppiFilterBorder32f_8s_C1R_Ctx",
+      [](const Npp8s *sp, int ss, Npp8s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_8s_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_8s_C2R_Ctx) {
+  num::filtgen::run_generic<Npp8s, Npp8s, 2, 2, 0, 1, true, false>(
+      "nppiFilterBorder32f_8s_C2R_Ctx",
+      [](const Npp8s *sp, int ss, Npp8s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_8s_C2R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_8s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp8s, Npp8s, 3, 3, 0, 1, true, false>(
+      "nppiFilterBorder32f_8s_C3R_Ctx",
+      [](const Npp8s *sp, int ss, Npp8s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_8s_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_8s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp8s, Npp8s, 4, 4, 0, 1, true, false>(
+      "nppiFilterBorder32f_8s_C4R_Ctx",
+      [](const Npp8s *sp, int ss, Npp8s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_8s_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_8u16s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp16s, 4, 3, 0, 1, true, false>(
+      "nppiFilterBorder32f_8u16s_AC4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_8u16s_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_8u16s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp16s, 1, 1, 0, 1, true, false>(
+      "nppiFilterBorder32f_8u16s_C1R_Ctx",
+      [](const Npp8u *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_8u16s_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_8u16s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp16s, 3, 3, 0, 1, true, false>(
+      "nppiFilterBorder32f_8u16s_C3R_Ctx",
+      [](const Npp8u *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_8u16s_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_8u16s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp16s, 4, 4, 0, 1, true, false>(
+      "nppiFilterBorder32f_8u16s_C4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_8u16s_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_8u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 3, 0, 1, true, false>(
+      "nppiFilterBorder32f_8u_AC4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_8u_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_8u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 1, 1, 0, 1, true, false>(
+      "nppiFilterBorder32f_8u_C1R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_8u_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_8u_C2R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 2, 2, 0, 1, true, false>(
+      "nppiFilterBorder32f_8u_C2R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_8u_C2R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_8u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 3, 3, 0, 1, true, false>(
+      "nppiFilterBorder32f_8u_C3R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_8u_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder32f_8u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 4, 0, 1, true, false>(
+      "nppiFilterBorder32f_8u_C4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder32f_8u_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder_16s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 3, 0, 0, true, false>(
+      "nppiFilterBorder_16s_AC4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder_16s_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder_16s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 1, 1, 0, 0, true, false>(
+      "nppiFilterBorder_16s_C1R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder_16s_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder_16s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 3, 3, 0, 0, true, false>(
+      "nppiFilterBorder_16s_C3R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder_16s_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder_16s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 4, 0, 0, true, false>(
+      "nppiFilterBorder_16s_C4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder_16s_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder_16u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 3, 0, 0, true, false>(
+      "nppiFilterBorder_16u_AC4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder_16u_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder_16u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 1, 1, 0, 0, true, false>(
+      "nppiFilterBorder_16u_C1R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder_16u_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder_16u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 3, 3, 0, 0, true, false>(
+      "nppiFilterBorder_16u_C3R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder_16u_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder_16u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 4, 0, 0, true, false>(
+      "nppiFilterBorder_16u_C4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder_16u_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder_32f_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 4, 3, 0, 1, true, false>(
+      "nppiFilterBorder_32f_AC4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder_32f_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder_32f_C1R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 1, 1, 0, 1, true, false>(
+      "nppiFilterBorder_32f_C1R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder_32f_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder_32f_C2R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 2, 2, 0, 1, true, false>(
+      "nppiFilterBorder_32f_C2R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder_32f_C2R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder_32f_C3R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 3, 3, 0, 1, true, false>(
+      "nppiFilterBorder_32f_C3R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder_32f_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder_32f_C4R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 4, 4, 0, 1, true, false>(
+      "nppiFilterBorder_32f_C4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder_32f_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder_8u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 3, 0, 0, true, false>(
+      "nppiFilterBorder_8u_AC4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder_8u_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder_8u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 1, 1, 0, 0, true, false>(
+      "nppiFilterBorder_8u_C1R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder_8u_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder_8u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 3, 3, 0, 0, true, false>(
+      "nppiFilterBorder_8u_C3R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder_8u_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterBorder_8u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 4, 0, 0, true, false>(
+      "nppiFilterBorder_8u_C4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterBorder_8u_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
 TEST(NumGen, nppiFilterBoxBorderAdvanced_16s_C1R_Ctx) {
   num::filtwin::run_window<Npp16s, 1, 1, num::filtwin::kBox, false, true>(
       "nppiFilterBoxBorderAdvanced_16s_C1R_Ctx",
@@ -282,6 +746,348 @@ TEST(NumGen, nppiFilterBox_8u_C4R_Ctx) {
   num::filtwin::run_window<Npp8u, 4, 4, num::filtwin::kBox, false, false>(
       "nppiFilterBox_8u_C4R_Ctx",
       [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, NppiSize mask, NppiPoint anchor, int mode, Npp8u *pbuf, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mode; (void)pbuf; return nppiFilterBox_8u_C4R_Ctx(sp, ss, dp, ds, roi, mask, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn32f_16s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 3, 2, 1, false, false>(
+      "nppiFilterColumn32f_16s_AC4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn32f_16s_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn32f_16s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 1, 1, 2, 1, false, false>(
+      "nppiFilterColumn32f_16s_C1R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn32f_16s_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn32f_16s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 3, 3, 2, 1, false, false>(
+      "nppiFilterColumn32f_16s_C3R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn32f_16s_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn32f_16s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 4, 2, 1, false, false>(
+      "nppiFilterColumn32f_16s_C4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn32f_16s_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn32f_16u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 3, 2, 1, false, false>(
+      "nppiFilterColumn32f_16u_AC4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn32f_16u_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn32f_16u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 1, 1, 2, 1, false, false>(
+      "nppiFilterColumn32f_16u_C1R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn32f_16u_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn32f_16u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 3, 3, 2, 1, false, false>(
+      "nppiFilterColumn32f_16u_C3R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn32f_16u_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn32f_16u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 4, 2, 1, false, false>(
+      "nppiFilterColumn32f_16u_C4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn32f_16u_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn32f_8u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 3, 2, 1, false, false>(
+      "nppiFilterColumn32f_8u_AC4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn32f_8u_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn32f_8u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 1, 1, 2, 1, false, false>(
+      "nppiFilterColumn32f_8u_C1R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn32f_8u_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn32f_8u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 3, 3, 2, 1, false, false>(
+      "nppiFilterColumn32f_8u_C3R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn32f_8u_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn32f_8u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 4, 2, 1, false, false>(
+      "nppiFilterColumn32f_8u_C4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn32f_8u_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder32f_16s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 3, 2, 1, true, false>(
+      "nppiFilterColumnBorder32f_16s_AC4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder32f_16s_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder32f_16s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 1, 1, 2, 1, true, false>(
+      "nppiFilterColumnBorder32f_16s_C1R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder32f_16s_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder32f_16s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 3, 3, 2, 1, true, false>(
+      "nppiFilterColumnBorder32f_16s_C3R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder32f_16s_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder32f_16s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 4, 2, 1, true, false>(
+      "nppiFilterColumnBorder32f_16s_C4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder32f_16s_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder32f_16u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 3, 2, 1, true, false>(
+      "nppiFilterColumnBorder32f_16u_AC4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder32f_16u_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder32f_16u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 1, 1, 2, 1, true, false>(
+      "nppiFilterColumnBorder32f_16u_C1R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder32f_16u_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder32f_16u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 3, 3, 2, 1, true, false>(
+      "nppiFilterColumnBorder32f_16u_C3R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder32f_16u_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder32f_16u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 4, 2, 1, true, false>(
+      "nppiFilterColumnBorder32f_16u_C4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder32f_16u_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder32f_8u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 3, 2, 1, true, false>(
+      "nppiFilterColumnBorder32f_8u_AC4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder32f_8u_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder32f_8u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 1, 1, 2, 1, true, false>(
+      "nppiFilterColumnBorder32f_8u_C1R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder32f_8u_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder32f_8u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 3, 3, 2, 1, true, false>(
+      "nppiFilterColumnBorder32f_8u_C3R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder32f_8u_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder32f_8u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 4, 2, 1, true, false>(
+      "nppiFilterColumnBorder32f_8u_C4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder32f_8u_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder_16s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 3, 2, 0, true, false>(
+      "nppiFilterColumnBorder_16s_AC4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder_16s_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder_16s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 1, 1, 2, 0, true, false>(
+      "nppiFilterColumnBorder_16s_C1R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder_16s_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder_16s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 3, 3, 2, 0, true, false>(
+      "nppiFilterColumnBorder_16s_C3R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder_16s_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder_16s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 4, 2, 0, true, false>(
+      "nppiFilterColumnBorder_16s_C4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder_16s_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder_16u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 3, 2, 0, true, false>(
+      "nppiFilterColumnBorder_16u_AC4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder_16u_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder_16u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 1, 1, 2, 0, true, false>(
+      "nppiFilterColumnBorder_16u_C1R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder_16u_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder_16u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 3, 3, 2, 0, true, false>(
+      "nppiFilterColumnBorder_16u_C3R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder_16u_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder_16u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 4, 2, 0, true, false>(
+      "nppiFilterColumnBorder_16u_C4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder_16u_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder_32f_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 4, 3, 2, 1, true, false>(
+      "nppiFilterColumnBorder_32f_AC4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder_32f_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder_32f_C1R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 1, 1, 2, 1, true, false>(
+      "nppiFilterColumnBorder_32f_C1R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder_32f_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder_32f_C3R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 3, 3, 2, 1, true, false>(
+      "nppiFilterColumnBorder_32f_C3R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder_32f_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder_32f_C4R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 4, 4, 2, 1, true, false>(
+      "nppiFilterColumnBorder_32f_C4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder_32f_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder_8u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 3, 2, 0, true, false>(
+      "nppiFilterColumnBorder_8u_AC4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder_8u_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder_8u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 1, 1, 2, 0, true, false>(
+      "nppiFilterColumnBorder_8u_C1R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder_8u_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder_8u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 3, 3, 2, 0, true, false>(
+      "nppiFilterColumnBorder_8u_C3R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder_8u_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumnBorder_8u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 4, 2, 0, true, false>(
+      "nppiFilterColumnBorder_8u_C4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumnBorder_8u_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn_16s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 3, 2, 0, false, false>(
+      "nppiFilterColumn_16s_AC4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn_16s_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn_16s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 1, 1, 2, 0, false, false>(
+      "nppiFilterColumn_16s_C1R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn_16s_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn_16s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 3, 3, 2, 0, false, false>(
+      "nppiFilterColumn_16s_C3R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn_16s_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn_16s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 4, 2, 0, false, false>(
+      "nppiFilterColumn_16s_C4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn_16s_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn_16u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 3, 2, 0, false, false>(
+      "nppiFilterColumn_16u_AC4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn_16u_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn_16u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 1, 1, 2, 0, false, false>(
+      "nppiFilterColumn_16u_C1R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn_16u_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn_16u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 3, 3, 2, 0, false, false>(
+      "nppiFilterColumn_16u_C3R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn_16u_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn_16u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 4, 2, 0, false, false>(
+      "nppiFilterColumn_16u_C4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn_16u_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn_32f_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 4, 3, 2, 1, false, false>(
+      "nppiFilterColumn_32f_AC4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn_32f_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn_32f_C1R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 1, 1, 2, 1, false, true>(
+      "nppiFilterColumn_32f_C1R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn_32f_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn_32f_C3R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 3, 3, 2, 1, false, false>(
+      "nppiFilterColumn_32f_C3R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn_32f_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn_32f_C4R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 4, 4, 2, 1, false, false>(
+      "nppiFilterColumn_32f_C4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn_32f_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.y, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn_64f_C1R_Ctx) {
+  num::filtgen::run_generic<Npp64f, Npp64f, 1, 1, 2, 2, false, false>(
+      "nppiFilterColumn_64f_C1R_Ctx",
+      [](const Npp64f *sp, int ss, Npp64f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn_64f_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp64f *)ker, mask, anchor.y, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn_8u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 3, 2, 0, false, false>(
+      "nppiFilterColumn_8u_AC4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn_8u_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn_8u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 1, 1, 2, 0, false, false>(
+      "nppiFilterColumn_8u_C1R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn_8u_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn_8u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 3, 3, 2, 0, false, false>(
+      "nppiFilterColumn_8u_C3R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn_8u_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterColumn_8u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 4, 2, 0, false, false>(
+      "nppiFilterColumn_8u_C4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterColumn_8u_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.y, divisor, ctx); });
 }
 
 TEST(NumGen, nppiFilterGaussAdvancedBorder_16s_AC4R_Ctx) {
@@ -2372,6 +3178,348 @@ TEST(NumGen, nppiFilterRobertsUp_8u_C4R_Ctx) {
       [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; return nppiFilterRobertsUp_8u_C4R_Ctx(sp, ss, dp, ds, roi, ctx); });
 }
 
+TEST(NumGen, nppiFilterRow32f_16s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 3, 1, 1, false, false>(
+      "nppiFilterRow32f_16s_AC4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow32f_16s_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow32f_16s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 1, 1, 1, 1, false, false>(
+      "nppiFilterRow32f_16s_C1R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow32f_16s_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow32f_16s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 3, 3, 1, 1, false, false>(
+      "nppiFilterRow32f_16s_C3R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow32f_16s_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow32f_16s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 4, 1, 1, false, false>(
+      "nppiFilterRow32f_16s_C4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow32f_16s_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow32f_16u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 3, 1, 1, false, false>(
+      "nppiFilterRow32f_16u_AC4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow32f_16u_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow32f_16u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 1, 1, 1, 1, false, false>(
+      "nppiFilterRow32f_16u_C1R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow32f_16u_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow32f_16u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 3, 3, 1, 1, false, false>(
+      "nppiFilterRow32f_16u_C3R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow32f_16u_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow32f_16u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 4, 1, 1, false, false>(
+      "nppiFilterRow32f_16u_C4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow32f_16u_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow32f_8u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 3, 1, 1, false, false>(
+      "nppiFilterRow32f_8u_AC4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow32f_8u_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow32f_8u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 1, 1, 1, 1, false, false>(
+      "nppiFilterRow32f_8u_C1R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow32f_8u_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow32f_8u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 3, 3, 1, 1, false, false>(
+      "nppiFilterRow32f_8u_C3R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow32f_8u_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow32f_8u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 4, 1, 1, false, false>(
+      "nppiFilterRow32f_8u_C4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow32f_8u_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder32f_16s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 3, 1, 1, true, false>(
+      "nppiFilterRowBorder32f_16s_AC4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder32f_16s_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder32f_16s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 1, 1, 1, 1, true, false>(
+      "nppiFilterRowBorder32f_16s_C1R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder32f_16s_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder32f_16s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 3, 3, 1, 1, true, false>(
+      "nppiFilterRowBorder32f_16s_C3R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder32f_16s_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder32f_16s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 4, 1, 1, true, false>(
+      "nppiFilterRowBorder32f_16s_C4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder32f_16s_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder32f_16u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 3, 1, 1, true, false>(
+      "nppiFilterRowBorder32f_16u_AC4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder32f_16u_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder32f_16u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 1, 1, 1, 1, true, false>(
+      "nppiFilterRowBorder32f_16u_C1R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder32f_16u_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder32f_16u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 3, 3, 1, 1, true, false>(
+      "nppiFilterRowBorder32f_16u_C3R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder32f_16u_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder32f_16u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 4, 1, 1, true, false>(
+      "nppiFilterRowBorder32f_16u_C4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder32f_16u_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder32f_8u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 3, 1, 1, true, false>(
+      "nppiFilterRowBorder32f_8u_AC4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder32f_8u_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder32f_8u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 1, 1, 1, 1, true, false>(
+      "nppiFilterRowBorder32f_8u_C1R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder32f_8u_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder32f_8u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 3, 3, 1, 1, true, false>(
+      "nppiFilterRowBorder32f_8u_C3R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder32f_8u_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder32f_8u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 4, 1, 1, true, false>(
+      "nppiFilterRowBorder32f_8u_C4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder32f_8u_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder_16s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 3, 1, 0, true, false>(
+      "nppiFilterRowBorder_16s_AC4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder_16s_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder_16s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 1, 1, 1, 0, true, false>(
+      "nppiFilterRowBorder_16s_C1R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder_16s_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder_16s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 3, 3, 1, 0, true, false>(
+      "nppiFilterRowBorder_16s_C3R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder_16s_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder_16s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 4, 1, 0, true, false>(
+      "nppiFilterRowBorder_16s_C4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder_16s_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder_16u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 3, 1, 0, true, false>(
+      "nppiFilterRowBorder_16u_AC4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder_16u_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder_16u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 1, 1, 1, 0, true, false>(
+      "nppiFilterRowBorder_16u_C1R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder_16u_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder_16u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 3, 3, 1, 0, true, false>(
+      "nppiFilterRowBorder_16u_C3R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder_16u_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder_16u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 4, 1, 0, true, false>(
+      "nppiFilterRowBorder_16u_C4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder_16u_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder_32f_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 4, 3, 1, 1, true, false>(
+      "nppiFilterRowBorder_32f_AC4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder_32f_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder_32f_C1R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 1, 1, 1, 1, true, false>(
+      "nppiFilterRowBorder_32f_C1R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder_32f_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder_32f_C3R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 3, 3, 1, 1, true, false>(
+      "nppiFilterRowBorder_32f_C3R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder_32f_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder_32f_C4R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 4, 4, 1, 1, true, false>(
+      "nppiFilterRowBorder_32f_C4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder_32f_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder_8u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 3, 1, 0, true, false>(
+      "nppiFilterRowBorder_8u_AC4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder_8u_AC4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder_8u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 1, 1, 1, 0, true, false>(
+      "nppiFilterRowBorder_8u_C1R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder_8u_C1R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder_8u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 3, 3, 1, 0, true, false>(
+      "nppiFilterRowBorder_8u_C3R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder_8u_C3R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRowBorder_8u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 4, 1, 0, true, false>(
+      "nppiFilterRowBorder_8u_C4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRowBorder_8u_C4R_Ctx(sp, ss, srcSize, off, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow_16s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 3, 1, 0, false, false>(
+      "nppiFilterRow_16s_AC4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow_16s_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow_16s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 1, 1, 1, 0, false, false>(
+      "nppiFilterRow_16s_C1R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow_16s_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow_16s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 3, 3, 1, 0, false, false>(
+      "nppiFilterRow_16s_C3R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow_16s_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow_16s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 4, 1, 0, false, false>(
+      "nppiFilterRow_16s_C4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow_16s_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow_16u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 3, 1, 0, false, false>(
+      "nppiFilterRow_16u_AC4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow_16u_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow_16u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 1, 1, 1, 0, false, false>(
+      "nppiFilterRow_16u_C1R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow_16u_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow_16u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 3, 3, 1, 0, false, false>(
+      "nppiFilterRow_16u_C3R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow_16u_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow_16u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 4, 1, 0, false, false>(
+      "nppiFilterRow_16u_C4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow_16u_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow_32f_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 4, 3, 1, 1, false, false>(
+      "nppiFilterRow_32f_AC4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow_32f_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow_32f_C1R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 1, 1, 1, 1, false, true>(
+      "nppiFilterRow_32f_C1R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow_32f_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow_32f_C3R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 3, 3, 1, 1, false, false>(
+      "nppiFilterRow_32f_C3R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow_32f_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow_32f_C4R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 4, 4, 1, 1, false, false>(
+      "nppiFilterRow_32f_C4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow_32f_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, mask, anchor.x, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow_64f_C1R_Ctx) {
+  num::filtgen::run_generic<Npp64f, Npp64f, 1, 1, 1, 2, false, false>(
+      "nppiFilterRow_64f_C1R_Ctx",
+      [](const Npp64f *sp, int ss, Npp64f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow_64f_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp64f *)ker, mask, anchor.x, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow_8u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 3, 1, 0, false, false>(
+      "nppiFilterRow_8u_AC4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow_8u_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow_8u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 1, 1, 1, 0, false, false>(
+      "nppiFilterRow_8u_C1R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow_8u_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow_8u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 3, 3, 1, 0, false, false>(
+      "nppiFilterRow_8u_C3R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow_8u_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilterRow_8u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 4, 1, 0, false, false>(
+      "nppiFilterRow_8u_C4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilterRow_8u_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, mask, anchor.x, divisor, ctx); });
+}
+
 TEST(NumGen, nppiFilterScharrHorizBorder_32f_C1R_Ctx) {
   num::filtderiv::run_deriv<Npp32f, Npp32f, 1, 1, num::filtderiv::kScharrHoriz, false, true>(
       "nppiFilterScharrHorizBorder_32f_C1R_Ctx",
@@ -3102,4 +4250,112 @@ TEST(NumGen, nppiFilterSobelVert_8u_C4R_Ctx) {
   num::filtderiv::run_deriv<Npp8u, Npp8u, 4, 4, num::filtderiv::kSobelVert, false, false>(
       "nppiFilterSobelVert_8u_C4R_Ctx",
       [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; return nppiFilterSobelVert_8u_C4R_Ctx(sp, ss, dp, ds, roi, ctx); });
+}
+
+TEST(NumGen, nppiFilter_16s_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 3, 0, 0, false, false>(
+      "nppiFilter_16s_AC4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_16s_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilter_16s_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 1, 1, 0, 0, false, false>(
+      "nppiFilter_16s_C1R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_16s_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilter_16s_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 3, 3, 0, 0, false, false>(
+      "nppiFilter_16s_C3R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_16s_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilter_16s_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16s, Npp16s, 4, 4, 0, 0, false, false>(
+      "nppiFilter_16s_C4R_Ctx",
+      [](const Npp16s *sp, int ss, Npp16s *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_16s_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilter_16u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 3, 0, 0, false, false>(
+      "nppiFilter_16u_AC4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_16u_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilter_16u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 1, 1, 0, 0, false, false>(
+      "nppiFilter_16u_C1R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_16u_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilter_16u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 3, 3, 0, 0, false, false>(
+      "nppiFilter_16u_C3R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_16u_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilter_16u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp16u, Npp16u, 4, 4, 0, 0, false, false>(
+      "nppiFilter_16u_C4R_Ctx",
+      [](const Npp16u *sp, int ss, Npp16u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_16u_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilter_32f_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 4, 3, 0, 1, false, false>(
+      "nppiFilter_32f_AC4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_32f_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter_32f_C1R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 1, 1, 0, 1, false, true>(
+      "nppiFilter_32f_C1R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_32f_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter_32f_C2R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 2, 2, 0, 1, false, false>(
+      "nppiFilter_32f_C2R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_32f_C2R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter_32f_C3R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 3, 3, 0, 1, false, false>(
+      "nppiFilter_32f_C3R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_32f_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter_32f_C4R_Ctx) {
+  num::filtgen::run_generic<Npp32f, Npp32f, 4, 4, 0, 1, false, false>(
+      "nppiFilter_32f_C4R_Ctx",
+      [](const Npp32f *sp, int ss, Npp32f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_32f_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter_64f_C1R_Ctx) {
+  num::filtgen::run_generic<Npp64f, Npp64f, 1, 1, 0, 2, false, false>(
+      "nppiFilter_64f_C1R_Ctx",
+      [](const Npp64f *sp, int ss, Npp64f *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_64f_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp64f *)ker, ksize, anchor, ctx); });
+}
+
+TEST(NumGen, nppiFilter_8u_AC4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 3, 0, 0, false, false>(
+      "nppiFilter_8u_AC4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_8u_AC4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilter_8u_C1R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 1, 1, 0, 0, false, false>(
+      "nppiFilter_8u_C1R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_8u_C1R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilter_8u_C3R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 3, 3, 0, 0, false, false>(
+      "nppiFilter_8u_C3R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_8u_C3R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, ctx); });
+}
+
+TEST(NumGen, nppiFilter_8u_C4R_Ctx) {
+  num::filtgen::run_generic<Npp8u, Npp8u, 4, 4, 0, 0, false, false>(
+      "nppiFilter_8u_C4R_Ctx",
+      [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_8u_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, ctx); });
 }

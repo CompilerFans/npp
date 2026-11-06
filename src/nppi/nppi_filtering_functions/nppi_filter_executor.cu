@@ -143,9 +143,15 @@ __host__ __device__ __forceinline__ Npp16f emit_dst<Npp16f>(float acc) {
 }
 
 // NPP's 8u C4/AC4 1D filter path (row/column, border and non-border) does its
-// accumulation in unsigned 32-bit ring arithmetic and divides unsigned; a
-// negative signed sum therefore wraps high and saturates to 255, not 0.
-// Measured on the 5090 (1 * -1 / (2^31-1) -> 2; 8 * 2^29 -> 0, i.e. wrap).
+// accumulation in unsigned 32-bit SATURATING arithmetic and divides unsigned;
+// a negative signed sum therefore lands high and saturates to 255, not 0.
+// Measured on the 5090 with controlled taps: k=[-2,5,1] over 82/26/134 sums to
+// 100 but emits 255, and eight taps of 2^29 divided by 2^31-1 emit 2 (wrap
+// would emit 0, signed saturation 0).
+__host__ __device__ __forceinline__ unsigned sat_add_u32(unsigned a, unsigned b) {
+  return b > 0xFFFFFFFFu - a ? 0xFFFFFFFFu : a + b;
+}
+
 __host__ __device__ __forceinline__ Npp8u emit_u8_unsigned(unsigned acc, int nDivisor) {
   const unsigned q = acc / (unsigned)nDivisor;
   return static_cast<Npp8u>(q > 255u ? 255u : q);
@@ -504,7 +510,9 @@ __global__ void filter_row_div_kernel(const Src *__restrict__ pSrc, int nSrcStep
       unsigned uacc = 0;
       for (int i = 0; i < mask; ++i) {
         const Src *sp = (const Src *)(srow + ((long long)(x + ax - i) * CH + c) * (long long)sizeof(Src));
-        uacc += (unsigned)((unsigned long long)((long long)pKernel[i] * (long long)(int)*sp) & 0xffffffffull);
+        uacc = sat_add_u32(
+            uacc,
+            (unsigned)((unsigned long long)((long long)pKernel[i] * (long long)(int)*sp) & 0xffffffffull));
       }
       *reinterpret_cast<Dst *>(dp) = emit_u8_unsigned(uacc, nDivisor);
       continue;
@@ -541,7 +549,9 @@ __global__ void filter_col_div_kernel(const Src *__restrict__ pSrc, int nSrcStep
       for (int i = 0; i < mask; ++i) {
         const char *srow = (const char *)pSrc + (long long)(y + ay - i) * nSrcStep;
         const Src *sp = (const Src *)(srow + ((long long)x * CH + c) * (long long)sizeof(Src));
-        uacc += (unsigned)((unsigned long long)((long long)pKernel[i] * (long long)(int)*sp) & 0xffffffffull);
+        uacc = sat_add_u32(
+            uacc,
+            (unsigned)((unsigned long long)((long long)pKernel[i] * (long long)(int)*sp) & 0xffffffffull));
       }
       *reinterpret_cast<Dst *>(dp) = emit_u8_unsigned(uacc, nDivisor);
       continue;
@@ -687,7 +697,9 @@ __global__ void filter_row_border_div_kernel(const Src *__restrict__ pSrc, int n
       for (int i = 0; i < mask; ++i) {
         const int ix = clampi(x + offx + ax - i, 0, sw - 1);
         const Src *sp = (const Src *)(srow + ((long long)ix * CH + c) * (long long)sizeof(Src));
-        uacc += (unsigned)((unsigned long long)((long long)pKernel[i] * (long long)(int)*sp) & 0xffffffffull);
+        uacc = sat_add_u32(
+            uacc,
+            (unsigned)((unsigned long long)((long long)pKernel[i] * (long long)(int)*sp) & 0xffffffffull));
       }
       *reinterpret_cast<Dst *>(dp) = emit_u8_unsigned(uacc, nDivisor);
       continue;
@@ -731,7 +743,9 @@ __global__ void filter_col_border_div_kernel(const Src *__restrict__ pSrc, int n
         const int iy = clampi(y + offy + ay - i, 0, sh - 1);
         const char *srow = origin + (long long)iy * nSrcStep;
         const Src *sp = (const Src *)(srow + ((long long)ix * CH + c) * (long long)sizeof(Src));
-        uacc += (unsigned)((unsigned long long)((long long)pKernel[i] * (long long)(int)*sp) & 0xffffffffull);
+        uacc = sat_add_u32(
+            uacc,
+            (unsigned)((unsigned long long)((long long)pKernel[i] * (long long)(int)*sp) & 0xffffffffull));
       }
       *reinterpret_cast<Dst *>(dp) = emit_u8_unsigned(uacc, nDivisor);
       continue;

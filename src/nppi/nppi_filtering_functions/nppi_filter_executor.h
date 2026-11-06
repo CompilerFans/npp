@@ -16,9 +16,10 @@
 //     toward zero and then saturate (0.75->0, -1.5->-1, -30000*2 -> -32768).
 //   * integer kernels (nppiFilterBorder_<int>) accumulate with int32 wrap-around,
 //     divide by nDivisor with C truncation toward zero, then saturate.
-//     Exception (measured): the 8u C4R/AC4R ROW/COLUMN 1D families use unsigned
-//     32-bit ring arithmetic and unsigned division, so negative sums wrap high
-//     and saturate to 255.  The 2D 8u families are signed.
+//     Exception (measured): the 8u C4R/AC4R ROW/COLUMN 1D families accumulate
+//     in unsigned 32-bit SATURATING arithmetic and divide unsigned, so a
+//     negative signed sum lands high and saturates to 255.  The 2D 8u
+//     families are signed.
 //   * AC4 filters the first three channels only; the alpha channel is preserved
 //     (also by the empty-kernel/zero-mask fill).
 //   * non-border variants read raw (no bounds handling); border variants accept
