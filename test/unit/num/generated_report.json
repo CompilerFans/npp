@@ -134,7 +134,7 @@
   "skipped": []
  },
  "nppi_filtering_functions.h": {
-  "emitted": 827,
+  "emitted": 839,
   "skipped": [
    {
     "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx",
@@ -314,66 +314,6 @@
    {
     "function": "nppiFilterCannyBorder_8u_C1R_Ctx",
     "family": "nppiFilterCannyBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterGaussPyramidLayerDownBorder_16u_C1R_Ctx",
-    "family": "nppiFilterGaussPyramidLayerDownBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterGaussPyramidLayerDownBorder_16u_C3R_Ctx",
-    "family": "nppiFilterGaussPyramidLayerDownBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterGaussPyramidLayerDownBorder_32f_C1R_Ctx",
-    "family": "nppiFilterGaussPyramidLayerDownBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterGaussPyramidLayerDownBorder_32f_C3R_Ctx",
-    "family": "nppiFilterGaussPyramidLayerDownBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterGaussPyramidLayerDownBorder_8u_C1R_Ctx",
-    "family": "nppiFilterGaussPyramidLayerDownBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterGaussPyramidLayerDownBorder_8u_C3R_Ctx",
-    "family": "nppiFilterGaussPyramidLayerDownBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterGaussPyramidLayerUpBorder_16u_C1R_Ctx",
-    "family": "nppiFilterGaussPyramidLayerUpBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterGaussPyramidLayerUpBorder_16u_C3R_Ctx",
-    "family": "nppiFilterGaussPyramidLayerUpBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterGaussPyramidLayerUpBorder_32f_C1R_Ctx",
-    "family": "nppiFilterGaussPyramidLayerUpBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterGaussPyramidLayerUpBorder_32f_C3R_Ctx",
-    "family": "nppiFilterGaussPyramidLayerUpBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterGaussPyramidLayerUpBorder_8u_C1R_Ctx",
-    "family": "nppiFilterGaussPyramidLayerUpBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterGaussPyramidLayerUpBorder_8u_C3R_Ctx",
-    "family": "nppiFilterGaussPyramidLayerUpBorder",
     "reason": "later filtering batch / unsupported"
    },
    {

@@ -330,6 +330,23 @@ def emit_unsharp(row: dict) -> Optional[str]:
     return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
 
 
+def emit_pyramid(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    m = re.match(r"nppiFilterGaussPyramidLayer(Down|Up)Border_(8u|16u|32f)_(C1R|C3R)_Ctx$", fn)
+    if not m:
+        return None
+    down, dt, lay = m.group(1) == "Down", m.group(2), m.group(3)
+    src = {"8u": "Npp8u", "16u": "Npp16u", "32f": "Npp32f"}[dt]
+    c = 1 if lay == "C1R" else 3
+    name = re.sub(r"\W", "_", fn)
+    lam = (f"[](const {src} *sp, int ss, NppiSize srcSize, NppiPoint off, {src} *dp, int ds, "
+           f"NppiSize roi, float rate, int taps, const Npp32f *ker, int border, NppStreamContext ctx) "
+           f"{{ return {fn}(sp, ss, srcSize, off, dp, ds, roi, rate, taps, ker, "
+           f"(NppiBorderType)border, ctx); }}")
+    prefix = f"num::filtpyr::run_pyramid<{src}, {src}, {c}, {'true' if down else 'false'}>"
+    return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -341,7 +358,8 @@ def main() -> int:
     for row in rows:
         text = (emit_fixed(row) or emit_deriv(row) or emit_gauss(row) or emit_window(row)
                 or emit_generic(row) or emit_sumwindow(row) or emit_gradient(row)
-                or emit_tail(row) or emit_wiener(row) or emit_unsharp(row))
+                or emit_tail(row) or emit_wiener(row) or emit_unsharp(row)
+                or emit_pyramid(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
@@ -358,7 +376,8 @@ def main() -> int:
               "#include \"num_nppi_filter_gradient.h\"\n\n"
               "#include \"num_nppi_filter_tail.h\"\n\n"
               "#include \"num_nppi_filter_wiener.h\"\n\n"
-              "#include \"num_nppi_filter_unsharp.h\"\n\n")
+              "#include \"num_nppi_filter_unsharp.h\"\n\n"
+              "#include \"num_nppi_filter_pyramid.h\"\n\n")
     if args.emit:
         DEST.write_text(header + "\n".join(out))
         prev = {}
