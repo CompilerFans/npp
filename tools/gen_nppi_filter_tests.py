@@ -121,12 +121,16 @@ def emit_gauss(row: dict) -> Optional[str]:
     return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
 
 
-BOX_RE = r"nppiFilter(BoxBorderAdvanced|BoxBorder|Box)_(\w+)_(C1R|C3R|C4R|AC4R)_Ctx$"
+WIN_RE = (r"nppiFilter(BoxBorderAdvanced|MedianBorder|Median|MinBorder|Min|MaxBorder|Max|"
+          r"BoxBorder|Box)_(\w+)_(C1R|C3R|C4R|AC4R)_Ctx$")
+WIN_OP = {"Box": "kBox", "BoxBorder": "kBox", "BoxBorderAdvanced": "kBox",
+          "Min": "kMin", "MinBorder": "kMin", "Max": "kMax", "MaxBorder": "kMax",
+          "Median": "kMedian", "MedianBorder": "kMedian"}
 
 
-def emit_box(row: dict) -> Optional[str]:
+def emit_window(row: dict) -> Optional[str]:
     fn = row["function_name"]
-    m = re.match(BOX_RE, fn)
+    m = re.match(WIN_RE, fn)
     if not m:
         return None
     fam, dt, lay = m.group(1), m.group(2), m.group(3)
@@ -134,21 +138,24 @@ def emit_box(row: dict) -> Optional[str]:
         return None
     src, dst = DT[dt]
     c, a = LAYOUT[lay]
+    op = WIN_OP[fam]
     adv = fam == "BoxBorderAdvanced"
-    border = fam != "Box"
+    border = fam.endswith("Border")
+    med = op == "kMedian"
     name = re.sub(r"\W", "_", fn)
     if adv:
         body = (f"return {fn}(sp, ss, srcSize, off, dp, ds, roi, mask, anchor, "
                 f"(NppiBorderType)mode, pbuf, ctx);")
     elif border:
         body = (f"return {fn}(sp, ss, srcSize, off, dp, ds, roi, mask, anchor, "
-                f"(NppiBorderType)mode, ctx);")
+                + ("pbuf, " if med else "")
+                + f"(NppiBorderType)mode, ctx);")
     else:
-        body = f"return {fn}(sp, ss, dp, ds, roi, mask, anchor, ctx);"
+        body = f"return {fn}(sp, ss, dp, ds, roi, mask, anchor, " + ("pbuf, " if med else "") + "ctx);"
     lam = (f"[](const {src} *sp, int ss, {dst} *dp, int ds, NppiSize roi, NppiSize srcSize, "
            f"NppiPoint off, NppiSize mask, NppiPoint anchor, int mode, Npp8u *pbuf, "
            f"NppStreamContext ctx) {{ (void)srcSize; (void)off; (void)mode; (void)pbuf; {body} }}")
-    prefix = (f"num::filtwin::run_window<{src}, {c}, {a}, num::filtwin::kBox, "
+    prefix = (f"num::filtwin::run_window<{src}, {c}, {a}, num::filtwin::{op}, "
               f"{'true' if border else 'false'}, {'true' if adv else 'false'}>")
     return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
 
@@ -162,7 +169,7 @@ def main() -> int:
     out: List[str] = []
     skipped: List[dict] = []
     for row in rows:
-        text = emit_fixed(row) or emit_deriv(row) or emit_gauss(row) or emit_box(row)
+        text = emit_fixed(row) or emit_deriv(row) or emit_gauss(row) or emit_window(row)
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
