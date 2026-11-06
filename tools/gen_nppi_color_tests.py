@@ -560,6 +560,48 @@ YCBCR422_FAMILIES = {
 }
 
 
+YCBCR420_LAYOUT = {
+    # function: (kind, a0, lambda-form)
+    "nppiYCbCr420_8u_P3P2R_Ctx": ("P3P2_420", 0, "p3p2"),
+    "nppiYCrCb420ToYCbCr420_8u_P3P2R_Ctx": ("P3P2_420", 1, "p3p2"),
+    "nppiYCbCr420_8u_P2P3R_Ctx": ("P2P3_420", 0, "p2p3"),
+    "nppiYCbCr420ToYCrCb420_8u_P2P3R_Ctx": ("P2P3_420", 1, "p2p3"),
+    "nppiYCbCr420ToYCbCr422_8u_P3R_Ctx": ("P3P3_422", 0, "p3p3"),
+    "nppiYCbCr420ToYCbCr422_8u_P2P3R_Ctx": ("P2P3_422", 0, "p2p3"),
+    "nppiYCbCr420ToYCbCr422_8u_P2C2R_Ctx": ("P2C2_422", 0, "p2c2"),
+    "nppiYCbCr420ToCbYCr422_8u_P2C2R_Ctx": ("P2C2_422", 1, "p2c2"),
+    "nppiYCrCb420ToCbYCr422_8u_P3C2R_Ctx": ("YCrCb2CbYCr", 0, "p3c2"),
+    "nppiYCrCb420ToYCbCr411_8u_P3P2R_Ctx": ("P3P2_411", 1, "p3p2"),
+    "nppiYCbCr420ToYCbCr411_8u_P3P2R_Ctx": ("P3P2_411", 0, "p3p2"),
+    "nppiYCbCr420ToYCbCr411_8u_P2P3R_Ctx": ("P2P3_411", 0, "p2p3"),
+}
+
+
+def emit_ycbcr420_layout(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    if fn not in YCBCR420_LAYOUT:
+        return None
+    kind, a0, form = YCBCR420_LAYOUT[fn]
+    name = re.sub(r"\W", "_", fn)
+    sig = ("[](const Npp8u *const *sp, int ss, int *ssa, Npp8u *const *dp, int ds, int *dsa, "
+           "NppiSize r, NppStreamContext c) ")
+    voids = "(void)sp; (void)ss; (void)ssa; (void)dp; (void)ds; (void)dsa; (void)r; (void)c; "
+    if form == "p3p2":
+        body = f"return {fn}(sp, ssa, dp[0], dsa[0], dp[1], dsa[1], r, c);"
+    elif form == "p2p3":
+        body = f"return {fn}(sp[0], ssa[0], sp[1], ssa[1], const_cast<Npp8u **>(dp), dsa, r, c);"
+    elif form == "p3p3":
+        body = f"return {fn}(sp, ssa, const_cast<Npp8u **>(dp), dsa, r, c);"
+    elif form == "p2c2":
+        body = f"return {fn}(sp[0], ssa[0], sp[1], ssa[1], dp[0], dsa[0], r, c);"
+    else:
+        body = f"return {fn}(sp, ssa, dp[0], dsa[0], r, c);"
+    lam = f"{sig}{{ {voids}{body} }}"
+    return (f"TEST(NumGen, {name}) {{\n"
+            f"  num::ycbcr420layout::run_layout420(\n      \"{fn}\", "
+            f"num::ycbcr420layout::Kind::{kind}, {a0},\n      {lam});\n}}\n")
+
+
 YCBCR422_SPECIAL = {
     # function: (kind, a0, a1, a2, a3, matrix, invStyle, body-form)
     "nppiYCrCb422ToRGB_8u_C2C3R_Ctx": ("YCrCbInvC2", 3, 0, 0, 0, "mat601v", 0, "c2"),
@@ -879,7 +921,7 @@ def main() -> int:
                 or emit_gamma(row) or emit_gray(row) or emit_gradient(row) or emit_hls(row)
                 or emit_hls_layout(row) or emit_yuv(row) or emit_cs(row) or emit_cfa(row)
                 or emit_ycbcr_jpeg(row) or emit_yuv_planar(row) or emit_yuv_layout(row)
-                or emit_ycbcr422(row) or emit_ycbcr420(row) or emit_nv12(row)
+                or emit_ycbcr422(row) or emit_ycbcr420(row) or emit_ycbcr420_layout(row) or emit_nv12(row)
                 or emit_nv12_twist(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
@@ -897,6 +939,7 @@ def main() -> int:
               "#include \"num_nppi_yuv_layout.h\"\n"
               "#include \"num_nppi_ycbcr422.h\"\n"
               "#include \"num_nppi_ycbcr420.h\"\n"
+              "#include \"num_nppi_ycbcr420_layout.h\"\n"
               "#include \"num_nppi_colorspace.h\"\n"
               "#include \"num_nppi_cfa.h\"\n"
               "#include \"num_nppi_ycbcr.h\"\n"

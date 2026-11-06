@@ -130,7 +130,7 @@
   ]
  },
  "nppi_color_conversion.h": {
-  "emitted": 466,
+  "emitted": 478,
   "skipped": [
    {
     "function": "nppiAlphaCompColorKey_8u_AC4R_Ctx",
@@ -273,11 +273,6 @@
     "reason": "later color batch / unsupported"
    },
    {
-    "function": "nppiYCbCr420ToCbYCr422_8u_P2C2R_Ctx",
-    "family": "nppiYCbCr420ToCbYCr422",
-    "reason": "later color batch / unsupported"
-   },
-   {
     "function": "nppiYCbCr420ToRGBBatch_8u_P3C3R_Advanced_Ctx",
     "family": "nppiYCbCr420ToRGBBatch",
     "reason": "later color batch / unsupported"
@@ -285,46 +280,6 @@
    {
     "function": "nppiYCbCr420ToRGBBatch_8u_P3C3R_Ctx",
     "family": "nppiYCbCr420ToRGBBatch",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr420ToYCbCr411_8u_P2P3R_Ctx",
-    "family": "nppiYCbCr420ToYCbCr411",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr420ToYCbCr411_8u_P3P2R_Ctx",
-    "family": "nppiYCbCr420ToYCbCr411",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr420ToYCbCr422_8u_P2C2R_Ctx",
-    "family": "nppiYCbCr420ToYCbCr422",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr420ToYCbCr422_8u_P2P3R_Ctx",
-    "family": "nppiYCbCr420ToYCbCr422",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr420ToYCbCr422_8u_P3R_Ctx",
-    "family": "nppiYCbCr420ToYCbCr422",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr420ToYCrCb420_8u_P2P3R_Ctx",
-    "family": "nppiYCbCr420ToYCrCb420",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr420_8u_P2P3R_Ctx",
-    "family": "nppiYCbCr420",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCbCr420_8u_P3P2R_Ctx",
-    "family": "nppiYCbCr420",
     "reason": "later color batch / unsupported"
    },
    {
@@ -395,21 +350,6 @@
    {
     "function": "nppiYCbCrToRGBBatch_8u_P3C3R_Ctx",
     "family": "nppiYCbCrToRGBBatch",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCrCb420ToCbYCr422_8u_P3C2R_Ctx",
-    "family": "nppiYCrCb420ToCbYCr422",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCrCb420ToYCbCr411_8u_P3P2R_Ctx",
-    "family": "nppiYCrCb420ToYCbCr411",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYCrCb420ToYCbCr420_8u_P3P2R_Ctx",
-    "family": "nppiYCrCb420ToYCbCr420",
     "reason": "later color batch / unsupported"
    },
    {
