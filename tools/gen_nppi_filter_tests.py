@@ -236,6 +236,31 @@ def emit_sumwindow(row: dict) -> Optional[str]:
     return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
 
 
+GRAD_RE = r"nppiGradientVector(Sobel|Prewitt|Scharr)Border_(16s32f|16u32f|32f|8u16s)_(C1R|C3C1R)_Ctx$"
+GRAD_OP = {"Sobel": "kSobel", "Prewitt": "kPrewitt", "Scharr": "kScharr"}
+GRAD_DT = {"16s32f": ("Npp16s", "Npp32f"), "16u32f": ("Npp16u", "Npp32f"),
+           "32f": ("Npp32f", "Npp32f"), "8u16s": ("Npp8u", "Npp16s")}
+
+
+def emit_gradient(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    m = re.match(GRAD_RE, fn)
+    if not m:
+        return None
+    op, dt, lay = m.group(1), m.group(2), m.group(3)
+    src, dst = GRAD_DT[dt]
+    srcc = 1 if lay == "C1R" else 3
+    name = re.sub(r"\W", "_", fn)
+    body = (f"return {fn}(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, "
+            f"(NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx);")
+    lam = (f"[](const {src} *sp, int ss, NppiSize srcSize, NppiPoint off, {dst} *dX, int sX, "
+           f"{dst} *dY, int sY, {dst} *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, "
+           f"int norm, int border, NppStreamContext ctx) {{ (void)border; {body} }}")
+    prefix = (f"num::filtgrad::run_gradient<{src}, {dst}, {srcc}, num::filtgrad::{GRAD_OP[op]}, "
+              f"{'true' if op == 'Sobel' else 'false'}>")
+    return f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
@@ -246,7 +271,7 @@ def main() -> int:
     skipped: List[dict] = []
     for row in rows:
         text = (emit_fixed(row) or emit_deriv(row) or emit_gauss(row) or emit_window(row)
-                or emit_generic(row) or emit_sumwindow(row))
+                or emit_generic(row) or emit_sumwindow(row) or emit_gradient(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
@@ -259,7 +284,8 @@ def main() -> int:
               "#include \"num_nppi_filter_gauss.h\"\n\n"
               "#include \"num_nppi_filter_window.h\"\n\n"
               "#include \"num_nppi_filter_generic.h\"\n\n"
-              "#include \"num_nppi_filter_sumwindow.h\"\n\n")
+              "#include \"num_nppi_filter_sumwindow.h\"\n\n"
+              "#include \"num_nppi_filter_gradient.h\"\n\n")
     if args.emit:
         DEST.write_text(header + "\n".join(out))
         prev = {}

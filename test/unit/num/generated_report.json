@@ -134,7 +134,7 @@
   "skipped": []
  },
  "nppi_filtering_functions.h": {
-  "emitted": 761,
+  "emitted": 785,
   "skipped": [
    {
     "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx",
@@ -934,126 +934,6 @@
    {
     "function": "nppiFloodFill_8u_C3IR_Ctx",
     "family": "nppiFloodFill",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorPrewittBorder_16s32f_C1R_Ctx",
-    "family": "nppiGradientVectorPrewittBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorPrewittBorder_16s32f_C3C1R_Ctx",
-    "family": "nppiGradientVectorPrewittBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorPrewittBorder_16u32f_C1R_Ctx",
-    "family": "nppiGradientVectorPrewittBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorPrewittBorder_16u32f_C3C1R_Ctx",
-    "family": "nppiGradientVectorPrewittBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorPrewittBorder_32f_C1R_Ctx",
-    "family": "nppiGradientVectorPrewittBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorPrewittBorder_32f_C3C1R_Ctx",
-    "family": "nppiGradientVectorPrewittBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx",
-    "family": "nppiGradientVectorPrewittBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorPrewittBorder_8u16s_C3C1R_Ctx",
-    "family": "nppiGradientVectorPrewittBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorScharrBorder_16s32f_C1R_Ctx",
-    "family": "nppiGradientVectorScharrBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorScharrBorder_16s32f_C3C1R_Ctx",
-    "family": "nppiGradientVectorScharrBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorScharrBorder_16u32f_C1R_Ctx",
-    "family": "nppiGradientVectorScharrBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorScharrBorder_16u32f_C3C1R_Ctx",
-    "family": "nppiGradientVectorScharrBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorScharrBorder_32f_C1R_Ctx",
-    "family": "nppiGradientVectorScharrBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorScharrBorder_32f_C3C1R_Ctx",
-    "family": "nppiGradientVectorScharrBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorScharrBorder_8u16s_C1R_Ctx",
-    "family": "nppiGradientVectorScharrBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorScharrBorder_8u16s_C3C1R_Ctx",
-    "family": "nppiGradientVectorScharrBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorSobelBorder_16s32f_C1R_Ctx",
-    "family": "nppiGradientVectorSobelBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorSobelBorder_16s32f_C3C1R_Ctx",
-    "family": "nppiGradientVectorSobelBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorSobelBorder_16u32f_C1R_Ctx",
-    "family": "nppiGradientVectorSobelBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorSobelBorder_16u32f_C3C1R_Ctx",
-    "family": "nppiGradientVectorSobelBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorSobelBorder_32f_C1R_Ctx",
-    "family": "nppiGradientVectorSobelBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorSobelBorder_32f_C3C1R_Ctx",
-    "family": "nppiGradientVectorSobelBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorSobelBorder_8u16s_C1R_Ctx",
-    "family": "nppiGradientVectorSobelBorder",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiGradientVectorSobelBorder_8u16s_C3C1R_Ctx",
-    "family": "nppiGradientVectorSobelBorder",
     "reason": "later filtering batch / unsupported"
    },
    {

@@ -12,6 +12,8 @@
 
 #include "num_nppi_filter_sumwindow.h"
 
+#include "num_nppi_filter_gradient.h"
+
 TEST(NumGen, nppiFilter32f_16s_AC4R_Ctx) {
   num::filtgen::run_generic<Npp16s, Npp16s, 4, 3, 0, 1, false, false>(
       "nppiFilter32f_16s_AC4R_Ctx",
@@ -4360,6 +4362,150 @@ TEST(NumGen, nppiFilter_8u_C4R_Ctx) {
   num::filtgen::run_generic<Npp8u, Npp8u, 4, 4, 0, 0, false, false>(
       "nppiFilter_8u_C4R_Ctx",
       [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, const void *ker, NppiSize ksize, NppiPoint anchor, int mask, int divisor, int border, NppStreamContext ctx) { (void)srcSize; (void)off; (void)ksize; (void)anchor; (void)mask; (void)divisor; (void)border; return nppiFilter_8u_C4R_Ctx(sp, ss, dp, ds, roi, (const Npp32s *)ker, ksize, anchor, divisor, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorPrewittBorder_16s32f_C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp16s, Npp32f, 1, num::filtgrad::kPrewitt, false>(
+      "nppiGradientVectorPrewittBorder_16s32f_C1R_Ctx",
+      [](const Npp16s *sp, int ss, NppiSize srcSize, NppiPoint off, Npp32f *dX, int sX, Npp32f *dY, int sY, Npp32f *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorPrewittBorder_16s32f_C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorPrewittBorder_16s32f_C3C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp16s, Npp32f, 3, num::filtgrad::kPrewitt, false>(
+      "nppiGradientVectorPrewittBorder_16s32f_C3C1R_Ctx",
+      [](const Npp16s *sp, int ss, NppiSize srcSize, NppiPoint off, Npp32f *dX, int sX, Npp32f *dY, int sY, Npp32f *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorPrewittBorder_16s32f_C3C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorPrewittBorder_16u32f_C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp16u, Npp32f, 1, num::filtgrad::kPrewitt, false>(
+      "nppiGradientVectorPrewittBorder_16u32f_C1R_Ctx",
+      [](const Npp16u *sp, int ss, NppiSize srcSize, NppiPoint off, Npp32f *dX, int sX, Npp32f *dY, int sY, Npp32f *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorPrewittBorder_16u32f_C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorPrewittBorder_16u32f_C3C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp16u, Npp32f, 3, num::filtgrad::kPrewitt, false>(
+      "nppiGradientVectorPrewittBorder_16u32f_C3C1R_Ctx",
+      [](const Npp16u *sp, int ss, NppiSize srcSize, NppiPoint off, Npp32f *dX, int sX, Npp32f *dY, int sY, Npp32f *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorPrewittBorder_16u32f_C3C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorPrewittBorder_32f_C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp32f, Npp32f, 1, num::filtgrad::kPrewitt, false>(
+      "nppiGradientVectorPrewittBorder_32f_C1R_Ctx",
+      [](const Npp32f *sp, int ss, NppiSize srcSize, NppiPoint off, Npp32f *dX, int sX, Npp32f *dY, int sY, Npp32f *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorPrewittBorder_32f_C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorPrewittBorder_32f_C3C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp32f, Npp32f, 3, num::filtgrad::kPrewitt, false>(
+      "nppiGradientVectorPrewittBorder_32f_C3C1R_Ctx",
+      [](const Npp32f *sp, int ss, NppiSize srcSize, NppiPoint off, Npp32f *dX, int sX, Npp32f *dY, int sY, Npp32f *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorPrewittBorder_32f_C3C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp8u, Npp16s, 1, num::filtgrad::kPrewitt, false>(
+      "nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx",
+      [](const Npp8u *sp, int ss, NppiSize srcSize, NppiPoint off, Npp16s *dX, int sX, Npp16s *dY, int sY, Npp16s *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorPrewittBorder_8u16s_C3C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp8u, Npp16s, 3, num::filtgrad::kPrewitt, false>(
+      "nppiGradientVectorPrewittBorder_8u16s_C3C1R_Ctx",
+      [](const Npp8u *sp, int ss, NppiSize srcSize, NppiPoint off, Npp16s *dX, int sX, Npp16s *dY, int sY, Npp16s *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorPrewittBorder_8u16s_C3C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorScharrBorder_16s32f_C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp16s, Npp32f, 1, num::filtgrad::kScharr, false>(
+      "nppiGradientVectorScharrBorder_16s32f_C1R_Ctx",
+      [](const Npp16s *sp, int ss, NppiSize srcSize, NppiPoint off, Npp32f *dX, int sX, Npp32f *dY, int sY, Npp32f *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorScharrBorder_16s32f_C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorScharrBorder_16s32f_C3C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp16s, Npp32f, 3, num::filtgrad::kScharr, false>(
+      "nppiGradientVectorScharrBorder_16s32f_C3C1R_Ctx",
+      [](const Npp16s *sp, int ss, NppiSize srcSize, NppiPoint off, Npp32f *dX, int sX, Npp32f *dY, int sY, Npp32f *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorScharrBorder_16s32f_C3C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorScharrBorder_16u32f_C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp16u, Npp32f, 1, num::filtgrad::kScharr, false>(
+      "nppiGradientVectorScharrBorder_16u32f_C1R_Ctx",
+      [](const Npp16u *sp, int ss, NppiSize srcSize, NppiPoint off, Npp32f *dX, int sX, Npp32f *dY, int sY, Npp32f *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorScharrBorder_16u32f_C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorScharrBorder_16u32f_C3C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp16u, Npp32f, 3, num::filtgrad::kScharr, false>(
+      "nppiGradientVectorScharrBorder_16u32f_C3C1R_Ctx",
+      [](const Npp16u *sp, int ss, NppiSize srcSize, NppiPoint off, Npp32f *dX, int sX, Npp32f *dY, int sY, Npp32f *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorScharrBorder_16u32f_C3C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorScharrBorder_32f_C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp32f, Npp32f, 1, num::filtgrad::kScharr, false>(
+      "nppiGradientVectorScharrBorder_32f_C1R_Ctx",
+      [](const Npp32f *sp, int ss, NppiSize srcSize, NppiPoint off, Npp32f *dX, int sX, Npp32f *dY, int sY, Npp32f *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorScharrBorder_32f_C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorScharrBorder_32f_C3C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp32f, Npp32f, 3, num::filtgrad::kScharr, false>(
+      "nppiGradientVectorScharrBorder_32f_C3C1R_Ctx",
+      [](const Npp32f *sp, int ss, NppiSize srcSize, NppiPoint off, Npp32f *dX, int sX, Npp32f *dY, int sY, Npp32f *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorScharrBorder_32f_C3C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorScharrBorder_8u16s_C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp8u, Npp16s, 1, num::filtgrad::kScharr, false>(
+      "nppiGradientVectorScharrBorder_8u16s_C1R_Ctx",
+      [](const Npp8u *sp, int ss, NppiSize srcSize, NppiPoint off, Npp16s *dX, int sX, Npp16s *dY, int sY, Npp16s *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorScharrBorder_8u16s_C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorScharrBorder_8u16s_C3C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp8u, Npp16s, 3, num::filtgrad::kScharr, false>(
+      "nppiGradientVectorScharrBorder_8u16s_C3C1R_Ctx",
+      [](const Npp8u *sp, int ss, NppiSize srcSize, NppiPoint off, Npp16s *dX, int sX, Npp16s *dY, int sY, Npp16s *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorScharrBorder_8u16s_C3C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorSobelBorder_16s32f_C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp16s, Npp32f, 1, num::filtgrad::kSobel, true>(
+      "nppiGradientVectorSobelBorder_16s32f_C1R_Ctx",
+      [](const Npp16s *sp, int ss, NppiSize srcSize, NppiPoint off, Npp32f *dX, int sX, Npp32f *dY, int sY, Npp32f *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorSobelBorder_16s32f_C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorSobelBorder_16s32f_C3C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp16s, Npp32f, 3, num::filtgrad::kSobel, true>(
+      "nppiGradientVectorSobelBorder_16s32f_C3C1R_Ctx",
+      [](const Npp16s *sp, int ss, NppiSize srcSize, NppiPoint off, Npp32f *dX, int sX, Npp32f *dY, int sY, Npp32f *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorSobelBorder_16s32f_C3C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorSobelBorder_16u32f_C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp16u, Npp32f, 1, num::filtgrad::kSobel, true>(
+      "nppiGradientVectorSobelBorder_16u32f_C1R_Ctx",
+      [](const Npp16u *sp, int ss, NppiSize srcSize, NppiPoint off, Npp32f *dX, int sX, Npp32f *dY, int sY, Npp32f *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorSobelBorder_16u32f_C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorSobelBorder_16u32f_C3C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp16u, Npp32f, 3, num::filtgrad::kSobel, true>(
+      "nppiGradientVectorSobelBorder_16u32f_C3C1R_Ctx",
+      [](const Npp16u *sp, int ss, NppiSize srcSize, NppiPoint off, Npp32f *dX, int sX, Npp32f *dY, int sY, Npp32f *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorSobelBorder_16u32f_C3C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorSobelBorder_32f_C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp32f, Npp32f, 1, num::filtgrad::kSobel, true>(
+      "nppiGradientVectorSobelBorder_32f_C1R_Ctx",
+      [](const Npp32f *sp, int ss, NppiSize srcSize, NppiPoint off, Npp32f *dX, int sX, Npp32f *dY, int sY, Npp32f *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorSobelBorder_32f_C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorSobelBorder_32f_C3C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp32f, Npp32f, 3, num::filtgrad::kSobel, true>(
+      "nppiGradientVectorSobelBorder_32f_C3C1R_Ctx",
+      [](const Npp32f *sp, int ss, NppiSize srcSize, NppiPoint off, Npp32f *dX, int sX, Npp32f *dY, int sY, Npp32f *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorSobelBorder_32f_C3C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorSobelBorder_8u16s_C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp8u, Npp16s, 1, num::filtgrad::kSobel, true>(
+      "nppiGradientVectorSobelBorder_8u16s_C1R_Ctx",
+      [](const Npp8u *sp, int ss, NppiSize srcSize, NppiPoint off, Npp16s *dX, int sX, Npp16s *dY, int sY, Npp16s *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorSobelBorder_8u16s_C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
+}
+
+TEST(NumGen, nppiGradientVectorSobelBorder_8u16s_C3C1R_Ctx) {
+  num::filtgrad::run_gradient<Npp8u, Npp16s, 3, num::filtgrad::kSobel, true>(
+      "nppiGradientVectorSobelBorder_8u16s_C3C1R_Ctx",
+      [](const Npp8u *sp, int ss, NppiSize srcSize, NppiPoint off, Npp16s *dX, int sX, Npp16s *dY, int sY, Npp16s *dM, int sM, Npp32f *dA, int sA, NppiSize roi, int mask, int norm, int border, NppStreamContext ctx) { (void)border; return nppiGradientVectorSobelBorder_8u16s_C3C1R_Ctx(sp, ss, srcSize, off, dX, sX, dY, sY, dM, sM, dA, sA, roi, (NppiMaskSize)mask, (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx); });
 }
 
 TEST(NumGen, nppiSumWindowColumnBorder_16s32f_C1R_Ctx) {
