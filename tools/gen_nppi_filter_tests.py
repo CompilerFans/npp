@@ -476,6 +476,23 @@ def emit_label_markers(row: dict) -> Optional[str]:
     return None
 
 
+def emit_hough(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    name = re.sub(r"\W", "_", fn)
+    if fn == "nppiFilterHoughLine_8u32f_C1R_Ctx":
+        lam = (f"[](const Npp8u *sp, int ss, NppiSize roi, NppPointPolar delta, int thr, "
+               f"NppPointPolar *lines, int maxLines, int *count, Npp8u *buf, NppStreamContext ctx) {{ "
+               f"return {fn}(sp, ss, roi, delta, thr, lines, maxLines, count, buf, ctx); }}")
+        return (f"TEST(NumGen, {name}) {{\n  num::hough::run_hough(\n      \"{fn}\",\n      {lam});\n}}\n")
+    if fn == "nppiFilterHoughLineRegion_8u32f_C1R_Ctx":
+        lam = (f"[](const Npp8u *sp, int ss, NppiSize roi, NppPointPolar delta, int thr, "
+               f"NppPointPolar *lines, NppPointPolar *dstRoi, int maxLines, int *count, Npp8u *buf, "
+               f"NppStreamContext ctx) {{ return {fn}(sp, ss, roi, delta, thr, lines, dstRoi, maxLines, "
+               f"count, buf, ctx); }}")
+        return (f"TEST(NumGen, {name}) {{\n  num::hough::run_hough_region(\n      \"{fn}\",\n      {lam});\n}}\n")
+    return None
+
+
 def emit_canny(row: dict) -> Optional[str]:
     fn = row["function_name"]
     if fn != "nppiFilterCannyBorder_8u_C1R_Ctx":
@@ -555,7 +572,7 @@ def main() -> int:
                 or emit_pyramid(row) or emit_hog(row) or emit_median_bufsize(row)
                 or emit_distance_transform(row) or emit_floodfill(row)
                 or emit_signed_dt(row) or emit_label_markers(row) or emit_compress_labels(row)
-                or emit_canny(row))
+                or emit_canny(row) or emit_hough(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=row["family"],
                                 reason="later filtering batch / unsupported"))
@@ -581,7 +598,8 @@ def main() -> int:
               "#include \"num_nppi_signed_distance_transform.h\"\n\n"
               "#include \"num_nppi_label_markers.h\"\n\n"
               "#include \"num_nppi_compress_labels.h\"\n\n"
-              "#include \"num_nppi_canny.h\"\n\n")
+              "#include \"num_nppi_canny.h\"\n\n"
+              "#include \"num_nppi_hough.h\"\n\n")
     if args.emit:
         DEST.write_text(header + "\n".join(out))
         prev = {}

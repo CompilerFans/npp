@@ -134,7 +134,7 @@
   "skipped": []
  },
  "nppi_filtering_functions.h": {
-  "emitted": 962,
+  "emitted": 964,
   "skipped": [
    {
     "function": "nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx",
@@ -154,16 +154,6 @@
    {
     "function": "nppiContoursImageMarchingSquaresInterpolation_64f_C1R_Ctx",
     "family": "nppiContoursImageMarchingSquaresInterpolation",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterHoughLineRegion_8u32f_C1R_Ctx",
-    "family": "nppiFilterHoughLineRegion",
-    "reason": "later filtering batch / unsupported"
-   },
-   {
-    "function": "nppiFilterHoughLine_8u32f_C1R_Ctx",
-    "family": "nppiFilterHoughLine",
     "reason": "later filtering batch / unsupported"
    },
    {

@@ -38,6 +38,8 @@
 
 #include "num_nppi_canny.h"
 
+#include "num_nppi_hough.h"
+
 TEST(NumGen, nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx) {
   num::compresslabels::run_compress_batch<true>(
       "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx",
@@ -2034,6 +2036,18 @@ TEST(NumGen, nppiFilterHighPass_8u_C4R_Ctx) {
   num::filtfixed::run_fixed<Npp8u, Npp8u, 4, 4, num::filtfixed::kHighPass, false>(
       "nppiFilterHighPass_8u_C4R_Ctx",
       [](const Npp8u *sp, int ss, Npp8u *dp, int ds, NppiSize roi, NppiSize srcSize, NppiPoint off, int mask, NppStreamContext ctx) { (void)srcSize; (void)off; (void)mask; return nppiFilterHighPass_8u_C4R_Ctx(sp, ss, dp, ds, roi, (NppiMaskSize)mask, ctx); });
+}
+
+TEST(NumGen, nppiFilterHoughLineRegion_8u32f_C1R_Ctx) {
+  num::hough::run_hough_region(
+      "nppiFilterHoughLineRegion_8u32f_C1R_Ctx",
+      [](const Npp8u *sp, int ss, NppiSize roi, NppPointPolar delta, int thr, NppPointPolar *lines, NppPointPolar *dstRoi, int maxLines, int *count, Npp8u *buf, NppStreamContext ctx) { return nppiFilterHoughLineRegion_8u32f_C1R_Ctx(sp, ss, roi, delta, thr, lines, dstRoi, maxLines, count, buf, ctx); });
+}
+
+TEST(NumGen, nppiFilterHoughLine_8u32f_C1R_Ctx) {
+  num::hough::run_hough(
+      "nppiFilterHoughLine_8u32f_C1R_Ctx",
+      [](const Npp8u *sp, int ss, NppiSize roi, NppPointPolar delta, int thr, NppPointPolar *lines, int maxLines, int *count, Npp8u *buf, NppStreamContext ctx) { return nppiFilterHoughLine_8u32f_C1R_Ctx(sp, ss, roi, delta, thr, lines, maxLines, count, buf, ctx); });
 }
 
 TEST(NumGen, nppiFilterLaplaceBorder_16s_AC4R_Ctx) {
