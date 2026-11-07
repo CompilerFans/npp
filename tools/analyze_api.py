@@ -183,7 +183,9 @@ def compare_versions(v1_funcs: Dict, v2_funcs: Dict) -> Dict:
     removed_keys = v1_keys - v2_keys
 
     changed = []
-    for name in v1_names & v2_names:
+    # Sorted so the generated report is byte-stable across runs (set order is
+    # randomized per process by PYTHONHASHSEED).
+    for name in sorted(v1_names & v2_names):
         v1_sigs = [k for k in v1_keys if k.startswith(name + '::')]
         v2_sigs = [k for k in v2_keys if k.startswith(name + '::')]
 

@@ -28,11 +28,11 @@
 - ... and 419 more
 
 **Changed:**
-- nppiDistanceTransformPBA_16u16u_C1R_Ctx
-- nppiHistogramRangeGetBufferSize_16s_C1R_Ctx
+- nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx
 - nppiCompressedMarkerLabelsUFGetGeometryListsSize_C1R
-- nppiDistanceTransformPBA_8u16u_C1R_Ctx
-- nppiHistogramRangeGetBufferSize_16s_AC4R_Ctx
+- nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx
+- nppiDistanceTransformPBA_16s16u_C1R_Ctx
+- nppiDistanceTransformPBA_16s32f_C1R_Ctx
 - ... and 35 more
 
 ### 12.2 -> 12.8
@@ -55,11 +55,11 @@
 - ... and 3214 more
 
 **Changed:**
-- nppsMul_16s
-- nppsMinIndx_64f
-- nppsSubCRev_64f
-- nppiHistogramRangeGetBufferSize_32f_C4R
-- nppiNormRelL1GetBufferHostSize_16s_C4R_Ctx
+- nppiAverageErrorGetBufferHostSize_16s_C1R
+- nppiAverageErrorGetBufferHostSize_16s_C1R_Ctx
+- nppiAverageErrorGetBufferHostSize_16s_C2R
+- nppiAverageErrorGetBufferHostSize_16s_C2R_Ctx
+- nppiAverageErrorGetBufferHostSize_16s_C3R
 - ... and 3183 more
 
 ## Module Statistics (12.8)
