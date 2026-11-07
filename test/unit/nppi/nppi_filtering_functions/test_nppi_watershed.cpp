@@ -66,8 +66,12 @@ TEST(NppiWatershed, TwoBasins) {
   Result r = run(img, nppiNormL1, NPP_WATERSHED_SEGMENT_BOUNDARIES_NONE, true);
   ASSERT_EQ(r.status, NPP_NO_ERROR);
 
-  // NONE keeps the source image (documented deviation from NPP's state image).
-  EXPECT_EQ(r.image, img);
+  // NONE keeps the basin fill: every pixel takes the intensity of its seed
+  // (the descending minimum).  Both minima of this image are 0, so the whole
+  // output is 0 even though the source is a distance-like ramp.
+  std::vector<Npp16u> want(img.size());
+  for (size_t i = 0; i < img.size(); ++i) want[i] = img[r.labels[i]];
+  EXPECT_EQ(r.image, want);
 
   // Two distinct seeds, and the valley pixels near each minimum share them.
   const Npp32u left = r.labels[(size_t)8 * W + 4];
@@ -96,18 +100,21 @@ TEST(NppiWatershed, BoundaryPolicies) {
   ASSERT_EQ(white.status, NPP_NO_ERROR);
   ASSERT_EQ(only.status, NPP_NO_ERROR);
 
+  // ONLY paints 0 exactly on boundary pixels and 65535 everywhere else, so it
+  // identifies the boundary set without ambiguity (a basin whose seed
+  // intensity is 65535 would not be distinguishable from a WHITE boundary).
   int boundaries = 0;
   for (size_t i = 0; i < img.size(); ++i) {
-    const bool boundary = black.image[i] != img[i] || white.image[i] != img[i];
+    const bool boundary = only.image[i] == 0;
+    const Npp16u fill = img[none.labels[i]];  // seed intensity of the basin
     if (boundary) {
       ++boundaries;
       EXPECT_EQ(black.image[i], 0);
       EXPECT_EQ(white.image[i], 65535);
-      EXPECT_EQ(only.image[i], 0);
     } else {
-      EXPECT_EQ(black.image[i], img[i]);
-      EXPECT_EQ(white.image[i], img[i]);
       EXPECT_EQ(only.image[i], 65535);
+      EXPECT_EQ(black.image[i], fill);
+      EXPECT_EQ(white.image[i], fill);
     }
   }
   EXPECT_GT(boundaries, 0);

@@ -230,7 +230,9 @@ protected:
         EXPECT_EQ(info.aContourInteriorDirection1[j], 0u) << "legacy-only unified field must stay zero at pixel " << i;
       }
 
-      if (contour != 0 && label != 0) {
+      // The contours image marks traced contour pixels with 0 and everything
+      // else (region interior, background, outside the ROI) with 255.
+      if (contour == 0 && label != 0) {
         ++contourPixelCount;
         EXPECT_EQ(info.nMarkerLabelID, label);
       }
@@ -449,10 +451,10 @@ TEST_F(NPPICompressedMarkerLabelsTest, Info_BasicWorkflow) {
   std::vector<Npp8u> h_contours(width * height);
   cudaMemcpy(h_contours.data(), d_contours, width * height * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
-  // Check that boundary pixels are marked
+  // Check that boundary pixels are marked (0 marks a contour pixel)
   int boundaryCount = 0;
   for (int i = 0; i < width * height; i++) {
-    if (h_contours[i] != 0)
+    if (h_contours[i] == 0)
       boundaryCount++;
   }
   EXPECT_GT(boundaryCount, 0);
@@ -736,7 +738,8 @@ TEST_F(NPPICompressedMarkerLabelsTest, Info_DirectionImagePopulatesBasicDirectio
   int contourPixelsWithMatchingLabel = 0;
   int contourPixelsWithMissingConnectedNeighbor = 0;
   for (size_t i = 0; i < h_contours.size(); ++i) {
-    if (h_contours[i] == 0) {
+    // 0 marks a traced contour pixel; 255 is region interior / background.
+    if (h_contours[i] != 0) {
       continue;
     }
     contourPixelsWithMatchingLabel += (h_dirImage[i].nMarkerLabelID == h_labels[i] && h_labels[i] != 0);

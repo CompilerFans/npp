@@ -68,9 +68,15 @@ TEST_F(NPPIFilterCannyTest, FilterCannyBorder_8u_C1R_Basic) {
   cudaMemcpy(d_src, srcData.data(), srcDataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
 
   // CallCanny边缘检测
-  status = nppiFilterCannyBorder_8u_C1R(d_src, srcStep, oSrcSizeROI, oSrcOffset, d_dst, dstStep, oDstSizeROI,
-                                        NPP_FILTER_SOBEL, NPP_MASK_SIZE_3_X_3, 50.0f, 150.0f, nppiNormL2,
-                                        NPP_BORDER_REPLICATE, d_buffer);
+  // Border convention: pSrc points at the ROI origin and the source image
+  // extends oSrcOffset pixels before it; the replicate border reads clamp to
+  // the image, so pass the image origin plus the offset (passing the bare
+  // image origin would make the kernel read one row/column before the
+  // allocation, which faults on MACA).
+  status = nppiFilterCannyBorder_8u_C1R(d_src + oSrcOffset.y * srcStep + oSrcOffset.x, srcStep, oSrcSizeROI,
+                                        oSrcOffset, d_dst, dstStep, oDstSizeROI, NPP_FILTER_SOBEL,
+                                        NPP_MASK_SIZE_3_X_3, 50.0f, 150.0f, nppiNormL2, NPP_BORDER_REPLICATE,
+                                        d_buffer);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   // 拷贝结果回主机
