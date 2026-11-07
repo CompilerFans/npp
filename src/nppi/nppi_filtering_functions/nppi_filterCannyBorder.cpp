@@ -12,6 +12,12 @@ NppStatus nppiFilterCannyBorder_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep,
                                                 Npp16s nLowThreshold, Npp16s nHighThreshold, NppiNorm eNorm,
                                                 NppiBorderType eBorderType, Npp8u *pDeviceBuffer,
                                                 NppStreamContext nppStreamCtx);
+NppStatus nppiFilterCannyBorder_8u_C3C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
+                                                  NppiPoint oSrcOffset, Npp8u *pDst, int nDstStep, NppiSize oDstSizeROI,
+                                                  NppiDifferentialKernel eFilterType, NppiMaskSize eMaskSize,
+                                                  Npp16s nLowThreshold, Npp16s nHighThreshold, NppiNorm eNorm,
+                                                  NppiBorderType eBorderType, Npp8u *pDeviceBuffer,
+                                                  NppStreamContext nppStreamCtx);
 }
 
 // Get required buffer size - simplified version (used by GPU Samples)
@@ -126,4 +132,34 @@ NppStatus nppiFilterCannyBorder_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Nppi
   return nppiFilterCannyBorder_8u_C1R_Ctx_impl(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI,
                                                eFilterType, eMaskSize, nLowThreshold, nHighThreshold, eNorm,
                                                eBorderType, pDeviceBuffer, nppStreamCtx);
+}
+
+// 3-channel source -> 1-channel edge map (NPP 13.4 addition).
+NppStatus nppiFilterCannyBorder_8u_C3C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset,
+                                             Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                             NppiDifferentialKernel eFilterType, NppiMaskSize eMaskSize,
+                                             Npp16s nLowThreshold, Npp16s nHighThreshold, NppiNorm eNorm,
+                                             NppiBorderType eBorderType, Npp8u *pDeviceBuffer,
+                                             NppStreamContext nppStreamCtx) {
+  if (pSrc == nullptr || pDst == nullptr || pDeviceBuffer == nullptr) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSrcSize.width <= 0 || oSrcSize.height <= 0 || oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (nSrcStep <= 0 || nDstStep <= 0) {
+    return NPP_STEP_ERROR;
+  }
+  if (eMaskSize != NPP_MASK_SIZE_3_X_3 && eMaskSize != NPP_MASK_SIZE_5_X_5) {
+    return NPP_MASK_SIZE_ERROR;
+  }
+  if (nLowThreshold > nHighThreshold) {
+    return NPP_BAD_ARGUMENT_ERROR;
+  }
+  if (eBorderType != NPP_BORDER_REPLICATE) {
+    return NPP_NOT_SUPPORTED_MODE_ERROR;
+  }
+  return nppiFilterCannyBorder_8u_C3C1R_Ctx_impl(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI,
+                                                 eFilterType, eMaskSize, nLowThreshold, nHighThreshold, eNorm,
+                                                 eBorderType, pDeviceBuffer, nppStreamCtx);
 }

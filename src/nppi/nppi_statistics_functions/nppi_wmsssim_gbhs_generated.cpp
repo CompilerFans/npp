@@ -60,3 +60,22 @@ NppStatus nppiWMSSSIMGetBufferHostSize_8u_C3R(NppiSize oSizeROI, size_t * hpBuff
   if (status != NPP_NO_ERROR) return status;
   return nppiWMSSSIMGetBufferHostSize_8u_C3R_Ctx(oSizeROI, hpBufferSize, nppStreamCtx);
 }
+
+// NPP 13.4 additions.  The SSIM-family sizes are undocumented internals; the
+// library reports a conservative requirement (see nppi_ssim_executor.cu), so
+// these forward the same per-channel formula with four channels.
+NppStatus nppiWMSSSIMGetBufferHostSize_8u_C4R_Ctx(NppiSize oSizeROI, size_t * hpBufferSize, NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  int hpBufferSizeInt = 0;
+  NppStatus status = nppi::statistics::wmsssimGetBufferHostSize(oSizeROI, 4, &hpBufferSizeInt);
+  if (status == NPP_NO_ERROR && hpBufferSize) *hpBufferSize = (size_t)hpBufferSizeInt;
+  return status;
+}
+
+NppStatus nppiWMSSSIMBatchGetBufferHostSize_8u_C4R_Ctx(NppiSize oSizeROI, size_t * hpBufferSize, NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  int hpBufferSizeInt = 0;
+  NppStatus status = nppi::statistics::wmsssimBatchGetBufferHostSize(oSizeROI, 4, &hpBufferSizeInt);
+  if (status == NPP_NO_ERROR && hpBufferSize) *hpBufferSize = (size_t)hpBufferSizeInt;
+  return status;
+}

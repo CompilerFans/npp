@@ -154,7 +154,7 @@ def emit(row: dict) -> Optional[str]:
     # --- SSIM / WMSSSIM / MSSSIM -----------------------------------------
     if row["family"] in ("nppiSSIM", "nppiWMSSSIM", "nppiMSSSIM",
                          "nppiSSIMBatch", "nppiWMSSSIMBatch"):
-        m = re.search(r"_8u_C([13])R", fn)
+        m = re.search(r"_8u_C([1234])R", fn)
         if m is None:
             return None
         C = int(m.group(1))
@@ -168,7 +168,7 @@ def emit(row: dict) -> Optional[str]:
             return (f"TEST(NumGenNppiStats, {name}) {{\n"
                     f"  num::run_nppi_msssim(\n      \"{fn}\",\n      {lam});\n}}\n")
         if row["family"] in ("nppiSSIMBatch", "nppiWMSSSIMBatch"):
-            if C not in (1, 3):
+            if C not in (1, 3, 4):
                 return None
             wm = row["family"] == "nppiWMSSSIMBatch"
             adv = "_Advanced" in fn
@@ -182,7 +182,7 @@ def emit(row: dict) -> Optional[str]:
                       f"{str(adv).lower()}>")
             return (f"TEST(NumGenNppiStats, {name}) {{\n  {prefix}(\n"
                     f"      \"{fn}\",\n      {lam});\n}}\n")
-        if C not in (1, 3):
+        if C not in (1, 3, 4):
             return None
         wm = row["family"] == "nppiWMSSSIM"
         lam = ("[](const Npp8u *a, int sa, const Npp8u *b, int sb, NppiSize r, "
@@ -195,6 +195,19 @@ def emit(row: dict) -> Optional[str]:
 
     # --- GetBufferHostSize smoke test ------------------------------------
     if "GetBufferHostSize" in fn:
+        size_t_sig = any(p.name == "hpBufferSize" and p.ctype == "size_t" for p in params)
+        if size_t_sig:
+            # NPP 13.4-style declaration: the host size is size_t on both the
+            # reference and the in-tree library.
+            lam = (
+                "[](NppiSize roi, int *sz, NppStreamContext c) {\n"
+                "        size_t s = 0;\n"
+                f"        NppStatus st = {fn}(roi, &s, c);\n"
+                "        if (st == NPP_NO_ERROR) *sz = (int)(s > 2147483647u ? 2147483647u : s);\n"
+                "        return st;\n"
+                "      }")
+            return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                    f"  num::run_nppi_buffer_size(\n      \"{fn}\",\n      {lam});\n}}\n")
         lam = (
             "[](NppiSize roi, int *sz, NppStreamContext c) {\n"
             "#ifdef USE_NVIDIA_NPP_TESTS\n"

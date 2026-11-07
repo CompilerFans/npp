@@ -100,6 +100,45 @@ __global__ void cannyGradientKernel(const Npp8u *pSrc, int nSrcStep, Npp16s *pMa
   ((Npp32f *)((char *)pAngle + (size_t)y * nAngleStep))[x] = (Npp32f)std::atan2((double)ay, (double)ax);
 }
 
+// Three-channel source (NPP 13.4 addition).  Measured: the channel is chosen
+// by the largest X^2+Y^2 (always the L2 measure, like the GradientVector C3
+// C1R family), independently of eNorm; the emitted magnitude is the chosen
+// channel's magnitude under eNorm and the direction is the chosen channel's
+// atan2.  A single NMS/hysteresis pass then runs on that combined map.
+__global__ void cannyGradientKernelC3(const Npp8u *pSrc, int nSrcStep, Npp16s *pMag, int nMagStep,
+                                      Npp32f *pAngle, int nAngleStep, int width, int height, CannyCoef cx,
+                                      CannyCoef cy, int srcW, int srcH, int offX, int offY, int normL1) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= width || y >= height) return;
+  const int r = cx.size >> 1;
+  const int loX = -offX, hiX = srcW - 1 - offX;
+  const int loY = -offY, hiY = srcH - 1 - offY;
+  double bestSq = -1.0, bestMag = 0.0, bestAngle = 0.0;
+  for (int ch = 0; ch < 3; ++ch) {
+    int ax = 0, ay = 0;
+    for (int a = 0; a < cx.size; ++a) {
+      const int ry = clampi(y + a - r, loY, hiY);
+      const Npp8u *row = (const Npp8u *)((const char *)pSrc + (size_t)ry * nSrcStep);
+      for (int b = 0; b < cx.size; ++b) {
+        const int rx = clampi(x + b - r, loX, hiX);
+        const int v = (int)row[rx * 3 + ch];
+        ax += cx.k[a][b] * v;
+        ay += cy.k[a][b] * v;
+      }
+    }
+    const double sq = (double)ax * ax + (double)ay * ay;
+    if (sq > bestSq) {
+      bestSq = sq;
+      bestMag = normL1 ? (std::fabs((double)ax) + std::fabs((double)ay)) : std::sqrt(sq);
+      bestAngle = std::atan2((double)ay, (double)ax);
+    }
+  }
+  const Npp16s m16 = bestMag >= 32767.0 ? (Npp16s)32767 : (Npp16s)(float)bestMag;
+  ((Npp16s *)((char *)pMag + (size_t)y * nMagStep))[x] = m16;
+  ((Npp32f *)((char *)pAngle + (size_t)y * nAngleStep))[x] = (Npp32f)bestAngle;
+}
+
 __device__ __forceinline__ int cannyMagAt(const Npp16s *pMag, int step, int x, int y, int w, int h) {
   return (int)((const Npp16s *)((const char *)pMag + (size_t)clampi(y, 0, h - 1) * step))[clampi(x, 0, w - 1)];
 }
@@ -131,6 +170,7 @@ __global__ void cannyHysteresisKernel(const Npp16s *pMag, int nMagStep, const Np
   const bool accept = (m >= hi) || (m >= lo && rmax >= lo);
   ((Npp8u *)((char *)pDst + (size_t)y * nDstStep))[x] = accept ? (Npp8u)0xFF : (Npp8u)0x00;
 }
+
 
 }  // namespace
 
@@ -172,6 +212,46 @@ NppStatus nppiFilterCannyBorder_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep,
                                                   width * (int)sizeof(Npp32f), width, height, cx, cy,
                                                   oSrcSize.width, oSrcSize.height, oSrcOffset.x, oSrcOffset.y,
                                                   normL1);
+  cannyNmsKernel<<<grid, block, 0, stream>>>(pMag, width * (int)sizeof(Npp16s), pAngle,
+                                             width * (int)sizeof(Npp32f), pNms, width * (int)sizeof(Npp16s),
+                                             width, height);
+  cannyHysteresisKernel<<<grid, block, 0, stream>>>(pMag, width * (int)sizeof(Npp16s), pNms,
+                                                    width * (int)sizeof(Npp16s), pDst, nDstStep, width, height,
+                                                    (int)nLowThreshold, (int)nHighThreshold);
+
+  cudaError_t err = cudaGetLastError();
+  if (err != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return NPP_SUCCESS;
+}
+
+
+NppStatus nppiFilterCannyBorder_8u_C3C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize,
+                                                 NppiPoint oSrcOffset, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                                 NppiDifferentialKernel eFilterType, NppiMaskSize eMaskSize,
+                                                 Npp16s nLowThreshold, Npp16s nHighThreshold, NppiNorm eNorm,
+                                                 NppiBorderType eBorderType, Npp8u *pDeviceBuffer,
+                                                 NppStreamContext nppStreamCtx) {
+  if (pSrc == nullptr || pDst == nullptr || pDeviceBuffer == nullptr) return NPP_NULL_POINTER_ERROR;
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
+  if (eBorderType != NPP_BORDER_REPLICATE) return NPP_NOT_SUPPORTED_MODE_ERROR;
+
+  const int width = oSizeROI.width, height = oSizeROI.height;
+  const size_t numPixels = (size_t)width * height;
+  Npp16s *pMag = (Npp16s *)pDeviceBuffer;
+  Npp32f *pAngle = (Npp32f *)(pMag + numPixels);
+  Npp16s *pNms = (Npp16s *)(pAngle + numPixels);
+
+  CannyCoef cx, cy;
+  cannyTaps(eFilterType, eMaskSize, cx, cy);
+  const int normL1 = eNorm == nppiNormL1 ? 1 : 0;
+  cudaStream_t stream = nppStreamCtx.hStream;
+
+  dim3 block(16, 16);
+  dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y);
+  cannyGradientKernelC3<<<grid, block, 0, stream>>>(pSrc, nSrcStep, pMag, width * (int)sizeof(Npp16s), pAngle,
+                                                   width * (int)sizeof(Npp32f), width, height, cx, cy,
+                                                   oSrcSize.width, oSrcSize.height, oSrcOffset.x, oSrcOffset.y,
+                                                   normL1);
   cannyNmsKernel<<<grid, block, 0, stream>>>(pMag, width * (int)sizeof(Npp16s), pAngle,
                                              width * (int)sizeof(Npp32f), pNms, width * (int)sizeof(Npp16s),
                                              width, height);

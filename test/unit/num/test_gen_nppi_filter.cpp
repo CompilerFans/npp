@@ -1064,6 +1064,12 @@ TEST(NumGen, nppiFilterCannyBorder_8u_C1R_Ctx) {
       [](const Npp8u *sp, int ss, NppiSize ssSize, NppiPoint off, Npp8u *dp, int ds, NppiSize roi, int ftype, int mask, Npp16s lo, Npp16s hi, int norm, int border, Npp8u *buf, NppStreamContext ctx) { return nppiFilterCannyBorder_8u_C1R_Ctx(sp, ss, ssSize, off, dp, ds, roi, (NppiDifferentialKernel)ftype, (NppiMaskSize)mask, lo, hi, (NppiNorm)norm, (NppiBorderType)border, buf, ctx); });
 }
 
+TEST(NumGen, nppiFilterCannyBorder_8u_C3C1R_Ctx) {
+  num::canny::run_canny_c3(
+      "nppiFilterCannyBorder_8u_C3C1R_Ctx",
+      [](const Npp8u *sp, int ss, NppiSize ssSize, NppiPoint off, Npp8u *dp, int ds, NppiSize roi, int ftype, int mask, Npp16s lo, Npp16s hi, int norm, int border, Npp8u *buf, NppStreamContext ctx) { return nppiFilterCannyBorder_8u_C3C1R_Ctx(sp, ss, ssSize, off, dp, ds, roi, (NppiDifferentialKernel)ftype, (NppiMaskSize)mask, lo, hi, (NppiNorm)norm, (NppiBorderType)border, buf, ctx); });
+}
+
 TEST(NumGen, nppiFilterColumn32f_16s_AC4R_Ctx) {
   num::filtgen::run_generic<Npp16s, Npp16s, 4, 3, 2, 1, false, false>(
       "nppiFilterColumn32f_16s_AC4R_Ctx",

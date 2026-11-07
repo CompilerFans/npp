@@ -526,7 +526,7 @@ def emit_hough(row: dict) -> Optional[str]:
 
 def emit_canny(row: dict) -> Optional[str]:
     fn = row["function_name"]
-    if fn != "nppiFilterCannyBorder_8u_C1R_Ctx":
+    if fn not in ("nppiFilterCannyBorder_8u_C1R_Ctx", "nppiFilterCannyBorder_8u_C3C1R_Ctx"):
         return None
     lam = (f"[](const Npp8u *sp, int ss, NppiSize ssSize, NppiPoint off, Npp8u *dp, int ds, NppiSize roi, "
            f"int ftype, int mask, Npp16s lo, Npp16s hi, int norm, int border, Npp8u *buf, "
@@ -534,7 +534,8 @@ def emit_canny(row: dict) -> Optional[str]:
            f"(NppiDifferentialKernel)ftype, (NppiMaskSize)mask, lo, hi, (NppiNorm)norm, "
            f"(NppiBorderType)border, buf, ctx); }}")
     name = re.sub(r"\W", "_", fn)
-    return f"TEST(NumGen, {name}) {{\n  num::canny::run_canny(\n      \"{fn}\",\n      {lam});\n}}\n"
+    run = "run_canny_c3" if fn.endswith("_C3C1R_Ctx") else "run_canny"
+    return f"TEST(NumGen, {name}) {{\n  num::canny::{run}(\n      \"{fn}\",\n      {lam});\n}}\n"
 
 
 def emit_compress_labels(row: dict) -> Optional[str]:

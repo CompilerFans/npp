@@ -16180,6 +16180,17 @@ TEST(NumGenNppiStats, nppiWMSSSIMBatchGetBufferHostSize_8u_C3R_Ctx) {
       });
 }
 
+TEST(NumGenNppiStats, nppiWMSSSIMBatchGetBufferHostSize_8u_C4R_Ctx) {
+  num::run_nppi_buffer_size(
+      "nppiWMSSSIMBatchGetBufferHostSize_8u_C4R_Ctx",
+      [](NppiSize roi, int *sz, NppStreamContext c) {
+        size_t s = 0;
+        NppStatus st = nppiWMSSSIMBatchGetBufferHostSize_8u_C4R_Ctx(roi, &s, c);
+        if (st == NPP_NO_ERROR) *sz = (int)(s > 2147483647u ? 2147483647u : s);
+        return st;
+      });
+}
+
 TEST(NumGenNppiStats, nppiWMSSSIMBatch_8u_C1R_Advanced_Ctx) {
   num::run_nppi_ssim_batch<1, true, true>(
       "nppiWMSSSIMBatch_8u_C1R_Advanced_Ctx",
@@ -16202,6 +16213,18 @@ TEST(NumGenNppiStats, nppiWMSSSIMBatch_8u_C3R_Ctx) {
   num::run_nppi_ssim_batch<3, true, false>(
       "nppiWMSSSIMBatch_8u_C3R_Ctx",
       [](const NppiImageDescriptor *a, const NppiImageDescriptor *b, int nb, NppiSize r, Npp32f *o, NppiBufferDescriptor *buf, NppStreamContext c) { (void)r; (void)buf; (void)c; return nppiWMSSSIMBatch_8u_C3R_Ctx(a, b, nb, r, o, buf, c); });
+}
+
+TEST(NumGenNppiStats, nppiWMSSSIMBatch_8u_C4R_Advanced_Ctx) {
+  num::run_nppi_ssim_batch<4, true, true>(
+      "nppiWMSSSIMBatch_8u_C4R_Advanced_Ctx",
+      [](const NppiImageDescriptor *a, const NppiImageDescriptor *b, int nb, NppiSize r, Npp32f *o, NppiBufferDescriptor *buf, NppStreamContext c) { (void)r; (void)buf; (void)c; return nppiWMSSSIMBatch_8u_C4R_Advanced_Ctx(a, b, nb, r, o, buf, c); });
+}
+
+TEST(NumGenNppiStats, nppiWMSSSIMBatch_8u_C4R_Ctx) {
+  num::run_nppi_ssim_batch<4, true, false>(
+      "nppiWMSSSIMBatch_8u_C4R_Ctx",
+      [](const NppiImageDescriptor *a, const NppiImageDescriptor *b, int nb, NppiSize r, Npp32f *o, NppiBufferDescriptor *buf, NppStreamContext c) { (void)r; (void)buf; (void)c; return nppiWMSSSIMBatch_8u_C4R_Ctx(a, b, nb, r, o, buf, c); });
 }
 
 TEST(NumGenNppiStats, nppiWMSSSIMGetBufferHostSize_8u_C1R_Ctx) {
@@ -16234,6 +16257,17 @@ TEST(NumGenNppiStats, nppiWMSSSIMGetBufferHostSize_8u_C3R_Ctx) {
       });
 }
 
+TEST(NumGenNppiStats, nppiWMSSSIMGetBufferHostSize_8u_C4R_Ctx) {
+  num::run_nppi_buffer_size(
+      "nppiWMSSSIMGetBufferHostSize_8u_C4R_Ctx",
+      [](NppiSize roi, int *sz, NppStreamContext c) {
+        size_t s = 0;
+        NppStatus st = nppiWMSSSIMGetBufferHostSize_8u_C4R_Ctx(roi, &s, c);
+        if (st == NPP_NO_ERROR) *sz = (int)(s > 2147483647u ? 2147483647u : s);
+        return st;
+      });
+}
+
 TEST(NumGenNppiStats, nppiWMSSSIM_8u_C1R_Ctx) {
   num::run_nppi_ssim_single<1, true>(
       "nppiWMSSSIM_8u_C1R_Ctx",
@@ -16244,4 +16278,10 @@ TEST(NumGenNppiStats, nppiWMSSSIM_8u_C3R_Ctx) {
   num::run_nppi_ssim_single<3, true>(
       "nppiWMSSSIM_8u_C3R_Ctx",
       [](const Npp8u *a, int sa, const Npp8u *b, int sb, NppiSize r, Npp32f *o, Npp8u *buf, NppStreamContext c) { (void)sa; (void)sb; (void)r; (void)o; (void)buf; (void)c; return nppiWMSSSIM_8u_C3R_Ctx(a, sa, b, sb, r, o, buf, c); });
+}
+
+TEST(NumGenNppiStats, nppiWMSSSIM_8u_C4R_Ctx) {
+  num::run_nppi_ssim_single<4, true>(
+      "nppiWMSSSIM_8u_C4R_Ctx",
+      [](const Npp8u *a, int sa, const Npp8u *b, int sb, NppiSize r, Npp32f *o, Npp8u *buf, NppStreamContext c) { (void)sa; (void)sb; (void)r; (void)o; (void)buf; (void)c; return nppiWMSSSIM_8u_C4R_Ctx(a, sa, b, sb, r, o, buf, c); });
 }

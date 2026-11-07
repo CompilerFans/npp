@@ -28,7 +28,7 @@
   "skipped": []
  },
  "nppi_statistics_functions.h": {
-  "emitted": 1645,
+  "emitted": 1650,
   "skipped": []
  },
  "nppi_linear_transforms.h": {
@@ -52,7 +52,7 @@
   "skipped": []
  },
  "nppi_filtering_functions.h": {
-  "emitted": 970,
+  "emitted": 971,
   "skipped": []
  }
 }

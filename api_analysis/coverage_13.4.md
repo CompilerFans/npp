@@ -2,9 +2,9 @@
 
 - Total API Functions: 7752
 - Function Families (plain + _Ctx share one implementation): 6565
-- Families with at least one tested variant: 6498 (99.0%)
-- Implemented: 7685 (99.1%)
-- Tested: 7500 (96.7%)
+- Families with at least one tested variant: 6504 (99.1%)
+- Implemented: 7691 (99.2%)
+- Tested: 7506 (96.8%)
 - Implemented but not tested: 185
 
 ## By Module
@@ -21,7 +21,7 @@
 - Total: 484, Impl: 484 (100.0%), Test: 484 (100.0%)
 
 **nppi_filtering_functions.h**
-- Total: 1009, Impl: 1008 (99.9%), Test: 1008 (99.9%)
+- Total: 1009, Impl: 1009 (100.0%), Test: 1009 (100.0%)
 
 **nppi_geometry_transforms.h**
 - Total: 358, Impl: 358 (100.0%), Test: 358 (100.0%)
@@ -33,7 +33,7 @@
 - Total: 150, Impl: 150 (100.0%), Test: 150 (100.0%)
 
 **nppi_statistics_functions.h**
-- Total: 1654, Impl: 1649 (99.7%), Test: 1648 (99.6%)
+- Total: 1654, Impl: 1654 (100.0%), Test: 1653 (99.9%)
 
 **nppi_support_functions.h**
 - Total: 31, Impl: 31 (100.0%), Test: 31 (100.0%)
