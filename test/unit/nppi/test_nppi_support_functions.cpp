@@ -120,3 +120,50 @@ TEST_F(SupportFunctionsTest, GetGpuNumSMs_BasicTest) {
 
   std::cout << "GPU has " << numSMs << " SMs" << std::endl;
 }
+
+namespace {
+
+// Pitched allocator probe: non-null result, a step that covers the requested
+// row, and a write/read round-trip through that step.
+template <typename T, typename Fn>
+void checkPitchAlloc(const char *name, Fn fn, int channels) {
+  const int w = 37, h = 11;
+  int step = 0;
+  T *p = fn(w, h, &step);
+  ASSERT_NE(p, nullptr) << name;
+  EXPECT_GE(step, w * channels * (int)sizeof(T)) << name;
+  const size_t rowBytes = (size_t)w * channels * sizeof(T);
+  ASSERT_EQ(cudaMemset2D(p, (size_t)step, 0x5A, rowBytes, h), cudaSuccess) << name;
+  unsigned char probe = 0;
+  ASSERT_EQ(cudaMemcpy2D(&probe, 1, p, (size_t)step, 1, 1, cudaMemcpyDeviceToHost), cudaSuccess) << name;
+  EXPECT_EQ(probe, 0x5A) << name;
+  // Last row, last byte of the row must fall inside the pitched allocation.
+  ASSERT_EQ(cudaMemcpy2D(&probe, 1, (const char *)p + (size_t)(h - 1) * step + rowBytes - 1, 1, 1, 1,
+                         cudaMemcpyDeviceToHost),
+            cudaSuccess)
+      << name;
+  EXPECT_EQ(probe, 0x5A) << name;
+  nppiFree(p);
+}
+
+}  // namespace
+
+// Remaining pitched allocator variants (the frequently used layouts are
+// exercised indirectly by the functional suites).
+TEST_F(SupportFunctionsTest, Malloc_RemainingLayouts) {
+  checkPitchAlloc<Npp16s>("nppiMalloc_16s_C2", nppiMalloc_16s_C2, 2);
+  checkPitchAlloc<Npp16u>("nppiMalloc_16u_C2", nppiMalloc_16u_C2, 2);
+  checkPitchAlloc<Npp32f>("nppiMalloc_32f_C2", nppiMalloc_32f_C2, 2);
+  checkPitchAlloc<Npp16sc>("nppiMalloc_16sc_C1", nppiMalloc_16sc_C1, 1);
+  checkPitchAlloc<Npp16sc>("nppiMalloc_16sc_C2", nppiMalloc_16sc_C2, 2);
+  checkPitchAlloc<Npp16sc>("nppiMalloc_16sc_C3", nppiMalloc_16sc_C3, 3);
+  checkPitchAlloc<Npp16sc>("nppiMalloc_16sc_C4", nppiMalloc_16sc_C4, 4);
+  checkPitchAlloc<Npp32fc>("nppiMalloc_32fc_C1", nppiMalloc_32fc_C1, 1);
+  checkPitchAlloc<Npp32fc>("nppiMalloc_32fc_C2", nppiMalloc_32fc_C2, 2);
+  checkPitchAlloc<Npp32fc>("nppiMalloc_32fc_C3", nppiMalloc_32fc_C3, 3);
+  checkPitchAlloc<Npp32fc>("nppiMalloc_32fc_C4", nppiMalloc_32fc_C4, 4);
+  checkPitchAlloc<Npp32sc>("nppiMalloc_32sc_C1", nppiMalloc_32sc_C1, 1);
+  checkPitchAlloc<Npp32sc>("nppiMalloc_32sc_C2", nppiMalloc_32sc_C2, 2);
+  checkPitchAlloc<Npp32sc>("nppiMalloc_32sc_C3", nppiMalloc_32sc_C3, 3);
+  checkPitchAlloc<Npp32sc>("nppiMalloc_32sc_C4", nppiMalloc_32sc_C4, 4);
+}

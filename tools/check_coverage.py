@@ -149,8 +149,23 @@ class CoverageAnalyzer:
         impl_pct = (implemented / total * 100) if total > 0 else 0
         test_pct = (tested / total * 100) if total > 0 else 0
 
+        # Family-level coverage: the catalog carries a plain and a _Ctx entry
+        # for most functions; one test covering either variant covers the
+        # implementation, so report families too.
+        families = {}
+        for func_name in self.api_functions:
+            base = func_name[:-4] if func_name.endswith('_Ctx') else func_name
+            families.setdefault(base, False)
+            if func_name in self.tests:
+                families[base] = True
+        fam_total = len(families)
+        fam_tested = sum(1 for v in families.values() if v)
+        fam_pct = (fam_tested / fam_total * 100) if fam_total else 0
+
         lines = ["# Coverage Summary\n"]
         lines.append(f"- Total API Functions: {total}")
+        lines.append(f"- Function Families (plain + _Ctx share one implementation): {fam_total}")
+        lines.append(f"- Families with at least one tested variant: {fam_tested} ({fam_pct:.1f}%)")
         lines.append(f"- Implemented: {implemented} ({impl_pct:.1f}%)")
         lines.append(f"- Tested: {tested} ({test_pct:.1f}%)")
         lines.append(f"- Implemented but not tested: {implemented - len(set(self.implementations.keys()) & set(self.tests.keys()))}")
@@ -212,6 +227,10 @@ def main():
                         help='Output coverage CSV path')
     parser.add_argument('--summary', type=Path, default=Path('api_analysis/coverage_summary.md'),
                         help='Output summary report path')
+    parser.add_argument('--symbols', type=Path,
+                        help='nm -D -C --defined-only output of the built library: functions whose '
+                             'demangled name appears there are counted as implemented even when the '
+                             'source scan cannot see a macro-generated definition')
 
     args = parser.parse_args()
 
@@ -227,6 +246,27 @@ def main():
 
     print("Scanning implementations...")
     analyzer.scan_implementations()
+    if args.symbols is not None and args.symbols.exists():
+        symbols = set()
+        for line in args.symbols.read_text(errors='ignore').splitlines():
+            parts = line.split(None, 2)
+            if len(parts) >= 3:
+                # nm format: "<address> <type> <name>[(args)]"
+                text = parts[2]
+            elif len(parts) == 1:
+                # Plain name list (pre-filtered nm output).
+                text = parts[0]
+            else:
+                continue
+            name = text.split('(')[0].strip()
+            if name:
+                symbols.add(name)
+        added = 0
+        for func_name in analyzer.api_functions:
+            if func_name not in analyzer.implementations and func_name in symbols:
+                analyzer.implementations[func_name] = '<libmpp.so symbol>'
+                added += 1
+        print(f"Symbol table added {added} macro-generated implementations")
     print(f"Found {len(analyzer.implementations)} implemented functions")
 
     print("Scanning tests...")

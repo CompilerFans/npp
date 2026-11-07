@@ -221,6 +221,14 @@ NppStatus nppiLabelMarkersUFBatch_16u32u_C1R_Advanced_Ctx(
                                            nppiLabelMarkersUFBatch_16u32u_C1R_Advanced_Ctx_impl);
 }
 
+NppStatus nppiLabelMarkersUFBatch_8u32u_C1R_Advanced(const NppiImageDescriptor *pSrcBatchList,
+                                                     NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                     NppiSize oMaxSizeROI, NppiNorm eNorm) {
+  return nppiLabelMarkersUFBatch_8u32u_C1R_Advanced_Ctx(pSrcBatchList, pDstBatchList, nBatchSize,
+                                                        oMaxSizeROI, eNorm,
+                                                        nppCreateDefaultStreamContext());
+}
+
 NppStatus nppiLabelMarkersUFBatch_16u32u_C1R_Advanced(const NppiImageDescriptor *pSrcBatchList,
                                                       NppiImageDescriptor *pDstBatchList,
                                                       int nBatchSize, NppiSize oMaxSizeROI,

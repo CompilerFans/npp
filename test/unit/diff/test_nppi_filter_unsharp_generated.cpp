@@ -430,6 +430,24 @@ TEST_F(NppiFilterUnsharpDiff, GetBufferSize_matrix) {
              [&](int *n) { return nppiFilterUnsharpGetBufferSize_32f_C1R(p.r, p.s, n); });
     gbs_case("nppiFilterUnsharpGetBufferSize_32f_AC4R", t + "/32f_AC4",
              [&](int *n) { return nppiFilterUnsharpGetBufferSize_32f_AC4R(p.r, p.s, n); });
+    // Remaining dtype/layout combinations: the buffer size only depends on the
+    // element size / channel count, but every entry point is exercised.
+    gbs_case("nppiFilterUnsharpGetBufferSize_8u_C3R", t + "/8u_C3",
+             [&](int *n) { return nppiFilterUnsharpGetBufferSize_8u_C3R(p.r, p.s, n); });
+    gbs_case("nppiFilterUnsharpGetBufferSize_8u_C4R", t + "/8u_C4",
+             [&](int *n) { return nppiFilterUnsharpGetBufferSize_8u_C4R(p.r, p.s, n); });
+    gbs_case("nppiFilterUnsharpGetBufferSize_16u_C1R", t + "/16u_C1",
+             [&](int *n) { return nppiFilterUnsharpGetBufferSize_16u_C1R(p.r, p.s, n); });
+    gbs_case("nppiFilterUnsharpGetBufferSize_16u_C4R", t + "/16u_C4",
+             [&](int *n) { return nppiFilterUnsharpGetBufferSize_16u_C4R(p.r, p.s, n); });
+    gbs_case("nppiFilterUnsharpGetBufferSize_16s_C1R", t + "/16s_C1",
+             [&](int *n) { return nppiFilterUnsharpGetBufferSize_16s_C1R(p.r, p.s, n); });
+    gbs_case("nppiFilterUnsharpGetBufferSize_16s_AC4R", t + "/16s_AC4",
+             [&](int *n) { return nppiFilterUnsharpGetBufferSize_16s_AC4R(p.r, p.s, n); });
+    gbs_case("nppiFilterUnsharpGetBufferSize_32f_C3R", t + "/32f_C3",
+             [&](int *n) { return nppiFilterUnsharpGetBufferSize_32f_C3R(p.r, p.s, n); });
+    gbs_case("nppiFilterUnsharpGetBufferSize_32f_C4R", t + "/32f_C4",
+             [&](int *n) { return nppiFilterUnsharpGetBufferSize_32f_C4R(p.r, p.s, n); });
   }
 }
 
