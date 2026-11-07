@@ -1115,6 +1115,34 @@ def emit_uyvy(row: dict) -> Optional[str]:
     return None
 
 
+def emit_p010(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    name = re.sub(r"\W", "_", fn)
+    m = re.match(r"nppiP01[06]ToRGB_(8u|16u)_P2C(3|4)R_Ctx$", fn)
+    if not m:
+        return None
+    S = "Npp16u" if m.group(1) == "16u" else "Npp8u"
+    c4 = m.group(2) == "4"
+    alpha = "12345" if S == "Npp16u" else "0x5A"
+    out = []
+    for cs, tag in (("NPP_BT601JPEG", "601JPEG"), ("NPP_BT709HDTV", "709HDTV"),
+                    ("NPP_BT2020HDTV", "2020HDTV")):
+        if c4:
+            lam = (f"[](const Npp16u *const *sp, int ss, {S} *d, int ds, NppiSize r, NppiColorSpace cs, "
+                   f"{S} a, NppStreamContext c) "
+                   f"{{ (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; "
+                   f"return {fn}(sp, ss, d, ds, r, cs, a, c); }}")
+            call = f"num::p010::run_p010<{S}, true>(\"{fn}\", {cs}, ({S}){alpha}, {lam})"
+        else:
+            lam = (f"[](const Npp16u *const *sp, int ss, {S} *d, int ds, NppiSize r, NppiColorSpace cs, "
+                   f"NppStreamContext c) "
+                   f"{{ (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; "
+                   f"return {fn}(sp, ss, d, ds, r, cs, c); }}")
+            call = f"num::p010::run_p010<{S}, false>(\"{fn}\", {cs}, ({S})0, {lam})"
+        out.append(f"TEST(NumGen, {name}_{tag}) {{\n  {call};\n}}\n")
+    return "".join(out)
+
+
 def emit_nv12_twist(row: dict) -> Optional[str]:
     fn = row["function_name"]
     if "ColorTwist32f" not in fn:
@@ -1189,7 +1217,7 @@ def main() -> int:
                 or emit_ycbcr_jpeg(row) or emit_yuv_planar(row) or emit_yuv_layout(row)
                 or emit_ycbcr422(row) or emit_ycbcr420(row) or emit_ycbcr420_layout(row)
                 or emit_yuv_twist(row) or emit_color_key(row) or emit_cmyk(row) or emit_nv12(row)
-                or emit_nv12_twist(row) or emit_uyvy(row) or emit_color_batch(row))
+                or emit_nv12_twist(row) or emit_uyvy(row) or emit_p010(row) or emit_color_batch(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
                                 reason="later color batch / unsupported"))
@@ -1216,6 +1244,7 @@ def main() -> int:
               "#include \"num_nppi_yuv.h\"\n"
               "#include \"num_nppi_nv12.h\"\n"
               "#include \"num_nppi_uyvy.h\"\n"
+              "#include \"num_nppi_p010.h\"\n"
               "#include \"num_nppi_color_batch.h\"\n"
               "\n"
               "static const float kTwist[12] = {" + TWIST_MATRIX + "};\n"

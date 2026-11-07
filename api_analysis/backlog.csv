@@ -1,9 +1,7 @@
 module,group,total,real,stub,missing,missing_ctx,missing_nonctx,tested,remaining
 nppi_color_conversion.h,nppiUYVP_10u_ToRGB,8,0,0,8,8,0,0,8
 nppi_color_conversion.h,nppiRGB,11,4,0,7,7,0,4,7
-nppi_color_conversion.h,nppiP010ToRGB,4,0,0,4,4,0,0,4
 nppi_color_conversion.h,nppiRGBA,5,2,0,3,3,0,2,3
-nppi_color_conversion.h,nppiP016ToRGB,2,0,0,2,2,0,0,2
 nppi_color_conversion.h,nppiI444,1,0,0,1,1,0,0,1
 nppi_color_conversion.h,nppiNV12,1,0,0,1,1,0,0,1
 nppi_color_conversion.h,nppiNV16,1,0,0,1,1,0,0,1
@@ -129,6 +127,8 @@ nppi_color_conversion.h,nppiNV12ToRGB_BT2020,1,1,0,0,0,0,1,0
 nppi_color_conversion.h,nppiNV12ToYUV420,2,2,0,0,0,0,2,0
 nppi_color_conversion.h,nppiNV21ToBGR,2,2,0,0,0,0,2,0
 nppi_color_conversion.h,nppiNV21ToRGB,2,2,0,0,0,0,2,0
+nppi_color_conversion.h,nppiP010ToRGB,4,4,0,0,0,0,4,0
+nppi_color_conversion.h,nppiP016ToRGB,2,2,0,0,0,0,2,0
 nppi_color_conversion.h,nppiRGBToCbYCr422,2,2,0,0,0,0,1,0
 nppi_color_conversion.h,nppiRGBToCbYCr422Gamma,2,2,0,0,0,0,1,0
 nppi_color_conversion.h,nppiRGBToGray,16,16,0,0,0,0,16,0

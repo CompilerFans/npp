@@ -19,6 +19,7 @@
 #include "num_nppi_yuv.h"
 #include "num_nppi_nv12.h"
 #include "num_nppi_uyvy.h"
+#include "num_nppi_p010.h"
 #include "num_nppi_color_batch.h"
 
 static const float kTwist[12] = {0.5f, 0.3f, 0.2f, 10.0f, -0.2f, 0.7f, 0.1f, 20.0f, 0.1f, -0.3f, 0.9f, 5.0f};
@@ -2076,6 +2077,66 @@ TEST(NumGen, nppiNV21ToRGB_8u_P2C4R_Ctx) {
   num::nv12::run_nv12_to_rgb<num::nv12::Var::NV21_FIXED, num::nv12::OutOrder::RGB, 4>(
       "nppiNV21ToRGB_8u_P2C4R_Ctx",
       [](const Npp8u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)ss; (void)ds; (void)r; (void)c; return nppiNV21ToRGB_8u_P2C4R_Ctx(sp, ss, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiP010ToRGB_16u_P2C3R_Ctx_601JPEG) {
+  num::p010::run_p010<Npp16u, false>("nppiP010ToRGB_16u_P2C3R_Ctx", NPP_BT601JPEG, (Npp16u)0, [](const Npp16u *const *sp, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiP010ToRGB_16u_P2C3R_Ctx(sp, ss, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiP010ToRGB_16u_P2C3R_Ctx_709HDTV) {
+  num::p010::run_p010<Npp16u, false>("nppiP010ToRGB_16u_P2C3R_Ctx", NPP_BT709HDTV, (Npp16u)0, [](const Npp16u *const *sp, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiP010ToRGB_16u_P2C3R_Ctx(sp, ss, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiP010ToRGB_16u_P2C3R_Ctx_2020HDTV) {
+  num::p010::run_p010<Npp16u, false>("nppiP010ToRGB_16u_P2C3R_Ctx", NPP_BT2020HDTV, (Npp16u)0, [](const Npp16u *const *sp, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiP010ToRGB_16u_P2C3R_Ctx(sp, ss, d, ds, r, cs, c); });
+}
+
+TEST(NumGen, nppiP010ToRGB_16u_P2C4R_Ctx_601JPEG) {
+  num::p010::run_p010<Npp16u, true>("nppiP010ToRGB_16u_P2C4R_Ctx", NPP_BT601JPEG, (Npp16u)12345, [](const Npp16u *const *sp, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, Npp16u a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiP010ToRGB_16u_P2C4R_Ctx(sp, ss, d, ds, r, cs, a, c); });
+}
+TEST(NumGen, nppiP010ToRGB_16u_P2C4R_Ctx_709HDTV) {
+  num::p010::run_p010<Npp16u, true>("nppiP010ToRGB_16u_P2C4R_Ctx", NPP_BT709HDTV, (Npp16u)12345, [](const Npp16u *const *sp, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, Npp16u a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiP010ToRGB_16u_P2C4R_Ctx(sp, ss, d, ds, r, cs, a, c); });
+}
+TEST(NumGen, nppiP010ToRGB_16u_P2C4R_Ctx_2020HDTV) {
+  num::p010::run_p010<Npp16u, true>("nppiP010ToRGB_16u_P2C4R_Ctx", NPP_BT2020HDTV, (Npp16u)12345, [](const Npp16u *const *sp, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, Npp16u a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiP010ToRGB_16u_P2C4R_Ctx(sp, ss, d, ds, r, cs, a, c); });
+}
+
+TEST(NumGen, nppiP010ToRGB_8u_P2C3R_Ctx_601JPEG) {
+  num::p010::run_p010<Npp8u, false>("nppiP010ToRGB_8u_P2C3R_Ctx", NPP_BT601JPEG, (Npp8u)0, [](const Npp16u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiP010ToRGB_8u_P2C3R_Ctx(sp, ss, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiP010ToRGB_8u_P2C3R_Ctx_709HDTV) {
+  num::p010::run_p010<Npp8u, false>("nppiP010ToRGB_8u_P2C3R_Ctx", NPP_BT709HDTV, (Npp8u)0, [](const Npp16u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiP010ToRGB_8u_P2C3R_Ctx(sp, ss, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiP010ToRGB_8u_P2C3R_Ctx_2020HDTV) {
+  num::p010::run_p010<Npp8u, false>("nppiP010ToRGB_8u_P2C3R_Ctx", NPP_BT2020HDTV, (Npp8u)0, [](const Npp16u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiP010ToRGB_8u_P2C3R_Ctx(sp, ss, d, ds, r, cs, c); });
+}
+
+TEST(NumGen, nppiP010ToRGB_8u_P2C4R_Ctx_601JPEG) {
+  num::p010::run_p010<Npp8u, true>("nppiP010ToRGB_8u_P2C4R_Ctx", NPP_BT601JPEG, (Npp8u)0x5A, [](const Npp16u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, Npp8u a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiP010ToRGB_8u_P2C4R_Ctx(sp, ss, d, ds, r, cs, a, c); });
+}
+TEST(NumGen, nppiP010ToRGB_8u_P2C4R_Ctx_709HDTV) {
+  num::p010::run_p010<Npp8u, true>("nppiP010ToRGB_8u_P2C4R_Ctx", NPP_BT709HDTV, (Npp8u)0x5A, [](const Npp16u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, Npp8u a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiP010ToRGB_8u_P2C4R_Ctx(sp, ss, d, ds, r, cs, a, c); });
+}
+TEST(NumGen, nppiP010ToRGB_8u_P2C4R_Ctx_2020HDTV) {
+  num::p010::run_p010<Npp8u, true>("nppiP010ToRGB_8u_P2C4R_Ctx", NPP_BT2020HDTV, (Npp8u)0x5A, [](const Npp16u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, Npp8u a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiP010ToRGB_8u_P2C4R_Ctx(sp, ss, d, ds, r, cs, a, c); });
+}
+
+TEST(NumGen, nppiP016ToRGB_16u_P2C3R_Ctx_601JPEG) {
+  num::p010::run_p010<Npp16u, false>("nppiP016ToRGB_16u_P2C3R_Ctx", NPP_BT601JPEG, (Npp16u)0, [](const Npp16u *const *sp, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiP016ToRGB_16u_P2C3R_Ctx(sp, ss, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiP016ToRGB_16u_P2C3R_Ctx_709HDTV) {
+  num::p010::run_p010<Npp16u, false>("nppiP016ToRGB_16u_P2C3R_Ctx", NPP_BT709HDTV, (Npp16u)0, [](const Npp16u *const *sp, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiP016ToRGB_16u_P2C3R_Ctx(sp, ss, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiP016ToRGB_16u_P2C3R_Ctx_2020HDTV) {
+  num::p010::run_p010<Npp16u, false>("nppiP016ToRGB_16u_P2C3R_Ctx", NPP_BT2020HDTV, (Npp16u)0, [](const Npp16u *const *sp, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiP016ToRGB_16u_P2C3R_Ctx(sp, ss, d, ds, r, cs, c); });
+}
+
+TEST(NumGen, nppiP016ToRGB_16u_P2C4R_Ctx_601JPEG) {
+  num::p010::run_p010<Npp16u, true>("nppiP016ToRGB_16u_P2C4R_Ctx", NPP_BT601JPEG, (Npp16u)12345, [](const Npp16u *const *sp, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, Npp16u a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiP016ToRGB_16u_P2C4R_Ctx(sp, ss, d, ds, r, cs, a, c); });
+}
+TEST(NumGen, nppiP016ToRGB_16u_P2C4R_Ctx_709HDTV) {
+  num::p010::run_p010<Npp16u, true>("nppiP016ToRGB_16u_P2C4R_Ctx", NPP_BT709HDTV, (Npp16u)12345, [](const Npp16u *const *sp, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, Npp16u a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiP016ToRGB_16u_P2C4R_Ctx(sp, ss, d, ds, r, cs, a, c); });
+}
+TEST(NumGen, nppiP016ToRGB_16u_P2C4R_Ctx_2020HDTV) {
+  num::p010::run_p010<Npp16u, true>("nppiP016ToRGB_16u_P2C4R_Ctx", NPP_BT2020HDTV, (Npp16u)12345, [](const Npp16u *const *sp, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, Npp16u a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiP016ToRGB_16u_P2C4R_Ctx(sp, ss, d, ds, r, cs, a, c); });
 }
 
 TEST(NumGen, nppiRGBA_16u_ToUYVY16_16u_AC4C3R_Ctx_601JPEG) {

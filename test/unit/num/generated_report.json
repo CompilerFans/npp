@@ -48,7 +48,7 @@
   "skipped": []
  },
  "nppi_color_conversion.h": {
-  "emitted": 575,
+  "emitted": 581,
   "skipped": [
    {
     "function": "nppiI444_8u_ToUYVP_10u_P3C3R_Ctx",
@@ -66,38 +66,8 @@
     "reason": "later color batch / unsupported"
    },
    {
-    "function": "nppiP010ToRGB_16u_P2C3R_Ctx",
-    "family": "nppiP010ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiP010ToRGB_16u_P2C4R_Ctx",
-    "family": "nppiP010ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiP010ToRGB_8u_P2C3R_Ctx",
-    "family": "nppiP010ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiP010ToRGB_8u_P2C4R_Ctx",
-    "family": "nppiP010ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
     "function": "nppiP010_16u_ToUYVP_10u_P3C3R_Ctx",
     "family": "nppiP010",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiP016ToRGB_16u_P2C3R_Ctx",
-    "family": "nppiP016ToRGB",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiP016ToRGB_16u_P2C4R_Ctx",
-    "family": "nppiP016ToRGB",
     "reason": "later color batch / unsupported"
    },
    {
