@@ -31,7 +31,35 @@ else
   : > "$symbols"
 fi
 
-for version in 11.4 12.2 12.8; do
+echo "== union of 11.4 / 12.2 / 12.8"
+python3 - <<'PY'
+import csv
+from pathlib import Path
+
+rows = {}
+for version in ("11.4", "12.2", "12.8"):
+    with open(f"api_analysis/api_functions_{version}.csv") as f:
+        for r in csv.DictReader(f):
+            rows[r["function_name"]] = r  # later versions win on collisions
+out = Path("api_analysis/api_functions_union.csv")
+with open(out, "w", newline="") as f:
+    w = csv.DictWriter(f, fieldnames=["function_name", "module", "return_type", "params", "signature"])
+    w.writeheader()
+    for name in sorted(rows):
+        w.writerow(rows[name])
+with open("api_analysis/api_catalog.csv") as f:
+    catalog = {r["function_name"] for r in csv.DictReader(f)}
+union = set(rows)
+print(f"- Union functions: {len(union)}")
+print(f"- Union == API-unified contract: {union == catalog}")
+missing, extra = sorted(catalog - union), sorted(union - catalog)
+if missing:
+    print(f"- In unified but not in any version header: {len(missing)}")
+if extra:
+    print(f"- In version headers but not in unified: {len(extra)}")
+PY
+
+for version in 11.4 12.2 12.8 union; do
   echo "== coverage $version"
   python3 tools/check_coverage.py \
     --api-csv "api_analysis/api_functions_$version.csv" \
