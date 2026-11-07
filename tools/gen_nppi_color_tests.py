@@ -1058,6 +1058,63 @@ def emit_nv12(row: dict) -> Optional[str]:
 
 
 
+def emit_uyvy(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    name = re.sub(r"\W", "_", fn)
+    CS = (("NPP_BT601JPEG", "601JPEG"), ("NPP_BT709HDTV", "709HDTV"), ("NPP_BT2020HDTV", "2020HDTV"))
+    # UYVY(16) -> RGB(16)
+    m = re.match(r"nppiUYVY(16)?_(8u|16u)_ToRGB_(8u|16u)_C3(C3|AC4|P3)R_Ctx$", fn)
+    if m:
+        S = "Npp16u" if m.group(2) == "16u" else "Npp8u"
+        mode = {"C3": 0, "AC4": 1, "P3": 2}[m.group(4)]
+        alpha = "12345" if S == "Npp16u" else "0x5A"
+        out = []
+        for cs, tag in CS:
+            if mode == 1:
+                lam = (f"[]({S} *s, int ss, NppiPoint off, {S} *d, int ds, NppiSize r, NppiColorSpace cs, "
+                       f"{S} a, NppStreamContext c) "
+                       f"{{ (void)ss; (void)off; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; "
+                       f"return {fn}(s, ss, off, d, ds, r, cs, a, c); }}")
+                call = f"num::uyvy::run_uyvy_dec<{S}, 1>(\"{fn}\", {cs}, ({S}){alpha}, {lam})"
+            elif mode == 2:
+                lam = (f"[]({S} *s, int ss, NppiPoint off, {S} **dp, int ds, NppiSize r, NppiColorSpace cs, "
+                       f"NppStreamContext c) "
+                       f"{{ (void)ss; (void)off; (void)dp; (void)ds; (void)r; (void)cs; (void)c; "
+                       f"return {fn}(s, ss, off, dp, ds, r, cs, c); }}")
+                call = f"num::uyvy::run_uyvy_dec<{S}, 2>(\"{fn}\", {cs}, ({S})0, {lam})"
+            else:
+                lam = (f"[]({S} *s, int ss, NppiPoint off, {S} *d, int ds, NppiSize r, NppiColorSpace cs, "
+                       f"NppStreamContext c) "
+                       f"{{ (void)ss; (void)off; (void)d; (void)ds; (void)r; (void)cs; (void)c; "
+                       f"return {fn}(s, ss, off, d, ds, r, cs, c); }}")
+                call = f"num::uyvy::run_uyvy_dec<{S}, 0>(\"{fn}\", {cs}, ({S})0, {lam})"
+            out.append(f"TEST(NumGen, {name}_{tag}) {{\n  {call};\n}}\n")
+        return "".join(out)
+    # RGB(A)(16) -> UYVY(16)
+    m = re.match(r"nppiRGBA?(16)?_(8u|16u)_ToUYVY(16)?_(8u|16u)_(C3|P3|AC4)(C3R|P3R|C3R)_Ctx$", fn)
+    if m:
+        S = "Npp16u" if m.group(2) == "16u" else "Npp8u"
+        tok = m.group(5)
+        out = []
+        for cs, tag in CS:
+            if tok == "P3":
+                lam = (f"[](const {S} *const *sp, int ss, NppiPoint off, {S} *d, int ds, NppiSize r, "
+                       f"NppiColorSpace cs, NppStreamContext c) "
+                       f"{{ (void)ss; (void)off; (void)d; (void)ds; (void)r; (void)cs; (void)c; "
+                       f"return {fn}(sp, ss, off, d, ds, r, cs, c); }}")
+                call = f"num::uyvy::run_rgb_enc<{S}, 1>(\"{fn}\", {cs}, {lam})"
+            else:
+                mode = 2 if tok == "AC4" else 0
+                lam = (f"[]({S} *s, int ss, NppiPoint off, {S} *d, int ds, NppiSize r, NppiColorSpace cs, "
+                       f"NppStreamContext c) "
+                       f"{{ (void)ss; (void)off; (void)d; (void)ds; (void)r; (void)cs; (void)c; "
+                       f"return {fn}(s, ss, off, d, ds, r, cs, c); }}")
+                call = f"num::uyvy::run_rgb_enc<{S}, {mode}>(\"{fn}\", {cs}, {lam})"
+            out.append(f"TEST(NumGen, {name}_{tag}) {{\n  {call};\n}}\n")
+        return "".join(out)
+    return None
+
+
 def emit_nv12_twist(row: dict) -> Optional[str]:
     fn = row["function_name"]
     if "ColorTwist32f" not in fn:
@@ -1132,7 +1189,7 @@ def main() -> int:
                 or emit_ycbcr_jpeg(row) or emit_yuv_planar(row) or emit_yuv_layout(row)
                 or emit_ycbcr422(row) or emit_ycbcr420(row) or emit_ycbcr420_layout(row)
                 or emit_yuv_twist(row) or emit_color_key(row) or emit_cmyk(row) or emit_nv12(row)
-                or emit_nv12_twist(row) or emit_color_batch(row))
+                or emit_nv12_twist(row) or emit_uyvy(row) or emit_color_batch(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
                                 reason="later color batch / unsupported"))
@@ -1158,6 +1215,7 @@ def main() -> int:
               "#include \"num_nppi_ycbcr.h\"\n"
               "#include \"num_nppi_yuv.h\"\n"
               "#include \"num_nppi_nv12.h\"\n"
+              "#include \"num_nppi_uyvy.h\"\n"
               "#include \"num_nppi_color_batch.h\"\n"
               "\n"
               "static const float kTwist[12] = {" + TWIST_MATRIX + "};\n"
