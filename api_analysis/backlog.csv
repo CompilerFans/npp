@@ -6,15 +6,8 @@ nppi_color_conversion.h,nppiP010ToRGB,4,0,0,4,4,0,0,4
 nppi_color_conversion.h,nppiUYVY,3,0,0,3,3,0,0,3
 nppi_color_conversion.h,nppiUYVY16,3,0,0,3,3,0,0,3
 nppi_color_conversion.h,nppiP016ToRGB,2,0,0,2,2,0,0,2
-nppi_color_conversion.h,nppiRGBToNV12,6,4,0,2,2,0,4,2
 nppi_color_conversion.h,nppiI444,1,0,0,1,1,0,0,1
 nppi_color_conversion.h,nppiNV12,1,0,0,1,1,0,0,1
-nppi_color_conversion.h,nppiNV12ToBGR,3,2,0,1,1,0,2,1
-nppi_color_conversion.h,nppiNV12ToBGR_601,1,0,0,1,1,0,0,1
-nppi_color_conversion.h,nppiNV12ToBGR_BT2020,1,0,0,1,1,0,0,1
-nppi_color_conversion.h,nppiNV12ToRGB,5,4,0,1,1,0,4,1
-nppi_color_conversion.h,nppiNV12ToRGB_601,1,0,0,1,1,0,0,1
-nppi_color_conversion.h,nppiNV12ToRGB_BT2020,1,0,0,1,1,0,0,1
 nppi_color_conversion.h,nppiNV16,1,0,0,1,1,0,0,1
 nppi_color_conversion.h,nppiP010,1,0,0,1,1,0,0,1
 nppi_color_conversion.h,nppiP208,1,0,0,1,1,0,0,1
@@ -28,7 +21,6 @@ nppi_color_conversion.h,nppiUYVP_10u_ToY410_10u_C3C3R,1,0,0,1,1,0,0,1
 nppi_color_conversion.h,nppiUYVP_10u_ToYUV444,1,0,0,1,1,0,0,1
 nppi_color_conversion.h,nppiV210_10u_ToUYVP_10u_C3C3R,1,0,0,1,1,0,0,1
 nppi_color_conversion.h,nppiY410_10u_ToUYVP_10u_C3C3R,1,0,0,1,1,0,0,1
-nppi_color_conversion.h,nppiYUV420ToNV12,1,0,0,1,1,0,0,1
 nppi_color_conversion.h,nppiYUV444,1,0,0,1,1,0,0,1
 nppi_arithmetic_and_logical_operations.h,nppiAbs,44,44,0,0,0,0,44,0
 nppi_arithmetic_and_logical_operations.h,nppiAbsDiff,12,12,0,0,0,0,12,0
@@ -126,10 +118,16 @@ nppi_color_conversion.h,nppiLUT_Linear,64,64,0,0,0,0,35,0
 nppi_color_conversion.h,nppiLUT_Trilinear,6,6,0,0,0,0,3,0
 nppi_color_conversion.h,nppiLUVToRGB,4,4,0,0,0,0,2,0
 nppi_color_conversion.h,nppiLabToBGR,2,2,0,0,0,0,2,0
+nppi_color_conversion.h,nppiNV12ToBGR,3,3,0,0,0,0,3,0
+nppi_color_conversion.h,nppiNV12ToBGR_601,1,1,0,0,0,0,1,0
 nppi_color_conversion.h,nppiNV12ToBGR_709CSC,2,2,0,0,0,0,2,0
 nppi_color_conversion.h,nppiNV12ToBGR_709HDTV,2,2,0,0,0,0,2,0
+nppi_color_conversion.h,nppiNV12ToBGR_BT2020,1,1,0,0,0,0,1,0
+nppi_color_conversion.h,nppiNV12ToRGB,5,5,0,0,0,0,5,0
+nppi_color_conversion.h,nppiNV12ToRGB_601,1,1,0,0,0,0,1,0
 nppi_color_conversion.h,nppiNV12ToRGB_709CSC,2,2,0,0,0,0,2,0
 nppi_color_conversion.h,nppiNV12ToRGB_709HDTV,2,2,0,0,0,0,2,0
+nppi_color_conversion.h,nppiNV12ToRGB_BT2020,1,1,0,0,0,0,1,0
 nppi_color_conversion.h,nppiNV12ToYUV420,2,2,0,0,0,0,2,0
 nppi_color_conversion.h,nppiNV21ToBGR,2,2,0,0,0,0,2,0
 nppi_color_conversion.h,nppiNV21ToRGB,2,2,0,0,0,0,2,0
@@ -139,6 +137,7 @@ nppi_color_conversion.h,nppiRGBToGray,16,16,0,0,0,0,16,0
 nppi_color_conversion.h,nppiRGBToHLS,4,4,0,0,0,0,4,0
 nppi_color_conversion.h,nppiRGBToHSV,4,4,0,0,0,0,4,0
 nppi_color_conversion.h,nppiRGBToLUV,4,4,0,0,0,0,2,0
+nppi_color_conversion.h,nppiRGBToNV12,6,6,0,0,0,0,6,0
 nppi_color_conversion.h,nppiRGBToXYZ,4,4,0,0,0,0,2,0
 nppi_color_conversion.h,nppiRGBToYCC,4,4,0,0,0,0,2,0
 nppi_color_conversion.h,nppiRGBToYCbCr,10,10,0,0,0,0,10,0
@@ -209,6 +208,7 @@ nppi_color_conversion.h,nppiYCrCb422ToYCbCr420,2,2,0,0,0,0,1,0
 nppi_color_conversion.h,nppiYCrCb422ToYCbCr422,2,2,0,0,0,0,1,0
 nppi_color_conversion.h,nppiYUV420ToBGR,4,4,0,0,0,0,4,0
 nppi_color_conversion.h,nppiYUV420ToBGRBatch,4,4,0,0,0,0,2,0
+nppi_color_conversion.h,nppiYUV420ToNV12,1,1,0,0,0,0,1,0
 nppi_color_conversion.h,nppiYUV420ToRGB,16,16,0,0,0,0,16,0
 nppi_color_conversion.h,nppiYUV420ToRGBBatch,4,4,0,0,0,0,2,0
 nppi_color_conversion.h,nppiYUV422ToBGRBatch,4,4,0,0,0,0,2,0

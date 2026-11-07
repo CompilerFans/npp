@@ -965,6 +965,62 @@ def emit_nv12(row: dict) -> Optional[str]:
     fn = row["function_name"]
     fam = row["family"]
     name = re.sub(r"\W", "_", fn)
+    if fam in ("nppiNV12ToRGB_601", "nppiNV12ToBGR_601", "nppiNV12ToRGB_BT2020",
+               "nppiNV12ToBGR_BT2020"):
+        if not re.search(r"_8u_P2C3R_Ctx$", fn):
+            return None
+        order = "BGR" if "BGR" in fn else "RGB"
+        coef = "0" if "601" in fn else "2"
+        lam = ("[](const Npp8u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppStreamContext c) "
+               "{ (void)ss; (void)d; (void)ds; (void)r; (void)c; "
+               f"return {fn}(sp, ss, d, ds, r, c); }}")
+        prefix = f"num::nv12::run_nv12_ext_c3<{coef}, num::nv12::OutOrder::{order}, 3>"
+        return (f"TEST(NumGen, {name}) {{\n  {prefix}(\n      \"{fn}\",\n      {lam});\n}}\n")
+    if fam in ("nppiNV12ToRGB", "nppiNV12ToBGR") and "_P2C4R_Ctx" in fn and "NV21" not in fn:
+        order = "BGR" if "BGR" in fn else "RGB"
+        lam = ("[](const Npp8u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, "
+               "Npp8u a, NppStreamContext c) "
+               "{ (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; "
+               f"return {fn}(sp, ss, d, ds, r, cs, a, c); }}")
+        out = []
+        for cs, tag in (("NPP_BT601JPEG", "601JPEG"), ("NPP_BT709HDTV", "709HDTV"),
+                        ("NPP_BT2020HDTV", "2020HDTV")):
+            out.append(f"TEST(NumGen, {name}_{tag}) {{\n"
+                       f"  num::nv12::run_nv12_ext_c4<num::nv12::OutOrder::{order}>(\n"
+                       f"      \"{fn}\",\n      {cs}, 0x5A,\n      {lam});\n}}\n")
+        return "".join(out)
+    if fam == "nppiRGBToNV12":
+        m = re.match(r"nppiRGBToNV12_8u_(C3|P3)P2R_Ctx$", fn)
+        if not m:
+            return None
+        planar = m.group(1) == "P3"
+        if planar:
+            lam = ("[](const Npp8u *const *sp, int ss, Npp8u *dy, Npp8u *duv, int ds, NppiSize r, "
+                   "NppiColorSpace cs, NppStreamContext c) "
+                   "{ (void)ss; (void)dy; (void)duv; (void)ds; (void)r; (void)cs; (void)c; "
+                   f"Npp8u *dp[2] = {{dy, duv}}; return {fn}(sp, ss, dp, ds, r, cs, c); }}")
+            prefix = "num::nv12::run_rgb_to_nv12_ext<true>"
+        else:
+            lam = ("[](const Npp8u *sp, int ss, Npp8u *dy, Npp8u *duv, int ds, NppiSize r, "
+                   "NppiColorSpace cs, NppStreamContext c) "
+                   "{ (void)ss; (void)dy; (void)duv; (void)ds; (void)r; (void)cs; (void)c; "
+                   f"Npp8u *dp[2] = {{dy, duv}}; return {fn}(sp, ss, dp, ds, r, cs, c); }}")
+            prefix = "num::nv12::run_rgb_to_nv12_ext<false>"
+        out = []
+        for cs, tag in (("NPP_BT601JPEG", "601JPEG"), ("NPP_BT709HDTV", "709HDTV"),
+                        ("NPP_BT2020HDTV", "2020HDTV")):
+            out.append(f"TEST(NumGen, {name}_{tag}) {{\n"
+                       f"  {prefix}(\n      \"{fn}\",\n      {cs},\n      {lam});\n}}\n")
+        return "".join(out)
+    if fam == "nppiYUV420ToNV12":
+        if not re.search(r"_8u_P3P2R_Ctx$", fn):
+            return None
+        lam = ("[](const Npp8u *const *sp, const int *ss, Npp8u *dy, Npp8u *duv, int ds, NppiSize r, "
+               "NppStreamContext c) "
+               "{ (void)ss; (void)dy; (void)duv; (void)ds; (void)r; (void)c; "
+               f"Npp8u *dp[2] = {{dy, duv}}; return {fn}(sp, ss, dp, ds, r, c); }}")
+        return (f"TEST(NumGen, {name}) {{\n  num::nv12::run_yuv420_to_nv12(\n      \"{fn}\",\n"
+                f"      {lam});\n}}\n")
     if fam in ("nppiNV12ToRGB", "nppiNV12ToBGR", "nppiNV12ToRGB_709CSC",
                "nppiNV12ToRGB_709HDTV", "nppiNV12ToBGR_709CSC", "nppiNV12ToBGR_709HDTV",
                "nppiNV21ToRGB", "nppiNV21ToBGR"):
