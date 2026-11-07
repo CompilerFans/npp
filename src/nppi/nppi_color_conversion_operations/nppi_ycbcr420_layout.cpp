@@ -193,7 +193,7 @@ NppStatus validatePlanarYCrCb420ToSemiPlanar411Inputs(const Npp8u *const pSrc[3]
 }
 
 NppStatus toStatus(cudaError_t cudaStatus) {
-  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 } // namespace

@@ -1,4 +1,4 @@
-// c3 package: exact 8-bit CMYK multiply table.
+// c3: exact 8-bit CMYK multiply table.
 //
 // NVIDIA NPP computes (255-C)*(255-K)/255 with an integer path that returns
 // floor(p/255) - 1 whenever p is an exact multiple of 255, except for 388

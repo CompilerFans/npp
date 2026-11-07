@@ -11,16 +11,16 @@ struct NppiThresholdValues8u {
 template <typename T> __device__ inline T performThreshold(T src, T threshold, NppCmpOp op) {
   switch (op) {
   case NPP_CMP_LESS:
-    return (src < threshold) ? threshold : src;
+    return (src < threshold) ? threshold: src;
   case NPP_CMP_LESS_EQ:
-    return (src <= threshold) ? threshold : src;
+    return (src <= threshold) ? threshold: src;
   case NPP_CMP_GREATER:
-    return (src > threshold) ? threshold : src;
+    return (src > threshold) ? threshold: src;
   case NPP_CMP_GREATER_EQ:
-    return (src >= threshold) ? threshold : src;
+    return (src >= threshold) ? threshold: src;
   case NPP_CMP_EQ: //??
     // printf("impl maybe not right\n");
-    return (src == threshold) ? threshold : src;
+    return (src == threshold) ? threshold: src;
   default:
     return src;
   }
@@ -76,7 +76,7 @@ __global__ void nppiThreshold_LTVal_8u_C1R_kernel(const Npp8u *pSrc, int nSrcSte
     const Npp8u *src_row = (const Npp8u *)((const char *)pSrc + y * nSrcStep);
     Npp8u *dst_row = (Npp8u *)((char *)pDst + y * nDstStep);
 
-    dst_row[x] = (src_row[x] < nThreshold) ? nValue : src_row[x];
+    dst_row[x] = (src_row[x] < nThreshold) ? nValue: src_row[x];
   }
 }
 
@@ -88,7 +88,7 @@ __global__ void nppiThreshold_LTVal_8u_C1IR_kernel(Npp8u *pSrcDst, int nSrcDstSt
 
   if (x < width && y < height) {
     Npp8u *row = (Npp8u *)((char *)pSrcDst + y * nSrcDstStep);
-    row[x] = (row[x] < nThreshold) ? nValue : row[x];
+    row[x] = (row[x] < nThreshold) ? nValue: row[x];
   }
 }
 
@@ -102,7 +102,7 @@ __global__ void nppiThreshold_GTVal_8u_C1R_kernel(const Npp8u *pSrc, int nSrcSte
     const Npp8u *src_row = (const Npp8u *)((const char *)pSrc + y * nSrcStep);
     Npp8u *dst_row = (Npp8u *)((char *)pDst + y * nDstStep);
 
-    dst_row[x] = (src_row[x] > nThreshold) ? nValue : src_row[x];
+    dst_row[x] = (src_row[x] > nThreshold) ? nValue: src_row[x];
   }
 }
 
@@ -114,7 +114,7 @@ __global__ void nppiThreshold_GTVal_8u_C1IR_kernel(Npp8u *pSrcDst, int nSrcDstSt
 
   if (x < width && y < height) {
     Npp8u *row = (Npp8u *)((char *)pSrcDst + y * nSrcDstStep);
-    row[x] = (row[x] > nThreshold) ? nValue : row[x];
+    row[x] = (row[x] > nThreshold) ? nValue: row[x];
   }
 }
 
@@ -150,7 +150,7 @@ __global__ void nppiThreshold_LTVal_32f_C1R_kernel(const Npp32f *pSrc, int nSrcS
     const Npp32f *src_row = (const Npp32f *)((const char *)pSrc + y * nSrcStep);
     Npp32f *dst_row = (Npp32f *)((char *)pDst + y * nDstStep);
 
-    dst_row[x] = (src_row[x] < nThreshold) ? nValue : src_row[x];
+    dst_row[x] = (src_row[x] < nThreshold) ? nValue: src_row[x];
   }
 }
 
@@ -166,7 +166,7 @@ __global__ void nppiThreshold_LTVal_8u_C3R_kernel(const Npp8u *pSrc, int nSrcSte
     int idx = x * 3;
 
     for (int c = 0; c < 3; c++) {
-      dst_row[idx + c] = (src_row[idx + c] < tv.threshold[c]) ? tv.value[c] : src_row[idx + c];
+      dst_row[idx + c] = (src_row[idx + c] < tv.threshold[c]) ? tv.value[c]: src_row[idx + c];
     }
   }
 }
@@ -181,7 +181,7 @@ __global__ void nppiThreshold_LTVal_8u_C3IR_kernel(Npp8u *pSrcDst, int nSrcDstSt
     int idx = x * 3;
 
     for (int c = 0; c < 3; c++) {
-      row[idx + c] = (row[idx + c] < tv.threshold[c]) ? tv.value[c] : row[idx + c];
+      row[idx + c] = (row[idx + c] < tv.threshold[c]) ? tv.value[c]: row[idx + c];
     }
   }
 }
@@ -198,7 +198,7 @@ __global__ void nppiThreshold_LTVal_8u_C4R_kernel(const Npp8u *pSrc, int nSrcSte
     int idx = x * 4;
 
     for (int c = 0; c < 4; c++) {
-      dst_row[idx + c] = (src_row[idx + c] < tv.threshold[c]) ? tv.value[c] : src_row[idx + c];
+      dst_row[idx + c] = (src_row[idx + c] < tv.threshold[c]) ? tv.value[c]: src_row[idx + c];
     }
   }
 }
@@ -213,7 +213,7 @@ __global__ void nppiThreshold_LTVal_8u_C4IR_kernel(Npp8u *pSrcDst, int nSrcDstSt
     int idx = x * 4;
 
     for (int c = 0; c < 4; c++) {
-      row[idx + c] = (row[idx + c] < tv.threshold[c]) ? tv.value[c] : row[idx + c];
+      row[idx + c] = (row[idx + c] < tv.threshold[c]) ? tv.value[c]: row[idx + c];
     }
   }
 }
@@ -230,7 +230,7 @@ __global__ void nppiThreshold_GTVal_8u_C3R_kernel(const Npp8u *pSrc, int nSrcSte
     int idx = x * 3;
 
     for (int c = 0; c < 3; c++) {
-      dst_row[idx + c] = (src_row[idx + c] > tv.threshold[c]) ? tv.value[c] : src_row[idx + c];
+      dst_row[idx + c] = (src_row[idx + c] > tv.threshold[c]) ? tv.value[c]: src_row[idx + c];
     }
   }
 }
@@ -245,7 +245,7 @@ __global__ void nppiThreshold_GTVal_8u_C3IR_kernel(Npp8u *pSrcDst, int nSrcDstSt
     int idx = x * 3;
 
     for (int c = 0; c < 3; c++) {
-      row[idx + c] = (row[idx + c] > tv.threshold[c]) ? tv.value[c] : row[idx + c];
+      row[idx + c] = (row[idx + c] > tv.threshold[c]) ? tv.value[c]: row[idx + c];
     }
   }
 }
@@ -262,7 +262,7 @@ __global__ void nppiThreshold_GTVal_8u_C4R_kernel(const Npp8u *pSrc, int nSrcSte
     int idx = x * 4;
 
     for (int c = 0; c < 4; c++) {
-      dst_row[idx + c] = (src_row[idx + c] > tv.threshold[c]) ? tv.value[c] : src_row[idx + c];
+      dst_row[idx + c] = (src_row[idx + c] > tv.threshold[c]) ? tv.value[c]: src_row[idx + c];
     }
   }
 }
@@ -277,7 +277,7 @@ __global__ void nppiThreshold_GTVal_8u_C4IR_kernel(Npp8u *pSrcDst, int nSrcDstSt
     int idx = x * 4;
 
     for (int c = 0; c < 4; c++) {
-      row[idx + c] = (row[idx + c] > tv.threshold[c]) ? tv.value[c] : row[idx + c];
+      row[idx + c] = (row[idx + c] > tv.threshold[c]) ? tv.value[c]: row[idx + c];
     }
   }
 }

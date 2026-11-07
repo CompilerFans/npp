@@ -1,4 +1,4 @@
-// Host-only geometry-transform helpers for package g5:
+// Host-only geometry-transform helpers for this module:
 //   nppiGetAffineTransform      nppiGetAffineQuad      nppiGetAffineBound
 //   nppiGetPerspectiveTransform nppiGetPerspectiveQuad nppiGetPerspectiveBound
 //   nppiGetRotateQuad           nppiGetRotateBound
@@ -7,8 +7,8 @@
 // hand-written instead of gen_family.py generated.  The semantics below,
 // including the exact arithmetic order, the degenerate-input behaviour and
 // the NaN propagation rules, were recovered from the NVIDIA NPP 13.4
-// implementations (libnppig.so.13) and validated differentially against
-// goldens recorded on the RTX 5090 (test_nppi_get_transform_generated.cpp).
+// implementations (libnppig.so.13) and validated  against
+// reference outputs recorded in the reference implementation (test_nppi_get_transform_generated.cpp).
 // Notable NVIDIA behaviours that the documentation does not spell out:
 //   * The affine solve uses the first three quad vertices and writes the
 //     coefficients BEFORE checking the determinant; a zero (but not NaN)
@@ -90,8 +90,8 @@ NppStatus nppiGetAffineTransform(NppiRect oSrcROI, const double aQuad[4][2], dou
   const double py = t10 * x + t11 * yh + t12;
   const double apx = fabs(px);
   const double apy = fabs(py);
-  const double tolx = (apx > 1.0) ? apx * DBL_EPSILON : DBL_EPSILON;
-  const double toly = ((apy > 1.0) ? apy : 1.0) * DBL_EPSILON;
+  const double tolx = (apx > 1.0) ? apx * DBL_EPSILON: DBL_EPSILON;
+  const double toly = ((apy > 1.0) ? apy: 1.0) * DBL_EPSILON;
   if (fabs(px - aQuad[3][0]) > tolx || fabs(py - aQuad[3][1]) > toly) {
     return NPP_AFFINE_QUAD_INCORRECT_WARNING;
   }

@@ -21,8 +21,8 @@ __global__ void nppiCopy_kernel(const T *pSrc, int nSrcStep, T *pDst, int nDstSt
   }
 }
 
-// 128-bit flat copy kernel (package opt_elem): each thread moves one uint4
-// packet of vecElemsPerPacket<T>() elements; a trailing partial packet is
+// 128-bit flat copy kernel: each thread moves one uint4
+// packet of vecElemsPerPacket<T> elements; a trailing partial packet is
 // finished element-wise by its owning thread, so ROIs whose row is not a
 // multiple of the packet size stay correct. A copy is channel-agnostic, so
 // the same kernel serves every packed-pixel C1/C3/C4 variant. Index math is
@@ -168,7 +168,7 @@ __global__ void nppiCopy_PxCxR_kernel(NppiCopyPointers<T, CHANNELS> pSrc, int nS
 }
 
 // ============================================================================
-// Planar <-> packed copy kernels (package opt_planar)
+// Planar <-> packed copy kernels
 // ============================================================================
 // A packed <-> planar copy is a CHANNELS-way transpose.  The original
 // implementation staged each 16-pixel unit through per-plane local arrays
@@ -225,7 +225,7 @@ NppStatus nppiCopy_impl(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, Nppi
   // 128-bit vectorized flat copy when the layout permits 16-byte accesses
   // (base pointers 16B-aligned, row steps multiples of 16 bytes, at least one
   // full packet per row, packet count fits in 31 bits); scalar
-  // one-pixel-per-thread kernel otherwise (package opt_elem). Both kernels
+  // one-pixel-per-thread kernel otherwise. Both kernels
   // copy exactly width*CHANNELS elements per row, so results are identical.
   constexpr int E = npp_kernel::vecElemsPerPacket<T>();
   const size_t vecPackets = npp_kernel::vecPacketCount<T>(oSizeROI.width, CHANNELS, oSizeROI.height);
@@ -268,7 +268,7 @@ NppStatus nppiCopy_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst,
   // The old special case used 32-bit accesses (one pixel per thread) and did
   // not check base-pointer alignment; the generic impl now dispatches to the
   // 128-bit flat copy kernel with a checked alignment condition and a scalar
-  // fallback (package opt_elem), which subsumes it.
+  // fallback, which subsumes it.
   return nppiCopy_impl<Npp8u, 4>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
@@ -339,7 +339,7 @@ NppStatus nppiCopy_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pD
 } // extern "C"
 
 // True when the packed base pointer, every plane base pointer and both row
-// steps permit 16-byte packet access (package opt_planar). Steps are already
+// steps permit 16-byte packet access. Steps are already
 // validated to be positive by the wrappers.
 template <typename T, int CHANNELS>
 static bool planarCopyVecReady(const void *pPacked, int nPackedStep, const NppiCopyPointers<T, CHANNELS> &planes,
@@ -355,7 +355,7 @@ static bool planarCopyVecReady(const void *pPacked, int nPackedStep, const NppiC
 //
 // Empty ROIs have always reached the kernel launch with a zero grid
 // dimension, which the runtime rejects, so NPP_CUDA_KERNEL_EXECUTION_ERROR
-// is the pinned status for that case (package opt_planar keeps it instead of
+// is the pinned status for that case (module keeps it instead of
 // turning empty ROIs into silent no-ops). Aligned layouts take the 128-bit
 // transpose kernel; everything else keeps the historical scalar fallback
 // kernels with their original launch configurations.

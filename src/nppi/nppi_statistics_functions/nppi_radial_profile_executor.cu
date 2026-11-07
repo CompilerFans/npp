@@ -92,7 +92,7 @@ __global__ void radialProfileKernel(const Npp32f *pSrc, int nSrcStep, int width,
       const double mean = sSum[0] / sCount[0];
       const double var = sSq[0] / sCount[0] - mean * mean;
       out.nMeanIntensity = (Npp32f)mean;
-      out.nStdDevIntensity = (Npp32f)sqrt(var > 0.0 ? var : 0.0);
+      out.nStdDevIntensity = (Npp32f)sqrt(var > 0.0 ? var: 0.0);
     } else {
       out.nMeanIntensity = 0.0f;
       out.nStdDevIntensity = 0.0f;
@@ -216,7 +216,7 @@ __global__ void ellipticalProfileKernel(const Npp32f *pSrc, int nSrcStep, int wi
       const double mean = sSum[0] / sCount[0];
       const double var = sSq[0] / sCount[0] - mean * mean;
       out.nMeanIntensity = (Npp32f)mean;
-      out.nStdDevIntensity = (Npp32f)sqrt(var > 0.0 ? var : 0.0);
+      out.nStdDevIntensity = (Npp32f)sqrt(var > 0.0 ? var: 0.0);
     } else {
       out.nMeanIntensity = 0.0f;
       out.nStdDevIntensity = 0.0f;
@@ -237,7 +237,7 @@ NppStatus runEllipticalRadialProfile(const Npp32f *pSrc, int nSrcStep, NppiSize 
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
-  // Measured order on the 5090: null pointers, then negative ROI, then the
+  // Measured order on the reference: null pointers, then negative ROI, then the
   // ratio range, and only then the empty-ROI/empty-samples no-ops.  The check
   // is a plain `ratio < 1`, so NaN and +inf are accepted; -inf is rejected.
   if (nAstigmatismRatio < 1.0f) {
@@ -264,7 +264,7 @@ NppStatus runEllipticalRadialProfile(const Npp32f *pSrc, int nSrcStep, NppiSize 
                      cudaMemcpyDeviceToHost);
   }
   cudaFree(dProfile);
-  return err == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return err == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 }  // namespace statistics

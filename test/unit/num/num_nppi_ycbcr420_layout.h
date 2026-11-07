@@ -1,4 +1,4 @@
-// CPU-golden coverage for the 4:2:0 layout/sampling conversions
+// CPU-reference output coverage for the 4:2:0 layout/sampling conversions
 // (nppi_ycbcr420_layout.*): planar <-> semi-planar 4:2:0, 4:2:0 planar ->
 // 4:2:2 planar (row replication), semi-planar 4:2:0 -> packed 4:2:2, and the
 // 4:2:0 -> 4:1:1 chroma decimation with the measured row-interleaving quirk
@@ -36,7 +36,7 @@ void run_layout420(const char *id, Kind kind, int a0, Call call) {
   std::string first;
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {16, 12}, {32, 24}, {64, 48}, {128, 96}};
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     const int w = cf.w, h = cf.h;
     const bool srcP3 = kind == Kind::P3P2_420 || kind == Kind::P3P3_422 || kind == Kind::YCrCb2CbYCr ||
                        kind == Kind::P3P2_411;
@@ -103,8 +103,8 @@ void run_layout420(const char *id, Kind kind, int a0, Call call) {
       if (getenv("NUM_LAYOUT_DEBUG")) std::fprintf(stderr, "[%s] %dx%d status=%d\n", id, w, h, (int)st);
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-      for (auto *p : srcs) delete p;
-      for (auto *p : dsts) delete p;
+      for (auto *p: srcs) delete p;
+      for (auto *p: dsts) delete p;
       continue;
     }
     const cudaError_t se = cudaDeviceSynchronize();
@@ -129,11 +129,11 @@ void run_layout420(const char *id, Kind kind, int a0, Call call) {
       for (int y = 0; y < ch; ++y)
         for (int x = 0; x < cw; ++x) {
           if (kind == Kind::P3P2_420) {
-            want[1][(size_t)y * dsts[1]->step + (size_t)x * 2] = (uint8_t)atP3(a0 ? 2 : 1, x, y);
-            want[1][(size_t)y * dsts[1]->step + (size_t)x * 2 + 1] = (uint8_t)atP3(a0 ? 1 : 2, x, y);
+            want[1][(size_t)y * dsts[1]->step + (size_t)x * 2] = (uint8_t)atP3(a0 ? 2: 1, x, y);
+            want[1][(size_t)y * dsts[1]->step + (size_t)x * 2 + 1] = (uint8_t)atP3(a0 ? 1: 2, x, y);
           } else {
-            wrP(1, x, y, atP2(a0 ? 1 : 0, x, y));
-            wrP(2, x, y, atP2(a0 ? 0 : 1, x, y));
+            wrP(1, x, y, atP2(a0 ? 1: 0, x, y));
+            wrP(2, x, y, atP2(a0 ? 0: 1, x, y));
           }
         }
     } else if (kind == Kind::P3P3_422 || kind == Kind::P2P3_422) {
@@ -191,8 +191,8 @@ void run_layout420(const char *id, Kind kind, int a0, Call call) {
           const int sx = 2 * x + (y & 1);
           if (kind == Kind::P3P2_411) {
             // a0=1: the source planes are (Y, Cr, Cb) (YCrCb family)
-            want[1][(size_t)y * dsts[1]->step + (size_t)x * 2] = (uint8_t)atP3(a0 ? 2 : 1, sx, sy);
-            want[1][(size_t)y * dsts[1]->step + (size_t)x * 2 + 1] = (uint8_t)atP3(a0 ? 1 : 2, sx, sy);
+            want[1][(size_t)y * dsts[1]->step + (size_t)x * 2] = (uint8_t)atP3(a0 ? 2: 1, sx, sy);
+            want[1][(size_t)y * dsts[1]->step + (size_t)x * 2 + 1] = (uint8_t)atP3(a0 ? 1: 2, sx, sy);
           } else {
             wrP(1, x, y, atP2(0, sx, sy));
             wrP(2, x, y, atP2(1, sx, sy));
@@ -205,13 +205,12 @@ void run_layout420(const char *id, Kind kind, int a0, Call call) {
       const GenCase dc{w, h, 0, 0, 0, kSmall, 0};
       const bool twoCh = (dstP2 && p == 1) || (dstC2 && p == 0);
       const bool ok = twoCh ? rotate_check<Npp8u, 2, 2>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p],
-                                                         dsts[p]->step, std::vector<uint8_t>(), cnt, first)
-                            : rotate_check<Npp8u, 1, 1>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p],
+                                                         dsts[p]->step, std::vector<uint8_t>(), cnt, first): rotate_check<Npp8u, 1, 1>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p],
                                                         dsts[p]->step, std::vector<uint8_t>(), cnt, first);
       if (!ok) failed = true;
     }
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
     if (failed || cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);

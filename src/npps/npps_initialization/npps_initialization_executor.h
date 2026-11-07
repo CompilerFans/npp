@@ -4,15 +4,15 @@
 //   nppsSet / nppsCopy / nppsZero
 //
 // These are 1-D, element-wise, same-type operations with no workspace:
-//   * nppsSet   : dst[i] = value
-//   * nppsCopy  : dst[i] = src[i]
-//   * nppsZero  : dst[i] = 0  (implemented with cudaMemsetAsync)
+//   * nppsSet: dst[i] = value
+//   * nppsCopy: dst[i] = src[i]
+//   * nppsZero: dst[i] = 0  (implemented with cudaMemsetAsync)
 //
 // The executor entry-point templates are declared here and defined + explicitly
-// instantiated in npps_init_ops.cu so plain .cpp wrappers can dispatch to them.
+// instantiated in npps_init_ops.cu so plain.cpp wrappers can dispatch to them.
 //
 // Error contract (kept aligned with the pre-existing npps_set.cpp hand-written
-// entries and re-validated against NVIDIA NPP 13.4 by differential tests):
+// entries and re-validated against NVIDIA NPP 13.4 by reference comparisons):
 //   * null destination/source -> NPP_NULL_POINTER_ERROR
 //   * nLength == 0            -> NPP_SIZE_ERROR
 //   * nLength <  0            -> NPP_SIZE_ERROR

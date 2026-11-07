@@ -1,7 +1,7 @@
 // Flood fill executor: nppiFloodFill / FloodFillBoundary / FloodFillRange /
-// FloodFillGradient and their *Boundary forms (72 functions, package f13).
+// FloodFillGradient and their *Boundary forms (72 functions).
 //
-// Measured against NVIDIA NPP 13.4 on the RTX 5090 (tools/probes/f13_probe58..63):
+// Measured against NVIDIA NPP 13.4 in the reference implementation:
 //
 //  * The filled set ("region") is the connected component of the seed pixel:
 //      - FloodFill / FloodFillBoundary: pixels whose value equals the seed
@@ -18,22 +18,22 @@
 //    eight neighbours outside the region (neighbours outside the ROI do not
 //    count), and nNewValue into the remaining region pixels.  Measured on
 //    1-pixel lines, 3x3 blocks, ring-shaped regions and regions touching the
-//    ROI edge (probe59/60).
+//    ROI edge.
 //  * The seed pixel value is read at the byte offset
 //    `oSeed.y * nSrcDstStep + oSeed.x * C * C * sizeof(T)` - the column term is
-//    scaled by the channel count twice (measured with the index-encoding probe
-//    f13_probe65).  For C1 that is the seed pixel itself, for C3 it is another
+//    scaled by the channel count twice (measured with the index-encoding measurement
+//    measurements).  For C1 that is the seed pixel itself, for C3 it is another
 //    column (3*x) or, near the end of the image, memory past the image; NPP
 //    then compares the neighbours against that value.  The executor
 //    reproduces the quirk.
-//  * Validation order (probe58/63): null pSrcDst, null pBuffer, non-positive
+//  * Validation order: null pSrcDst, null pBuffer, non-positive
 //    ROI dimensions (NPP_SIZE_ERROR), seed outside the ROI
 //    (NPP_OUT_OFF_RANGE_ERROR), unsupported NppiNorm (NPP_BAD_ARGUMENT_ERROR,
 //    nppiNormL2 is rejected), and nMin > nMax for the Range forms
 //    (NPP_RANGE_ERROR; the Gradient forms do not check it).  nSrcDstStep is
 //    not validated at all.
 //  * nppiFloodFillGetBufferSize is exactly 4*width*height + 4*width + 64 bytes
-//    for every channel count (probe59/63), independent of the image type.
+//    for every channel count, independent of the image type.
 #ifndef NPPI_FLOOD_FILL_EXECUTOR_H
 #define NPPI_FLOOD_FILL_EXECUTOR_H
 

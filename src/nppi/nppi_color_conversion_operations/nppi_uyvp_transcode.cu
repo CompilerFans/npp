@@ -20,8 +20,8 @@ namespace {
 __device__ __forceinline__ float q8f(float v) {
   if (v != v) return 0.0f;
   float t = __fadd_rn(v, 0.5f);
-  t = t < 0.0f ? 0.0f : t;
-  t = t > 255.0f ? 255.0f : t;
+  t = t < 0.0f ? 0.0f: t;
+  t = t > 255.0f ? 255.0f: t;
   return (float)(unsigned int)t;
 }
 
@@ -61,7 +61,7 @@ __global__ void semiplanar_to_uyvp_kernel(const T *__restrict__ srcY, int syStep
   };
   const int syE = syStep / (int)sizeof(T), suvE = suvStep / (int)sizeof(T);
   const float yv = cvt(srcY[(size_t)y * syE + x]);
-  const int cy = Vert ? (y >> 1) : y;
+  const int cy = Vert ? (y >> 1): y;
   const T *uv = srcUV + (size_t)cy * suvE + (size_t)((x >> 1) << 1);
   const float u = cvt(uv[0]);
   const float v = cvt(uv[1]);
@@ -101,7 +101,7 @@ __global__ void p208_to_uyvp_kernel(const uint8_t *__restrict__ src, int nSrcSte
   if (x >= width || y >= height) return;
   const uint8_t *p = src + (size_t)y * nSrcStep + (size_t)(x >> 1) * 4;
   const float u = to10_8u((float)p[0]);
-  const float yv = to10_8u((float)p[(x & 1) ? 3 : 1]);
+  const float yv = to10_8u((float)p[(x & 1) ? 3: 1]);
   const float v = to10_8u((float)p[2]);
   if ((x & 1) == 0) {
     const float y1 = to10_8u((float)p[3]);
@@ -195,7 +195,7 @@ __global__ void uyvp_to_i444_kernel(const uint8_t *__restrict__ src, int nSrcSte
   if (x >= width || y >= height) return;
   float u, y0, v, y1;
   unpack_group(src + (size_t)y * nSrcStep + (size_t)(x >> 1) * 5, u, y0, v, y1);
-  const float yv = (x & 1) ? y1 : y0;
+  const float yv = (x & 1) ? y1: y0;
   const uint8_t Y = (uint8_t)(unsigned int)from10_8u(yv);
   const uint8_t U = (uint8_t)(unsigned int)from10_8u(u);
   const uint8_t V = (uint8_t)(unsigned int)from10_8u(v);
@@ -212,7 +212,7 @@ __global__ void uyvp_to_nv16_kernel(const uint8_t *__restrict__ src, int nSrcSte
   if (x >= width || y >= height) return;
   float u, y0, v, y1;
   unpack_group(src + (size_t)y * nSrcStep + (size_t)(x >> 1) * 5, u, y0, v, y1);
-  const float yv = (x & 1) ? y1 : y0;
+  const float yv = (x & 1) ? y1: y0;
   dy[(size_t)y * dyStep + x] = (uint8_t)(unsigned int)from10_8u(yv);
   if ((x & 1) == 0) {
     duv[(size_t)y * duvStep + (size_t)x] = (uint8_t)(unsigned int)from10_8u(u);
@@ -228,7 +228,7 @@ __global__ void uyvp_to_p208_kernel(const uint8_t *__restrict__ src, int nSrcSte
   if (x >= width || y >= height) return;
   float u, y0, v, y1;
   unpack_group(src + (size_t)y * nSrcStep + (size_t)(x >> 1) * 5, u, y0, v, y1);
-  const float yv = (x & 1) ? y1 : y0;
+  const float yv = (x & 1) ? y1: y0;
   uint8_t *o = dst + (size_t)y * nDstStep + (size_t)(x >> 1) * 4;
   if ((x & 1) == 0) {
     o[0] = (uint8_t)(unsigned int)from10_8u(u);
@@ -266,7 +266,7 @@ __global__ void uyvp_to_y410_kernel(const uint8_t *__restrict__ src, int nSrcSte
   if (x >= width || y >= height) return;
   float u, y0, v, y1;
   unpack_group(src + (size_t)y * nSrcStep + (size_t)(x >> 1) * 5, u, y0, v, y1);
-  const float yv = (x & 1) ? y1 : y0;
+  const float yv = (x & 1) ? y1: y0;
   uint32_t *w = (uint32_t *)((uint8_t *)dst + (size_t)y * nDstStep);
   w[x] = ((uint32_t)u & 0x3FF) | (((uint32_t)yv & 0x3FF) << 10) | (((uint32_t)v & 0x3FF) << 20) |
          (3u << 30);
@@ -280,7 +280,7 @@ __global__ void uyvp_to_yuv444_kernel(const uint8_t *__restrict__ src, int nSrcS
   if (x >= width || y >= height) return;
   float u, y0, v, y1;
   unpack_group(src + (size_t)y * nSrcStep + (size_t)(x >> 1) * 5, u, y0, v, y1);
-  const float yv = (x & 1) ? y1 : y0;
+  const float yv = (x & 1) ? y1: y0;
   uint8_t *o = dst + (size_t)y * nDstStep + (size_t)x * 3;
   o[0] = (uint8_t)(unsigned int)from10_8u(yv);
   o[1] = (uint8_t)(unsigned int)from10_8u(u);

@@ -1,10 +1,10 @@
-// c3 package executor kernels (see nppi_c3_conversion_executor.h).
+// c3 executor kernels (see nppi_c3_conversion_executor.h).
 //
 // All 8u pixel math uses single-precision intrinsics (__fmul_rn/__fadd_rn/
 // __fsub_rn) so the device code cannot be re-associated or FMA-contracted by
 // the compiler.  The exact operation order is part of the contract: it is
 // bit-exact with the NVIDIA NPP 13.4 reference (validated against recorded
-// goldens) and is mirrored by the CPU reference used in the diff tests.
+// reference outputs) and is mirrored by the CPU reference used in the reference comparisons.
 
 #include "nppi_c3_conversion_executor.h"
 
@@ -20,12 +20,12 @@ constexpr int kBlockY = 8;
 __device__ __forceinline__ int trunc_u8(float v) {
   // C-style truncation toward zero, then saturate.
   int t = static_cast<int>(v);
-  return t < 0 ? 0 : (t > 255 ? 255 : t);
+  return t < 0 ? 0: (t > 255 ? 255: t);
 }
 
-// --- JPEG forward: bit-exact against NVIDIA goldens ----------------------
-// Exhaustively fitted over all 2^24 RGB triples on the 5090: the luma sum is
-// evaluated as fma(.114,B, fma(.299,R, .587*G)) and both chroma sums are
+// --- JPEG forward: bit-exact against NVIDIA reference outputs ----------------------
+// Exhaustively fitted over all 2^24 RGB triples on the reference: the luma sum is
+// evaluated as fma(.114,B, fma(.299,R,.587*G)) and both chroma sums are
 // plain round-to-nearest products, truncated to u8.
 __device__ __forceinline__ void rgb_to_ycbcr_jpeg(float r, float g, float b, int &y, int &cb, int &cr) {
   const float fy = __fmaf_rn(0.114f, b, __fmaf_rn(0.299f, r, __fmul_rn(0.587f, g)));
@@ -39,7 +39,7 @@ __device__ __forceinline__ void rgb_to_ycbcr_jpeg(float r, float g, float b, int
 }
 
 // --- JPEG inverse ---------------------------------------------------------
-// Fitted on the 5090: R and B are exact over all 2^24 (Y,Cb,Cr) triples;
+// Fitted on the reference: R and B are exact over all 2^24 (Y,Cb,Cr) triples;
 // G matches except for a handful of +/-1 knife-edge cases (the reference
 // kernel's own rounding differs there by one LSB).
 __device__ __forceinline__ void ycbcr_to_rgb_jpeg(float y, float cb, float cr, int &r, int &g, int &b) {
@@ -64,9 +64,9 @@ __global__ void k_rgb444jpeg_packed_to_p3(const Npp8u *__restrict__ pSrc, int nS
     return;
   }
   const Npp8u *s = pSrc + (size_t)y * nSrcStep + (size_t)x * 3;
-  const float r = bgr ? s[2] : s[0];
+  const float r = bgr ? s[2]: s[0];
   const float g = s[1];
-  const float b = bgr ? s[0] : s[2];
+  const float b = bgr ? s[0]: s[2];
   int yv, cb, cr;
   rgb_to_ycbcr_jpeg(r, g, b, yv, cb, cr);
   pDstY[(size_t)y * nDstYStep + x] = (Npp8u)yv;
@@ -85,9 +85,9 @@ __global__ void k_rgb444jpeg_p3_to_p3(const Npp8u *__restrict__ pSrc0, const Npp
     return;
   }
   const size_t i = (size_t)y * nSrcStep + x;
-  const float r = bgr ? pSrc2[i] : pSrc0[i];
+  const float r = bgr ? pSrc2[i]: pSrc0[i];
   const float g = pSrc1[i];
-  const float b = bgr ? pSrc0[i] : pSrc2[i];
+  const float b = bgr ? pSrc0[i]: pSrc2[i];
   int yv, cb, cr;
   rgb_to_ycbcr_jpeg(r, g, b, yv, cb, cr);
   pDstY[(size_t)y * nDstYStep + x] = (Npp8u)yv;
@@ -144,8 +144,8 @@ __global__ void k_ycbcr444jpeg_p3_to_p3(const Npp8u *__restrict__ pSrcY, const N
   }
 }
 
-// Validation semantics measured against NVIDIA NPP 13.4 on an RTX 5090
-// (see test/unit/diff/test_nppi_c3_jpeg444_generated.cpp goldens):
+// Validation semantics measured against NVIDIA NPP 13.4 in the reference implementation
+// (see reference comparisons reference outputs):
 //   1. null plane pointers            -> NPP_NULL_POINTER_ERROR
 //      (a null plane-array pointer segfaults in NVIDIA NPP; we return
 //       NPP_NULL_POINTER_ERROR instead - such calls are never recorded)
@@ -205,7 +205,7 @@ NppStatus validateP3ToPacked(const SrcPtrs planes, int nSrcStep, const void *pDs
 }
 
 NppStatus launch_ok() {
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 } // namespace
@@ -366,7 +366,7 @@ NppStatus yCbCr444ToBgrJpegP3C3(const Npp8u *const pSrc[3], int nSrcStep, Npp8u 
 
 // === JPEG 4:2:2 / 4:2:0 subsampled conversions ==============================
 //
-// Measured NVIDIA semantics (validated bit-exact against 5090 goldens):
+// Measured NVIDIA semantics (validated bit-exact against reference outputs):
 //   forward: luma is computed per pixel, chroma is the integer average
 //            (sum >> N) of the *truncated* per-pixel 8-bit chroma values.
 //   processed extent: columns < width & ~1; rows < height & ~1 for 420,
@@ -388,17 +388,17 @@ struct SrcPacked {
   int bgr;
   __device__ __forceinline__ void pixel(int x, int y, int &r, int &g, int &b) const {
     const Npp8u *s = p + (size_t)y * step + (size_t)x * 3;
-    r = bgr ? s[2] : s[0];
+    r = bgr ? s[2]: s[0];
     g = s[1];
-    b = bgr ? s[0] : s[2];
+    b = bgr ? s[0]: s[2];
   }
 };
 
 // Forward to 420: one thread per luma pixel of the even extent; the thread at
 // the top-left corner of each 2x2 block also emits the block chroma.
-// Measured on the 5090: the extent is (width & ~1) x (height & ~1) - a
+// Measured on the reference: the extent is (width & ~1) x (height & ~1) - a
 // trailing solo column or row keeps its prefill (fwd420_c3/16x13 and
-// fwd420_c3/17x13 goldens).
+// fwd420_c3/17x13 reference outputs).
 template <class Src>
 __global__ void k_fwd_420(const Src src, Npp8u *__restrict__ pDstY, int stepY, Npp8u *__restrict__ pDstCb,
                           int stepCb, Npp8u *__restrict__ pDstCr, int stepCr, int width, int height) {
@@ -432,7 +432,7 @@ __global__ void k_fwd_420(const Src src, Npp8u *__restrict__ pDstY, int stepY, N
 }
 
 // Forward to 422: chroma from horizontal pairs, one chroma row per luma row.
-// Measured on the 5090 (fwd422_c3/16x13 and /17x13 goldens): the luma extent
+// Measured on the reference (fwd422_c3/16x13 and /17x13 reference outputs): the luma extent
 // is width & ~1 (a trailing solo column keeps its prefill) but ALL rows are
 // converted - a trailing odd row's luma and chroma are still written.
 template <class Src>
@@ -463,8 +463,8 @@ __global__ void k_fwd_422(const Src src, Npp8u *__restrict__ pDstY, int stepY, N
   }
 }
 
-// Inverse from 420: one thread per output pixel.  Measured on the 5090
-// (inv420_c3/17x13, odd/inv420_c3/16x13, odd/inv420_p3/16x13 goldens,
+// Inverse from 420: one thread per output pixel.  Measured on the reference
+// (inv420_c3/17x13, odd/inv420_c3/16x13, odd/inv420_p3/16x13 reference outputs,
 // reproduced bit-exactly in Python): the FULL width is converted (a trailing
 // solo column uses chroma sample x/2) but only height & ~1 rows.
 __global__ void k_inv_420(const Npp8u *__restrict__ pSrcY, int stepY, const Npp8u *__restrict__ pSrcCb, int stepCb,
@@ -485,18 +485,18 @@ __global__ void k_inv_420(const Npp8u *__restrict__ pSrcY, int stepY, const Npp8
   ycbcr_to_rgb_jpeg((float)Y, (float)Cb, (float)Cr, r, g, b);
   if (packed3) {
     Npp8u *d = pDst0 + (size_t)y * step0 + (size_t)x * 3;
-    d[0] = (Npp8u)(bgr ? b : r);
+    d[0] = (Npp8u)(bgr ? b: r);
     d[1] = (Npp8u)g;
-    d[2] = (Npp8u)(bgr ? r : b);
+    d[2] = (Npp8u)(bgr ? r: b);
   } else {
-    pDst0[(size_t)y * step0 + x] = (Npp8u)(bgr ? b : r);
+    pDst0[(size_t)y * step0 + x] = (Npp8u)(bgr ? b: r);
     pDst1[(size_t)y * step1 + x] = (Npp8u)g;
-    pDst2[(size_t)y * step2 + x] = (Npp8u)(bgr ? r : b);
+    pDst2[(size_t)y * step2 + x] = (Npp8u)(bgr ? r: b);
   }
 }
 
-// Inverse from 422: chroma replicated horizontally.  Measured on the 5090
-// (inv422_c3/17x13, inv422_c3/16x13, odd/inv422_p3/16x13 goldens): the FULL
+// Inverse from 422: chroma replicated horizontally.  Measured on the reference
+// (inv422_c3/17x13, inv422_c3/16x13, odd/inv422_p3/16x13 reference outputs): the FULL
 // width is converted (a trailing solo column uses chroma sample x/2) but only
 // height & ~1 rows.
 __global__ void k_inv_422(const Npp8u *__restrict__ pSrcY, int stepY, const Npp8u *__restrict__ pSrcCb, int stepCb,
@@ -517,13 +517,13 @@ __global__ void k_inv_422(const Npp8u *__restrict__ pSrcY, int stepY, const Npp8
   ycbcr_to_rgb_jpeg((float)Y, (float)Cb, (float)Cr, r, g, b);
   if (packed3) {
     Npp8u *d = pDst0 + (size_t)y * step0 + (size_t)x * 3;
-    d[0] = (Npp8u)(bgr ? b : r);
+    d[0] = (Npp8u)(bgr ? b: r);
     d[1] = (Npp8u)g;
-    d[2] = (Npp8u)(bgr ? r : b);
+    d[2] = (Npp8u)(bgr ? r: b);
   } else {
-    pDst0[(size_t)y * step0 + x] = (Npp8u)(bgr ? b : r);
+    pDst0[(size_t)y * step0 + x] = (Npp8u)(bgr ? b: r);
     pDst1[(size_t)y * step1 + x] = (Npp8u)g;
-    pDst2[(size_t)y * step2 + x] = (Npp8u)(bgr ? r : b);
+    pDst2[(size_t)y * step2 + x] = (Npp8u)(bgr ? r: b);
   }
 }
 
@@ -551,7 +551,7 @@ bool steps_neg(const int *steps, int n) {
 
 // Planar-destination inverse: RGB variants validate against the plane width,
 // BGR variants (NVIDIA quirk) against the packed 3-channel row width.
-int dstMinRowBytes(int bgr, const NppiSize roi) { return bgr ? 3 * roi.width : roi.width; }
+int dstMinRowBytes(int bgr, const NppiSize roi) { return bgr ? 3 * roi.width: roi.width; }
 
 // Zero-sized ROI: NVIDIA performs no work and reports success.
 NppStatus degenerate(const NppiSize roi) { return NPP_NO_ERROR; }
@@ -589,13 +589,13 @@ NppStatus rgbToYCbCr420JpegP3(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *p
                               NppiSize oSizeROI, cudaStream_t stream, int bgr) {
   // Measured NVIDIA behavior: the planar-source forward validates its
   // arguments and then returns NPP_NO_ERROR WITHOUT WRITING ANY OUTPUT and
-  // without ever reporting NPP_DOUBLE_SIZE_WARNING (verified on 5090
-  // goldens and on the upstream reference goldens, with several different
+  // without ever reporting NPP_DOUBLE_SIZE_WARNING (verified on reference
+  // reference outputs and on the upstream reference outputs, with several different
   // step combinations).
   (void)stream;
   (void)bgr;
   NppStatus st = validate3plane(pSrc, nSrcStep, pDst, aDstStep[0], oSizeROI);
-  return st == NPP_NO_ERROR ? NPP_NO_ERROR : st;
+  return st == NPP_NO_ERROR ? NPP_NO_ERROR: st;
 }
 
 NppStatus rgbToYCbCr420JpegC3P3(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], const int aDstStep[3],
@@ -621,13 +621,13 @@ NppStatus rgbToYCbCr422JpegP3(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *p
                               NppiSize oSizeROI, cudaStream_t stream, int bgr) {
   // Measured NVIDIA behavior: the planar-source forward validates its
   // arguments and then returns NPP_NO_ERROR WITHOUT WRITING ANY OUTPUT and
-  // without ever reporting NPP_DOUBLE_SIZE_WARNING (verified on 5090
-  // goldens and on the upstream reference goldens, with several different
+  // without ever reporting NPP_DOUBLE_SIZE_WARNING (verified on reference
+  // reference outputs and on the upstream reference outputs, with several different
   // step combinations).
   (void)stream;
   (void)bgr;
   NppStatus st = validate3plane(pSrc, nSrcStep, pDst, aDstStep[0], oSizeROI);
-  return st == NPP_NO_ERROR ? NPP_NO_ERROR : st;
+  return st == NPP_NO_ERROR ? NPP_NO_ERROR: st;
 }
 
 NppStatus rgbToYCbCr422JpegC3P3(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], const int aDstStep[3],
@@ -667,10 +667,10 @@ NppStatus yCbCr420ToRgbJpegP3(const Npp8u *const pSrc[3], const int aSrcStep[3],
   k_inv_420<<<grid2(oSizeROI), dim3(kBlockX, kBlockY), 0, stream>>>(
       pSrc[0], aSrcStep[0], pSrc[1], aSrcStep[1], pSrc[2], aSrcStep[2], pDst[0], nDstStep, pDst[1], nDstStep,
       pDst[2], nDstStep, oSizeROI.width, oSizeROI.height, bgr, 0);
-  // Capture the launch status exactly once: a second cudaGetLastError() would
+  // Capture the launch status exactly once: a second cudaGetLastError would
   // report success even when the first call returned an error.
   NppStatus st = launch_ok();
-  return st == NPP_NO_ERROR ? warn_even(oSizeROI, 3) : st;
+  return st == NPP_NO_ERROR ? warn_even(oSizeROI, 3): st;
 }
 
 NppStatus yCbCr420ToRgbJpegP3C3(const Npp8u *const pSrc[3], const int aSrcStep[3], Npp8u *pDst, int nDstStep,
@@ -691,7 +691,7 @@ NppStatus yCbCr420ToRgbJpegP3C3(const Npp8u *const pSrc[3], const int aSrcStep[3
       pSrc[0], aSrcStep[0], pSrc[1], aSrcStep[1], pSrc[2], aSrcStep[2], pDst, nDstStep, pDst, nDstStep, pDst,
       nDstStep, oSizeROI.width, oSizeROI.height, bgr, 1);
   NppStatus st = launch_ok();
-  return st == NPP_NO_ERROR ? warn_even(oSizeROI, 3) : st;
+  return st == NPP_NO_ERROR ? warn_even(oSizeROI, 3): st;
 }
 
 NppStatus yCbCr422ToRgbJpegP3(const Npp8u *const pSrc[3], const int aSrcStep[3], Npp8u *pDst[3], int nDstStep,
@@ -712,7 +712,7 @@ NppStatus yCbCr422ToRgbJpegP3(const Npp8u *const pSrc[3], const int aSrcStep[3],
       pSrc[0], aSrcStep[0], pSrc[1], aSrcStep[1], pSrc[2], aSrcStep[2], pDst[0], nDstStep, pDst[1], nDstStep,
       pDst[2], nDstStep, oSizeROI.width, oSizeROI.height, bgr, 0);
   NppStatus st = launch_ok();
-  return st == NPP_NO_ERROR ? warn_even(oSizeROI, 3) : st;
+  return st == NPP_NO_ERROR ? warn_even(oSizeROI, 3): st;
 }
 
 NppStatus yCbCr422ToRgbJpegP3C3(const Npp8u *const pSrc[3], const int aSrcStep[3], Npp8u *pDst, int nDstStep,
@@ -733,14 +733,13 @@ NppStatus yCbCr422ToRgbJpegP3C3(const Npp8u *const pSrc[3], const int aSrcStep[3
       pSrc[0], aSrcStep[0], pSrc[1], aSrcStep[1], pSrc[2], aSrcStep[2], pDst, nDstStep, pDst, nDstStep, pDst,
       nDstStep, oSizeROI.width, oSizeROI.height, bgr, 1);
   NppStatus st = launch_ok();
-  return st == NPP_NO_ERROR ? warn_even(oSizeROI, 3) : st;
+  return st == NPP_NO_ERROR ? warn_even(oSizeROI, 3): st;
 }
 
 
 // === video-range (studio-swing BT.601) 4:2:2 ================================
 // The 4:2:2 "YCbCr"/"CbYCr" video-range conversions (16..235 luma).  All
-// semantics below were measured against NVIDIA NPP 13.4 on an RTX 5090
-// (test/unit/diff/test_nppi_c3_conv422_generated.cpp).
+// semantics below were measured against NVIDIA NPP 13.4 in the reference implementation.
 //
 // Two-bytes-per-pixel (C2) layouts:
 //   YCbCr422: [Y0 Cb Y1 Cr] -> Y at 2x, Cb at 4p+1, Cr at 4p+3  (p = x/2)
@@ -783,9 +782,9 @@ struct SrcPackedPP {
   int bgr;
   __device__ __forceinline__ void pixel(int x, int y, int &r, int &g, int &b) const {
     const Npp8u *s = p + (size_t)y * step + (size_t)x * pp;
-    r = bgr ? s[2] : s[0];
+    r = bgr ? s[2]: s[0];
     g = s[1];
-    b = bgr ? s[0] : s[2];
+    b = bgr ? s[0]: s[2];
   }
 };
 
@@ -805,7 +804,7 @@ __global__ void k_v422_fwd_c2(const Src src, Npp8u *__restrict__ pDst, int nDstS
   int yv, cb, cr;
   rgb_to_ycbcr_video((float)r, (float)g, (float)b, yv, cb, cr);
   Npp8u *row = pDst + (size_t)y * nDstStep;
-  row[cbycr ? 2 * x + 1 : 2 * x] = (Npp8u)yv;
+  row[cbycr ? 2 * x + 1: 2 * x] = (Npp8u)yv;
   if ((x & 1) == 0) {
     if (x + 1 < width) {
       int r1, g1, b1, yv1, cb1, cr1;
@@ -814,8 +813,8 @@ __global__ void k_v422_fwd_c2(const Src src, Npp8u *__restrict__ pDst, int nDstS
       cb = (cb + cb1) >> 1;
       cr = (cr + cr1) >> 1;
     }
-    row[cbycr ? 2 * x : 2 * x + 1] = (Npp8u)cb;
-    const int crOff = cbycr ? 2 * x + 2 : 2 * x + 3;
+    row[cbycr ? 2 * x: 2 * x + 1] = (Npp8u)cb;
+    const int crOff = cbycr ? 2 * x + 2: 2 * x + 3;
     if (crOff < 2 * width) {
       row[crOff] = (Npp8u)cr;
     }
@@ -849,7 +848,7 @@ __global__ void k_v422_fwd_p3(const Src src, Npp8u *__restrict__ pDstY, int step
 
 // Forward, planar RGB source (R,G,B full-width planes) -> C2, video-range
 // conversion with pair-averaged chroma, YCbCr422 layout [Y0 Cb Y1 Cr].
-// Measured on the 5090 (rgb2ycbcr/p3c2/6x4 and /17x13 goldens, reproduced
+// Measured on the reference (rgb2ycbcr/p3c2/6x4 and /17x13 reference outputs, reproduced
 // bit-exactly in Python from the harness RNG): one quad [Y0 Cb Y1 Cr] per
 // pixel pair, all rows, extent width & ~1 columns only - a trailing solo
 // pixel's Y and Cb slots keep their prefill.
@@ -891,11 +890,11 @@ __global__ void k_v422_inv_c2(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8
     return;
   }
   const Npp8u *row = pSrc + (size_t)y * nSrcStep;
-  const int yv = row[cbycr ? 2 * x + 1 : 2 * x];
+  const int yv = row[cbycr ? 2 * x + 1: 2 * x];
   const int p = x >> 1;
-  const int cb = row[cbycr ? 4 * p : 4 * p + 1];
-  const int pp = (cbycr ? 4 * p + 2 : 4 * p + 3) < 2 * width ? p : (p > 0 ? p - 1 : 0);
-  const int cr = row[cbycr ? 4 * pp + 2 : 4 * pp + 3];
+  const int cb = row[cbycr ? 4 * p: 4 * p + 1];
+  const int pp = (cbycr ? 4 * p + 2: 4 * p + 3) < 2 * width ? p: (p > 0 ? p - 1: 0);
+  const int cr = row[cbycr ? 4 * pp + 2: 4 * pp + 3];
   int r, g, b;
   ycbcr_to_rgb_video((float)yv, (float)cb, (float)cr, r, g, b);
   Npp8u *d = pDst + (size_t)y * nDstStep + (size_t)x * dpp;
@@ -905,9 +904,9 @@ __global__ void k_v422_inv_c2(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8
     d[2] = (Npp8u)r;
     d[3] = aval;
   } else {
-    d[0] = (Npp8u)(bgr ? b : r);
+    d[0] = (Npp8u)(bgr ? b: r);
     d[1] = (Npp8u)g;
-    d[2] = (Npp8u)(bgr ? r : b);
+    d[2] = (Npp8u)(bgr ? r: b);
   }
 }
 
@@ -922,10 +921,10 @@ __global__ void k_v422_inv_c2p3(const Npp8u *__restrict__ pSrc, int nSrcStep, Np
     return;
   }
   const Npp8u *row = pSrc + (size_t)y * nSrcStep;
-  const int yv = row[cbycr ? 2 * x + 1 : 2 * x];
+  const int yv = row[cbycr ? 2 * x + 1: 2 * x];
   const int p = x >> 1;
-  const int cb = row[cbycr ? 4 * p : 4 * p + 1];
-  const int cr = row[cbycr ? 4 * p + 2 : 4 * p + 3];
+  const int cb = row[cbycr ? 4 * p: 4 * p + 1];
+  const int cr = row[cbycr ? 4 * p + 2: 4 * p + 3];
   int r, g, b;
   ycbcr_to_rgb_video((float)yv, (float)cb, (float)cr, r, g, b);
   pDstR[(size_t)y * stepR + x] = (Npp8u)r;
@@ -949,9 +948,9 @@ __global__ void k_v422_inv_p3c(const Npp8u *__restrict__ pSrcY, int stepY, const
   int r, g, b;
   ycbcr_to_rgb_video((float)yv, (float)cb, (float)cr, r, g, b);
   Npp8u *d = pDst + (size_t)y * nDstStep + (size_t)x * 3;
-  d[0] = (Npp8u)(bgr ? b : r);
+  d[0] = (Npp8u)(bgr ? b: r);
   d[1] = (Npp8u)g;
-  d[2] = (Npp8u)(bgr ? r : b);
+  d[2] = (Npp8u)(bgr ? r: b);
 }
 
 // YCbCr422 <-> CbYCr422 component reorder: only complete pairs of the even
@@ -1045,7 +1044,7 @@ NppStatus rgbToYCbCr422C3P3(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], con
 // width (step 15 with width 17 fails); the planar source step has no
 // alignment constraint, the C2 destination must be even.  The destination
 // minimum is taken as 2 * (width & ~1) to match the even processing extent
-// (not separately probeable: every recorded case accepts both formulas).
+// (not separately observable: every recorded case accepts both formulas).
 // Even-width extent, warns when the width is odd.
 NppStatus rgbToYCbCr422P3C2(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                             cudaStream_t stream) {

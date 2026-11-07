@@ -17,8 +17,8 @@ namespace {
 __device__ __forceinline__ float finish8(float v) {
   if (v != v) return 0.0f;
   float t = __fadd_rn(v, 0.5f);
-  t = t < 0.0f ? 0.0f : t;
-  t = t > 255.0f ? 255.0f : t;
+  t = t < 0.0f ? 0.0f: t;
+  t = t > 255.0f ? 255.0f: t;
   return (float)(unsigned int)t;
 }
 
@@ -26,8 +26,8 @@ __device__ __forceinline__ float finish16(float v) {
   // v is already in 16-bit scale.
   if (v != v) return 0.0f;
   float t = __fadd_rn(v, 0.5f);
-  t = t < 0.0f ? 0.0f : t;
-  t = t > 65535.0f ? 65535.0f : t;
+  t = t < 0.0f ? 0.0f: t;
+  t = t > 65535.0f ? 65535.0f: t;
   return (float)(unsigned int)t;
 }
 
@@ -109,7 +109,7 @@ __global__ void uyvy8_to_rgb_kernel(const uint8_t *__restrict__ src, int nSrcSte
   if (x >= width || y >= height) return;
   const uint8_t *p = src + (size_t)y * nSrcStep + (size_t)((x >> 1) << 2);
   const float u = (float)p[0];
-  const float yv = (float)p[(x & 1) ? 3 : 1];
+  const float yv = (float)p[(x & 1) ? 3: 1];
   const float v = (float)p[2];
   float r, g, b;
   decode8(cf, yv, u, v, r, g, b);
@@ -121,7 +121,7 @@ __global__ void uyvy8_to_rgb_kernel(const uint8_t *__restrict__ src, int nSrcSte
     dst1[(size_t)y * nDstStep + x] = G;
     dst2[(size_t)y * nDstStep + x] = B;
   } else {
-    const int C = Mode == 1 ? 4 : 3;
+    const int C = Mode == 1 ? 4: 3;
     uint8_t *o = dst + (size_t)y * nDstStep + (size_t)x * C;
     o[0] = R;
     o[1] = G;
@@ -142,10 +142,10 @@ __global__ void rgb8_to_uyvy_kernel(const uint8_t *__restrict__ src, const uint8
   if (x >= width || y >= height) return;
   auto at = [&](int ch, int xx) -> float {
     if (Mode == 1) {
-      const uint8_t *p = ch == 0 ? src : (ch == 1 ? s1 : s2);
+      const uint8_t *p = ch == 0 ? src: (ch == 1 ? s1: s2);
       return (float)p[(size_t)y * nSrcStep + xx];
     }
-    const int C = Mode == 2 ? 4 : 3;
+    const int C = Mode == 2 ? 4: 3;
     return (float)src[(size_t)y * nSrcStep + (size_t)xx * C + ch];
   };
   float yy, uu, vv;
@@ -179,7 +179,7 @@ __global__ void uyvy16_to_rgb16_kernel(const uint16_t *__restrict__ src, int nSr
   const int dstep = nDstStep / 2;
   const uint16_t *p = src + (size_t)y * sstep + (size_t)((x >> 1) << 2);
   const float u = (float)p[0];
-  const float yv = (float)p[(x & 1) ? 3 : 1];
+  const float yv = (float)p[(x & 1) ? 3: 1];
   const float v = (float)p[2];
   float r, g, b;
   decode16(cf, yv, u, v, r, g, b);
@@ -191,7 +191,7 @@ __global__ void uyvy16_to_rgb16_kernel(const uint16_t *__restrict__ src, int nSr
     dst1[(size_t)y * dstep + x] = G;
     dst2[(size_t)y * dstep + x] = B;
   } else {
-    const int C = Mode == 1 ? 4 : 3;
+    const int C = Mode == 1 ? 4: 3;
     uint16_t *o = dst + (size_t)y * dstep + (size_t)x * C;
     o[0] = R;
     o[1] = G;
@@ -211,10 +211,10 @@ __global__ void rgb16_to_uyvy16_kernel(const uint16_t *__restrict__ src, const u
   const int dstep = nDstStep / 2;
   auto at = [&](int ch, int xx) -> float {
     if (Mode == 1) {
-      const uint16_t *p = ch == 0 ? src : (ch == 1 ? s1 : s2);
+      const uint16_t *p = ch == 0 ? src: (ch == 1 ? s1: s2);
       return (float)p[(size_t)y * sstep + xx];
     }
-    const int C = Mode == 2 ? 4 : 3;
+    const int C = Mode == 2 ? 4: 3;
     return (float)src[(size_t)y * sstep + (size_t)xx * C + ch];
   };
   float yy, uu, vv;

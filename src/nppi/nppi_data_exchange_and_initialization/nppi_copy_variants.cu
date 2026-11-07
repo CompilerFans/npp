@@ -1,7 +1,7 @@
 // NPPI Copy variants: packed AC4 / masked (MR) / channel-conversion copies.
 //
 // Covers nppiCopy_*_{C2R,C1MR,C3MR,C4MR,AC4MR,AC4R,C1C2R,C1C3R,C1C4R,
-// C2C1R,C3C1R,C3CR,C4C1R,C4CR} for the dtypes added by package p2.1b.
+// C2C1R,C3C1R,C3CR,C4C1R,C4CR} for the dtypes added.1b.
 // Plain packed C1R/C3R/C4R and the planar/inter-conversion copies live in
 // nppi_copy.cu; this file only adds the variants that share the generic
 // STRIDE/COPY templates below.
@@ -81,7 +81,7 @@ static NppStatus px_run(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, int 
   dim3 g((width + b.x - 1) / b.x, (height + b.y - 1) / b.y);
   (void)cudaGetLastError();
   nppiCopy_px_kernel<T, STRIDE, COPY><<<g, b, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, width, height);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 template <typename T, int DSTSTRIDE>
@@ -92,7 +92,7 @@ static NppStatus c1cx_run(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, in
   dim3 g((width + b.x - 1) / b.x, (height + b.y - 1) / b.y);
   (void)cudaGetLastError();
   nppiCopy_C1Cx_kernel<T, DSTSTRIDE><<<g, b, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, width, height);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 template <typename T, int SRCSTRIDE>
@@ -103,7 +103,7 @@ static NppStatus cxc1_run(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, in
   dim3 g((width + b.x - 1) / b.x, (height + b.y - 1) / b.y);
   (void)cudaGetLastError();
   nppiCopy_CxC1_kernel<T, SRCSTRIDE><<<g, b, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, width, height);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 template <typename T, int STRIDE, int COPY>
@@ -115,11 +115,11 @@ static NppStatus mr_run(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, cons
   (void)cudaGetLastError();
   nppiCopy_MR_kernel<T, STRIDE, COPY><<<g, b, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, pMask, nMaskStep, width,
                                                            height);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 // ---------------------------------------------------------------------------
-// *_Ctx_impl instantiations (public wrappers are macro-generated in the .cpp)
+// *_Ctx_impl instantiations (public wrappers are macro-generated in the.cpp)
 // ---------------------------------------------------------------------------
 
 // Plain / AC4 / selected-channel (C3CR, C4CR) impl.

@@ -1,4 +1,4 @@
-// CPU-golden coverage for the Bayer CFA demosaic families
+// CPU-reference output coverage for the Bayer CFA demosaic families
 // (nppiCFAToRGB / nppiCFAToRGBA for 8u/16u/32u).
 //
 // Bilinear demosaic with chroma correlation, reproduced from the measured
@@ -18,10 +18,10 @@ namespace cfa {
 inline int color_at(int grid, int x, int y) {
   const int p = ((y & 1) << 1) | (x & 1);
   switch (grid) {
-    case 0: return (p == 0) ? 2 : ((p == 3) ? 0 : 1);  // BGGR
-    case 1: return (p == 0) ? 0 : ((p == 3) ? 2 : 1);  // RGGB
-    case 2: return (p == 0 || p == 3) ? 1 : ((p == 1) ? 2 : 0);  // GBRG
-    default: return (p == 0 || p == 3) ? 1 : ((p == 1) ? 0 : 2);  // GRBG
+    case 0: return (p == 0) ? 2: ((p == 3) ? 0: 1);  // BGGR
+    case 1: return (p == 0) ? 0: ((p == 3) ? 2: 1);  // RGGB
+    case 2: return (p == 0 || p == 3) ? 1: ((p == 1) ? 2: 0);  // GBRG
+    default: return (p == 0 || p == 3) ? 1: ((p == 1) ? 0: 2);  // GRBG
   }
 }
 
@@ -60,9 +60,9 @@ void run_cfa(const char *id, Call call) {
   static const Cfg cfgs[] = {{4, 4, 0, 0}, {8, 6, 0, 0}, {32, 24, 0, 0},
                              {64, 48, 0, 0}, {128, 96, 0, 0}, {256, 192, 0, 0},
                              {16, 12, 2, 2}, {32, 24, 4, 2}};
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     Buf<T> s(cf.w, cf.h, 1, 0, 0);
-    fill_regime(s, 1, case_seed(id, cf.w, cf.h, 0, 0, 0, 0), (cf.w & 2) ? kWide : kSmall, 0, false, false,
+    fill_regime(s, 1, case_seed(id, cf.w, cf.h, 0, 0, 0, 0), (cf.w & 2) ? kWide: kSmall, 0, false, false,
                 false);
     s.dev.copyFromHost(s.host);
     const T *hsrc = s.hptr();
@@ -75,7 +75,7 @@ void run_cfa(const char *id, Call call) {
     d.dev.copyFromHost(d.host);
     const int dstep = d.step / (int)sizeof(T);
     for (int grid = 0; grid < 4; ++grid) {
-      const T alpha = (T)(sizeof(T) == 1 ? 200 : (sizeof(T) == 2 ? 40000 : 0xABCDEFu));
+      const T alpha = (T)(sizeof(T) == 1 ? 200: (sizeof(T) == 2 ? 40000: 0xABCDEFu));
       const NppStatus st = call(dsrc, s.step, size, roi, reinterpret_cast<T *>(d.dptr()), d.step, grid,
                                 (unsigned)alpha, ctx);
       if (st != NPP_NO_ERROR) {
@@ -97,18 +97,16 @@ void run_cfa(const char *id, Call call) {
           if (color == 1) {
             g = base;
             const bool rHorizontal = (color_at(grid, ox - 1, oy) == 0) || (color_at(grid, ox + 1, oy) == 0);
-            r = rHorizontal ? avg2(at(hsrc, sstep, cf.w, cf.h, ax - 1, ay), at(hsrc, sstep, cf.w, cf.h, ax + 1, ay))
-                            : avg2(at(hsrc, sstep, cf.w, cf.h, ax, ay - 1), at(hsrc, sstep, cf.w, cf.h, ax, ay + 1));
+            r = rHorizontal ? avg2(at(hsrc, sstep, cf.w, cf.h, ax - 1, ay), at(hsrc, sstep, cf.w, cf.h, ax + 1, ay)): avg2(at(hsrc, sstep, cf.w, cf.h, ax, ay - 1), at(hsrc, sstep, cf.w, cf.h, ax, ay + 1));
             const bool bHorizontal = (color_at(grid, ox - 1, oy) == 2) || (color_at(grid, ox + 1, oy) == 2);
-            b = bHorizontal ? avg2(at(hsrc, sstep, cf.w, cf.h, ax - 1, ay), at(hsrc, sstep, cf.w, cf.h, ax + 1, ay))
-                            : avg2(at(hsrc, sstep, cf.w, cf.h, ax, ay - 1), at(hsrc, sstep, cf.w, cf.h, ax, ay + 1));
+            b = bHorizontal ? avg2(at(hsrc, sstep, cf.w, cf.h, ax - 1, ay), at(hsrc, sstep, cf.w, cf.h, ax + 1, ay)): avg2(at(hsrc, sstep, cf.w, cf.h, ax, ay - 1), at(hsrc, sstep, cf.w, cf.h, ax, ay + 1));
           } else {
             const long long c2 = 2LL * (long long)base;
             const long long dH =
                 c2 - ((long long)at(hsrc, sstep, cf.w, cf.h, ax - 2, ay) + (long long)at(hsrc, sstep, cf.w, cf.h, ax + 2, ay));
             const long long dV =
                 c2 - ((long long)at(hsrc, sstep, cf.w, cf.h, ax, ay - 2) + (long long)at(hsrc, sstep, cf.w, cf.h, ax, ay + 2));
-            const long long aH = dH < 0 ? -dH : dH, aV = dV < 0 ? -dV : dV;
+            const long long aH = dH < 0 ? -dH: dH, aV = dV < 0 ? -dV: dV;
             const T gl = at(hsrc, sstep, cf.w, cf.h, ax - 1, ay), gr = at(hsrc, sstep, cf.w, cf.h, ax + 1, ay);
             const T gu = at(hsrc, sstep, cf.w, cf.h, ax, ay - 1), gd = at(hsrc, sstep, cf.w, cf.h, ax, ay + 1);
             if (aH < aV) g = avg2(gl, gr);

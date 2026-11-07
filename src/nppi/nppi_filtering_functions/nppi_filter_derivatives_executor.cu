@@ -1,8 +1,8 @@
 // Derivative-filter kernels and executor entry points.
 // See nppi_filter_derivatives_executor.h for the family contract.
 //
-// Kernel coefficient tables are the 5090-measured NVIDIA NPP 13.4 behaviour
-// (least-squares fits over probe outputs, exact for integer inputs):
+// Kernel coefficient tables are the reference-measured NVIDIA NPP 13.4 behaviour
+// (least-squares fits over measurement outputs, exact for integer inputs):
 //   * PrewittHoriz and SobelHoriz measure NEGATED w.r.t. the NPP docs
 //     (top row -1, bottom row +1).
 //   * RobertsDown = center - top-left, RobertsUp = center - top-right.
@@ -66,7 +66,7 @@ inline DerivCoef deriv_coef(DerivOp op, int maskSize) {
   static const int VertSecond3[9] = {1, -2, 1, 2, -4, 2, 1, -2, 1};
   static const int VertSecond5[25] = {1, 0, -2,  0, 1, 4, 0, -8,  0, 4, 6, 0, -12, 0, 6,
                                       4, 0, -8,  0, 4, 1, 0, -2,  0, 1};
-  // Scharr 3x3 taps measured against NVIDIA NPP 13.4 (RTX 5090) impulse
+  // Scharr 3x3 taps measured against NVIDIA NPP 13.4 (reference) impulse
   // responses: bottom-right tap is +3 for both orientations, i.e. the same
   // sign convention as the Sobel tables above.
   static const int ScharrHoriz3[9] = {-3, -10, -3, 0, 0, 0, 3, 10, 3};
@@ -76,13 +76,13 @@ inline DerivCoef deriv_coef(DerivOp op, int maskSize) {
     case kPrewittVert: return coef3(PrewittVert3);
     case kRobertsDown: return coef3(RobertsDown3);
     case kRobertsUp: return coef3(RobertsUp3);
-    case kSobelHoriz: return maskSize == 5 ? coef5(SobelHoriz5) : coef3(SobelHoriz3);
-    case kSobelVert: return maskSize == 5 ? coef5(SobelVert5) : coef3(SobelVert3);
+    case kSobelHoriz: return maskSize == 5 ? coef5(SobelHoriz5): coef3(SobelHoriz3);
+    case kSobelVert: return maskSize == 5 ? coef5(SobelVert5): coef3(SobelVert3);
     case kScharrHoriz: return coef3(ScharrHoriz3);
     case kScharrVert: return coef3(ScharrVert3);
-    case kSobelCross: return maskSize == 5 ? coef5(Cross5) : coef3(Cross3);
-    case kSobelHorizSecond: return maskSize == 5 ? coef5(HorizSecond5) : coef3(HorizSecond3);
-    case kSobelVertSecond: return maskSize == 5 ? coef5(VertSecond5) : coef3(VertSecond3);
+    case kSobelCross: return maskSize == 5 ? coef5(Cross5): coef3(Cross3);
+    case kSobelHorizSecond: return maskSize == 5 ? coef5(HorizSecond5): coef3(HorizSecond3);
+    case kSobelVertSecond: return maskSize == 5 ? coef5(VertSecond5): coef3(VertSecond3);
   }
   return coef3(SobelHoriz3);
 }
@@ -91,9 +91,9 @@ inline DerivCoef deriv_coef(DerivOp op, int maskSize) {
 template <typename Dst>
 __host__ __device__ __forceinline__ Dst deriv_emit(float v) {
   if constexpr (std::is_same_v<Dst, Npp8u>) {
-    return v <= 0.0f ? (Npp8u)0 : (v >= 255.0f ? (Npp8u)255 : (Npp8u)v);
+    return v <= 0.0f ? (Npp8u)0: (v >= 255.0f ? (Npp8u)255: (Npp8u)v);
   } else if constexpr (std::is_same_v<Dst, Npp16s>) {
-    return v <= -32768.0f ? (Npp16s)-32768 : (v >= 32767.0f ? (Npp16s)32767 : (Npp16s)v);
+    return v <= -32768.0f ? (Npp16s)-32768: (v >= 32767.0f ? (Npp16s)32767: (Npp16s)v);
   } else {
     return static_cast<Dst>(v);
   }
@@ -113,7 +113,7 @@ __global__ void deriv_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__
   const int y = blockIdx.y * blockDim.y + threadIdx.y;
   if (x >= width || y >= height) return;
   const int r = coef.size >> 1;
-  const int nch = AlphaPr ? 3 : Channels;
+  const int nch = AlphaPr ? 3: Channels;
   const int loX = -offX, hiX = srcW - 1 - offX;
   const int loY = -offY, hiY = srcH - 1 - offY;
   using Acc = std::conditional_t<std::is_floating_point_v<Src>, float, int>;
@@ -122,13 +122,13 @@ __global__ void deriv_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__
   const char *const srcBase = reinterpret_cast<const char *>(pSrc);
   for (int a = 0; a < coef.size; ++a) {
     int ry = y + a - r;
-    if constexpr (Border) ry = ry < loY ? loY : (ry > hiY ? hiY : ry);
+    if constexpr (Border) ry = ry < loY ? loY: (ry > hiY ? hiY: ry);
     const Src *row = reinterpret_cast<const Src *>(srcBase + static_cast<std::ptrdiff_t>(ry) * nSrcStep);
     for (int b = 0; b < coef.size; ++b) {
       const int kv = coef.k[a][b];
       if (kv == 0) continue;
       int rx = x + b - r;
-      if constexpr (Border) rx = rx < loX ? loX : (rx > hiX ? hiX : rx);
+      if constexpr (Border) rx = rx < loX ? loX: (rx > hiX ? hiX: rx);
       const Src *pix = row + static_cast<std::ptrdiff_t>(rx) * Channels;
       for (int c = 0; c < nch; ++c) acc[c] += static_cast<Acc>(kv) * static_cast<Acc>(pix[c]);
     }
@@ -140,7 +140,7 @@ __global__ void deriv_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__
 
 inline NppStatus finish_launch(cudaStream_t stream) {
   cudaStreamSynchronize(stream);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 inline bool deriv_mask_size(NppiMaskSize eMaskSize, int *size) {
@@ -160,7 +160,7 @@ inline bool deriv_mask_size(NppiMaskSize eMaskSize, int *size) {
 template <typename Dst, int Channels>
 NppStatus check_dst_step(int nDstStep, int roiWidth) {
   const int pix = static_cast<int>(sizeof(Dst)) * Channels;
-  const int align = Channels == 4 ? pix : static_cast<int>(sizeof(Dst));
+  const int align = Channels == 4 ? pix: static_cast<int>(sizeof(Dst));
   if (nDstStep < roiWidth * pix) return NPP_STEP_ERROR;
   if (nDstStep % align != 0) return NPP_NOT_EVEN_STEP_ERROR;
   return NPP_NO_ERROR;
@@ -248,7 +248,7 @@ NppStatus filterDerivMaskBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize
 }  // namespace nppi
 
 // ---------------------------------------------------------------------------
-// Explicit instantiations (f4 package: 22 families, 348 functions).
+// Explicit instantiations.
 // ---------------------------------------------------------------------------
 // kPrewittHoriz
 template NppStatus nppi::filter::filterDeriv<Npp8u, Npp8u, 1, false, nppi::filter::kPrewittHoriz>(const Npp8u*, int, Npp8u*, int, NppiSize, cudaStream_t);

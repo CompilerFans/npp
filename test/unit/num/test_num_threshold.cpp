@@ -1,6 +1,6 @@
 // Numerical conformance: nppiThreshold / nppiCompare families.
 //
-// NPP semantics (validated by the 5090 gate): threshold sets the pixel to the
+// NPP semantics (validated by the reference gate): threshold sets the pixel to the
 // threshold value when (src OP threshold) is true, otherwise copies the source;
 // compare writes an 8u_C1 mask (0xFF true / 0x00 false) and requires the
 // condition for every active channel.  No status assertions: a non-success DUT
@@ -35,8 +35,8 @@ void run_threshold_scalar(const char *op_id, Call call) {
     return;
   }
   uint64_t executed = 0, skipped = 0, ni = 0, mismatched = 0;
-  for (NppCmpOp op : kThresholdOps) {
-    for (const Case &c : make_cases((int)op)) {
+  for (NppCmpOp op: kThresholdOps) {
+    for (const Case &c: make_cases((int)op)) {
       const int ss = (int)align16((size_t)c.w * C * sizeof(T)) + c.src_pad;
       const int ds = (int)align16((size_t)c.w * C * sizeof(T)) + c.dst_pad;
       const size_t sbytes = (size_t)ss * c.h, dbytes = (size_t)ds * c.h;
@@ -47,14 +47,14 @@ void run_threshold_scalar(const char *op_id, Call call) {
         ps[i] = regime_value<T>(rng, c.regime, i);
       // Deterministic threshold: every third case uses the source pixel at
       // (0,0) (boundary), otherwise a regime value.
-      T thr = (c.w * c.h) % 3 == 0 ? ps[0] : regime_value<T>(rng, c.regime, 7);
+      T thr = (c.w * c.h) % 3 == 0 ? ps[0]: regime_value<T>(rng, c.regime, 7);
       for (int y = 0; y < c.h; ++y)
         for (int x = 0; x < c.w; ++x)
           for (int ch = 0; ch < A; ++ch) {
             const T v = ps[(size_t)y * (ss / sizeof(T)) + (size_t)x * C + ch];
-            const bool cond = op == NPP_CMP_LESS ? (v < thr) : (v > thr);
+            const bool cond = op == NPP_CMP_LESS ? (v < thr): (v > thr);
             reinterpret_cast<T *>(want.data())[(size_t)y * (ds / sizeof(T)) + (size_t)x * C + ch] =
-                cond ? thr : v;
+                cond ? thr: v;
           }
       DeviceMemory<uint8_t> dsr(sbytes), dds(dbytes);
       dsr.copyFromHost(hs);
@@ -110,8 +110,8 @@ void run_threshold_array(const char *op_id, Call call) {
     return;
   }
   uint64_t executed = 0, skipped = 0, ni = 0, mismatched = 0;
-  for (NppCmpOp op : kThresholdOps) {
-    for (const Case &c : make_cases((int)op)) {
+  for (NppCmpOp op: kThresholdOps) {
+    for (const Case &c: make_cases((int)op)) {
       const int ss = (int)align16((size_t)c.w * C * sizeof(T)) + c.src_pad;
       const int ds = (int)align16((size_t)c.w * C * sizeof(T)) + c.dst_pad;
       const size_t sbytes = (size_t)ss * c.h, dbytes = (size_t)ds * c.h;
@@ -122,14 +122,14 @@ void run_threshold_array(const char *op_id, Call call) {
         ps[i] = regime_value<T>(rng, c.regime, i);
       T thr[3];
       for (int ch = 0; ch < 3; ++ch)
-        thr[ch] = (c.w * c.h) % 3 == 0 ? ps[ch] : regime_value<T>(rng, c.regime, 11 + ch);
+        thr[ch] = (c.w * c.h) % 3 == 0 ? ps[ch]: regime_value<T>(rng, c.regime, 11 + ch);
       for (int y = 0; y < c.h; ++y)
         for (int x = 0; x < c.w; ++x)
           for (int ch = 0; ch < A; ++ch) {
             const T v = ps[(size_t)y * (ss / sizeof(T)) + (size_t)x * C + ch];
-            const bool cond = op == NPP_CMP_LESS ? (v < thr[ch]) : (v > thr[ch]);
+            const bool cond = op == NPP_CMP_LESS ? (v < thr[ch]): (v > thr[ch]);
             reinterpret_cast<T *>(want.data())[(size_t)y * (ds / sizeof(T)) + (size_t)x * C + ch] =
-                cond ? thr[ch] : v;
+                cond ? thr[ch]: v;
           }
       DeviceMemory<uint8_t> dsr(sbytes), dds(dbytes);
       dsr.copyFromHost(hs);
@@ -186,8 +186,8 @@ void run_compare(const char *op_id, Call call) {
     return;
   }
   uint64_t executed = 0, skipped = 0, ni = 0, mismatched = 0;
-  for (NppCmpOp op : kCompareOps) {
-    for (const Case &c : make_cases((int)op)) {
+  for (NppCmpOp op: kCompareOps) {
+    for (const Case &c: make_cases((int)op)) {
       const int ss = (int)align16((size_t)c.w * C * sizeof(T)) + c.src_pad;
       const int ms = (int)align16((size_t)c.w) + c.dst_pad;
       const size_t sbytes = (size_t)ss * c.h, mbytes = (size_t)ms * c.h;
@@ -216,7 +216,7 @@ void run_compare(const char *op_id, Call call) {
             }
             all = all && cnd;
           }
-          want[(size_t)y * ms + x] = all ? 0xFF : 0x00;
+          want[(size_t)y * ms + x] = all ? 0xFF: 0x00;
         }
       DeviceMemory<uint8_t> d1(sbytes), d2(sbytes), dm(mbytes);
       d1.copyFromHost(h1);
@@ -313,7 +313,7 @@ NUM_CMP(Compare_32f_C1R, Npp32f, 1, 1,
 
 // NOTE: keep the 8u C1 scalar-threshold test last.  On the closed-source NPP
 // runtime, running it before the C3/AC4 array-threshold variants leaves NPP
-// returning success without writing the destination (measured on the 5090;
+// returning success without writing the destination (measured on the reference;
 // ordering-dependent, alone each test passes).
 NUM_THR_SCALAR(Threshold_8u_C1R, Npp8u, 1, 1,
                (nppiThreshold_8u_C1R_Ctx(s, ss, d, ds, r, thr, op, c)))

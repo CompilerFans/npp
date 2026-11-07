@@ -60,8 +60,8 @@ inline GvTaps gv_taps(GvOp op, int maskSize) {
     h = gv_coef5(SobelHoriz5);
     v = gv_coef5(SobelVert5);
   } else {
-    const int *h3 = op == kSobel ? SobelHoriz3 : (op == kPrewitt ? PrewittHoriz3 : ScharrHoriz3);
-    const int *v3 = op == kSobel ? SobelVert3 : (op == kPrewitt ? PrewittVert3 : ScharrVert3);
+    const int *h3 = op == kSobel ? SobelHoriz3: (op == kPrewitt ? PrewittHoriz3: ScharrHoriz3);
+    const int *v3 = op == kSobel ? SobelVert3: (op == kPrewitt ? PrewittVert3: ScharrVert3);
     h = gv_coef3(h3);
     v = gv_coef3(v3);
   }
@@ -80,7 +80,7 @@ inline GvTaps gv_taps(GvOp op, int maskSize) {
 template <typename Dst>
 __host__ __device__ __forceinline__ Dst gv_emit(float v) {
   if constexpr (std::is_same_v<Dst, Npp16s>) {
-    return v <= -32768.0f ? (Npp16s)-32768 : (v >= 32767.0f ? (Npp16s)32767 : (Npp16s)v);
+    return v <= -32768.0f ? (Npp16s)-32768: (v >= 32767.0f ? (Npp16s)32767: (Npp16s)v);
   } else {
     return static_cast<Dst>(v);
   }
@@ -88,7 +88,7 @@ __host__ __device__ __forceinline__ Dst gv_emit(float v) {
 
 inline NppStatus finish_launch(cudaStream_t stream) {
   cudaStreamSynchronize(stream);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 // 2D convolution with NPP_BORDER_REPLICATE clamping to the source bounds
@@ -113,11 +113,11 @@ __global__ void gv_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__res
   for (int c = 0; c < Channels; ++c) ay[c] = Acc(0);
   for (int a = 0; a < taps.x.size; ++a) {
     int ry = y + a - r;
-    ry = ry < loY ? loY : (ry > hiY ? hiY : ry);
+    ry = ry < loY ? loY: (ry > hiY ? hiY: ry);
     const Src *row = reinterpret_cast<const Src *>(srcBase + static_cast<std::ptrdiff_t>(ry) * nSrcStep);
     for (int b = 0; b < taps.x.size; ++b) {
       int rx = x + b - r;
-      rx = rx < loX ? loX : (rx > hiX ? hiX : rx);
+      rx = rx < loX ? loX: (rx > hiX ? hiX: rx);
       const Src *pix = row + static_cast<std::ptrdiff_t>(rx) * Channels;
       for (int c = 0; c < Channels; ++c) {
         const Acc v = static_cast<Acc>(pix[c]);
@@ -158,8 +158,7 @@ __global__ void gv_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__res
     *drow = gv_emit<Dst>(gy);
   }
   if (pDstMag) {
-    const double mag = normL1 ? (std::fabs((double)gx) + std::fabs((double)gy))
-                              : std::sqrt((double)gx * gx + (double)gy * gy);
+    const double mag = normL1 ? (std::fabs((double)gx) + std::fabs((double)gy)): std::sqrt((double)gx * gx + (double)gy * gy);
     Dst *drow = reinterpret_cast<Dst *>(reinterpret_cast<char *>(pDstMag) +
                                         static_cast<std::ptrdiff_t>(y) * nDstMagStep) +
                 static_cast<std::ptrdiff_t>(x);
@@ -191,8 +190,8 @@ NppStatus gradientVectorBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize,
   // 4) Step of the FIRST non-null output: must cover a ROI row, then be a
   //    multiple of the element size.  Other outputs' steps are not checked.
   const int esz = static_cast<int>(sizeof(Dst));
-  const int firstEsz = pDstX ? esz : (pDstY ? esz : (pDstMag ? esz : 4));
-  const int firstStep = pDstX ? nDstXStep : (pDstY ? nDstYStep : (pDstMag ? nDstMagStep : nDstAngleStep));
+  const int firstEsz = pDstX ? esz: (pDstY ? esz: (pDstMag ? esz: 4));
+  const int firstStep = pDstX ? nDstXStep: (pDstY ? nDstYStep: (pDstMag ? nDstMagStep: nDstAngleStep));
   if (firstStep < oSizeROI.width * firstEsz) return NPP_STEP_ERROR;
   if (firstStep % firstEsz != 0) return NPP_NOT_EVEN_STEP_ERROR;
   // 5) Source size, offset must be inside the source.

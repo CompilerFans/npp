@@ -1,8 +1,8 @@
-// CPU-golden coverage for the gradient-vector filters
+// CPU-reference output coverage for the gradient-vector filters
 // (nppi_filtering_functions.h):
 //   nppiGradientVector{Sobel,Prewitt,Scharr}Border.
 //
-// Measured NPP 13.4 semantics (RTX 5090):
+// Measured NPP 13.4 semantics (reference):
 //   * X = -(vertical response) for Sobel/Prewitt, +(vertical response) for
 //     Scharr; Y = +(horizontal response) for all three, with the same 3x3
 //     taps as the derivative-filter executor.  Only Sobel accepts the 5x5
@@ -21,7 +21,7 @@
 namespace num {
 namespace filtgrad {
 
-inline int clampi(int v, int lo, int hi) { return v < lo ? lo : (v > hi ? hi : v); }
+inline int clampi(int v, int lo, int hi) { return v < lo ? lo: (v > hi ? hi: v); }
 
 enum Op { kSobel = 0, kPrewitt, kScharr };
 
@@ -53,8 +53,8 @@ inline void tapsOf(int op, int maskSize, Coef &x, Coef &y) {
     x = mk(SobelVert5, 5);
     y = mk(SobelHoriz5, 5);
   } else {
-    const int *h = op == kSobel ? SobelHoriz3 : (op == kPrewitt ? PrewittHoriz3 : ScharrHoriz3);
-    const int *v = op == kSobel ? SobelVert3 : (op == kPrewitt ? PrewittVert3 : ScharrVert3);
+    const int *h = op == kSobel ? SobelHoriz3: (op == kPrewitt ? PrewittHoriz3: ScharrHoriz3);
+    const int *v = op == kSobel ? SobelVert3: (op == kPrewitt ? PrewittVert3: ScharrVert3);
     x = mk(v, 3);
     y = mk(h, 3);
   }
@@ -65,7 +65,7 @@ inline void tapsOf(int op, int maskSize, Coef &x, Coef &y) {
 
 template <typename Dst> inline Dst gvEmit(float v) {
   if constexpr (std::is_same_v<Dst, Npp16s>) {
-    return (Npp16s)(v <= -32768.0f ? -32768 : (v >= 32767.0f ? 32767 : v));
+    return (Npp16s)(v <= -32768.0f ? -32768: (v >= 32767.0f ? 32767: v));
   } else {
     return (Dst)v;
   }
@@ -88,9 +88,9 @@ void run_gradient(const char *id, Call call) {
   static const int norms[] = {(int)nppiNormL1, (int)nppiNormL2};
   const int m = 2;
   bool failed = false;
-  for (const Cfg &cf : cfgs) {
-    for (int mi = 0; mi < (Can5 ? 2 : 1) && !failed; ++mi) {
-      const int maskSize = mi == 0 ? 3 : 5;
+  for (const Cfg &cf: cfgs) {
+    for (int mi = 0; mi < (Can5 ? 2: 1) && !failed; ++mi) {
+      const int maskSize = mi == 0 ? 3: 5;
       Coef cx, cy;
       tapsOf(Op, maskSize, cx, cy);
       const int r = maskSize / 2;
@@ -105,7 +105,7 @@ void run_gradient(const char *id, Call call) {
         Buf<Dst> *dy = new Buf<Dst>(cf.w, cf.h, 1, 0, 0x5A);
         Buf<Dst> *dm = new Buf<Dst>(cf.w, cf.h, 1, 0, 0x5A);
         Buf<Npp32f> *da = new Buf<Npp32f>(cf.w, cf.h, 1, 0, 0x5A);
-        for (Buf<Dst> *b : {dx, dy, dm}) b->dev.copyFromHost(b->host);
+        for (Buf<Dst> *b: {dx, dy, dm}) b->dev.copyFromHost(b->host);
         da->dev.copyFromHost(da->host);
         const std::vector<uint8_t> preX = dx->host, preY = dy->host, preM = dm->host, preA = da->host;
         const int srow = s->step / (int)sizeof(Src);
@@ -116,13 +116,13 @@ void run_gradient(const char *id, Call call) {
             call(sp, s->step, NppiSize{W, H}, NppiPoint{m, m}, reinterpret_cast<Dst *>(dx->dptr()),
                  dx->step, reinterpret_cast<Dst *>(dy->dptr()), dy->step,
                  reinterpret_cast<Dst *>(dm->dptr()), dm->step, reinterpret_cast<Npp32f *>(da->dptr()), da->step,
-                 NppiSize{cf.w, cf.h}, (int)(maskSize == 3 ? NPP_MASK_SIZE_3_X_3 : NPP_MASK_SIZE_5_X_5),
+                 NppiSize{cf.w, cf.h}, (int)(maskSize == 3 ? NPP_MASK_SIZE_3_X_3: NPP_MASK_SIZE_5_X_5),
                  (NppiNorm)norm, NPP_BORDER_REPLICATE, ctx);
         if (st != NPP_NO_ERROR) {
           ++cnt.skipped;
           if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
           delete s;
-          for (Buf<Dst> *b : {dx, dy, dm}) delete b;
+          for (Buf<Dst> *b: {dx, dy, dm}) delete b;
           delete da;
           continue;
         }
@@ -154,8 +154,8 @@ void run_gradient(const char *id, Call call) {
             if constexpr (SrcC == 3) {
               double best = -1.0;
               for (int c = 0; c < 3; ++c) {
-                const double gx = std::is_floating_point_v<Src> ? (double)fX[c] : (double)accX[c];
-                const double gy = std::is_floating_point_v<Src> ? (double)fY[c] : (double)accY[c];
+                const double gx = std::is_floating_point_v<Src> ? (double)fX[c]: (double)accX[c];
+                const double gy = std::is_floating_point_v<Src> ? (double)fY[c]: (double)accY[c];
                 const double l2 = gx * gx + gy * gy;
                 if (l2 > best) {
                   best = l2;
@@ -163,11 +163,10 @@ void run_gradient(const char *id, Call call) {
                 }
               }
             }
-            const float gx = std::is_floating_point_v<Src> ? fX[sel] : (float)accX[sel];
-            const float gy = std::is_floating_point_v<Src> ? fY[sel] : (float)accY[sel];
+            const float gx = std::is_floating_point_v<Src> ? fX[sel]: (float)accX[sel];
+            const float gy = std::is_floating_point_v<Src> ? fY[sel]: (float)accY[sel];
             const double mag = norm == (int)nppiNormL1
-                                   ? (std::fabs((double)gx) + std::fabs((double)gy))
-                                   : std::sqrt((double)gx * gx + (double)gy * gy);
+                                   ? (std::fabs((double)gx) + std::fabs((double)gy)): std::sqrt((double)gx * gx + (double)gy * gy);
             const Dst ox = gvEmit<Dst>(gx), oy = gvEmit<Dst>(gy);
             const Dst om = gvEmit<Dst>((float)mag);
             const Npp32f oa = (Npp32f)std::atan2((double)gy, (double)gx);
@@ -189,7 +188,7 @@ void run_gradient(const char *id, Call call) {
         ok = rotate_check<Npp32f, 1, 1>(id, dc, NPPI_INTER_NN, preA, da->host, wA, da->step, {}, cnt,
                                         first) && ok;
         delete s;
-        for (Buf<Dst> *b : {dx, dy, dm}) delete b;
+        for (Buf<Dst> *b: {dx, dy, dm}) delete b;
         delete da;
         if (!ok || cnt.mismatched >= 8) failed = true;
       }

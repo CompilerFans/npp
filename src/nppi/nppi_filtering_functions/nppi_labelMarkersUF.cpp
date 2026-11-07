@@ -43,7 +43,7 @@ NppStatus labelMarkersValidateSingle(const void *pSrc, const Npp32u *pDst, const
   return NPP_NO_ERROR;
 }
 
-// Batch statuses measured on the 5090 (NPP 13.4, probe f13_probe45): a
+// Batch statuses measured on the reference (NPP 13.4, measurement): a
 // negative ROI or batch count is NPP_SIZE_ERROR, while a zero ROI or a zero
 // batch count surfaces as NPP_CUDA_KERNEL_EXECUTION_ERROR; a batch size of 1 is
 // accepted (the header says > 1, NPP does not enforce it) and an unknown

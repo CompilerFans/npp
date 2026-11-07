@@ -1,14 +1,11 @@
 // nppiWarpPerspective / Back / Quad / Batch family executor.
 //
-// Host-visible surface (safe for plain .cpp translation units): Mat3, the
+// Host-visible surface (safe for plain.cpp translation units): Mat3, the
 // per-entry validation helpers and the entry-point templates.  The templates
 // are defined and explicitly instantiated in nppi_warp_perspective_executor.cu;
-// the public wrappers are generated from mpp_scripts/families/
-// nppi_warp_perspective*.json by mpp_scripts/gen_family.py.
 //
-// Semantics (baseline NVIDIA NPP 13.4 on the RTX 5090, validated against the
-// goldens of test/unit/diff/test_nppi_warp_perspective_{planar,quad,batch}_generated.cpp,
-// see also docs/agent_packages/g5_notes.md):
+// Semantics (baseline NVIDIA NPP 13.4 in the reference implementation, validated against the
+// reference outputs of reference comparisons
 //
 //   * Direction.  nppiWarpPerspective/Quad/Batch take coefficients that map
 //     source to destination; the kernels apply the inverse (dst -> src).
@@ -22,12 +19,12 @@
 //     then applies the per-pixel test den > 0 and u/v inside the *source ROI
 //     rect in absolute coordinates* (continuous, inclusive of x + w - 1).
 //     The backward family only performs the per-pixel test (it writes rows the
-//     forward kernel would drop - measured on the planar back goldens).
+//     forward kernel would drop - measured on the planar back reference outputs).
 //   * Quad: the two quads define a src->dst homography solved from the eight
 //     vertex equations; the kernel additionally restricts writes to the image
 //     of the source quadrilateral (half-plane test in float32, matching the
 //     reduced-precision edge arithmetic NVIDIA uses).
-//   * Errors (measured, see the contract goldens): forward validates the
+//   * Errors (measured, see the contract reference outputs): forward validates the
 //     coefficient determinant (NPP_COEFFICIENT_ERROR on a singular matrix),
 //     the backward entry point does not.  Steps: the destination step must be
 //     positive (NPP_STEP_ERROR); the planar source step is not validated at all
@@ -93,7 +90,7 @@ bool solveQuadHomography(const double aSrcQuad[4][2], const double aDstQuad[4][2
 bool isDegenerateQuad(const double aQuad[4][2]);
 
 // ---------------------------------------------------------------------------
-// Entry points (templates defined in the .cu, explicit instantiations only).
+// Entry points (templates defined in the.cu, explicit instantiations only).
 // ---------------------------------------------------------------------------
 
 // Packed (interleaved) destination with `Channels` channels; AlphaPreserve

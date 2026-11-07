@@ -1,6 +1,4 @@
-// Copy of the 5090 probe table (scratch/remote_out/f9e_buf.out, NVIDIA NPP
-// 13.4) used as the CPU golden for the median GetBufferSize families.
-// Source: scratch/remote_out/f9e_buf.out (RTX 5090, NVIDIA NPP 13.4).
+// 13.4) used as the CPU reference output for the median GetBufferSize families.
 // Bit (w-1) of row (h-1) is set when nppiFilterMedianGetBufferSize
 // returns a non-zero size for mask (w, h); rows are mask heights 1..40.
 // Config order: 8u/16u/16s/32f x C1/C3/C4/AC4.

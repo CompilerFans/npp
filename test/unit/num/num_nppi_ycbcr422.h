@@ -1,4 +1,4 @@
-// CPU-golden coverage for the video-range 4:2:2 YCbCr/CbYCr/YCrCb colour
+// CPU-reference output coverage for the video-range 4:2:2 YCbCr/CbYCr/YCrCb colour
 // conversions (nppi_c3_conversion_executor "video-range" family and the
 // 709HDTV c3color families).
 //
@@ -47,7 +47,7 @@ inline const Mat &mat709f() {
 
 inline Npp8u sat(double v) {
   const int t = (int)v;
-  return (Npp8u)(t < 0 ? 0 : (t > 255 ? 255 : t));
+  return (Npp8u)(t < 0 ? 0: (t > 255 ? 255: t));
 }
 inline void fwd_px(const Mat &m, int r, int g, int b, int &y, int &cb, int &cr) {
   y = sat(m.yr * r + m.yg * g + m.yb * b + m.yo);
@@ -112,7 +112,7 @@ void run_ycbcr422(const char *id, Kind kind, const Mat *mat, int invStyle, int a
   const bool evenOnly = kind == Kind::YCrCbInvC2 || kind == Kind::YCrCbInvP3 ||
                         kind == Kind::CbYCr709InvC2 || kind == Kind::BgrFwd709C2 ||
                         kind == Kind::YCrCbFwdC2;
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     if (evenOnly && (cf.w & 1)) continue;
     const int w = cf.w, h = cf.h;
     const int we = w & ~1;
@@ -127,9 +127,7 @@ void run_ycbcr422(const char *id, Kind kind, const Mat *mat, int invStyle, int a
     const bool dstPlanar = kind == Kind::FwdC3P3 || kind == Kind::InvC2P3 || kind == Kind::YCrCbInvP3;
     const bool dstC3C4 = kind == Kind::InvC2C || kind == Kind::InvP3C3 || kind == Kind::YCrCbInvC2 ||
                          kind == Kind::CbYCr709InvC2;
-    const int srcPp = (kind == Kind::GammaErr || kind == Kind::YCrCbFwdC2) ? 3
-                      : kind == Kind::BgrFwd709C2 ? a0
-                      : ((kind == Kind::FwdC3C2 || kind == Kind::FwdC3P3) ? a0 : 1);
+    const int srcPp = (kind == Kind::GammaErr || kind == Kind::YCrCbFwdC2) ? 3: kind == Kind::BgrFwd709C2 ? a0: ((kind == Kind::FwdC3C2 || kind == Kind::FwdC3P3) ? a0: 1);
     const uint64_t seed = case_seed(id, w, h, 0, 0, 0, 0);
     std::vector<Buf<Npp8u> *> srcs;
     if (srcPacked) {
@@ -165,7 +163,7 @@ void run_ycbcr422(const char *id, Kind kind, const Mat *mat, int invStyle, int a
       dsts.push_back(d);
       pre.push_back(d->host);
     } else if (dstC3C4) {
-      const int pp = (kind == Kind::InvC2C || kind == Kind::CbYCr709InvC2) ? std::max(3, a0) : 3;
+      const int pp = (kind == Kind::InvC2C || kind == Kind::CbYCr709InvC2) ? std::max(3, a0): 3;
       Buf<Npp8u> *d = new Buf<Npp8u>(w, h, pp, 0, 0x5A);
       d->dev.copyFromHost(d->host);
       dsts.push_back(d);
@@ -222,15 +220,15 @@ void run_ycbcr422(const char *id, Kind kind, const Mat *mat, int invStyle, int a
         EXPECT_EQ(dsts[0]->host, after1) << "[" << id << "] " << w << "x" << h
                                          << " small-step call wrote the destination";
       }
-      for (auto *p : srcs) delete p;
-      for (auto *p : dsts) delete p;
+      for (auto *p: srcs) delete p;
+      for (auto *p: dsts) delete p;
       continue;
     }
     if (st != NPP_NO_ERROR && st != NPP_DOUBLE_SIZE_WARNING) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-      for (auto *p : srcs) delete p;
-      for (auto *p : dsts) delete p;
+      for (auto *p: srcs) delete p;
+      for (auto *p: dsts) delete p;
       continue;
     }
     const cudaError_t se = cudaDeviceSynchronize();
@@ -258,7 +256,7 @@ void run_ycbcr422(const char *id, Kind kind, const Mat *mat, int invStyle, int a
           srcPx(x, y, r, g, b);
           fwd_px(*mat, r, g, b, Y, Cb, Cr);
           const size_t row = (size_t)y * dsts[0]->step;
-          want[0][row + (size_t)(cbycr ? 2 * x + 1 : 2 * x)] = (uint8_t)Y;
+          want[0][row + (size_t)(cbycr ? 2 * x + 1: 2 * x)] = (uint8_t)Y;
           if ((x & 1) == 0) {
             int cb = Cb, cr = Cr;
             if (x + 1 < w) {
@@ -268,8 +266,8 @@ void run_ycbcr422(const char *id, Kind kind, const Mat *mat, int invStyle, int a
               cb = (Cb + Cb1) >> 1;
               cr = (Cr + Cr1) >> 1;
             }
-            want[0][row + (size_t)(cbycr ? 2 * x : 2 * x + 1)] = (uint8_t)cb;
-            const int crOff = cbycr ? 2 * x + 2 : 2 * x + 3;
+            want[0][row + (size_t)(cbycr ? 2 * x: 2 * x + 1)] = (uint8_t)cb;
+            const int crOff = cbycr ? 2 * x + 2: 2 * x + 3;
             if (crOff < 2 * w) want[0][row + (size_t)crOff] = (uint8_t)cr;
           }
         }
@@ -310,11 +308,11 @@ void run_ycbcr422(const char *id, Kind kind, const Mat *mat, int invStyle, int a
       for (int y = 0; y < h; ++y)
         for (int x = 0; x < w; ++x) {
           const Npp8u *row = srcs[0]->hptr() + (size_t)y * srcs[0]->step;
-          const int yv = row[cbycr ? 2 * x + 1 : 2 * x];
+          const int yv = row[cbycr ? 2 * x + 1: 2 * x];
           const int p = x >> 1;
-          const int cb = row[cbycr ? 4 * p : 4 * p + 1];
-          const int pp = ((cbycr ? 4 * p + 2 : 4 * p + 3) < 2 * w) ? p : (p > 0 ? p - 1 : 0);
-          const int cr = row[cbycr ? 4 * pp + 2 : 4 * pp + 3];
+          const int cb = row[cbycr ? 4 * p: 4 * p + 1];
+          const int pp = ((cbycr ? 4 * p + 2: 4 * p + 3) < 2 * w) ? p: (p > 0 ? p - 1: 0);
+          const int cr = row[cbycr ? 4 * pp + 2: 4 * pp + 3];
           int r, g, b;
           inv_px(invStyle, yv, cb, cr, r, g, b);
           const size_t base = (size_t)y * dsts[0]->step + (size_t)x * dstPp;
@@ -338,10 +336,10 @@ void run_ycbcr422(const char *id, Kind kind, const Mat *mat, int invStyle, int a
       for (int y = 0; y < h; ++y)
         for (int x = 0; x < we; ++x) {
           const Npp8u *row = srcs[0]->hptr() + (size_t)y * srcs[0]->step;
-          const int yv = row[cbycr ? 2 * x + 1 : 2 * x];
+          const int yv = row[cbycr ? 2 * x + 1: 2 * x];
           const int p = x >> 1;
-          const int cb = row[cbycr ? 4 * p : 4 * p + 1];
-          const int cr = row[cbycr ? 4 * p + 2 : 4 * p + 3];
+          const int cb = row[cbycr ? 4 * p: 4 * p + 1];
+          const int cr = row[cbycr ? 4 * p + 2: 4 * p + 3];
           int r, g, b;
           inv_px(invStyle, yv, cb, cr, r, g, b);
           want[0][(size_t)y * dsts[0]->step + (size_t)x] = (uint8_t)r;
@@ -359,9 +357,9 @@ void run_ycbcr422(const char *id, Kind kind, const Mat *mat, int invStyle, int a
           int r, g, b;
           inv_px(invStyle, yv, cb, cr, r, g, b);
           const size_t base = (size_t)y * dsts[0]->step + (size_t)x * 3;
-          want[0][base + 0] = (uint8_t)(bgr ? b : r);
+          want[0][base + 0] = (uint8_t)(bgr ? b: r);
           want[0][base + 1] = (uint8_t)g;
-          want[0][base + 2] = (uint8_t)(bgr ? r : b);
+          want[0][base + 2] = (uint8_t)(bgr ? r: b);
         }
     } else if (kind == Kind::YCrCbInvC2 || kind == Kind::CbYCr709InvC2) {
       const int dstPp = a0;
@@ -373,11 +371,11 @@ void run_ycbcr422(const char *id, Kind kind, const Mat *mat, int invStyle, int a
           const Npp8u *row = srcs[0]->hptr() + (size_t)y * srcs[0]->step + (size_t)p * 4;
           int yv, cb, cr;
           if (kind == Kind::YCrCbInvC2) {
-            yv = row[(x & 1) ? 2 : 0];
+            yv = row[(x & 1) ? 2: 0];
             cr = row[1];
             cb = row[3];
           } else {
-            yv = row[(x & 1) ? 3 : 1];
+            yv = row[(x & 1) ? 3: 1];
             cb = row[0];
             cr = row[2];
           }
@@ -406,7 +404,7 @@ void run_ycbcr422(const char *id, Kind kind, const Mat *mat, int invStyle, int a
           int p = x >> 1;
           if (p > lastPair) p = lastPair;
           const Npp8u *row = srcs[0]->hptr() + (size_t)y * srcs[0]->step + (size_t)p * 4;
-          const int yv = row[(x & 1) ? 2 : 0];
+          const int yv = row[(x & 1) ? 2: 0];
           const int cr = row[1];
           const int cb = row[3];
           int r, g, b;
@@ -482,8 +480,8 @@ void run_ycbcr422(const char *id, Kind kind, const Mat *mat, int invStyle, int a
                                         std::vector<uint8_t>(), cnt, first);
       if (!ok) failed = true;
     }
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
     if (failed || cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);

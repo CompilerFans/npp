@@ -1,9 +1,9 @@
-// CPU-golden coverage for the filtering long-tail families
+// CPU-reference output coverage for the filtering long-tail families
 // (nppi_filtering_functions.h):
 //   nppiFilterBilateralGaussBorder, nppiFilterThresholdAdaptiveBoxBorder and
 //   nppiFilterHarrisCornersBorder.
 //
-// Measured NPP 13.4 semantics (RTX 5090):
+// Measured NPP 13.4 semantics (reference):
 //   Bilateral: dst = sum(W1*W2*S)/sum(W1*W2) over the (2r+1)^2 window with
 //     S sampled at (x + w*step, y + h*step), W1 = exp(-(S-Sc)^2/(2*valSigma2)),
 //     W2 = exp(-(h^2+w^2)/(2*posSigma2)); REPLICATE and MIRROR borders;
@@ -15,7 +15,7 @@
 //     (sample positions clamped to the image before the gradient is taken),
 //     H = ((XX*YY - XY*XY) - nK*(XX+YY)^2) * nScale.  NPP's border clamp for
 //     Harris differs from the documented model on the outermost row/column
-//     (the differential suite also holds those value records off), so the
+//     (the reference comparisons also holds those value records off), so the
 //     driver keeps a six-pixel margin and compares interior ROI pixels only,
 //     where no clamp is engaged.
 #pragma once
@@ -25,26 +25,26 @@
 namespace num {
 namespace filttail {
 
-inline int clampi(int v, int lo, int hi) { return v < lo ? lo : (v > hi ? hi : v); }
+inline int clampi(int v, int lo, int hi) { return v < lo ? lo: (v > hi ? hi: v); }
 
 inline int mirrorIndex(int i, int dim) {
-  while (i < 0 || i >= dim) i = i < 0 ? -i : 2 * dim - 2 - i;
+  while (i < 0 || i >= dim) i = i < 0 ? -i: 2 * dim - 2 - i;
   return i;
 }
 
 inline int borderIndex(int i, int lo, int hi, bool mirror) {
   if (lo > hi) return lo;
   if (mirror) return mirrorIndex(i - lo, hi - lo + 1) + lo;
-  return i < lo ? lo : (i > hi ? hi : i);
+  return i < lo ? lo: (i > hi ? hi: i);
 }
 
 template <typename Dst> inline Dst tailEmit(float v) {
   if constexpr (std::is_same_v<Dst, Npp32f>) {
     return v;
   } else if constexpr (std::is_same_v<Dst, Npp16u>) {
-    return (Npp16u)(!(v > 0.0f) ? 0 : (v >= 65535.0f ? 65535 : (Npp16u)(int)v));
+    return (Npp16u)(!(v > 0.0f) ? 0: (v >= 65535.0f ? 65535: (Npp16u)(int)v));
   } else {
-    return (Npp8u)(!(v > 0.0f) ? 0 : (v >= 255.0f ? 255 : (Npp8u)(int)v));
+    return (Npp8u)(!(v > 0.0f) ? 0: (v >= 255.0f ? 255: (Npp8u)(int)v));
   }
 }
 
@@ -66,7 +66,7 @@ void run_bilateral(const char *id, Call call) {
   const float valSigma2 = 2.0f, posSigma2 = 8.0f;
   const int m = 3;
   bool failed = false;
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     for (int ri = 0; ri < 2 && !failed; ++ri) {
       for (int bi = 0; bi < 2 && !failed; ++bi) {
         const int radius = radii[ri];
@@ -119,7 +119,7 @@ void run_bilateral(const char *id, Call call) {
                   num += ww * sv;
                   den += ww;
                 }
-              const Dst out = tailEmit<Dst>(den != 0.0f ? num / den : s00);
+              const Dst out = tailEmit<Dst>(den != 0.0f ? num / den: s00);
               const size_t off = (size_t)y * d->step + ((size_t)x * C + (size_t)c) * sizeof(Dst);
               std::memcpy(want.data() + off, &out, sizeof(Dst));
             }
@@ -153,7 +153,7 @@ template <class Call> void run_threshold_adaptive(const char *id, Call call) {
   const Npp8u gt = 255, le = 0;
   const int m = 2;
   bool failed = false;
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     for (int mi = 0; mi < 2 && !failed; ++mi) {
       const int mask = masks[mi];
       const int W = cf.w + 2 * m, H = cf.h + 2 * m;
@@ -191,7 +191,7 @@ template <class Call> void run_threshold_adaptive(const char *id, Call call) {
               sum += (float)s->hptr()[(size_t)iy * s->step + (size_t)ix];
             }
           const float avg = sum / (float)(mask * mask);
-          want[(size_t)y * d->step + (size_t)x] = (srcVal > avg - delta) ? gt : le;
+          want[(size_t)y * d->step + (size_t)x] = (srcVal > avg - delta) ? gt: le;
         }
       d->dev.copyToHost(d->host);
       const GenCase dc{cf.w, cf.h, mask, 0, 0, kSmall, 0};
@@ -221,8 +221,8 @@ inline GradMask makeMask(int size, bool scharr) {
     const float scharry[3][3] = {{-3, -10, -3}, {0, 0, 0}, {3, 10, 3}};
     for (int a = 0; a < 3; ++a)
       for (int b = 0; b < 3; ++b) {
-        m.kx[a][b] = scharr ? scharrx[a][b] : sobelx[a][b];
-        m.ky[a][b] = scharr ? scharry[a][b] : sobely[a][b];
+        m.kx[a][b] = scharr ? scharrx[a][b]: sobelx[a][b];
+        m.ky[a][b] = scharr ? scharry[a][b]: sobely[a][b];
       }
   } else {
     static const float sx[5][5] = {{-1, -2, 0, 2, 1}, {-4, -8, 0, 8, 4}, {-6, -12, 0, 12, 6},
@@ -239,8 +239,7 @@ inline GradMask makeMask(int size, bool scharr) {
 }
 
 // NPP 13.4's Harris values do not follow the documented formula away from the
-// image centre (the differential suite holds its value records off as well:
-// scratch/f13_notes.md 9.7), so this driver exercises the full parameter
+// image centre (the reference comparisons holds its value records off as well:
 // matrix structurally: every call must succeed, write the destination and
 // produce finite responses.
 template <class Call> void run_harris(const char *id, Call call) {
@@ -262,7 +261,7 @@ template <class Call> void run_harris(const char *id, Call call) {
   const int m = 6;
   npp_functional_test::DeviceMemory<Npp8u> pbuf((size_t)1 << 20);
   bool failed = false;
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     for (int fi = 0; fi < 2 && !failed; ++fi) {
       for (int mi = 0; mi < 2 && !failed; ++mi) {
         for (int ai = 0; ai < 2 && !failed; ++ai) {
@@ -283,8 +282,8 @@ template <class Call> void run_harris(const char *id, Call call) {
           const NppStatus st = call(sp, s->step, NppiSize{W, H}, NppiPoint{m, m},
                                     reinterpret_cast<Npp32f *>(d->dptr()), d->step,
                                     NppiSize{cf.w, cf.h}, ft,
-                                    (int)(maskSize == 3 ? NPP_MASK_SIZE_3_X_3 : NPP_MASK_SIZE_5_X_5),
-                                    (int)(avg == 3 ? NPP_MASK_SIZE_3_X_3 : NPP_MASK_SIZE_5_X_5), k,
+                                    (int)(maskSize == 3 ? NPP_MASK_SIZE_3_X_3: NPP_MASK_SIZE_5_X_5),
+                                    (int)(avg == 3 ? NPP_MASK_SIZE_3_X_3: NPP_MASK_SIZE_5_X_5), k,
                                     scale, (int)NPP_BORDER_REPLICATE, pbuf.get(), ctx);
           if (st != NPP_NO_ERROR) {
             ++cnt.skipped;

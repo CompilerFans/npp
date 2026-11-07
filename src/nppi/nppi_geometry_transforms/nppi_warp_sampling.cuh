@@ -3,22 +3,21 @@
 // Device-side sampling helpers shared by the g5 geometry executors
 // (nppi_warp_perspective_executor.cu and nppi_rotate_executor.cu).
 //
-// The routines below reproduce the sampling model measured on the RTX 5090
-// with NVIDIA NPP 13.4 (see docs/agent_packages/g5_notes.md and
-// test/unit/diff/test_nppi_warp_perspective_{planar,quad,batch}_generated.cpp
-// plus test/unit/diff/test_nppi_rotate_generated.cpp):
+// The routines below reproduce the sampling model measured in the reference implementation
+// reference comparisons
+// plus reference comparisons
 //
-//   * NN     : src[floor(v + 0.5)][floor(u + 0.5)] (round half up).
-//   * LINEAR : bilinear taps floor(u)/floor(v) with the usual (1-fx)(1-fy)
+//   * NN: src[floor(v + 0.5)][floor(u + 0.5)] (round half up).
+//   * LINEAR: bilinear taps floor(u)/floor(v) with the usual (1-fx)(1-fy)
 //              weights, accumulated in double.
-//   * CUBIC  : four-point cubic *Lagrange* kernels on taps floor(u)-1..floor(u)+2
+//   * CUBIC: four-point cubic *Lagrange* kernels on taps floor(u)-1..floor(u)+2
 //              (and likewise in v).  The 1-D weights are
 //                L(-1) = -d(d-1)(d-2)/6, L(0) = (d+1)(d-1)(d-2)/2,
 //                L(+1) = -(d+1)d(d-2)/2, L(+2) = (d+1)d(d-1)/6,
-//              recovered from the cubic-impulse goldens
+//              recovered from the cubic-impulse reference outputs
 //              (fwd/32f_P3R/cubw_x*, cubw_y*, cubw_xy*).
 //   * Interpolation taps are clamped to the *image* bounds (o size - 1), not
-//     to the ROI: the persp_subroi_cubic probes read from the image rows and
+//     to the ROI: the persp_subroi_cubic measurements read from the image rows and
 //     columns just outside a sub-rect ROI.
 //   * Integer destinations round with floor(v + 0.5) and saturate; Npp16f
 //     destinations round through __float2half.
@@ -43,19 +42,19 @@ template <typename T> __device__ __forceinline__ T floatToElem(double v);
 
 template <> __device__ __forceinline__ Npp8u floatToElem<Npp8u>(double v) {
   const double r = floor(v + 0.5);
-  return static_cast<Npp8u>(r < 0.0 ? 0 : (r > 255.0 ? 255 : r));
+  return static_cast<Npp8u>(r < 0.0 ? 0: (r > 255.0 ? 255: r));
 }
 template <> __device__ __forceinline__ Npp16u floatToElem<Npp16u>(double v) {
   const double r = floor(v + 0.5);
-  return static_cast<Npp16u>(r < 0.0 ? 0 : (r > 65535.0 ? 65535 : r));
+  return static_cast<Npp16u>(r < 0.0 ? 0: (r > 65535.0 ? 65535: r));
 }
 template <> __device__ __forceinline__ Npp16s floatToElem<Npp16s>(double v) {
   const double r = floor(v + 0.5);
-  return static_cast<Npp16s>(r < -32768.0 ? -32768 : (r > 32767.0 ? 32767 : r));
+  return static_cast<Npp16s>(r < -32768.0 ? -32768: (r > 32767.0 ? 32767: r));
 }
 template <> __device__ __forceinline__ Npp32s floatToElem<Npp32s>(double v) {
   const double r = floor(v + 0.5);
-  return static_cast<Npp32s>(r < -2147483648.0 ? -2147483648.0 : (r > 2147483647.0 ? 2147483647.0 : r));
+  return static_cast<Npp32s>(r < -2147483648.0 ? -2147483648.0: (r > 2147483647.0 ? 2147483647.0: r));
 }
 template <> __device__ __forceinline__ Npp32f floatToElem<Npp32f>(double v) { return static_cast<Npp32f>(v); }
 template <> __device__ __forceinline__ Npp64f floatToElem<Npp64f>(double v) { return static_cast<Npp64f>(v); }
@@ -65,7 +64,7 @@ template <> __device__ __forceinline__ Npp16f floatToElem<Npp16f>(double v) {
   return r;
 }
 
-__device__ __forceinline__ int clampIndex(int v, int lo, int hi) { return v < lo ? lo : (v > hi ? hi : v); }
+__device__ __forceinline__ int clampIndex(int v, int lo, int hi) { return v < lo ? lo: (v > hi ? hi: v); }
 
 // Correctly rounded single-precision arithmetic without FMA contraction.  The
 // measured quad/rotate semantics depend on the intermediate products being
@@ -77,7 +76,7 @@ __device__ __forceinline__ float fmul_rn(float a, float b) { return static_cast<
 __device__ __forceinline__ float fadd_rn(float a, float b) { return static_cast<float>(static_cast<double>(a) + static_cast<double>(b)); }
 __device__ __forceinline__ float fsub_rn(float a, float b) { return static_cast<float>(static_cast<double>(a) - static_cast<double>(b)); }
 
-// 1-D cubic Lagrange weights for taps floor-1 .. floor+2.
+// 1-D cubic Lagrange weights for taps floor-1.. floor+2.
 __device__ __forceinline__ void cubicWeights(double d, double w[4]) {
   w[0] = -d * (d - 1.0) * (d - 2.0) / 6.0;
   w[1] = (d + 1.0) * (d - 1.0) * (d - 2.0) / 2.0;

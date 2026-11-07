@@ -2,10 +2,10 @@
 // missing from the filtering module.  Every formula and validation order was
 // reverse-engineered from the NPP 13.2 libnppif host code (disassembly):
 //
-//   BoxBorderAdvanced:  4 * channels * w * h + 8      (_64: 8 * ... + 8)
+//   BoxBorderAdvanced:  4 * channels * w * h + 8      (_64: 8 *... + 8)
 //   HarrisCorners:      12 * w * h
-//   HoughLine:          4 * ceil(max(w,h) * sqrt2 / (rho <= 1 ? rho : 1))
-//                           * (theta <= 1 ? ceil(180 / theta) : 180)
+//   HoughLine:          4 * ceil(max(w,h) * sqrt2 / (rho <= 1 ? rho: 1))
+//                           * (theta <= 1 ? ceil(180 / theta): 180)
 //   HOG descriptors:    nLocations * (2 * blocksX - 1) * (2 * blocksY - 1)
 //                           * bins * 16        (blocksX/Y from the window)
 //   HOG buffer:         8 + 8 * spanX * spanY
@@ -129,7 +129,7 @@ NppStatus nppiFilterHoughLineGetBufferSize(NppiSize oSizeROI, NppPointPolar nDel
   }
   const int nRhoBins = static_cast<int>(std::ceil(rhoBins));
   const int nThetaBins =
-      nDelta.theta <= 1.0f ? static_cast<int>(std::ceil(180.0f / nDelta.theta)) : 180;
+      nDelta.theta <= 1.0f ? static_cast<int>(std::ceil(180.0f / nDelta.theta)): 180;
   *hpBufferSize = 4 * nRhoBins * nThetaBins;
   return NPP_NO_ERROR;
 }
@@ -207,7 +207,7 @@ NppStatus nppiHistogramOfGradientsBorderGetBufferSize(const NppiHOGConfig oHOGCo
 }
 
 extern "C" NppStatus nppiSegmentWatershedGetBufferSize_16u_C1R(NppiSize oSizeROI,
-                                                               int *hpDeviceMemoryBufferSize) {
+                                                               NPP_BUFFER_SIZE_TYPE *hpDeviceMemoryBufferSize) {
   if (hpDeviceMemoryBufferSize == nullptr) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -221,6 +221,7 @@ extern "C" NppStatus nppiSegmentWatershedGetBufferSize_16u_C1R(NppiSize oSizeROI
   return NPP_NO_ERROR;
 }
 
+#if !NPP_BUFFER_SIZE_IS_SIZE_T
 NppStatus nppiSegmentWatershedGetBufferSize_16u_C1R(NppiSize oSizeROI,
                                                     size_t *hpDeviceMemoryBufferSize) {
   if (hpDeviceMemoryBufferSize == nullptr) {
@@ -234,6 +235,7 @@ NppStatus nppiSegmentWatershedGetBufferSize_16u_C1R(NppiSize oSizeROI,
   *hpDeviceMemoryBufferSize = 2u * static_cast<size_t>(oSizeROI.height) * alignedWidth + 72u;
   return NPP_NO_ERROR;
 }
+#endif
 
 NppStatus nppiSignedDistanceTransformPBAGetAntialiasingBufferSize(
     NppiSize oSizeROI, size_t *hpAntialiasingBufferSize) {

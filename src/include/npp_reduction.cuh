@@ -1,15 +1,14 @@
 #pragma once
 
 // Two-stage reduction cores shared by the nppi statistics executors
-// (introduced by package p0.1 as a pure refactoring; see
-// docs/agent_packages/p0.1.md).
+// (introduced.1 as a pure refactoring; see
 //
 // Device-only header (.cuh): every translation unit that includes it is
 // compiled with nvcc, so __global__ kernels are declared unguarded. Never
-// include this header from plain .cpp code; use npp_kernel_utils.h for the
+// include this header from plain.cpp code; use npp_kernel_utils.h for the
 // host-safe utilities.
 //
-// Semantics are pinned by the differential tests against NVIDIA NPP 13.4;
+// Semantics are pinned by the reference comparisons against NVIDIA NPP 13.4;
 // every definition here is moved verbatim from
 // nppi/nppi_statistics_functions/nppi_statistics_executor.cu.
 //
@@ -43,14 +42,14 @@ template <typename Acc> __device__ Acc blockReduce(Acc val) {
 }
 
 // ---------------------------------------------------------------------------
-// 16-byte vectorized walkers (package opt_reduce).  When rows16Aligned() holds
+// 16-byte vectorized walkers.  When rows16Aligned holds
 // for every source the partial kernels walk the ROI in VecPack units: one
 // 16-byte load per pack instead of one load per element.  Non-aligned cases
 // (padded/odd steps, negative steps) keep the original scalar loops, so both
 // paths visit exactly the same elements and only the grouping differs.
 // ---------------------------------------------------------------------------
 
-// 16-byte load unit: kVecElems<T>() elements per pack.
+// 16-byte load unit: kVecElems<T> elements per pack.
 template <typename T> struct alignas(16) VecPack {
   T v[16 / sizeof(T)];
 };
@@ -275,8 +274,8 @@ __device__ __forceinline__ void walkVecCoi(const D *pSrc, int nSrcStep, int widt
   constexpr int V = kVecElems<D>();
   static_assert(Chan >= 0 && Chan < Channels, "channel out of range");
   const int rowElems = width * Channels;
-  const int rowFull = (Channels == 3) ? (rowElems / (3 * V)) * 3 * V : (rowElems / V) * V;
-  const int fullUnits = (Channels == 3) ? (rowFull / (3 * V)) : (rowFull / V);  // groups or packs per row
+  const int rowFull = (Channels == 3) ? (rowElems / (3 * V)) * 3 * V: (rowElems / V) * V;
+  const int fullUnits = (Channels == 3) ? (rowFull / (3 * V)): (rowFull / V);  // groups or packs per row
   const int remElems = rowElems - rowFull;
   const char *base = reinterpret_cast<const char *>(pSrc);
   const unsigned stride = gridDim.x * blockDim.x;
@@ -392,7 +391,7 @@ static __global__ void reducePartialKernel(const D *pSrc, int nSrcStep, int widt
   Acc local[4] = {0, 0, 0, 0};
   const int totalPixels = width * height;
   const int tid = blockIdx.x * blockDim.x + threadIdx.x;
-  constexpr int readCh = AlphaPreserve ? Channels - 1 : Channels;
+  constexpr int readCh = AlphaPreserve ? Channels - 1: Channels;
 
   if (vecPath) {
     if constexpr (Channels == 3) {
@@ -404,7 +403,7 @@ static __global__ void reducePartialKernel(const D *pSrc, int nSrcStep, int widt
           for (int m = 0; m < kVecElems<D>(); ++m) {
             const int e = 3 * m + c;  // element index within the 3-pack group
             const int l = e & (kVecElems<D>() - 1);
-            t += static_cast<Acc>((e < kVecElems<D>()) ? p0.v[l] : (e < 2 * kVecElems<D>()) ? p1.v[l] : p2.v[l]);
+            t += static_cast<Acc>((e < kVecElems<D>()) ? p0.v[l]: (e < 2 * kVecElems<D>()) ? p1.v[l]: p2.v[l]);
           }
           local[c] += t;
         }
@@ -469,7 +468,7 @@ static __global__ void finalizeOutKernel(const Acc *pPartial, int nblocks, int n
     }
     if (threadIdx.x == 0) {
       Acc v = shared[0];
-      pOut[c] = Divide ? static_cast<Acc>(static_cast<double>(v) / total) : v;
+      pOut[c] = Divide ? static_cast<Acc>(static_cast<double>(v) / total): v;
     }
   }
 }
@@ -522,7 +521,7 @@ static __global__ void finalizeMaskedKernel(const double *pSum, const double *pC
   }
   if (threadIdx.x == 0) {
     double d = cnts[0];
-    pOut[0] = (d > 0.0) ? sums[0] / d : 0.0;
+    pOut[0] = (d > 0.0) ? sums[0] / d: 0.0;
   }
 }
 
@@ -530,8 +529,7 @@ static __global__ void finalizeMaskedKernel(const double *pSum, const double *pC
 // Mean + StdDev (single output channel)
 // ---------------------------------------------------------------------------
 
-// Chan is the 0-based source channel as a template parameter (package
-// opt_reduce) so the vectorized path extracts samples with compile-time
+// Chan is the 0-based source channel as a template parameter so the vectorized path extracts samples with compile-time
 // constant indices; runMeanStdDev launches Chan=0, runMeanStdDevCoi
 // dispatches Chan = nCOI-1 in {0,1,2}.  vecPath selects the 16-byte walk.
 template <typename D, int Channels, int Chan>
@@ -621,8 +619,8 @@ static __global__ void finalizeMSKernel(const double *pSum, const double *pSumSq
   }
   if (threadIdx.x == 0) {
     const double N = totalPixels;
-    pMean[0] = (N > 0.0) ? sums[0] / N : 0.0;
-    pStdDev[0] = (N > 0.0) ? stdFromSumSq(sums[0], sqs[0], N) : 0.0;
+    pMean[0] = (N > 0.0) ? sums[0] / N: 0.0;
+    pStdDev[0] = (N > 0.0) ? stdFromSumSq(sums[0], sqs[0], N): 0.0;
   }
 }
 
@@ -651,8 +649,8 @@ static __global__ void finalizeMSMaskedKernel(const double *pSum, const double *
   }
   if (threadIdx.x == 0) {
     const double N = cnts[0];
-    pMean[0] = (N > 0.0) ? sums[0] / N : 0.0;
-    pStdDev[0] = (N > 0.0) ? stdFromSumSq(sums[0], sqs[0], N) : 0.0;
+    pMean[0] = (N > 0.0) ? sums[0] / N: 0.0;
+    pStdDev[0] = (N > 0.0) ? stdFromSumSq(sums[0], sqs[0], N): 0.0;
   }
 }
 
@@ -724,7 +722,7 @@ __device__ __forceinline__ double normRelDen(D v) {
 template <NormKind NT, typename D, int Channels, bool AlphaPreserve, bool Diff>
 static __global__ void normPartialKernel(const D *pSrc, int nSrcStep, const D *pSrc2, int nSrc2Step, int width, int height,
                                   double *pPartial, int nch, int vecPath) {
-  constexpr int readCh = AlphaPreserve ? Channels - 1 : Channels;
+  constexpr int readCh = AlphaPreserve ? Channels - 1: Channels;
   constexpr bool IsInf = (NT == NormKind::Inf);
   double local[4] = {0.0, 0.0, 0.0, 0.0};
   const int totalPixels = width * height;
@@ -740,8 +738,8 @@ static __global__ void normPartialKernel(const D *pSrc, int nSrcStep, const D *p
             for (int m = 0; m < kVecElems<D>(); ++m) {
               const int e = 3 * m + c;
               const int l = e & (kVecElems<D>() - 1);
-              const D va = (e < kVecElems<D>()) ? a0.v[l] : (e < 2 * kVecElems<D>()) ? a1.v[l] : a2.v[l];
-              const D vb = (e < kVecElems<D>()) ? b0.v[l] : (e < 2 * kVecElems<D>()) ? b1.v[l] : b2.v[l];
+              const D va = (e < kVecElems<D>()) ? a0.v[l]: (e < 2 * kVecElems<D>()) ? a1.v[l]: a2.v[l];
+              const D vb = (e < kVecElems<D>()) ? b0.v[l]: (e < 2 * kVecElems<D>()) ? b1.v[l]: b2.v[l];
               normAcc<NT>(local[c], static_cast<double>(va) - static_cast<double>(vb));
             }
           }
@@ -781,7 +779,7 @@ static __global__ void normPartialKernel(const D *pSrc, int nSrcStep, const D *p
             for (int m = 0; m < kVecElems<D>(); ++m) {
               const int e = 3 * m + c;
               const int l = e & (kVecElems<D>() - 1);
-              const D v = (e < kVecElems<D>()) ? p0.v[l] : (e < 2 * kVecElems<D>()) ? p1.v[l] : p2.v[l];
+              const D v = (e < kVecElems<D>()) ? p0.v[l]: (e < 2 * kVecElems<D>()) ? p1.v[l]: p2.v[l];
               normAcc<NT>(local[c], static_cast<double>(v));
             }
           }
@@ -816,7 +814,7 @@ static __global__ void normPartialKernel(const D *pSrc, int nSrcStep, const D *p
       const int y = i / width;
       const int x = i % width;
       const D *row = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc) + y * nSrcStep);
-      const D *row2 = Diff ? reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc2) + y * nSrc2Step) : nullptr;
+      const D *row2 = Diff ? reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc2) + y * nSrc2Step): nullptr;
       for (int c = 0; c < readCh; ++c) {
         double v = normLoad<NT, D, Channels, AlphaPreserve, Diff>(row[x * Channels + c]);
         if constexpr (Diff) v -= normLoad<NT, D, Channels, AlphaPreserve, Diff>(row2[x * Channels + c]);
@@ -853,7 +851,7 @@ static __global__ void normFinalizeKernel(const double *pPartial, int nblocks, i
     }
     if (threadIdx.x == 0) {
       const double v = shared[0];
-      pOut[c] = (NT == NormKind::L2) ? sqrt(v) : v;
+      pOut[c] = (NT == NormKind::L2) ? sqrt(v): v;
     }
     __syncthreads();
   }
@@ -905,7 +903,7 @@ static __global__ void normMaskedFinalizeKernel(const double *pPartial, int nblo
   }
   if (threadIdx.x == 0) {
     const double v = shared[0];
-    pOut[0] = (NT == NormKind::L2) ? sqrt(v) : v;
+    pOut[0] = (NT == NormKind::L2) ? sqrt(v): v;
   }
 }
 
@@ -921,7 +919,7 @@ static __global__ void normMaskedFinalizeKernel(const double *pPartial, int nblo
 template <NormKind NT, typename D, int Channels, bool AlphaPreserve>
 static __global__ void normRelPartialKernel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, int width, int height,
                                      double *pDiff, double *pNorm, int nch, int vecPath) {
-  constexpr int readCh = AlphaPreserve ? Channels - 1 : Channels;
+  constexpr int readCh = AlphaPreserve ? Channels - 1: Channels;
   constexpr bool IsInf = (NT == NormKind::Inf);
   double dlocal[4] = {0.0, 0.0, 0.0, 0.0};
   double nlocal[4] = {0.0, 0.0, 0.0, 0.0};
@@ -937,8 +935,8 @@ static __global__ void normRelPartialKernel(const D *pSrc1, int nSrc1Step, const
           for (int m = 0; m < kVecElems<D>(); ++m) {
             const int e = 3 * m + c;
             const int l = e & (kVecElems<D>() - 1);
-            const double v1 = static_cast<double>((e < kVecElems<D>()) ? a0.v[l] : (e < 2 * kVecElems<D>()) ? a1.v[l] : a2.v[l]);
-            const double v2 = static_cast<double>((e < kVecElems<D>()) ? b0.v[l] : (e < 2 * kVecElems<D>()) ? b1.v[l] : b2.v[l]);
+            const double v1 = static_cast<double>((e < kVecElems<D>()) ? a0.v[l]: (e < 2 * kVecElems<D>()) ? a1.v[l]: a2.v[l]);
+            const double v2 = static_cast<double>((e < kVecElems<D>()) ? b0.v[l]: (e < 2 * kVecElems<D>()) ? b1.v[l]: b2.v[l]);
             normAcc<NT>(dlocal[c], v1 - v2);
             normAcc<NT>(nlocal[c], v2);
           }
@@ -1018,11 +1016,11 @@ static __global__ void normRelPartialKernel(const D *pSrc1, int nSrc1Step, const
 
 // Combine the block partials into the per-channel relative norm.
 // zeroDenomValue carries the source-dtype positive maximum: NVIDIA NPP 13.4
-// (RTX 5090) returns 0 when numerator and denominator norms are both zero and
+// (reference) returns 0 when numerator and denominator norms are both zero and
 // the dtype maximum when only the denominator is zero; finite ratios are never
-// clamped (verified by the normrel zero-denominator / big-ratio goldens).
+// clamped (verified by the normrel zero-denominator / big-ratio reference outputs).
 // numOnZeroDenom selects the one measured exception: the 8u single-channel
-// kernels return the numerator instead of the dtype maximum (probed: 8u C1
+// kernels return the numerator instead of the dtype maximum (measured: 8u C1
 // gives 250/200/17 for those numerators, 8u C3 and every other dtype and
 // channel count saturate, e.g. 16s -> 32767, 32f -> FLT_MAX).
 template <NormKind NT>
@@ -1067,9 +1065,9 @@ static __global__ void normRelFinalizeKernel(const double *pDiff, const double *
         n = sqrt(n);
       }
       if constexpr (IsInf) {
-        pOut[c] = (n > 0.0) ? d / n : (d == 0.0 ? 0.0 : (numOnZeroDenom ? d : zeroDenomValue));
+        pOut[c] = (n > 0.0) ? d / n: (d == 0.0 ? 0.0: (numOnZeroDenom ? d: zeroDenomValue));
       } else {
-        pOut[c] = (n > 0.0) ? d / n : ((d == 0.0) ? 0.0 : zeroDenomValue);
+        pOut[c] = (n > 0.0) ? d / n: ((d == 0.0) ? 0.0: zeroDenomValue);
       }
     }
     __syncthreads();
@@ -1146,9 +1144,9 @@ static __global__ void normRelMaskedFinalizeKernel(const double *pDiff, const do
       n = sqrt(n);
     }
     if constexpr (IsInf) {
-      pOut[0] = (n > 0.0) ? d / n : (d == 0.0 ? 0.0 : (numOnZeroDenom ? d : zeroDenomValue));
+      pOut[0] = (n > 0.0) ? d / n: (d == 0.0 ? 0.0: (numOnZeroDenom ? d: zeroDenomValue));
     } else {
-      pOut[0] = (n > 0.0) ? d / n : ((d == 0.0) ? 0.0 : zeroDenomValue);
+      pOut[0] = (n > 0.0) ? d / n: ((d == 0.0) ? 0.0: zeroDenomValue);
     }
   }
 }
@@ -1161,7 +1159,7 @@ static __global__ void normRelMaskedFinalizeKernel(const double *pDiff, const do
 template <typename D, int Channels, bool AlphaPreserve>
 static __global__ void dotProdPartialKernel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, int width, int height,
                                        double *pPartial, int nch, int vecPath) {
-  constexpr int readCh = AlphaPreserve ? Channels - 1 : Channels;
+  constexpr int readCh = AlphaPreserve ? Channels - 1: Channels;
   double local[4] = {0.0, 0.0, 0.0, 0.0};
   const int totalPixels = width * height;
   const int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -1176,8 +1174,8 @@ static __global__ void dotProdPartialKernel(const D *pSrc1, int nSrc1Step, const
           for (int m = 0; m < kVecElems<D>(); ++m) {
             const int e = 3 * m + c;
             const int l = e & (kVecElems<D>() - 1);
-            const double v1 = static_cast<double>((e < kVecElems<D>()) ? a0.v[l] : (e < 2 * kVecElems<D>()) ? a1.v[l] : a2.v[l]);
-            const double v2 = static_cast<double>((e < kVecElems<D>()) ? b0.v[l] : (e < 2 * kVecElems<D>()) ? b1.v[l] : b2.v[l]);
+            const double v1 = static_cast<double>((e < kVecElems<D>()) ? a0.v[l]: (e < 2 * kVecElems<D>()) ? a1.v[l]: a2.v[l]);
+            const double v2 = static_cast<double>((e < kVecElems<D>()) ? b0.v[l]: (e < 2 * kVecElems<D>()) ? b1.v[l]: b2.v[l]);
             t += v1 * v2;
           }
           local[c] += t;

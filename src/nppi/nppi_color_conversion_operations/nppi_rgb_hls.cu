@@ -78,7 +78,7 @@ __device__ inline void hls_to_rgb_pixel(Npp8u h, Npp8u l, Npp8u s, Npp8u &r, Npp
   if (sf <= 0.0f) {
     rf = gf = bf = lf;
   } else {
-    float q = (lf < 0.5f) ? (lf * (1.0f + sf)) : (lf + sf - lf * sf);
+    float q = (lf < 0.5f) ? (lf * (1.0f + sf)): (lf + sf - lf * sf);
     float p = 2.0f * lf - q;
     rf = hue_to_rgb(p, q, hf + 1.0f / 3.0f);
     gf = hue_to_rgb(p, q, hf);
@@ -185,7 +185,6 @@ __global__ void hls_to_rgb_ac4_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pD
     // a 0x5A-filled destination keeps 0x5A).
   }
 }
-
 
 
 __global__ void bgr_to_hls_c3p3_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDstH, Npp8u *pDstL, Npp8u *pDstS,

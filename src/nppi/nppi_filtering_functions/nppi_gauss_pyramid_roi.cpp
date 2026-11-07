@@ -4,7 +4,7 @@
 // All arithmetic is single precision:
 //   Down:    clamp(ceilf(w / rate), 1, w - 1)
 //   Up max:  max(w + 1, truncf(w * rate))
-//   Up min:  w == 1 ? 1 : max(w + 1, floorf((w - 1) * rate))
+//   Up min:  w == 1 ? 1: max(w + 1, floorf((w - 1) * rate))
 // Both helpers write (-1, -1) into every output before validating.  A rate
 // outside (1.0, 10.0] is NPP_BAD_ARGUMENT_ERROR; a non-positive source ROI
 // extent is NPP_SIZE_ERROR; a null output pointer is NPP_NULL_POINTER_ERROR.
@@ -72,12 +72,10 @@ NppStatus nppiGetFilterGaussPyramidLayerUpBorderDstROI(int nSrcROIWidth, int nSr
 
   const int minWidth =
       nSrcROIWidth == 1
-          ? 1
-          : std::max(nSrcROIWidth + 1, static_cast<int>(std::floor(static_cast<float>(nSrcROIWidth - 1) * nRate)));
+          ? 1: std::max(nSrcROIWidth + 1, static_cast<int>(std::floor(static_cast<float>(nSrcROIWidth - 1) * nRate)));
   const int minHeight =
       nSrcROIHeight == 1
-          ? 1
-          : std::max(nSrcROIHeight + 1,
+          ? 1: std::max(nSrcROIHeight + 1,
                      static_cast<int>(std::floor(static_cast<float>(nSrcROIHeight - 1) * nRate)));
   pDstSizeROIMin->width = minWidth;
   pDstSizeROIMin->height = minHeight;

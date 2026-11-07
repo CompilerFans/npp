@@ -5,9 +5,9 @@
 #include <cuda_runtime.h>
 
 // The legacy 8u/32f implementations used their own validation order and skip
-// rules, which the package-f12 differential tests showed to differ from NPP
+// rules, which the f12 reference comparisons showed to differ from NPP
 // 13.4.  All variants now go through the shared executor, whose semantics are
-// pinned by the recorded goldens (same validation/arithmetic as the generated
+// pinned by the reference outputs (same validation/arithmetic as the generated
 // wrappers for the other dtypes).
 
 // 8-bit unsigned single channel 2D convolution

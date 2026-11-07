@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 
 #if defined(__MACACC__)
-// metax warp 64
+// warp size 64
 #define WARP_SIZE 64
 #define SHFL_MASK 0xFFFFFFFFFFFFFFFFULL
 #else
@@ -32,7 +32,7 @@ __device__ __forceinline__ double blockReduceSum(double val) {
   __syncthreads();
 
   // Read from shared memory only if that warp existed
-  val = (threadIdx.x < blockDim.x / WARP_SIZE) ? shared[lane] : 0;
+  val = (threadIdx.x < blockDim.x / WARP_SIZE) ? shared[lane]: 0;
 
   if (wid == 0)
     val = warpReduceSum(val);

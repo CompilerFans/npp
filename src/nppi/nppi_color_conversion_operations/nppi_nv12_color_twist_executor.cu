@@ -1,8 +1,8 @@
-// NV12 <-> RGB ColorTwist kernels (package c4).
+// NV12 <-> RGB ColorTwist kernels.
 //
-// Semantics were reverse-engineered from NVIDIA NPP 13.4 on the RTX 5090 with
+// Semantics were reverse-engineered from NVIDIA NPP 13.4 in the reference implementation with
 // identity/half-scale/clipping twist matrices and verified element-exact by
-// the differential tests in test/unit/diff/test_nppi_nv12_color_twist_generated.cpp.
+// the reference comparisons
 
 #include "nppi_nv12_color_twist_executor.h"
 #include "npp_kernel_utils.h"
@@ -20,7 +20,7 @@ struct Twist {
   float m[12];
 };
 
-template <typename T> __host__ __device__ constexpr float typeMax() { return (sizeof(T) == 1) ? 255.0F : 65535.0F; }
+template <typename T> __host__ __device__ constexpr float typeMax() { return (sizeof(T) == 1) ? 255.0F: 65535.0F; }
 
 __device__ __forceinline__ int roundHalfUp(float value) { return (int)floorf(value + 0.5F); }
 
@@ -123,7 +123,7 @@ __global__ void rgbToNv12Kernel(const T *pSrc, int nSrcStep, const T *pPlane0, c
   // launch), so the top-left pixel of every 2x2 block computes its chroma.
   if ((x & 1) == 0 && (y & 1) == 0) {
     // Chroma is averaged in floating point over the 2x2 block and rounded
-    // half-up once, after the average (measured on the 5090).
+    // half-up once, after the average (measured on the reference).
     float uSum = fu;
     float vSum = fv;
     const int dx[3] = {1, 0, 1};
@@ -209,7 +209,7 @@ NppStatus runRgbToNv12(const T *pSrc, int nSrcStep, const T *const pSrcPlanes[3]
       return NPP_NULL_POINTER_ERROR;
     }
   }
-  NppStatus status = validateRgbToNv12<T>(oSizeROI, nSrcStep, aSrcStep, Planar ? 3 : 0, aDstStep);
+  NppStatus status = validateRgbToNv12<T>(oSizeROI, nSrcStep, aSrcStep, Planar ? 3: 0, aDstStep);
   if (status != NPP_NO_ERROR) {
     return status;  // includes NPP_DOUBLE_SIZE_WARNING, which never launches
   }
@@ -218,12 +218,12 @@ NppStatus runRgbToNv12(const T *pSrc, int nSrcStep, const T *const pSrcPlanes[3]
   }
   dim3 block = BlockConfig<>::blockSize();
   dim3 grid = BlockConfig<>::gridSize(oSizeROI.width, oSizeROI.height);
-  const T *p0 = Planar ? pSrcPlanes[0] : nullptr;
-  const T *p1 = Planar ? pSrcPlanes[1] : nullptr;
-  const T *p2 = Planar ? pSrcPlanes[2] : nullptr;
-  const int s0 = (Planar && aSrcStep != nullptr) ? aSrcStep[0] : 0;
-  const int s1 = (Planar && aSrcStep != nullptr) ? aSrcStep[1] : 0;
-  const int s2 = (Planar && aSrcStep != nullptr) ? aSrcStep[2] : 0;
+  const T *p0 = Planar ? pSrcPlanes[0]: nullptr;
+  const T *p1 = Planar ? pSrcPlanes[1]: nullptr;
+  const T *p2 = Planar ? pSrcPlanes[2]: nullptr;
+  const int s0 = (Planar && aSrcStep != nullptr) ? aSrcStep[0]: 0;
+  const int s1 = (Planar && aSrcStep != nullptr) ? aSrcStep[1]: 0;
+  const int s2 = (Planar && aSrcStep != nullptr) ? aSrcStep[2]: 0;
   rgbToNv12Kernel<T, Planar><<<grid, block, 0, stream>>>(pSrc, nSrcStep, p0, p1, p2, s0, s1, s2, pDst[0], aDstStep[0],
                                                          pDst[1], aDstStep[1], oSizeROI, makeTwist(aTwist));
   return npp_kernel::checkCudaKernelError();

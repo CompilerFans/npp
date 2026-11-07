@@ -1,10 +1,10 @@
-// c3 package executor: batch color conversions (nppi_color_conversion.h).
+// c3 executor: batch color conversions (nppi_color_conversion.h).
 //
 // The batch entry points are host-driven: the descriptor arrays live in
 // device memory, so each call copies them to the host and then launches one
 // inverse-colour kernel per image pair.
 //
-// The pixel math is the one measured on NVIDIA NPP 13.4 (RTX 5090) for these
+// The pixel math is the one measured on NVIDIA NPP 13.4 (reference) for these
 // inverse conversions.  Both families are single-precision evaluations with a
 // fused multiply-add and C-style truncation after saturation to [0,255]:
 //
@@ -155,9 +155,9 @@ __global__ void planarToPackedKernel(const Npp8u *pY, int nYStep, const Npp8u *p
   Npp8u *pDstPixel = pDst + static_cast<size_t>(y) * nDstStep + 3 * x;
   Npp8u r, g, b;
   inversePixel<kYuv>(pSrcRowY[x], pSrcRowCb[cx], pSrcRowCr[cx], r, g, b);
-  pDstPixel[0] = kBgr ? b : r;
+  pDstPixel[0] = kBgr ? b: r;
   pDstPixel[1] = g;
-  pDstPixel[2] = kBgr ? r : b;
+  pDstPixel[2] = kBgr ? r: b;
 }
 
 // Packed 4:4:4 source -> packed destination.
@@ -172,9 +172,9 @@ __global__ void packedKernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int n
   Npp8u *pDstPixel = pDst + static_cast<size_t>(y) * nDstStep + 3 * x;
   Npp8u r, g, b;
   inversePixel<kYuv>(pSrcPixel[0], pSrcPixel[1], pSrcPixel[2], r, g, b);
-  pDstPixel[0] = kBgr ? b : r;
+  pDstPixel[0] = kBgr ? b: r;
   pDstPixel[1] = g;
-  pDstPixel[2] = kBgr ? r : b;
+  pDstPixel[2] = kBgr ? r: b;
 }
 
 NppStatus validateDescriptor(const NppiImageDescriptor &d) {
@@ -220,7 +220,7 @@ NppStatus launchPlanar(const NppiImageDescriptor *const pSrc[3], const NppiImage
       static_cast<const Npp8u *>(pSrc[0]->pData), pSrc[0]->nStep, static_cast<const Npp8u *>(pSrc[1]->pData),
       pSrc[1]->nStep, static_cast<const Npp8u *>(pSrc[2]->pData), pSrc[2]->nStep,
       static_cast<Npp8u *>(dst.pData), dst.nStep, roi.width, roi.height);
-  return (cudaGetLastError() == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaGetLastError() == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 template <bool kBgr, bool kYuv>
@@ -232,7 +232,7 @@ NppStatus launchPacked(const NppiImageDescriptor &src, const NppiImageDescriptor
   packedKernel<kBgr, kYuv><<<grid, block, 0, stream>>>(static_cast<const Npp8u *>(src.pData), src.nStep,
                                                        static_cast<Npp8u *>(dst.pData), dst.nStep, roi.width,
                                                        roi.height);
-  return (cudaGetLastError() == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaGetLastError() == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus dispatchPlanar(Conversion conv, const NppiImageDescriptor *const pSrc[3], const NppiImageDescriptor &dst,
@@ -319,7 +319,7 @@ NppStatus runPlanar(const NppiImageDescriptor *const pSrc[3], NppiImageDescripto
       return status;
     }
     NppiSize roi{};
-    status = effectiveRoi(conv, advanced ? hDst[i].oSize : oSizeROI, roi, warned);
+    status = effectiveRoi(conv, advanced ? hDst[i].oSize: oSizeROI, roi, warned);
     if (status != NPP_NO_ERROR) {
       return status;
     }
@@ -330,7 +330,7 @@ NppStatus runPlanar(const NppiImageDescriptor *const pSrc[3], NppiImageDescripto
       return status;
     }
   }
-  return warned ? NPP_DOUBLE_SIZE_WARNING : NPP_NO_ERROR;
+  return warned ? NPP_DOUBLE_SIZE_WARNING: NPP_NO_ERROR;
 }
 
 NppStatus runPacked(const NppiImageDescriptor *pSrc, NppiImageDescriptor *pDst, int nBatchSize, NppiSize oSizeROI,
@@ -359,7 +359,7 @@ NppStatus runPacked(const NppiImageDescriptor *pSrc, NppiImageDescriptor *pDst, 
       return status;
     }
     NppiSize roi{};
-    status = effectiveRoi(conv, advanced ? hDst[i].oSize : oSizeROI, roi, warned);
+    status = effectiveRoi(conv, advanced ? hDst[i].oSize: oSizeROI, roi, warned);
     if (status != NPP_NO_ERROR) {
       return status;
     }
@@ -370,7 +370,7 @@ NppStatus runPacked(const NppiImageDescriptor *pSrc, NppiImageDescriptor *pDst, 
       return status;
     }
   }
-  return warned ? NPP_DOUBLE_SIZE_WARNING : NPP_NO_ERROR;
+  return warned ? NPP_DOUBLE_SIZE_WARNING: NPP_NO_ERROR;
 }
 
 } // namespace c3batch

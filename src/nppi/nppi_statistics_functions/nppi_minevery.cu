@@ -186,4 +186,3 @@ NppStatus nppiMinEvery_32f_AC4IR_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f *
 NppStatus nppiMinEvery_32f_AC4IR(const Npp32f * pSrc, int nSrcStep, Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
   return nppiMinEvery_32f_AC4IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
 }
-

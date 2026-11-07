@@ -1,8 +1,8 @@
-// CPU-golden coverage for the Gauss filter families
+// CPU-reference output coverage for the Gauss filter families
 // (nppi_filtering_functions.h):
 //   nppiFilterGauss{,_Border} and nppiFilterGaussAdvanced{,_Border}.
 //
-// Measured NPP 13.4 semantics (RTX 5090):
+// Measured NPP 13.4 semantics (reference):
 //   * nppiFilterGauss accepts the square masks 3,5,7,9,11,13,15.  The 1D
 //     kernel is exp(-d^2 / (2 sigma^2)) with sigma = 0.6 + 0.4 * (taps/2),
 //     normalised so the taps sum to one; the 2D kernel is the outer product
@@ -40,12 +40,10 @@ template <typename Dst> inline Dst gaussEmit(float acc) {
   if constexpr (std::is_floating_point_v<Dst>) {
     return (Dst)acc;
   } else {
-    constexpr float kLo = std::is_same_v<Dst, Npp16s> ? -32768.0f : 0.0f;
-    constexpr float kHi = std::is_same_v<Dst, Npp8u> ? 255.0f
-                         : std::is_same_v<Dst, Npp16u> ? 65535.0f
-                                                      : 32767.0f;
-    const float lo = acc < kLo ? kLo : acc;
-    const float v = lo > kHi ? kHi : lo;
+    constexpr float kLo = std::is_same_v<Dst, Npp16s> ? -32768.0f: 0.0f;
+    constexpr float kHi = std::is_same_v<Dst, Npp8u> ? 255.0f: std::is_same_v<Dst, Npp16u> ? 65535.0f: 32767.0f;
+    const float lo = acc < kLo ? kLo: acc;
+    const float v = lo > kHi ? kHi: lo;
     return (Dst)(int)v;
   }
 }
@@ -69,24 +67,18 @@ void run_gauss(const char *id, Call call) {
   static const int advTaps[] = {3, 5};
   static const float kAdv3[3] = {0.25f, 0.5f, 0.25f};
   static const float kAdv5[5] = {0.0625f, 0.25f, 0.375f, 0.25f, 0.0625f};
-  const int nCase = Advanced ? 2 : 7;
-  const int m = Advanced ? 2 : 7;
+  const int nCase = Advanced ? 2: 7;
+  const int m = Advanced ? 2: 7;
   bool failed = false;
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     for (int ci = 0; ci < nCase && !failed; ++ci) {
-      const int taps = Advanced ? advTaps[ci] : fixedMasks[ci];
-      const int maskEnum = Advanced ? (int)NPP_MASK_SIZE_3_X_3 : (taps == 3 ? (int)NPP_MASK_SIZE_3_X_3
-                                                        : taps == 5 ? (int)NPP_MASK_SIZE_5_X_5
-                                                        : taps == 7 ? (int)NPP_MASK_SIZE_7_X_7
-                                                        : taps == 9 ? (int)NPP_MASK_SIZE_9_X_9
-                                                        : taps == 11 ? (int)NPP_MASK_SIZE_11_X_11
-                                                        : taps == 13 ? (int)NPP_MASK_SIZE_13_X_13
-                                                                     : (int)NPP_MASK_SIZE_15_X_15);
+      const int taps = Advanced ? advTaps[ci]: fixedMasks[ci];
+      const int maskEnum = Advanced ? (int)NPP_MASK_SIZE_3_X_3: (taps == 3 ? (int)NPP_MASK_SIZE_3_X_3: taps == 5 ? (int)NPP_MASK_SIZE_5_X_5: taps == 7 ? (int)NPP_MASK_SIZE_7_X_7: taps == 9 ? (int)NPP_MASK_SIZE_9_X_9: taps == 11 ? (int)NPP_MASK_SIZE_11_X_11: taps == 13 ? (int)NPP_MASK_SIZE_13_X_13: (int)NPP_MASK_SIZE_15_X_15);
       // pKernel is a DEVICE pointer for the GaussAdvanced families (the
       // reference and the in-tree kernel read it from global memory).
       std::vector<float> khost((size_t)taps);
       if (Advanced) {
-        const float *src = taps == 3 ? kAdv3 : kAdv5;
+        const float *src = taps == 3 ? kAdv3: kAdv5;
         for (int i = 0; i < taps; ++i) khost[(size_t)i] = src[i];
       } else {
         gauss1d(taps, khost.data());
@@ -96,7 +88,7 @@ void run_gauss(const char *id, Call call) {
       const Npp32f *ker = kdev.get();
       const int r = taps / 2;
       const int W = cf.w + 2 * m, H = cf.h + 2 * m;
-      const uint64_t seed = case_seed(id, cf.w, cf.h, taps, Border ? 1 : 0, 0, 0);
+      const uint64_t seed = case_seed(id, cf.w, cf.h, taps, Border ? 1: 0, 0, 0);
       Buf<Src> *s = new Buf<Src>(W, H, C, 0, 0);
       fill_regime(*s, C, seed, kWide, 0, false, false, false);
       s->dev.copyFromHost(s->host);
@@ -125,11 +117,11 @@ void run_gauss(const char *id, Call call) {
             float acc = 0.0f;
             for (int j = 0; j < taps; ++j) {
               int yy = m + y + j - r;
-              if constexpr (Border) yy = yy < 0 ? 0 : (yy > H - 1 ? H - 1 : yy);
+              if constexpr (Border) yy = yy < 0 ? 0: (yy > H - 1 ? H - 1: yy);
               const float kj = khost[(size_t)j];
               for (int i = 0; i < taps; ++i) {
                 int xx = m + x + i - r;
-                if constexpr (Border) xx = xx < 0 ? 0 : (xx > W - 1 ? W - 1 : xx);
+                if constexpr (Border) xx = xx < 0 ? 0: (xx > W - 1 ? W - 1: xx);
                 const float kv = kj * khost[(size_t)i];
                 const Src v = s->hptr()[(size_t)yy * srow + (size_t)xx * C + c];
                 acc = warp_fma(kv, (float)v, acc);

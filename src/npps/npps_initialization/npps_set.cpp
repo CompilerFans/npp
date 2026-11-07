@@ -3,7 +3,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Kernel declarations (implemented in .cu file)
+// Kernel declarations (implemented in.cu file)
 
 extern "C" {
 cudaError_t nppsSet_8u_kernel(Npp8u nValue, Npp8u *pDst, size_t nLength, cudaStream_t stream);
@@ -28,7 +28,7 @@ template <> NppStatus nppsSetImpl<Npp8u>(Npp8u nValue, Npp8u *pDst, size_t nLeng
   }
 
   cudaError_t cudaStatus = nppsSet_8u_kernel(nValue, pDst, nLength, stream);
-  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 template <> NppStatus nppsSetImpl<Npp32f>(Npp32f nValue, Npp32f *pDst, size_t nLength, cudaStream_t stream) {
@@ -40,7 +40,7 @@ template <> NppStatus nppsSetImpl<Npp32f>(Npp32f nValue, Npp32f *pDst, size_t nL
   }
 
   cudaError_t cudaStatus = nppsSet_32f_kernel(nValue, pDst, nLength, stream);
-  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 template <> NppStatus nppsSetImpl<Npp32fc>(Npp32fc nValue, Npp32fc *pDst, size_t nLength, cudaStream_t stream) {
@@ -52,7 +52,7 @@ template <> NppStatus nppsSetImpl<Npp32fc>(Npp32fc nValue, Npp32fc *pDst, size_t
   }
 
   cudaError_t cudaStatus = nppsSet_32fc_kernel(nValue, pDst, nLength, stream);
-  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 } // namespace

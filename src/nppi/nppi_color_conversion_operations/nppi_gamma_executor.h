@@ -1,9 +1,9 @@
 #pragma once
 
 // Planar (P3R/IP3R) gamma executors for the nppiGammaFwd / nppiGammaInv
-// families (package c4).
+// families.
 //
-// NVIDIA NPP 13.4 semantics, measured on the RTX 5090:
+// NVIDIA NPP 13.4 semantics, measured in the reference implementation:
 //   * Every byte of each of the three planes inside the ROI is mapped through
 //     the family LUT (the tables in nppi_gamma.cu, verified byte-exact).
 //     Row padding past the ROI is untouched.
@@ -18,7 +18,7 @@
 //   * NVIDIA returns NPP_NO_ERROR for negative steps and launches a kernel
 //     that walks out-of-bounds rows (nondeterministic output); mcMPP returns
 //     NPP_NO_ERROR without launching.  Negative steps are not covered by
-//     goldens.
+//     reference outputs.
 
 #include "npp.h"
 #include <cuda_runtime.h>

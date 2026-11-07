@@ -1,7 +1,7 @@
 #pragma once
 
 // Shared 1D executor for the npps scalar / bitwise / shift / reduction
-// arithmetic families implemented by package p1.1c:
+// arithmetic families implemented.1c:
 //   nppsSqrt / nppsSqr / nppsExp / nppsLn / npps10Log10 / nppsAbs / nppsArctan
 //   / nppsCubrt  (scalar unary, scaled and plain)
 //   nppsAnd / nppsOr / nppsXor / nppsNot (bitwise)
@@ -10,19 +10,19 @@
 //   nppsSumLn / nppsSumLnGetBufferSize (reduction)
 //   nppsCauchy / nppsCauchyD / nppsCauchyDD2 (in-place distribution transform)
 //
-// Host-visible surface (safe for plain .cpp translation units): executor
+// Host-visible surface (safe for plain.cpp translation units): executor
 // entry-point templates are declared here and defined + explicitly
 // instantiated in npps_unary_ops.cu.
 //
-// Semantics (validated against NVIDIA NPP 13.4 by differential tests):
-//   * scaled integer unary : d[i] = F::apply(src[i], sf)
-//   * plain float unary    : d[i] = F::apply(src[i]).
-//   * in-place (_I/_ISfs)  : pSrcDst = F(pSrcDst).
-//   * bitwise And/Or/Xor   : pDst = pSrc1 op pSrc2 (integer only)
-//   * nppsNot              : pDst = ~pSrc
-//   * nppsLShiftC/RShiftC  : pDst = pSrc << nValue | pSrc >> nValue
-//   * nppsMul_Low_32s_Sfs  : low 32 bits of the 64-bit product, then scaled
-//   * nppsSumLn            : scalar sum of natural logarithms
+// Semantics (validated against NVIDIA NPP 13.4 by reference comparisons):
+//   * scaled integer unary: d[i] = F::apply(src[i], sf)
+//   * plain float unary: d[i] = F::apply(src[i]).
+//   * in-place (_I/_ISfs): pSrcDst = F(pSrcDst).
+//   * bitwise And/Or/Xor: pDst = pSrc1 op pSrc2 (integer only)
+//   * nppsNot: pDst = ~pSrc
+//   * nppsLShiftC/RShiftC: pDst = pSrc << nValue | pSrc >> nValue
+//   * nppsMul_Low_32s_Sfs: low 32 bits of the 64-bit product, then scaled
+//   * nppsSumLn: scalar sum of natural logarithms
 
 #include "npp.h"
 #include "npp_version_compat.h"
@@ -44,7 +44,7 @@ namespace ek = npps::elementwise::detail;
 // NOTE: the host toolchain (g++ via cu-bridge) does not expose the C99
 // long-double <cmath> family (floorl/ceill/sqrtl/logl/expl/atanl/cbrtl/hypotl),
 // so all transcendental intermediate math is done in `double`; only the
-// fixed-point scaling/rounding step is integer-based.  Differential tests use
+// fixed-point scaling/rounding step is integer-based.  Reference comparisons use
 // rtol/atol=1e-5 so double precision is ample.
 __device__ __host__ inline long long rnd(double v) {
   // round to nearest, ties to even.
@@ -85,13 +85,13 @@ struct SqrtOp {
         const float r = std::hypot(re, im);
         const float gamma = std::sqrt((r + re) / 2.0f);
         const float delta = std::sqrt((r - re) / 2.0f);
-        D d; d.re = gamma; d.im = (im < 0.0f ? -delta : delta); return d;
+        D d; d.re = gamma; d.im = (im < 0.0f ? -delta: delta); return d;
       } else {
         double re = rp(a), im = ip(a);
         double r = std::hypot(re, im);
         double gamma = std::sqrt((r + re) / 2.0);
         double delta = std::sqrt((r - re) / 2.0);
-        D d; d.re = (C)gamma; d.im = (C)(im < 0 ? -delta : delta); return d;
+        D d; d.re = (C)gamma; d.im = (C)(im < 0 ? -delta: delta); return d;
       }
     } else return (D)std::sqrt(rp(a));
   }
@@ -99,13 +99,13 @@ struct SqrtOp {
     using C = ed::component_t_ty<D>;
     if constexpr (ed::is_complex_v<D>) {
       // NPP 13.4 truncates (floor) the scaled components of the complex sqrt,
-      // rather than round-half-even (validated against goldens).
+      // rather than round-half-even (validated against reference outputs).
       double re = rp(a), im = ip(a);
       double r = std::hypot(re, im);
       double gamma = std::sqrt((r + re) / 2.0), delta = std::sqrt((r - re) / 2.0);
       // Principal square root: real part is gamma, imaginary part carries
       // the sign of the input's imaginary component.
-      double gr = gamma, gi = (im < 0 ? -delta : delta);
+      double gr = gamma, gi = (im < 0 ? -delta: delta);
       double s = (1ll << sf);
       D d; d.re = (C)(gr / s); d.im = (C)(gi / s); return d;
     } else {
@@ -170,7 +170,7 @@ struct ExpOp {
       const double r = std::exp(rp(a));
       using L = std::numeric_limits<D>;
       if (r != r) return (D)L::min();
-      return (D)(r < (double)L::min() ? (double)L::min() : (r > (double)L::max() ? (double)L::max() : r));
+      return (D)(r < (double)L::min() ? (double)L::min(): (r > (double)L::max() ? (double)L::max(): r));
     }
     return (D)std::exp(rp(a));
   }
@@ -265,7 +265,7 @@ struct AbsOp {
     if constexpr (std::is_same_v<D, Npp32s>) {
       if (v == (long long)std::numeric_limits<Npp32s>::min()) return (D)v;
     }
-    return ek::sat_ll<D>(v < 0 ? -v : v);
+    return ek::sat_ll<D>(v < 0 ? -v: v);
   }
 };
 
@@ -277,7 +277,7 @@ struct ArctanOp {
 struct CubrtOp {
   template <typename A, typename D> __device__ __host__ D applyF(const A& a) const {
     double x = rp(a);
-    return (D)(x < 0 ? -std::cbrt(-x) : std::cbrt(x));
+    return (D)(x < 0 ? -std::cbrt(-x): std::cbrt(x));
   }
   template <typename A, typename D> __device__ __host__ D applyS(const A& a, int sf) const {
     if constexpr (std::is_same_v<D, Npp16s> && std::is_same_v<A, Npp32s>) {
@@ -287,7 +287,7 @@ struct CubrtOp {
       return ek::sat_ll<D>(rnd((double)(r / (float)(1 << sf))));
     }
     double x = rp(a);
-    double cb = x < 0 ? -std::cbrt(-x) : std::cbrt(x);
+    double cb = x < 0 ? -std::cbrt(-x): std::cbrt(x);
     return ssc<D>(cb, sf);
   }
 };
@@ -354,7 +354,7 @@ NppStatus mulLow(const Npp32s* a, const Npp32s* b, Npp32s* d, NppSignalLength nL
 template <typename A, typename D>
 NppStatus sumLn(const A* src, NppSignalLength nLength, D* dst, Npp8u* pDeviceBuffer, cudaStream_t stream);
 template <typename A>
-NppStatus sumLnGetBufferSize(NppSignalLength nLength, int* hpBufferSize);
+NppStatus sumLnGetBufferSize(NppSignalLength nLength, NPP_BUFFER_SIZE_TYPE* hpBufferSize);
 
 // ---------------------------------------------------------------------------
 // nppsCauchy robustness transforms (Npp32f in-place).

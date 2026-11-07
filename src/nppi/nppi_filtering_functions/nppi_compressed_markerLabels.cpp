@@ -201,7 +201,7 @@ NppStatus nppiCompressedMarkerLabelsUFGetInfoListSize_32u_C1R(unsigned int nMaxM
 }
 
 // Get compressed marker labels info
-// Batch compress marker labels (non-Advanced).  Measured on the 5090: this form
+// Batch compress marker labels (non-Advanced).  Measured on the reference: this form
 // applies the common oSizeROI to every image in the batch (the per-image
 // descriptor oSize and nStep are ignored) and otherwise behaves exactly like
 // the Advanced form with oMaxSizeROI = oSizeROI and

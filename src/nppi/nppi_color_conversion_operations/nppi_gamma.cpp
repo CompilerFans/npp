@@ -35,7 +35,7 @@ static inline NppStreamContext createDefaultStreamContext() {
 
 // ============================================================================
 // Non-Ctx Versions (wrappers that call Ctx versions with default stream)
-// IMPORTANT: Parameter validation is done in .cu executor functions
+// IMPORTANT: Parameter validation is done in.cu executor functions
 // ============================================================================
 
 NppStatus nppiGammaFwd_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {

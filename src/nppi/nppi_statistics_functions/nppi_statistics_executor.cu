@@ -11,7 +11,7 @@ namespace {
 
 // Two-stage reduction cores (blockReduce and the partial/finalize kernels for
 // Sum / Mean / Mean_StdDev / Norm / NormDiff / NormRel / DotProd) moved to the
-// shared header src/include/npp_reduction.cuh (package p0.1); re-exported here
+// shared header src/include/npp_reduction.cuh; re-exported here
 // so the kept kernels and the executor functions below keep using them
 // unqualified.  The Min/Max, index and AverageError kernels stay local.
 using npp_reduce::blockReduce;
@@ -39,7 +39,7 @@ using npp_reduce::reducePartialKernel;
 using npp_reduce::reduceGridBlocks;
 using npp_reduce::rows16Aligned;
 using npp_reduce::vec16Units;
-// Vectorized-walk helpers (package opt_reduce).
+// Vectorized-walk helpers.
 using npp_reduce::VecPack;
 using npp_reduce::kVecElems;
 using npp_reduce::walkVecPacks;
@@ -50,8 +50,8 @@ using npp_reduce::walkVecCoi;
 using npp_reduce::walkVecFlat;
 using npp_reduce::walkVecFlat2;
 
-// Host-side launch geometry for the partial stage of the two-stage reduction
-// (package opt_reduce): the kernels take the 16-byte vectorized walk when every
+// Host-side launch geometry for the partial stage of the two-stage reduction:
+// the kernels take the 16-byte vectorized walk when every
 // row start of every source is 16-byte aligned, otherwise the original scalar
 // grid-stride loop.  The grid aims for kItemsPerThread 16-byte units (pixels
 // on the fallback path) per thread and is capped by the classic block count so
@@ -66,21 +66,21 @@ __host__ __forceinline__ ReduceLaunch reduceLaunch(const void *p, int step, int 
                                                    int esize) {
   const int area = width * height;
   const bool vec = rows16Aligned(p, step);
-  const long long units = vec ? vec16Units(width, height, channels, esize) : (long long)area;
-  return ReduceLaunch{reduceGridBlocks(units, numBlocks(area)), vec ? 1 : 0};
+  const long long units = vec ? vec16Units(width, height, channels, esize): (long long)area;
+  return ReduceLaunch{reduceGridBlocks(units, numBlocks(area)), vec ? 1: 0};
 }
 __host__ __forceinline__ ReduceLaunch reduceLaunch2(const void *p1, int step1, const void *p2, int step2, int width,
                                                     int height, int channels, int esize) {
   const int area = width * height;
   const bool vec = rows16Aligned(p1, step1) && rows16Aligned(p2, step2);
-  const long long units = vec ? vec16Units(width, height, channels, esize) : (long long)area;
-  return ReduceLaunch{reduceGridBlocks(units, numBlocks(area)), vec ? 1 : 0};
+  const long long units = vec ? vec16Units(width, height, channels, esize): (long long)area;
+  return ReduceLaunch{reduceGridBlocks(units, numBlocks(area)), vec ? 1: 0};
 }
 
 // Zero one device double (matches NVIDIA's nCOI<=0 convention for COI kernels).
 inline NppStatus zeroDevice(Npp64f *p, cudaStream_t s) {
   cudaError_t e = cudaMemsetAsync(p, 0, sizeof(Npp64f), s);
-  return (e == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (e == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 // ---------------------------------------------------------------------------
@@ -89,7 +89,7 @@ inline NppStatus zeroDevice(Npp64f *p, cudaStream_t s) {
 
 // Neutral initial value: largest for a min-reduce, smallest for a max-reduce.
 template <typename D, bool IsMin> __device__ __forceinline__ D extremeInit() {
-  return IsMin ? std::numeric_limits<D>::max() : std::numeric_limits<D>::lowest();
+  return IsMin ? std::numeric_limits<D>::max(): std::numeric_limits<D>::lowest();
 }
 
 // Block-wide min/max reduction (IsMin selects the combine op).
@@ -101,7 +101,7 @@ template <typename D, bool IsMin> __device__ D blockReduceExtreme(D val) {
     if (threadIdx.x < s) {
       D a = shared[threadIdx.x];
       D b = shared[threadIdx.x + s];
-      shared[threadIdx.x] = IsMin ? (a < b ? a : b) : (a > b ? a : b);
+      shared[threadIdx.x] = IsMin ? (a < b ? a: b): (a > b ? a: b);
     }
     __syncthreads();
   }
@@ -115,7 +115,7 @@ template <typename D, int Channels, bool AlphaPreserve, bool IsMin>
 __global__ void reduceExtremeKernel(const D *pSrc, int nSrcStep, int width, int height, D *pPartial, int nch,
                                     int vecPath) {
   D local[4];
-  constexpr int readCh = AlphaPreserve ? Channels - 1 : Channels;
+  constexpr int readCh = AlphaPreserve ? Channels - 1: Channels;
   for (int c = 0; c < readCh; ++c) local[c] = extremeInit<D, IsMin>();
   const int totalPixels = width * height;
   const int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -128,15 +128,15 @@ __global__ void reduceExtremeKernel(const D *pSrc, int nSrcStep, int width, int 
           for (int m = 0; m < kVecElems<D>(); ++m) {
             const int e = 3 * m + c;
             const int l = e & (kVecElems<D>() - 1);
-            const D v = (e < kVecElems<D>()) ? p0.v[l] : (e < 2 * kVecElems<D>()) ? p1.v[l] : p2.v[l];
-            local[c] = IsMin ? ((v < local[c]) ? v : local[c]) : ((v > local[c]) ? v : local[c]);
+            const D v = (e < kVecElems<D>()) ? p0.v[l]: (e < 2 * kVecElems<D>()) ? p1.v[l]: p2.v[l];
+            local[c] = IsMin ? ((v < local[c]) ? v: local[c]): ((v > local[c]) ? v: local[c]);
           }
         }
       };
       auto remFn = [&](int c, D v, int x, int y) {
-        if (c == 0) local[0] = IsMin ? ((v < local[0]) ? v : local[0]) : ((v > local[0]) ? v : local[0]);
-        else if (c == 1) local[1] = IsMin ? ((v < local[1]) ? v : local[1]) : ((v > local[1]) ? v : local[1]);
-        else local[2] = IsMin ? ((v < local[2]) ? v : local[2]) : ((v > local[2]) ? v : local[2]);
+        if (c == 0) local[0] = IsMin ? ((v < local[0]) ? v: local[0]): ((v > local[0]) ? v: local[0]);
+        else if (c == 1) local[1] = IsMin ? ((v < local[1]) ? v: local[1]): ((v > local[1]) ? v: local[1]);
+        else local[2] = IsMin ? ((v < local[2]) ? v: local[2]): ((v > local[2]) ? v: local[2]);
       };
       walkVecGroups3(pSrc, nSrcStep, width, height, groupFn, remFn);
     } else {
@@ -146,15 +146,15 @@ __global__ void reduceExtremeKernel(const D *pSrc, int nSrcStep, int width, int 
 #pragma unroll
           for (int m = 0; m < kVecElems<D>() / Channels; ++m) {
             const D v = p.v[m * Channels + c];
-            local[c] = IsMin ? ((v < local[c]) ? v : local[c]) : ((v > local[c]) ? v : local[c]);
+            local[c] = IsMin ? ((v < local[c]) ? v: local[c]): ((v > local[c]) ? v: local[c]);
           }
         }
       };
       auto remFn = [&](int c, D v, int x, int y) {
-        if (c == 0) local[0] = IsMin ? ((v < local[0]) ? v : local[0]) : ((v > local[0]) ? v : local[0]);
-        else if (c == 1) local[1] = IsMin ? ((v < local[1]) ? v : local[1]) : ((v > local[1]) ? v : local[1]);
-        else if (c == 2) local[2] = IsMin ? ((v < local[2]) ? v : local[2]) : ((v > local[2]) ? v : local[2]);
-        else if (!AlphaPreserve) local[3] = IsMin ? ((v < local[3]) ? v : local[3]) : ((v > local[3]) ? v : local[3]);
+        if (c == 0) local[0] = IsMin ? ((v < local[0]) ? v: local[0]): ((v > local[0]) ? v: local[0]);
+        else if (c == 1) local[1] = IsMin ? ((v < local[1]) ? v: local[1]): ((v > local[1]) ? v: local[1]);
+        else if (c == 2) local[2] = IsMin ? ((v < local[2]) ? v: local[2]): ((v > local[2]) ? v: local[2]);
+        else if (!AlphaPreserve) local[3] = IsMin ? ((v < local[3]) ? v: local[3]): ((v > local[3]) ? v: local[3]);
       };
       walkVecPacks<Channels>(pSrc, nSrcStep, width, height, packFn, remFn);
     }
@@ -166,9 +166,9 @@ __global__ void reduceExtremeKernel(const D *pSrc, int nSrcStep, int width, int 
       for (int c = 0; c < readCh; ++c) {
         const D v = row[x * Channels + c];
         if (IsMin) {
-          local[c] = (v < local[c]) ? v : local[c];
+          local[c] = (v < local[c]) ? v: local[c];
         } else {
-          local[c] = (v > local[c]) ? v : local[c];
+          local[c] = (v > local[c]) ? v: local[c];
         }
       }
     }
@@ -179,7 +179,7 @@ __global__ void reduceExtremeKernel(const D *pSrc, int nSrcStep, int width, int 
   }
 }
 
-// Single-pass MinMax (package opt_reduce): one walk of the ROI produces both
+// Single-pass MinMax: one walk of the ROI produces both
 // the min and the max partial slabs, halving the global traffic of the
 // previous two reduceExtremeKernel launches and halving the intermediate
 // partial write-backs.  Results are identical to the two-pass version because
@@ -188,7 +188,7 @@ template <typename D, int Channels, bool AlphaPreserve>
 __global__ void reduceMinMaxKernel(const D *pSrc, int nSrcStep, int width, int height, D *pMinPartial, D *pMaxPartial,
                                    int nch, int vecPath) {
   D lmin[4], lmax[4];
-  constexpr int readCh = AlphaPreserve ? Channels - 1 : Channels;
+  constexpr int readCh = AlphaPreserve ? Channels - 1: Channels;
   for (int c = 0; c < readCh; ++c) {
     lmin[c] = extremeInit<D, true>();
     lmax[c] = extremeInit<D, false>();
@@ -204,22 +204,22 @@ __global__ void reduceMinMaxKernel(const D *pSrc, int nSrcStep, int width, int h
           for (int m = 0; m < kVecElems<D>(); ++m) {
             const int e = 3 * m + c;
             const int l = e & (kVecElems<D>() - 1);
-            const D v = (e < kVecElems<D>()) ? p0.v[l] : (e < 2 * kVecElems<D>()) ? p1.v[l] : p2.v[l];
-            lmin[c] = (v < lmin[c]) ? v : lmin[c];
-            lmax[c] = (v > lmax[c]) ? v : lmax[c];
+            const D v = (e < kVecElems<D>()) ? p0.v[l]: (e < 2 * kVecElems<D>()) ? p1.v[l]: p2.v[l];
+            lmin[c] = (v < lmin[c]) ? v: lmin[c];
+            lmax[c] = (v > lmax[c]) ? v: lmax[c];
           }
         }
       };
       auto remFn = [&](int c, D v, int x, int y) {
         if (c == 0) {
-          lmin[0] = (v < lmin[0]) ? v : lmin[0];
-          lmax[0] = (v > lmax[0]) ? v : lmax[0];
+          lmin[0] = (v < lmin[0]) ? v: lmin[0];
+          lmax[0] = (v > lmax[0]) ? v: lmax[0];
         } else if (c == 1) {
-          lmin[1] = (v < lmin[1]) ? v : lmin[1];
-          lmax[1] = (v > lmax[1]) ? v : lmax[1];
+          lmin[1] = (v < lmin[1]) ? v: lmin[1];
+          lmax[1] = (v > lmax[1]) ? v: lmax[1];
         } else {
-          lmin[2] = (v < lmin[2]) ? v : lmin[2];
-          lmax[2] = (v > lmax[2]) ? v : lmax[2];
+          lmin[2] = (v < lmin[2]) ? v: lmin[2];
+          lmax[2] = (v > lmax[2]) ? v: lmax[2];
         }
       };
       walkVecGroups3(pSrc, nSrcStep, width, height, groupFn, remFn);
@@ -230,24 +230,24 @@ __global__ void reduceMinMaxKernel(const D *pSrc, int nSrcStep, int width, int h
 #pragma unroll
           for (int m = 0; m < kVecElems<D>() / Channels; ++m) {
             const D v = p.v[m * Channels + c];
-            lmin[c] = (v < lmin[c]) ? v : lmin[c];
-            lmax[c] = (v > lmax[c]) ? v : lmax[c];
+            lmin[c] = (v < lmin[c]) ? v: lmin[c];
+            lmax[c] = (v > lmax[c]) ? v: lmax[c];
           }
         }
       };
       auto remFn = [&](int c, D v, int x, int y) {
         if (c == 0) {
-          lmin[0] = (v < lmin[0]) ? v : lmin[0];
-          lmax[0] = (v > lmax[0]) ? v : lmax[0];
+          lmin[0] = (v < lmin[0]) ? v: lmin[0];
+          lmax[0] = (v > lmax[0]) ? v: lmax[0];
         } else if (c == 1) {
-          lmin[1] = (v < lmin[1]) ? v : lmin[1];
-          lmax[1] = (v > lmax[1]) ? v : lmax[1];
+          lmin[1] = (v < lmin[1]) ? v: lmin[1];
+          lmax[1] = (v > lmax[1]) ? v: lmax[1];
         } else if (c == 2) {
-          lmin[2] = (v < lmin[2]) ? v : lmin[2];
-          lmax[2] = (v > lmax[2]) ? v : lmax[2];
+          lmin[2] = (v < lmin[2]) ? v: lmin[2];
+          lmax[2] = (v > lmax[2]) ? v: lmax[2];
         } else if (!AlphaPreserve) {
-          lmin[3] = (v < lmin[3]) ? v : lmin[3];
-          lmax[3] = (v > lmax[3]) ? v : lmax[3];
+          lmin[3] = (v < lmin[3]) ? v: lmin[3];
+          lmax[3] = (v > lmax[3]) ? v: lmax[3];
         }
       };
       walkVecPacks<Channels>(pSrc, nSrcStep, width, height, packFn, remFn);
@@ -259,8 +259,8 @@ __global__ void reduceMinMaxKernel(const D *pSrc, int nSrcStep, int width, int h
       const D *row = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc) + y * nSrcStep);
       for (int c = 0; c < readCh; ++c) {
         const D v = row[x * Channels + c];
-        lmin[c] = (v < lmin[c]) ? v : lmin[c];
-        lmax[c] = (v > lmax[c]) ? v : lmax[c];
+        lmin[c] = (v < lmin[c]) ? v: lmin[c];
+        lmax[c] = (v > lmax[c]) ? v: lmax[c];
       }
     }
   }
@@ -281,7 +281,7 @@ __global__ void finalizeExtremeKernel(const D *pPartial, int nblocks, int nch, D
     D acc = extremeInit<D, IsMin>();
     for (int i = threadIdx.x; i < nblocks; i += blockDim.x) {
       const D v = pPartial[(size_t)c * nblocks + i];
-      acc = IsMin ? (v < acc ? v : acc) : (v > acc ? v : acc);
+      acc = IsMin ? (v < acc ? v: acc): (v > acc ? v: acc);
     }
     shared[threadIdx.x] = acc;
     __syncthreads();
@@ -289,7 +289,7 @@ __global__ void finalizeExtremeKernel(const D *pPartial, int nblocks, int nch, D
       if (threadIdx.x < s) {
         D a = shared[threadIdx.x];
         D b = shared[threadIdx.x + s];
-        shared[threadIdx.x] = IsMin ? (a < b ? a : b) : (a > b ? a : b);
+        shared[threadIdx.x] = IsMin ? (a < b ? a: b): (a > b ? a: b);
       }
       __syncthreads();
     }
@@ -323,7 +323,7 @@ template <typename D, bool IsMin> __device__ __forceinline__ bool extrBeats(D av
 template <typename D, int Channels, bool AlphaPreserve, bool IsMin>
 __global__ void extrIndxKernel(const D *pSrc, int nSrcStep, int width, int height, D *pVal, int *pX, int *pY, int nch,
                                int vecPath) {
-  constexpr int readCh = AlphaPreserve ? Channels - 1 : Channels;
+  constexpr int readCh = AlphaPreserve ? Channels - 1: Channels;
   D lv[4];
   int lx[4], ly[4];
   for (int c = 0; c < readCh; ++c) {
@@ -342,7 +342,7 @@ __global__ void extrIndxKernel(const D *pSrc, int nSrcStep, int width, int heigh
           for (int m = 0; m < kVecElems<D>(); ++m) {
             const int e = 3 * m + c;
             const int l = e & (kVecElems<D>() - 1);
-            const D v = (e < kVecElems<D>()) ? p0.v[l] : (e < 2 * kVecElems<D>()) ? p1.v[l] : p2.v[l];
+            const D v = (e < kVecElems<D>()) ? p0.v[l]: (e < 2 * kVecElems<D>()) ? p1.v[l]: p2.v[l];
             if (extrBeats<D, IsMin>(v, x0 + m, y, lv[c], lx[c], ly[c])) {
               lv[c] = v;
               lx[c] = x0 + m;
@@ -512,7 +512,7 @@ __global__ void extrIndxFinalKernel(const D *pVal, const int *pX, const int *pY,
 // ---------------------------------------------------------------------------
 // MinMaxIndx: scalar min + scalar max for one selected channel, each with its
 // coordinate.  pMask may be null (unmasked); when present a non-zero byte marks
-// a valid pixel.  Chan (package opt_reduce) is the 0-based source channel index
+// a valid pixel.  Chan is the 0-based source channel index
 // as a template parameter so the unmasked 16-byte path (vecPath) extracts
 // samples with compile-time constant indices; the masked path keeps the scalar
 // loop (mask alignment/steps are unconstrained).
@@ -545,7 +545,7 @@ __global__ void minmaxIndxKernel(const D *pSrc, int nSrcStep, const Npp8u *pMask
       const int y = i / width;
       const int x = i % width;
       const Npp8u *maskRow =
-          pMask ? reinterpret_cast<const Npp8u *>(reinterpret_cast<const char *>(pMask) + y * nMaskStep) : nullptr;
+          pMask ? reinterpret_cast<const Npp8u *>(reinterpret_cast<const char *>(pMask) + y * nMaskStep): nullptr;
       if (maskRow && maskRow[x] == 0) continue;
       const D *row = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc) + y * nSrcStep);
       const D v = row[x * Channels + Chan];
@@ -681,7 +681,7 @@ __device__ __forceinline__ double absVal(D a) {
 }
 
 // One scalar partial per block (unlike dotProd's per-channel slab).  vecPath
-// (package opt_reduce) walks the ROI as flat 16-byte element packs: every
+// walks the ROI as flat 16-byte element packs: every
 // element folds identically (single scalar accumulator), so no channel
 // structure is needed and all dtypes/channels (incl. 64f C4) work.
 template <typename D, int Channels, bool Relative>
@@ -694,7 +694,7 @@ __global__ void avgErrPartialKernel(const D *pSrc1, int nSrc1Step, const D *pSrc
     auto fold = [&](D a, D b) {
       if (Relative) {
         const double den = fmax(absVal(a), absVal(b));
-        local += (den > 0.0) ? absDiff(a, b) / den : 0.0;
+        local += (den > 0.0) ? absDiff(a, b) / den: 0.0;
       } else {
         local += absDiff(a, b);
       }
@@ -716,7 +716,7 @@ __global__ void avgErrPartialKernel(const D *pSrc1, int nSrc1Step, const D *pSrc
         const D b = r2[x * Channels + c];
         if (Relative) {
           const double den = fmax(absVal(a), absVal(b));
-          local += (den > 0.0) ? absDiff(a, b) / den : 0.0;
+          local += (den > 0.0) ? absDiff(a, b) / den: 0.0;
         } else {
           local += absDiff(a, b);
         }
@@ -824,7 +824,7 @@ NppStatus runSum(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceB
   const int esize = (int)sizeof(D);
   if (nSrcStep < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
 
-  constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
+  constexpr int nCh = Channels - (AlphaPreserve ? 1: 0);
   const ReduceLaunch rl = reduceLaunch(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, Channels, esize);
   Acc *partial = reinterpret_cast<Acc *>(pDeviceBuffer);
 
@@ -850,7 +850,7 @@ NppStatus runMean(const DType *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDe
   const int esize = (int)sizeof(DType);
   if (nSrcStep < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
 
-  constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
+  constexpr int nCh = Channels - (AlphaPreserve ? 1: 0);
   const int area = oSizeROI.width * oSizeROI.height;
   const ReduceLaunch rl = reduceLaunch(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, Channels, esize);
   Npp64f *partial = reinterpret_cast<Npp64f *>(pDeviceBuffer);
@@ -1049,7 +1049,7 @@ NppStatus runMin(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceB
   const int esize = (int)sizeof(D);
   if (nSrcStep < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
 
-  constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
+  constexpr int nCh = Channels - (AlphaPreserve ? 1: 0);
   const ReduceLaunch rl = reduceLaunch(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, Channels, esize);
   D *partial = reinterpret_cast<D *>(pDeviceBuffer);
 
@@ -1073,7 +1073,7 @@ NppStatus runMax(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceB
   const int esize = (int)sizeof(D);
   if (nSrcStep < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
 
-  constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
+  constexpr int nCh = Channels - (AlphaPreserve ? 1: 0);
   const ReduceLaunch rl = reduceLaunch(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, Channels, esize);
   D *partial = reinterpret_cast<D *>(pDeviceBuffer);
 
@@ -1097,13 +1097,12 @@ NppStatus runMinMax(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDevi
   const int esize = (int)sizeof(D);
   if (nSrcStep < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
 
-  constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
+  constexpr int nCh = Channels - (AlphaPreserve ? 1: 0);
   const ReduceLaunch rl = reduceLaunch(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, Channels, esize);
   D *minPart = reinterpret_cast<D *>(pDeviceBuffer);
   D *maxPart = minPart + (size_t)rl.blocks * nCh;
 
-  // Single pass over the source produces both partial slabs (package
-  // opt_reduce): half the global traffic and half the intermediate partial
+  // Single pass over the source produces both partial slabs: half the global traffic and half the intermediate partial
   // write-backs of the previous two reduceExtremeKernel launches; min and max
   // are order-independent so the result is unchanged.
   (void)cudaGetLastError();
@@ -1131,7 +1130,7 @@ NppStatus runExtrIndx(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDe
   const int esize = (int)sizeof(D);
   if (nSrcStep < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
 
-  constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
+  constexpr int nCh = Channels - (AlphaPreserve ? 1: 0);
   const ReduceLaunch rl = reduceLaunch(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, Channels, esize);
   // Align each partial section so 1/2-byte dtypes do not create misaligned
   // int position arrays (MACA traps on misaligned stores).
@@ -1177,8 +1176,7 @@ NppStatus runMinMaxIndx(const D *p, int nSrcStep, const Npp8u *pMask, int nMaskS
   // Unmasked calls take the 16-byte vectorized walk (channel is a template
   // parameter); masked calls keep the scalar loop and only get the re-sized
   // grid (~4 pixels per thread).
-  const ReduceLaunch rl = (!pMask) ? reduceLaunch(p, nSrcStep, oi.width, oi.height, Channels, (int)sizeof(D))
-                                   : ReduceLaunch{reduceGridBlocks((long long)oi.width * oi.height,
+  const ReduceLaunch rl = (!pMask) ? reduceLaunch(p, nSrcStep, oi.width, oi.height, Channels, (int)sizeof(D)): ReduceLaunch{reduceGridBlocks((long long)oi.width * oi.height,
                                                                    numBlocks(oi.width * oi.height)),
                                                   0};
   const int blocks = rl.blocks;
@@ -1236,23 +1234,21 @@ NppStatus runMinMaxIndx(const D *p, int nSrcStep, const Npp8u *pMask, int nMaskS
 // npp_reduce::NormKind the shared reduction kernels are templated on
 // (npp_reduction.cuh is family-agnostic).
 constexpr npp_reduce::NormKind normKind(NormType nt) {
-  return (nt == NormType::L1) ? npp_reduce::NormKind::L1
-       : (nt == NormType::L2) ? npp_reduce::NormKind::L2
-       : npp_reduce::NormKind::Inf;
+  return (nt == NormType::L1) ? npp_reduce::NormKind::L1: (nt == NormType::L2) ? npp_reduce::NormKind::L2: npp_reduce::NormKind::Inf;
 }
 
 template <NormType NT, typename D, int Channels, bool AlphaPreserve>
 NppStatus runNorm(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer, Npp64f *pNorm,
                   cudaStream_t stream) {
   if (!pSrc) return NPP_NULL_POINTER_ERROR;
-  if (!pNorm) return NPP_NULL_POINTER_ERROR;               // NVIDIA 5090 validates the result pointer
+  if (!pNorm) return NPP_NULL_POINTER_ERROR;               // NVIDIA reference validates the result pointer
   if (!pDeviceBuffer) return NPP_NO_ERROR;                 // scratch buffer not validated
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;  // empty ROI is a no-op
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   const int esize = (int)sizeof(D);
   if (nSrcStep < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
 
-  constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
+  constexpr int nCh = Channels - (AlphaPreserve ? 1: 0);
   const ReduceLaunch rl = reduceLaunch(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, Channels, esize);
   double *partial = reinterpret_cast<double *>(pDeviceBuffer);
 
@@ -1271,7 +1267,7 @@ template <NormType NT, typename D, int Channels, bool AlphaPreserve>
 NppStatus runNormDiff(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI,
                       Npp8u *pDeviceBuffer, Npp64f *pNorm, cudaStream_t stream) {
   if (!pSrc1 || !pSrc2) return NPP_NULL_POINTER_ERROR;
-  if (!pNorm) return NPP_NULL_POINTER_ERROR;               // NVIDIA 5090 validates the result pointer
+  if (!pNorm) return NPP_NULL_POINTER_ERROR;               // NVIDIA reference validates the result pointer
   if (!pDeviceBuffer) return NPP_NO_ERROR;                 // scratch buffer not validated
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
@@ -1279,7 +1275,7 @@ NppStatus runNormDiff(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2St
   if (nSrc1Step < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
   if (nSrc2Step < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
 
-  constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
+  constexpr int nCh = Channels - (AlphaPreserve ? 1: 0);
   const ReduceLaunch rl = reduceLaunch2(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, Channels,
                                         esize);
   double *partial = reinterpret_cast<double *>(pDeviceBuffer);
@@ -1406,8 +1402,8 @@ NppStatus runNormDiffMaskedCoi(const D *pSrc1, int nSrc1Step, const D *pSrc2, in
 
 // ============================== NormRel =====================================
 
-// Positive maximum of the source dtype (NPP_8U_MAX / NPP_16S_MAX / FLT_MAX /
-// ...): the value NVIDIA NPP 13.4 returns for a NormRel channel whose
+// Positive maximum of the source dtype: the value NVIDIA NPP 13.4 returns
+// for a NormRel channel whose
 // denominator norm is zero while the numerator is not.
 template <typename D> constexpr double normRelZeroDenomValue() {
   return static_cast<double>(std::numeric_limits<D>::max());
@@ -1417,7 +1413,7 @@ template <NormType NT, typename D, int Channels, bool AlphaPreserve>
 NppStatus runNormRel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI,
                      Npp8u *pDeviceBuffer, Npp64f *pNorm, cudaStream_t stream) {
   if (!pSrc1 || !pSrc2) return NPP_NULL_POINTER_ERROR;
-  if (!pNorm) return NPP_NULL_POINTER_ERROR;               // NVIDIA 5090 validates the result pointer
+  if (!pNorm) return NPP_NULL_POINTER_ERROR;               // NVIDIA reference validates the result pointer
   if (!pDeviceBuffer) return NPP_NO_ERROR;                 // scratch buffer not validated
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;  // empty ROI is a no-op
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
@@ -1425,7 +1421,7 @@ NppStatus runNormRel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Ste
   if (nSrc1Step < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
   if (nSrc2Step < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
 
-  constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
+  constexpr int nCh = Channels - (AlphaPreserve ? 1: 0);
   const ReduceLaunch rl = reduceLaunch2(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, Channels,
                                         esize);
   // Two partial slabs (numerator and denominator), nch columns each.
@@ -1514,7 +1510,7 @@ template <typename D, int Channels, bool AlphaPreserve>
 NppStatus runDotProd(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI,
                      Npp8u *pDeviceBuffer, Npp64f *pDp, cudaStream_t stream) {
   if (!pSrc1 || !pSrc2) return NPP_NULL_POINTER_ERROR;
-  if (!pDp) return NPP_NULL_POINTER_ERROR;                 // NVIDIA 5090 validates the result pointer
+  if (!pDp) return NPP_NULL_POINTER_ERROR;                 // NVIDIA reference validates the result pointer
   if (!pDeviceBuffer) return NPP_NO_ERROR;                 // scratch buffer not validated
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;  // empty ROI is a no-op
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
@@ -1522,7 +1518,7 @@ NppStatus runDotProd(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Ste
   if (nSrc1Step < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
   if (nSrc2Step < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
 
-  constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
+  constexpr int nCh = Channels - (AlphaPreserve ? 1: 0);
   const ReduceLaunch rl = reduceLaunch2(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, Channels,
                                         esize);
   double *partial = reinterpret_cast<double *>(pDeviceBuffer);
@@ -1540,7 +1536,7 @@ NppStatus runDotProd(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Ste
 
 // ============================== AverageError ================================
 // Validation order and status codes pinned against NVIDIA NPP 13.4 on the
-// 5090 (differential tests + step-matrix probes); see nppi_statistics_executor.h.
+// reference (reference comparisons + step-matrix measurements); see nppi_statistics_executor.h.
 
 template <typename D, int Channels, bool Relative>
 NppStatus runAverageErrorImpl(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI,
@@ -1553,7 +1549,7 @@ NppStatus runAverageErrorImpl(const D *pSrc1, int nSrc1Step, const D *pSrc2, int
   // C2: 2*esize, C4: 4*esize); each source is checked fully (STEP, then
   // NOT_EVEN) before the next one.  step == 0 -> STEP_ERROR, step == -1
   // passes (huge unsigned), negative steps take the unsigned modulo.
-  constexpr int kStepFactor = (Channels % 4 == 0) ? 4 : ((Channels % 2 == 0) ? 2 : 1);
+  constexpr int kStepFactor = (Channels % 4 == 0) ? 4: ((Channels % 2 == 0) ? 2: 1);
   const Npp32u rowBytes = (Npp32u)oSizeROI.width * (Npp32u)Channels * (Npp32u)sizeof(D);
   const Npp32u align = (Npp32u)sizeof(D) * (Npp32u)kStepFactor;
   if ((Npp32u)nSrc1Step < rowBytes) return NPP_STEP_ERROR;
@@ -1595,7 +1591,7 @@ NppStatus runAverageRelativeError(const D *pSrc1, int nSrc1Step, const D *pSrc2,
 
 // ============================== MaximumError ================================
 // Validation order and status codes pinned against NVIDIA NPP 13.4 on the
-// 5090 (differential tests + combined-violation order probes); see
+// reference (reference comparisons + combined-violation order measurements); see
 // nppi_statistics_executor.h.  Identical to the AverageError contract.
 
 template <typename D, int Channels, bool Relative>
@@ -1608,7 +1604,7 @@ NppStatus runMaxErrorImpl(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSr
   // size and requires multiples of sizeof(D) * 2^v2(Channels) (C1/C3: esize,
   // C2: 2*esize, C4: 4*esize); each source is checked fully (STEP, then
   // NOT_EVEN) before the next one.
-  constexpr int kStepFactor = (Channels % 4 == 0) ? 4 : ((Channels % 2 == 0) ? 2 : 1);
+  constexpr int kStepFactor = (Channels % 4 == 0) ? 4: ((Channels % 2 == 0) ? 2: 1);
   const Npp32u rowBytes = (Npp32u)oSizeROI.width * (Npp32u)Channels * (Npp32u)sizeof(D);
   const Npp32u align = (Npp32u)sizeof(D) * (Npp32u)kStepFactor;
   if ((Npp32u)nSrc1Step < rowBytes) return NPP_STEP_ERROR;
@@ -1649,21 +1645,21 @@ NppStatus runMaxRelativeError(const D *pSrc1, int nSrc1Step, const D *pSrc2, int
 
 // ============================== Buffer size ==================================
 
-NppStatus sumGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+NppStatus sumGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
   *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 4 * (int)sizeof(Npp64f));
   return NPP_NO_ERROR;
 }
 
-NppStatus meanGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+NppStatus meanGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
   *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 4 * (int)sizeof(Npp64f));
   return NPP_NO_ERROR;
 }
 
-NppStatus meanStdDevGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+NppStatus meanStdDevGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
   *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 3 * (int)sizeof(double));
@@ -1673,38 +1669,38 @@ NppStatus meanStdDevGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
 // Per-channel min or max fits in blocks * 4 elements of the (single) output
 // dtype; MinMax additionally needs a second equally sized slab.  Exact bytes
 // are not a contract, only that the returned size is sufficient.
-NppStatus minGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+NppStatus minGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
   *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 4 * (int)sizeof(Npp64f));
   return NPP_NO_ERROR;
 }
 
-NppStatus maxGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+NppStatus maxGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   return minGetBufferHostSize(oi, hpBufferSize);
 }
 
-NppStatus minMaxGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+NppStatus minMaxGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
   *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 8 * (int)sizeof(Npp64f));
   return NPP_NO_ERROR;
 }
 
-NppStatus minIndxGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+NppStatus minIndxGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
   *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 8 * (int)sizeof(Npp64f));
   return NPP_NO_ERROR;
 }
 
-NppStatus maxIndxGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+NppStatus maxIndxGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   return minIndxGetBufferHostSize(oi, hpBufferSize);
 }
 
 // min and max block partials each need (value D + x int + y int); a safe upper
 // bound is 2 slabs of block-entries of 4 int-sized fields.
-NppStatus minMaxIndxGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+NppStatus minMaxIndxGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
   *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 8 * (int)sizeof(Npp64f));
@@ -1714,81 +1710,81 @@ NppStatus minMaxIndxGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
 // Norm partials hold at most 3 channel doubles per block; a 4-double slab is a
 // safe upper bound for both plain and masked reductions.  Exact bytes are not a
 // contract, only that the returned size is sufficient.
-NppStatus normL1GetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+NppStatus normL1GetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
   *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 4 * (int)sizeof(Npp64f));
   return NPP_NO_ERROR;
 }
 
-NppStatus normL2GetBufferHostSize(NppiSize oi, int *hpBufferSize) { return normL1GetBufferHostSize(oi, hpBufferSize); }
-NppStatus normInfGetBufferHostSize(NppiSize oi, int *hpBufferSize) { return normL1GetBufferHostSize(oi, hpBufferSize); }
-NppStatus normDiffL1GetBufferHostSize(NppiSize oi, int *hpBufferSize) { return normL1GetBufferHostSize(oi, hpBufferSize); }
-NppStatus normDiffL2GetBufferHostSize(NppiSize oi, int *hpBufferSize) { return normL1GetBufferHostSize(oi, hpBufferSize); }
-NppStatus normDiffInfGetBufferHostSize(NppiSize oi, int *hpBufferSize) { return normL1GetBufferHostSize(oi, hpBufferSize); }
+NppStatus normL2GetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) { return normL1GetBufferHostSize(oi, hpBufferSize); }
+NppStatus normInfGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) { return normL1GetBufferHostSize(oi, hpBufferSize); }
+NppStatus normDiffL1GetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) { return normL1GetBufferHostSize(oi, hpBufferSize); }
+NppStatus normDiffL2GetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) { return normL1GetBufferHostSize(oi, hpBufferSize); }
+NppStatus normDiffInfGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) { return normL1GetBufferHostSize(oi, hpBufferSize); }
 
 // NormRel needs two partial slabs (numerator and denominator), each holding at
 // most 3 channel doubles per block; an 8-double slab per block is a safe upper
 // bound.  Exact bytes are not a contract, only that the size is sufficient.
-NppStatus normRelL1GetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+NppStatus normRelL1GetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
   *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 8 * (int)sizeof(Npp64f));
   return NPP_NO_ERROR;
 }
-NppStatus normRelL2GetBufferHostSize(NppiSize oi, int *hpBufferSize) { return normRelL1GetBufferHostSize(oi, hpBufferSize); }
-NppStatus normRelInfGetBufferHostSize(NppiSize oi, int *hpBufferSize) { return normRelL1GetBufferHostSize(oi, hpBufferSize); }
+NppStatus normRelL2GetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) { return normRelL1GetBufferHostSize(oi, hpBufferSize); }
+NppStatus normRelInfGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) { return normRelL1GetBufferHostSize(oi, hpBufferSize); }
 
 // DotProd partials hold at most 4 channel doubles per block.
-NppStatus dotProdGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+NppStatus dotProdGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
   *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 4 * (int)sizeof(Npp64f));
   return NPP_NO_ERROR;
 }
 
-// CrossCorr NormLevel scratch-size helpers (5090-measured): the host buffer
+// CrossCorr NormLevel scratch-size helpers (reference-measured): the host buffer
 // depends only on the ROI height and the channel count,
 // size = 8 * nChannels * (height + 5); width and element type are irrelevant
-// (probes: 32f C1R 6x5 -> 80, AC4R -> 320, 64f C1R -> 80, 256x1 -> 48).
-NppStatus fullNormLevelGetBufferHostSize(NppiSize oi, int *hpBufferSize, int nChannels) {
+// (measurements: 32f C1R 6x5 -> 80, AC4R -> 320, 64f C1R -> 80, 256x1 -> 48).
+NppStatus fullNormLevelGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize, int nChannels) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
   *hpBufferSize = 8 * nChannels * (oi.height + 5);
   return NPP_NO_ERROR;
 }
-NppStatus sameNormLevelGetBufferHostSize(NppiSize oi, int *hpBufferSize, int nChannels) {
+NppStatus sameNormLevelGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize, int nChannels) {
   return fullNormLevelGetBufferHostSize(oi, hpBufferSize, nChannels);
 }
-NppStatus validNormLevelGetBufferHostSize(NppiSize oi, int *hpBufferSize, int nChannels) {
+NppStatus validNormLevelGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize, int nChannels) {
   return fullNormLevelGetBufferHostSize(oi, hpBufferSize, nChannels);
 }
 
 // Unlike every other helper above, NVIDIA 13.4 accepts a zero-sized ROI here
-// and returns NPP_NO_ERROR without writing anything (5090-measured); negative
+// and returns NPP_NO_ERROR without writing anything (reference-measured); negative
 // sizes are still NPP_SIZE_ERROR.  One scalar double partial per block.
-NppStatus averageErrorGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+NppStatus averageErrorGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (oi.width < 0 || oi.height < 0) return NPP_SIZE_ERROR;
   if (oi.width == 0 || oi.height == 0) return NPP_NO_ERROR;
   *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * (int)sizeof(Npp64f));
   return NPP_NO_ERROR;
 }
-NppStatus averageRelativeErrorGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+NppStatus averageRelativeErrorGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   return averageErrorGetBufferHostSize(oi, hpBufferSize);
 }
 
-// Same convention as the AverageError helpers (5090-measured): a zero-sized
+// Same convention as the AverageError helpers (reference-measured): a zero-sized
 // ROI is accepted with NPP_NO_ERROR and nothing written; negative sizes are
 // NPP_SIZE_ERROR.  One scalar double partial per block.
-NppStatus maximumErrorGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+NppStatus maximumErrorGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (oi.width < 0 || oi.height < 0) return NPP_SIZE_ERROR;
   if (oi.width == 0 || oi.height == 0) return NPP_NO_ERROR;
   *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * (int)sizeof(Npp64f));
   return NPP_NO_ERROR;
 }
-NppStatus maximumRelativeErrorGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+NppStatus maximumRelativeErrorGetBufferHostSize(NppiSize oi, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   return maximumErrorGetBufferHostSize(oi, hpBufferSize);
 }
 
@@ -1951,7 +1947,7 @@ template NppStatus runMinMaxIndx<Npp16u,1>(const Npp16u*,int,const Npp8u*,int,Np
 template NppStatus runMinMaxIndx<Npp16u,3>(const Npp16u*,int,const Npp8u*,int,NppiSize,int,Npp16u*,Npp16u*,NppiPoint*,NppiPoint*,Npp8u*,cudaStream_t);
 template NppStatus runMinMaxIndx<Npp32f,1>(const Npp32f*,int,const Npp8u*,int,NppiSize,int,Npp32f*,Npp32f*,NppiPoint*,NppiPoint*,Npp8u*,cudaStream_t);
 template NppStatus runMinMaxIndx<Npp32f,3>(const Npp32f*,int,const Npp8u*,int,NppiSize,int,Npp32f*,Npp32f*,NppiPoint*,NppiPoint*,Npp8u*,cudaStream_t);
-// --- Norm / NormDiff explicit instantiations (package p3.1b1) ---
+// --- Norm / NormDiff explicit instantiations ---
 template NppStatus runNorm<nppi::statistics::NormType::L1,Npp8u,1,0>(const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
 template NppStatus runNorm<nppi::statistics::NormType::L1,Npp8u,3,0>(const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
 template NppStatus runNorm<nppi::statistics::NormType::L1,Npp8u,4,0>(const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
@@ -2102,7 +2098,7 @@ template NppStatus runNormMasked<nppi::statistics::NormType::Inf,Npp8s>(const Np
 template NppStatus runNormMaskedCoi<nppi::statistics::NormType::Inf,Npp8s>(const Npp8s*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp64f*,cudaStream_t);
 template NppStatus runNormDiffMasked<nppi::statistics::NormType::Inf,Npp8s>(const Npp8s*,int,const Npp8s*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
 template NppStatus runNormDiffMaskedCoi<nppi::statistics::NormType::Inf,Npp8s>(const Npp8s*,int,const Npp8s*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp64f*,cudaStream_t);
-// --- NormRel explicit instantiations (package p3.1b2) ---
+// --- NormRel explicit instantiations ---
 template NppStatus runNormRel<nppi::statistics::NormType::L1,Npp16s,1,0>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
 template NppStatus runNormRel<nppi::statistics::NormType::L1,Npp16s,3,0>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
 template NppStatus runNormRel<nppi::statistics::NormType::L1,Npp16s,4,0>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
@@ -2175,7 +2171,7 @@ template NppStatus runNormRelMasked<nppi::statistics::NormType::Inf,Npp8s>(const
 template NppStatus runNormRelMaskedCoi<nppi::statistics::NormType::Inf,Npp8s>(const Npp8s*,int,const Npp8s*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp64f*,cudaStream_t);
 template NppStatus runNormRelMasked<nppi::statistics::NormType::Inf,Npp8u>(const Npp8u*,int,const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
 template NppStatus runNormRelMaskedCoi<nppi::statistics::NormType::Inf,Npp8u>(const Npp8u*,int,const Npp8u*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp64f*,cudaStream_t);
-// --- DotProd explicit instantiations (package p3.1b2) ---
+// --- DotProd explicit instantiations ---
 template NppStatus runDotProd<Npp8u,1,0>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
 template NppStatus runDotProd<Npp8u,3,0>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
 template NppStatus runDotProd<Npp8u,4,0>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);

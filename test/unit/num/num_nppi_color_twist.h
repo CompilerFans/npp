@@ -1,4 +1,4 @@
-// CPU-golden coverage for the single-image nppiColorTwist families
+// CPU-reference output coverage for the single-image nppiColorTwist families
 // (nppiColorTwist, nppiColorTwist32f, nppiColorTwist32fC,
 // nppiColorTwist_32fC).
 //
@@ -93,13 +93,13 @@ void run_twist(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     // NPP's 8s kernels switch to a vectorized path when the row pitch is a
     // multiple of 128 bytes; that path mis-handles signed samples (every
     // negative byte saturates high).  A pitch of align16 + 4 is never a
     // multiple of 128 and selects the scalar path.
-    const int padUse = std::is_same_v<S, Npp8s> ? 4 : c.pad;
+    const int padUse = std::is_same_v<S, Npp8s> ? 4: c.pad;
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, padUse, 0);
     Buf<S> d(c.w, c.h, C, padUse, 0x5A);
     fill_regime(s, C, case_seed(id, c.w, c.h, s.step, d.step, 0, 0), c.regime, 0, false, false,
@@ -125,7 +125,7 @@ void run_twist(const char *id, Call call) {
         s.host = orig;
         s.dev.copyFromHost(s.host);
       }
-      const std::vector<uint8_t> pre = InPlace ? orig : d.host;
+      const std::vector<uint8_t> pre = InPlace ? orig: d.host;
       npp_diff::clear_cuda_error();
       NppStatus st;
       if constexpr (InPlace) {
@@ -149,8 +149,7 @@ void run_twist(const char *id, Call call) {
       for (int y = 0; y < c.h; ++y)
         for (int x = 0; x < c.w; ++x) {
           const size_t so = (size_t)y * (s.step / (int)sizeof(S)) + (size_t)x * C;
-          const size_t db = InPlace ? off_bytes<S>(c.oy + y, c.ox + x, s.step, C)
-                                    : off_bytes<S>(y, x, d.step, C);
+          const size_t db = InPlace ? off_bytes<S>(c.oy + y, c.ox + x, s.step, C): off_bytes<S>(y, x, d.step, C);
           float v[4] = {0, 0, 0, 0};
           for (int ch = 0; ch < C; ++ch) v[ch] = (float)as_double(hsrc[so + (size_t)ch]);
           for (int ch = 0; ch < A && ch < 3; ++ch) {
@@ -168,9 +167,9 @@ void run_twist(const char *id, Call call) {
             }
           }
         }
-      const GenCase dc{c.w, c.h, InPlace ? c.ox : 0, InPlace ? c.oy : 0, 0, kSmall, 0};
+      const GenCase dc{c.w, c.h, InPlace ? c.ox: 0, InPlace ? c.oy: 0, 0, kSmall, 0};
       if (!rotate_check<S, C, A>(id, dc, NPPI_INTER_NN, pre, got, want,
-                                 InPlace ? s.step : d.step, std::vector<uint8_t>(), cnt, first)) {
+                                 InPlace ? s.step: d.step, std::vector<uint8_t>(), cnt, first)) {
         if (cnt.mismatched >= 8) break;
       }
       if (cnt.mismatched >= 8) break;
@@ -201,9 +200,9 @@ void run_twist_c(const char *id, Call call) {
       {0, 0, 0, 0},
       {1, 2, 3, 4},
   };
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
-    const int padUse = std::is_same_v<S, Npp8s> ? 4 : c.pad;
+    const int padUse = std::is_same_v<S, Npp8s> ? 4: c.pad;
     Buf<S> s(c.w + c.ox, c.h + c.oy, 4, padUse, 0);
     Buf<S> d(c.w, c.h, 4, padUse, 0x5A);
     fill_regime(s, 4, case_seed(id, c.w, c.h, s.step, d.step, 0, 0), c.regime, 0, false, false,
@@ -227,7 +226,7 @@ void run_twist_c(const char *id, Call call) {
         s.host = orig;
         s.dev.copyFromHost(s.host);
       }
-      const std::vector<uint8_t> pre = InPlace ? orig : d.host;
+      const std::vector<uint8_t> pre = InPlace ? orig: d.host;
       npp_diff::clear_cuda_error();
       NppStatus st;
       if constexpr (InPlace) {
@@ -255,8 +254,7 @@ void run_twist_c(const char *id, Call call) {
       for (int y = 0; y < c.h; ++y)
         for (int x = 0; x < c.w; ++x) {
           const size_t so = (size_t)y * (s.step / (int)sizeof(S)) + (size_t)x * 4;
-          const size_t db = InPlace ? off_bytes<S>(c.oy + y, c.ox + x, s.step, 4)
-                                    : off_bytes<S>(y, x, d.step, 4);
+          const size_t db = InPlace ? off_bytes<S>(c.oy + y, c.ox + x, s.step, 4): off_bytes<S>(y, x, d.step, 4);
           float v[4];
           for (int ch = 0; ch < 4; ++ch) v[ch] = (float)as_double(hsrc[so + (size_t)ch]);
           for (int ch = 0; ch < 4; ++ch) {
@@ -267,9 +265,9 @@ void run_twist_c(const char *id, Call call) {
             std::memcpy(want.data() + db + (size_t)ch * sizeof(S), &out, sizeof(S));
           }
         }
-      const GenCase dc{c.w, c.h, InPlace ? c.ox : 0, InPlace ? c.oy : 0, 0, kSmall, 0};
+      const GenCase dc{c.w, c.h, InPlace ? c.ox: 0, InPlace ? c.oy: 0, 0, kSmall, 0};
       if (!rotate_check<S, 4, 4>(id, dc, NPPI_INTER_NN, pre, got, want,
-                                 InPlace ? s.step : d.step, std::vector<uint8_t>(), cnt, first)) {
+                                 InPlace ? s.step: d.step, std::vector<uint8_t>(), cnt, first)) {
         if (cnt.mismatched >= 8) break;
       }
       if (cnt.mismatched >= 8) break;
@@ -288,7 +286,7 @@ void run_twist_planar(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     std::vector<Buf<S> *> srcs;
     const uint64_t seed = case_seed(id, c.w, c.h, c.pad, 0, (int)c.regime, 0);
@@ -340,12 +338,11 @@ void run_twist_planar(const char *id, Call call) {
         std::vector<uint8_t> got;
         if constexpr (InPlace) srcs[(size_t)p]->dev.copyToHost(got);
         else dsts[(size_t)p]->dev.copyToHost(got);
-        std::vector<uint8_t> want = InPlace ? orig[(size_t)p] : pre[(size_t)p];
+        std::vector<uint8_t> want = InPlace ? orig[(size_t)p]: pre[(size_t)p];
         for (int y = 0; y < c.h; ++y)
           for (int x = 0; x < c.w; ++x) {
             const size_t so = (size_t)y * (srcs[(size_t)p]->step / (int)sizeof(S)) + (size_t)x;
-            const size_t db = InPlace ? off_bytes<S>(c.oy + y, c.ox + x, srcs[(size_t)p]->step, 1)
-                                      : off_bytes<S>(y, x, dsts[(size_t)p]->step, 1);
+            const size_t db = InPlace ? off_bytes<S>(c.oy + y, c.ox + x, srcs[(size_t)p]->step, 1): off_bytes<S>(y, x, dsts[(size_t)p]->step, 1);
             float v[3];
             for (int q = 0; q < 3; ++q) {
               const size_t o2 = (size_t)y * (srcs[(size_t)q]->step / (int)sizeof(S)) + (size_t)x;
@@ -356,17 +353,17 @@ void run_twist_planar(const char *id, Call call) {
             const S out = from_float<S>(o);
             std::memcpy(want.data() + db, &out, sizeof(S));
           }
-        const GenCase dc{c.w, c.h, InPlace ? c.ox : 0, InPlace ? c.oy : 0, 0, kSmall, 0};
-        if (!rotate_check<S, 1, 1>(id, dc, NPPI_INTER_NN, InPlace ? orig[(size_t)p] : pre[(size_t)p], got,
-                                   want, InPlace ? srcs[(size_t)p]->step : dsts[(size_t)p]->step,
+        const GenCase dc{c.w, c.h, InPlace ? c.ox: 0, InPlace ? c.oy: 0, 0, kSmall, 0};
+        if (!rotate_check<S, 1, 1>(id, dc, NPPI_INTER_NN, InPlace ? orig[(size_t)p]: pre[(size_t)p], got,
+                                   want, InPlace ? srcs[(size_t)p]->step: dsts[(size_t)p]->step,
                                    std::vector<uint8_t>(), cnt, first))
           failed = true;
         if (cnt.mismatched >= 8) break;
       }
       if (failed) break;
     }
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
     if (cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);
@@ -426,8 +423,8 @@ void run_twist_batch(const char *id, Call call) {
   for (int i = 0; i < B; ++i) {
     Buf<S> *a = new Buf<S>(W, H, C, 0, 0);
     Buf<S> *d = new Buf<S>(W, H, C, 0, 0x5A);
-    Buf<float> *cf = new Buf<float>(WithConstants ? 20 : 12, 1, 1, 0, 0);
-    fill_regime(*a, C, seed ^ mix64((uint64_t)i + 3), (i & 1) ? kWide : kSmall, i, false, false,
+    Buf<float> *cf = new Buf<float>(WithConstants ? 20: 12, 1, 1, 0, 0);
+    fill_regime(*a, C, seed ^ mix64((uint64_t)i + 3), (i & 1) ? kWide: kSmall, i, false, false,
                 std::is_floating_point_v<S>);
     if constexpr (std::is_floating_point_v<S>) {
       const size_t n = (size_t)(a->step / sizeof(S)) * (size_t)a->bh;
@@ -452,7 +449,7 @@ void run_twist_batch(const char *id, Call call) {
   std::vector<NppiColorTwistBatchCXR> h(B);
   for (int i = 0; i < B; ++i) {
     h[i] = {(const void *)srcs[(size_t)i]->dptr(), srcs[(size_t)i]->step,
-            (void *)(InPlace ? srcs[(size_t)i]->dptr() : dsts[(size_t)i]->dptr()), dsts[(size_t)i]->step,
+            (void *)(InPlace ? srcs[(size_t)i]->dptr(): dsts[(size_t)i]->dptr()), dsts[(size_t)i]->step,
             (Npp32f *)coeffs[(size_t)i]->dptr()};
   }
   Buf<NppiColorTwistBatchCXR> list(B, 1, 1, 0, 0);
@@ -484,8 +481,8 @@ void run_twist_batch(const char *id, Call call) {
       std::vector<uint8_t> got;
       if constexpr (InPlace) srcs[(size_t)i]->dev.copyToHost(got);
       else dsts[(size_t)i]->dev.copyToHost(got);
-      std::vector<uint8_t> want = InPlace ? orig[(size_t)i] : pre[(size_t)i];
-      const int stp = InPlace ? srcs[(size_t)i]->step : dsts[(size_t)i]->step;
+      std::vector<uint8_t> want = InPlace ? orig[(size_t)i]: pre[(size_t)i];
+      const int stp = InPlace ? srcs[(size_t)i]->step: dsts[(size_t)i]->step;
       for (int y = 0; y < H; ++y)
         for (int x = 0; x < W; ++x) {
           const size_t so = (size_t)y * (srcs[(size_t)i]->step / (int)sizeof(S)) + (size_t)x * C;
@@ -493,7 +490,7 @@ void run_twist_batch(const char *id, Call call) {
           float v[4] = {0, 0, 0, 0};
           for (int ch = 0; ch < C; ++ch) v[ch] = (float)as_double(srcs[(size_t)i]->hptr()[so + (size_t)ch]);
           const float *m = coeffs[(size_t)i]->hptr();
-          const int nOut = WithConstants ? 4 : (C < 3 ? C : 3);
+          const int nOut = WithConstants ? 4: (C < 3 ? C: 3);
           for (int ch = 0; ch < nOut; ++ch) {
             float o;
             if constexpr (WithConstants) {
@@ -515,7 +512,7 @@ void run_twist_batch(const char *id, Call call) {
             // saturating conversion (8u: 400 -> 255); C3/C4 (and the "C"
             // forms) use the low-byte batch conversion.
             const bool satConv = !WithConstants && C == 4 && A == 3;
-            const S out = satConv ? from_float<S>(o) : batch_convert<S>(o);
+            const S out = satConv ? from_float<S>(o): batch_convert<S>(o);
             std::memcpy(want.data() + db + (size_t)ch * sizeof(S), &out, sizeof(S));
           }
           if (!WithConstants) {
@@ -528,17 +525,17 @@ void run_twist_batch(const char *id, Call call) {
           }
         }
       const GenCase dc{W, H, 0, 0, 0, kSmall, 0};
-      const int Acheck = WithConstants ? 4 : (C == 4 ? (srcAlphaCopy ? 4 : 3) : C);
-      if (!rotate_check<S, C, Acheck>(id, dc, NPPI_INTER_NN, InPlace ? orig[(size_t)i] : pre[(size_t)i], got,
+      const int Acheck = WithConstants ? 4: (C == 4 ? (srcAlphaCopy ? 4: 3): C);
+      if (!rotate_check<S, C, Acheck>(id, dc, NPPI_INTER_NN, InPlace ? orig[(size_t)i]: pre[(size_t)i], got,
                                       want, stp, std::vector<uint8_t>(), cnt, first))
         failed = true;
       if (cnt.mismatched >= 8) break;
     }
     if (failed) break;
   }
-  for (auto *p : srcs) delete p;
-  for (auto *p : dsts) delete p;
-  for (auto *p : coeffs) delete p;
+  for (auto *p: srcs) delete p;
+  for (auto *p: dsts) delete p;
+  for (auto *p: coeffs) delete p;
   finish(id, cnt, first);
 }
 

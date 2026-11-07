@@ -57,7 +57,7 @@ NppStatus nppiMirror_8u_C4IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize 
                                       cudaStream_t stream);
 }
 
-// Validation semantics measured against NVIDIA NPP 13.4 (RTX 5090):
+// Validation semantics measured against NVIDIA NPP 13.4 (reference):
 //   * negative ROI dimensions -> NPP_SIZE_ERROR;
 //   * step smaller than the row length -> NPP_STEP_ERROR;
 //   * empty ROI (a zero dimension) -> NPP_NO_ERROR (verified with {0, 5});
@@ -117,7 +117,7 @@ static inline NppStatus validateMirrorInputsInPlace(T *pSrcDst, int nSrcDstStep,
     return NPP_NULL_POINTER_ERROR;
 
   // NVIDIA NPP 13.4 only accepts even width and height for in-place mirror;
-  // the parity check fires before the flip check (measured on RTX 5090).
+  // the parity check fires before the flip check (measured in the reference implementation).
   if (oROI.width % 2 != 0 || oROI.height % 2 != 0)
     return NPP_SIZE_ERROR;
 

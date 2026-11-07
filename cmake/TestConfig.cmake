@@ -123,6 +123,14 @@ function(npp_create_test_target target_name sources library_target)
             PRIVATE
             ${CMAKE_SOURCE_DIR}     # 项目根目录，仅用于MPP
         )
+
+        # 超集构建：补齐当前头文件版本没有、但实现和测试仍在使用的声明。
+        target_compile_options(${target_name} PRIVATE
+            -include${CMAKE_SOURCE_DIR}/src/include/npp_api_compat.h)
+        if(NPP_API_EXTRA_HEADER)
+            target_compile_options(${target_name} PRIVATE
+                -include${NPP_API_EXTRA_HEADER})
+        endif()
     endif()
 
     # 设置输出目录到build根目录

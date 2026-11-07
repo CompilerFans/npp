@@ -12,7 +12,7 @@
 //     policy: NONE = unchanged, BLACK = 0 on boundaries, WHITE = 255,
 //     ONLY = 0 on boundaries / 255 elsewhere, CONTRAST = 0/255 chosen from
 //     the relative root indices.
-// pMarkerLabels may be NULL.  Validation order matches the probe: null
+// pMarkerLabels may be NULL.  Validation order matches the measurement: null
 // src/buffer -8, zero or negative ROI -6, unsupported norm -5, unsupported
 // boundary type -2.
 #include "npp.h"
@@ -88,11 +88,11 @@ __global__ void wsOutputKernel8u(const Npp8u *pSrc, int nSrcStep, int width, int
   Npp8u out = value;
   switch (boundaryType) {
     case NPP_WATERSHED_SEGMENT_BOUNDARIES_NONE: out = value; break;
-    case NPP_WATERSHED_SEGMENT_BOUNDARIES_BLACK: out = boundary ? (Npp8u)0 : value; break;
-    case NPP_WATERSHED_SEGMENT_BOUNDARIES_WHITE: out = boundary ? (Npp8u)255 : value; break;
-    case NPP_WATERSHED_SEGMENT_BOUNDARIES_ONLY: out = boundary ? (Npp8u)0 : (Npp8u)255; break;
+    case NPP_WATERSHED_SEGMENT_BOUNDARIES_BLACK: out = boundary ? (Npp8u)0: value; break;
+    case NPP_WATERSHED_SEGMENT_BOUNDARIES_WHITE: out = boundary ? (Npp8u)255: value; break;
+    case NPP_WATERSHED_SEGMENT_BOUNDARIES_ONLY: out = boundary ? (Npp8u)0: (Npp8u)255; break;
     default:  // CONTRAST: the higher root index side becomes black.
-      out = boundary ? (label > minNeighborLabel ? (Npp8u)0 : (Npp8u)255) : value;
+      out = boundary ? (label > minNeighborLabel ? (Npp8u)0: (Npp8u)255): value;
       break;
   }
   *(Npp8u *)((char *)pSrcDst + (size_t)y * nSrcDstStep + (size_t)x) = out;
@@ -115,7 +115,7 @@ NppStatus watershedCommon8u(Npp8u *pSrcDst, int nSrcDstStep, Npp32u *pMarkerLabe
     return NPP_ERROR;
   }
 
-  const int connectivity = eNorm == nppiNormInf ? 8 : 4;
+  const int connectivity = eNorm == nppiNormInf ? 8: 4;
   const size_t count = (size_t)oSizeROI.width * oSizeROI.height;
   int *pParent = nullptr, *pLabel = nullptr, *pChanged = nullptr;
   if (cudaMalloc(&pParent, count * sizeof(int)) != cudaSuccess) return NPP_MEMORY_ALLOCATION_ERR;
@@ -157,14 +157,14 @@ NppStatus watershedCommon8u(Npp8u *pSrcDst, int nSrcDstStep, Npp32u *pMarkerLabe
   cudaFree(pParent);
   cudaFree(pLabel);
   cudaFree(pChanged);
-  return err == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return err == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 }  // namespace
 
 extern "C" {
 
-NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, size_t *hpBufferSize) {
+NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   const size_t alignedWidth = ((size_t)oSizeROI.width * 8u + 63u) & ~(size_t)63u;
   *hpBufferSize = (size_t)oSizeROI.height * alignedWidth + 72u;
   return NPP_SUCCESS;

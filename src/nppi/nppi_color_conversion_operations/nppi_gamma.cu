@@ -220,7 +220,7 @@ NppStatus nppiGammaInv_8u_AC4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oS
 } // extern "C"
 
 // ============================================================================
-// Planar (P3R / IP3R) executors - package c4, NVIDIA NPP 13.4 semantics
+// Planar (P3R / IP3R) executors - module, NVIDIA NPP 13.4 semantics
 // ============================================================================
 
 #include "nppi_gamma_executor.h"
@@ -249,7 +249,7 @@ __global__ void gamma_planar_kernel(PlanarSrcDst buf, int nSrcStep, int nDstStep
   }
   const Npp8u *src = (const Npp8u *)((const char *)buf.s[plane] + (size_t)y * nSrcStep);
   Npp8u *dst = (Npp8u *)((char *)buf.d[plane] + (size_t)y * nDstStep);
-  dst[x] = direction ? d_gamma_inv_lut[src[x]] : d_gamma_fwd_lut[src[x]];
+  dst[x] = direction ? d_gamma_inv_lut[src[x]]: d_gamma_fwd_lut[src[x]];
 }
 
 __global__ void gamma_planar_inplace_kernel(PlanarInplace buf, int nSrcDstStep, int width, int height,
@@ -261,7 +261,7 @@ __global__ void gamma_planar_inplace_kernel(PlanarInplace buf, int nSrcDstStep, 
     return;
   }
   Npp8u *row = (Npp8u *)((char *)buf.p[plane] + (size_t)y * nSrcDstStep);
-  row[x] = direction ? d_gamma_inv_lut[row[x]] : d_gamma_fwd_lut[row[x]];
+  row[x] = direction ? d_gamma_inv_lut[row[x]]: d_gamma_fwd_lut[row[x]];
 }
 
 // Shared step validation (see nppi_gamma_executor.h for the measured rules).

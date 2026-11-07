@@ -395,7 +395,8 @@ def emit(row: dict) -> Optional[str]:
         args = f"      {lam});"
     elif fam == "nppsSumLnGetBufferSize":
         lam = ("[](int n, int *sz, NppStreamContext c) {\n"
-               "#ifdef USE_NVIDIA_NPP_TESTS\n"
+               "#if defined(USE_NVIDIA_NPP_TESTS) || NPP_BUFFER_SIZE_IS_SIZE_T
+"
                f"        size_t s = 0; NppStatus st = {fn}((size_t)n, &s, c);\n"
                "        if (st == NPP_NO_ERROR) *sz = (int)(s > 2147483647u ? 2147483647u : s);\n"
                "        return st;\n"

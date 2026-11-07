@@ -40,7 +40,7 @@ static inline NppStatus validateYUV420ToRGBInputs(const Npp8u *const pSrc[3], co
   if (rSrcStep[0] <= 0 || rSrcStep[1] <= 0 || rSrcStep[2] <= 0 || nDstStep <= 0) {
     return NPP_STEP_ERROR;
   }
-  const int minDstStep = dstChannels == 0 ? oSizeROI.width : oSizeROI.width * dstChannels;
+  const int minDstStep = dstChannels == 0 ? oSizeROI.width: oSizeROI.width * dstChannels;
   if (nDstStep < minDstStep) {
     return NPP_STEP_ERROR;
   }
@@ -53,7 +53,7 @@ static inline NppStatus validateYUV420ToRGBInputs(const Npp8u *const pSrc[3], co
 static inline NppiSize yuv420InvRoi(NppiSize roi) { roi.height &= ~1; return roi; }
 static inline NppStatus yuv420InvStatus(cudaError_t s, NppiSize roi) {
   if (s != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  return (roi.height & 1) ? NPP_DOUBLE_SIZE_WARNING : NPP_NO_ERROR;
+  return (roi.height & 1) ? NPP_DOUBLE_SIZE_WARNING: NPP_NO_ERROR;
 }
 
 NppStatus nppiYUV420ToRGB_8u_P3R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst[3], int nDstStep,
@@ -125,7 +125,7 @@ NppStatus nppiYUV420ToRGB_8u_P3C4R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[
   cudaError_t cudaStatus = nppiYUV420ToRGB_8u_P3C4R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2],
                                                            rSrcStep[2], pDst, nDstStep, oSizeROI,
                                                            nppStreamCtx.hStream);
-  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiYUV420ToRGB_8u_P3C4R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
@@ -199,7 +199,7 @@ NppStatus nppiYUV420ToBGR_8u_P3C4R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[
   cudaError_t cudaStatus = nppiYUV420ToBGR_8u_P3C4R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2],
                                                            rSrcStep[2], pDst, nDstStep, oSizeROI,
                                                            nppStreamCtx.hStream);
-  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiYUV420ToBGR_8u_P3C4R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,

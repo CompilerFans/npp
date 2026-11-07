@@ -1,8 +1,7 @@
 // nppiFilterBox / BoxBorder / Min / Max (+Border) / Median (+Border) family
 // executor (rank/order-statistics window filters).
 //
-// Semantics below are measured against NVIDIA NPP 13.4 on an RTX 5090
-// (probes: scratch/probe_f9*.cu, notes: scratch/f9_semantics.md):
+// Semantics below are measured against NVIDIA NPP 13.4 in the reference implementation
 //
 //   * window geometry: dst(x,y)[c] reads src(x + i - ax, y + j - ay)[c] for
 //     i in [0, mw), j in [0, mh).  The non-border variants read raw memory
@@ -27,8 +26,7 @@
 //       49152 * elementSize * maskW * maskH  on the "buffered" kernel path,
 //       0                                    otherwise.
 //     Border variant: buffered iff maskW*maskH*elementSize > 192.
-//     Plain variant: dispatch measured per dtype/layout (table generated from
-//     the 5090 probe: mpp_scripts/gen_median_bufsize_table.py).
+//     Plain variant: dispatch measured per dtype/layout (table generated.
 //   * validation order (measured, see f9b_valid.out / f9e_edge.out): differs
 //     per family - see the entry points below.
 #ifndef NPPI_FILTER_WINDOW_EXECUTOR_H

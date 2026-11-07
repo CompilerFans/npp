@@ -34,7 +34,7 @@
 //     reference values for binary masks follow the measured horizontal
 //     distance rule implemented in aaAbsKernel (see the shared header); the
 //     reference faults on open or fragmented masks, so only closed regions
-//     are covered by the differential tests.
+//     are covered by the reference comparisons.
 #include "npp.h"
 #include "nppi_signed_distance_common.cuh"
 
@@ -55,7 +55,7 @@ NppStatus validateAndRun(T *pSrc, int nSrcStep, T cutoff, OutT subX, OutT subY, 
   const bool useAA = pAntialiasingDeviceBuffer != nullptr;
   if (antialiasingRequired && !useAA) return NPP_NULL_POINTER_ERROR;
   // The antialiasing path requires the transform output (checked before the
-  // ROI, as measured on the 5090).
+  // ROI, as measured on the reference).
   if (useAA && pDstTransform == nullptr) return NPP_NULL_POINTER_ERROR;
   if (!pDstVoronoi && !pDstVoronoiIndices && !pDstRelative && !pDstTransform) {
     return NPP_NULL_POINTER_ERROR;

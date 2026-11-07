@@ -1,4 +1,4 @@
-// CPU-golden coverage for the nppi point / linear / cubic LUT families
+// CPU-reference output coverage for the nppi point / linear / cubic LUT families
 // (nppiLUT, nppiLUT_Linear, nppiLUT_Cubic).
 //
 // The formulas reproduce the measured NVIDIA NPP 13.4 semantics:
@@ -30,7 +30,7 @@ inline int find_index(double s, const V *levels, int nLevels) {
     if (s >= (double)levels[i]) idx = i;
     else break;
   }
-  return idx < nLevels - 1 ? idx : nLevels - 2;
+  return idx < nLevels - 1 ? idx: nLevels - 2;
 }
 
 template <typename S, typename V, LutMode Mode>
@@ -58,10 +58,10 @@ inline V sample(S src, const V *values, const V *levels, int nLevels) {
     const float x1 = (float)levels[idx + 1];
     const float v0 = (float)values[idx];
     const float v1 = (float)values[idx + 1];
-    const float xm = idx >= 1 ? (float)levels[idx - 1] : 2.0f * x0 - x1;
-    const float vm = idx >= 1 ? (float)values[idx - 1] : 2.0f * v0 - v1;
-    const float x2 = idx + 2 < nLevels ? (float)levels[idx + 2] : 2.0f * x1 - x0;
-    const float v2 = idx + 2 < nLevels ? (float)values[idx + 2] : 2.0f * v1 - v0;
+    const float xm = idx >= 1 ? (float)levels[idx - 1]: 2.0f * x0 - x1;
+    const float vm = idx >= 1 ? (float)values[idx - 1]: 2.0f * v0 - v1;
+    const float x2 = idx + 2 < nLevels ? (float)levels[idx + 2]: 2.0f * x1 - x0;
+    const float v2 = idx + 2 < nLevels ? (float)values[idx + 2]: 2.0f * v1 - v0;
     const float s2 = (v2 - v1) / (x2 - x1);
     const float s1 = (v1 - v0) / (x1 - x0);
     const float s0 = (v0 - vm) / (x0 - xm);
@@ -227,7 +227,7 @@ void run_lut_c1(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<S> s(c.w + c.ox, c.h + c.oy, 1, c.pad, 0);
     Buf<S> d(c.w, c.h, 1, 0, 0x5A);
@@ -286,7 +286,7 @@ void run_lut_c1_ir(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<S> s(c.w + c.ox, c.h + c.oy, 1, c.pad, 0);
     fill_ramp<S, 1>(s, (int)(case_seed(id, c.w, c.h, s.step, 0, 0, 0) & 0xFF));
@@ -351,7 +351,7 @@ void run_lut_multi(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> d(c.w, c.h, C, 0, 0x5A);
@@ -388,8 +388,8 @@ void run_lut_multi(const char *id, Call call) {
       if (st != NPP_NO_ERROR) {
         ++cnt.skipped;
         if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-        for (auto *p : lev) delete p;
-        for (auto *p : val) delete p;
+        for (auto *p: lev) delete p;
+        for (auto *p: val) delete p;
         continue;
       }
       const cudaError_t se = cudaDeviceSynchronize();
@@ -408,8 +408,8 @@ void run_lut_multi(const char *id, Call call) {
                                  std::vector<uint8_t>(), cnt, first)) {
         if (cnt.mismatched >= 8) break;
       }
-      for (auto *p : lev) delete p;
-      for (auto *p : val) delete p;
+      for (auto *p: lev) delete p;
+      for (auto *p: val) delete p;
       if (cnt.mismatched >= 8) break;
     }
     if (cnt.mismatched >= 8) break;
@@ -427,7 +427,7 @@ void run_lut_multi_ir(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     fill_ramp<S, C>(s, (int)(case_seed(id, c.w, c.h, s.step, 0, 0, 0) & 0xFF));
@@ -464,8 +464,8 @@ void run_lut_multi_ir(const char *id, Call call) {
       if (st != NPP_NO_ERROR) {
         ++cnt.skipped;
         if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-        for (auto *p : lev) delete p;
-        for (auto *p : val) delete p;
+        for (auto *p: lev) delete p;
+        for (auto *p: val) delete p;
         continue;
       }
       const cudaError_t se = cudaDeviceSynchronize();
@@ -485,8 +485,8 @@ void run_lut_multi_ir(const char *id, Call call) {
                                  std::vector<uint8_t>(), cnt, first)) {
         if (cnt.mismatched >= 8) break;
       }
-      for (auto *p : lev) delete p;
-      for (auto *p : val) delete p;
+      for (auto *p: lev) delete p;
+      for (auto *p: val) delete p;
       if (cnt.mismatched >= 8) break;
     }
     if (cnt.mismatched >= 8) break;
@@ -503,7 +503,7 @@ void run_lut_multi_ir(const char *id, Call call) {
 // channel order measured on 13.4.
 // ---------------------------------------------------------------------------
 inline unsigned palette_mask(int bitSize) {
-  return bitSize >= 32 ? 0xFFFFFFFFu : ((1u << bitSize) - 1u);
+  return bitSize >= 32 ? 0xFFFFFFFFu: ((1u << bitSize) - 1u);
 }
 
 template <typename SrcT, typename TabT, typename DstT, class Call>
@@ -515,7 +515,7 @@ void run_lut_palette_c1(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<SrcT> s(c.w + c.ox, c.h + c.oy, 1, c.pad, 0);
     Buf<DstT> d(c.w, c.h, 1, 0, 0x5A);
@@ -531,7 +531,7 @@ void run_lut_palette_c1(const char *id, Call call) {
       const int nTab = 1 << bitSize;
       Buf<TabT> tab(nTab, 1, 1, 0, 0);
       for (int i = 0; i < nTab; ++i) {
-        tab.hptr()[i] = (TabT)((unsigned)(i * 37 + 11) & ((1u << (8 * sizeof(TabT) > 16 ? 16 : 8 * sizeof(TabT))) - 1u));
+        tab.hptr()[i] = (TabT)((unsigned)(i * 37 + 11) & ((1u << (8 * sizeof(TabT) > 16 ? 16: 8 * sizeof(TabT))) - 1u));
       }
       tab.dev.copyFromHost(tab.host);
       const std::vector<uint8_t> pre = d.host;
@@ -577,7 +577,7 @@ void run_lut_palette24(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<SrcT> s(c.w + c.ox, c.h + c.oy, 1, c.pad, 0);
     Buf<Npp8u> d(c.w, c.h, 3, 0, 0x5A);
@@ -635,7 +635,7 @@ void run_lut_palette_multi(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> d(c.w, c.h, C, 0, 0x5A);
@@ -662,7 +662,7 @@ void run_lut_palette_multi(const char *id, Call call) {
     if (st != NPP_NO_ERROR) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-      for (auto *p : tabs) delete p;
+      for (auto *p: tabs) delete p;
       continue;
     }
     const cudaError_t se = cudaDeviceSynchronize();
@@ -677,7 +677,7 @@ void run_lut_palette_multi(const char *id, Call call) {
         const size_t so = (size_t)y * (s.step / (int)sizeof(S)) + (size_t)x * C;
         const size_t db = off_bytes<S>(y, x, d.step, C);
         for (int ch = 0; ch < A; ++ch) {
-          const int table = (quirk16C4 && ch == 3) ? 2 : ch;
+          const int table = (quirk16C4 && ch == 3) ? 2: ch;
           const size_t ti = (size_t)((unsigned)hsrc[so + (size_t)ch] & mask);
           const S ov = tabs[(size_t)table]->hptr()[ti];
           std::memcpy(want.data() + db + (size_t)ch * sizeof(S), &ov, sizeof(S));
@@ -688,7 +688,7 @@ void run_lut_palette_multi(const char *id, Call call) {
                                std::vector<uint8_t>(), cnt, first)) {
       if (cnt.mismatched >= 8) break;
     }
-    for (auto *p : tabs) delete p;
+    for (auto *p: tabs) delete p;
     if (cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);
@@ -704,7 +704,7 @@ void run_lut_palette_swap(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const int alphas[4] = {0, 200, 255, 300};
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<S> s(c.w + c.ox, c.h + c.oy, 3, c.pad, 0);
     Buf<S> d(c.w, c.h, 4, 0, 0x5A);
@@ -773,7 +773,7 @@ void run_lut_palette_swap(const char *id, Call call) {
       }
       if (cnt.mismatched >= 8) break;
     }
-    for (auto *p : tabs) delete p;
+    for (auto *p: tabs) delete p;
     if (cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);
@@ -824,7 +824,7 @@ void run_lut_trilinear(const char *id, Call call) {
   Buf<Npp32u> vtab((int)vals.size(), 1, 1, 0, 0);
   std::memcpy(vtab.host.data(), vals.data(), vals.size() * sizeof(Npp32u));
   vtab.dev.copyFromHost(vtab.host);
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<Npp8u> s(c.w + c.ox, c.h + c.oy, 4, c.pad, 0);
     Buf<Npp8u> d(c.w, c.h, 4, 0, 0x5A);
@@ -858,12 +858,11 @@ void run_lut_trilinear(const char *id, Call call) {
     } else {
       d.dev.copyToHost(got);
     }
-    std::vector<uint8_t> want = InPlace ? orig : pre;
+    std::vector<uint8_t> want = InPlace ? orig: pre;
     for (int y = 0; y < c.h; ++y)
       for (int x = 0; x < c.w; ++x) {
         const size_t so = (size_t)y * (s.step / (int)sizeof(Npp8u)) + (size_t)x * 4;
-        const size_t db = InPlace ? off_bytes<Npp8u>(c.oy + y, c.ox + x, s.step, 4)
-                                  : off_bytes<Npp8u>(y, x, d.step, 4);
+        const size_t db = InPlace ? off_bytes<Npp8u>(c.oy + y, c.ox + x, s.step, 4): off_bytes<Npp8u>(y, x, d.step, 4);
         int ix, iy, iz;
         float fx, fy, fz;
         trilinear_axis(hsrc[so + 0], levx, nx, ix, fx);
@@ -871,11 +870,11 @@ void run_lut_trilinear(const char *id, Call call) {
         trilinear_axis(hsrc[so + 2], levz, nz, iz, fz);
         float out[3] = {0.0f, 0.0f, 0.0f};
         for (int dz = 0; dz < 2; ++dz) {
-          const float wz = dz ? fz : 1.0f - fz;
+          const float wz = dz ? fz: 1.0f - fz;
           for (int dy = 0; dy < 2; ++dy) {
-            const float wy = dy ? fy : 1.0f - fy;
+            const float wy = dy ? fy: 1.0f - fy;
             for (int dx = 0; dx < 2; ++dx) {
-              const float wx = dx ? fx : 1.0f - fx;
+              const float wx = dx ? fx: 1.0f - fx;
               const unsigned corner = vals[(size_t)(((iz + dz) * ny + (iy + dy)) * nx + (ix + dx))];
               const float weight = wx * wy * wz;
               out[0] += weight * (float)(corner & 0xFFu);
@@ -890,9 +889,9 @@ void run_lut_trilinear(const char *id, Call call) {
         }
         if constexpr (AlphaSrc) want[db + 3] = hsrc[so + 3];
       }
-    const GenCase dc{c.w, c.h, InPlace ? c.ox : 0, InPlace ? c.oy : 0, 0, kSmall, 0};
-    if (!rotate_check<Npp8u, 4, 4>(id, dc, NPPI_INTER_NN, InPlace ? orig : pre, got, want,
-                                   InPlace ? s.step : d.step, std::vector<uint8_t>(), cnt, first)) {
+    const GenCase dc{c.w, c.h, InPlace ? c.ox: 0, InPlace ? c.oy: 0, 0, kSmall, 0};
+    if (!rotate_check<Npp8u, 4, 4>(id, dc, NPPI_INTER_NN, InPlace ? orig: pre, got, want,
+                                   InPlace ? s.step: d.step, std::vector<uint8_t>(), cnt, first)) {
       if (cnt.mismatched >= 8) break;
     }
     if (cnt.mismatched >= 8) break;

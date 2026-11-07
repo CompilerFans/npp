@@ -1,7 +1,6 @@
-// Radial profile executors (package s2).
+// Radial profile executors.
 //
-// Pipeline decoded from NVIDIA NPP 13.4 with impulse-scan probes
-// (tools/5090_probes_s2/radial_probe.cu, artifacts/5090/s2_probe_out/rad_map.txt):
+// Pipeline decoded from NVIDIA NPP 13.4 with impulse-scan measurements
 //   * ring 0 collects every ROI pixel whose centre is less than one pixel away
 //     from oCenter (one pixel for an integer centre, four for a half-pixel one);
 //   * ring k (1 <= k < nProfileSamples) is the digitised circle of radius k:
@@ -14,7 +13,7 @@
 //     samples are written as {0, 0, 0};
 //   * the ring index is not normalised by the ROI size: radii below
 //     nProfileSamples - 1 are covered and everything further out is ignored.
-// This model reproduces all 3439 sampled pixels of the seven recorded probe
+// This model reproduces all 3439 sampled pixels of the seven recorded measurement
 // configurations (fractional/integer/negative centres, square and 40x25 ROIs).
 //
 // The elliptical variant uses a different rule (dense band membership with a

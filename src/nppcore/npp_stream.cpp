@@ -3,10 +3,10 @@
 #include <cuda_runtime.h>
 #include <mutex>
 
-// NPP managed stream state (see nppSetStream()/nppGetStream()).
+// NPP managed stream state (see nppSetStream/nppGetStream).
 //
-// Every non-Ctx entry point and nppGetStreamContext() must submit/report work
-// on this stream.  If nppSetStream() is a no-op, MPP kernels stay on the
+// Every non-Ctx entry point and nppGetStreamContext must submit/report work
+// on this stream.  If nppSetStream is a no-op, MPP kernels stay on the
 // legacy stream and an application that synchronizes only its own stream (as
 // the ZTE demo does before running ORT inference) consumes the previous
 // frame's buffer - the one-frame-late detection result reported on site.
@@ -56,7 +56,7 @@ static int nppGetManagedStreamDevice(int *deviceId) {
 }
 
 cudaStream_t nppGetStream(void) {
-  // Return the stream most recently set by nppSetStream() (NULL by default).
+  // Return the stream most recently set by nppSetStream (NULL by default).
   return getManagedStreamState().stream;
 }
 
@@ -73,8 +73,8 @@ NppStatus nppSetStream(cudaStream_t hStream) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  // Do not probe the handle here: on some runtimes (e.g. CUDA 13.x)
-  // cudaStreamGetFlags() faults on a bogus pointer instead of returning
+  // Do not measurement the handle here: on some runtimes (e.g. CUDA 13.x)
+  // cudaStreamGetFlags faults on a bogus pointer instead of returning
   // cudaErrorInvalidResourceHandle.  The runtime reports an invalid stream
   // when work is actually submitted, which fails later but never crashes.
   setManagedStreamState(hStream, deviceId);
@@ -106,7 +106,7 @@ NppStatus nppGetStreamContext(NppStreamContext *pNppStreamContext) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  // Fill stream context with the NPP managed stream set by nppSetStream().
+  // Fill stream context with the NPP managed stream set by nppSetStream.
   // This is the stream that non-Ctx NPP calls use and that the application
   // must synchronize before consuming their output.
   cudaStream_t managedStream = managedState.stream;
@@ -121,8 +121,8 @@ NppStatus nppGetStreamContext(NppStreamContext *pNppStreamContext) {
   pNppStreamContext->nCudaDevAttrComputeCapabilityMajor = prop.major;
   pNppStreamContext->nCudaDevAttrComputeCapabilityMinor = prop.minor;
 
-  // Do not call cudaStreamGetFlags() on the stored handle for the same reason
-  // as nppSetStream(): it can fault on a bogus pointer.  The default flags are
+  // Do not call cudaStreamGetFlags on the stored handle for the same reason
+  // as nppSetStream: it can fault on a bogus pointer.  The default flags are
   // sufficient for the managed-stream use cases.
   pNppStreamContext->nStreamFlags = cudaStreamDefault;
 

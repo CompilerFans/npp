@@ -1,13 +1,12 @@
-// SSIM / MS-SSIM / WMSSSIM executor (package s2).
+// SSIM / MS-SSIM / WMSSSIM executor.
 //
 // Pipeline decoded from NVIDIA NPP 13.4 with graph capture + prefix replay
-// (tools/5090_probes_s2/wgraph.cu and analyze_wgraph*.py):
 //   * 11x11 Gaussian, sigma = 1.5, normalized, clamp-to-edge padding, applied
 //     separably in float32 to a, b, a^2, b^2 and a*b;
 //   * mu = E[x], var = E[x^2] - mu^2, cov = E[ab] - mu_a*mu_b (biased);
 //   * l = (2 mu_a mu_b + C1)/(mu_a^2 + mu_b^2 + C1), C1 = 6.5025;
 //     cs = (2 |cov| + C2)/(var_a + var_b + C2), C2 = 58.5225  (NPP takes the
-//     absolute covariance; verified against the recorded random-noise goldens);
+//     absolute covariance; verified against the recorded random-noise reference outputs);
 //   * SSIM = mean over all pixels of l*cs;
 //   * WMSSSIM = product over 5 levels of the per-level mean of cs^w (levels
 //     0..3) and (l*cs)^w (level 4), w = {0.0448, 0.2856, 0.3001, 0.2363,
@@ -27,11 +26,11 @@
 namespace nppi {
 namespace statistics {
 
-NppStatus ssimGetBufferHostSize(NppiSize oSizeROI, int channels, int *hpBufferSize);
-NppStatus ssimBatchGetBufferHostSize(NppiSize oSizeROI, int channels, int *hpBufferSize);
-NppStatus wmsssimGetBufferHostSize(NppiSize oSizeROI, int channels, int *hpBufferSize);
-NppStatus wmsssimBatchGetBufferHostSize(NppiSize oSizeROI, int channels, int *hpBufferSize);
-NppStatus msssimGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus ssimGetBufferHostSize(NppiSize oSizeROI, int channels, NPP_BUFFER_SIZE_TYPE *hpBufferSize);
+NppStatus ssimBatchGetBufferHostSize(NppiSize oSizeROI, int channels, NPP_BUFFER_SIZE_TYPE *hpBufferSize);
+NppStatus wmsssimGetBufferHostSize(NppiSize oSizeROI, int channels, NPP_BUFFER_SIZE_TYPE *hpBufferSize);
+NppStatus wmsssimBatchGetBufferHostSize(NppiSize oSizeROI, int channels, NPP_BUFFER_SIZE_TYPE *hpBufferSize);
+NppStatus msssimGetBufferHostSize(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE *hpBufferSize);
 
 NppStatus runSSIM(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, NppiSize oSizeROI,
                   int channels, Npp32f *pSSIM, Npp8u *pDeviceBuffer, cudaStream_t stream);

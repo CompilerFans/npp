@@ -1,7 +1,7 @@
-// NPPI LUT executors (package c1) -- device kernels + host entry points.
+// NPPI LUT executors -- device kernels + host entry points.
 //
 // The numerical recipes below were reverse engineered from NVIDIA NPP 13.4
-// goldens recorded on the RTX 5090 and, for the cubic sampler, from the SASS
+// reference outputs recorded in the reference implementation and, for the cubic sampler, from the SASS
 // of libnppicc's SampleLUTCubic<int> instantiation.  See the header for the
 // contract summary.
 
@@ -69,7 +69,7 @@ __device__ __forceinline__ int lutFindIndex(SrcT src, const ValT *levels, int nL
       break;
     }
   }
-  return idx < nLevels - 1 ? idx : nLevels - 2;
+  return idx < nLevels - 1 ? idx: nLevels - 2;
 }
 
 // Point sample uses the source value unchanged outside the level range.
@@ -83,7 +83,7 @@ __device__ __forceinline__ ValT lutSamplePoint(SrcT src, const ValT *values, con
 }
 
 // Linear sample: integer dtypes use C truncating integer division (verified
-// against the 8u/16u full-ramp goldens); 32f stays in float.
+// against the 8u/16u full-ramp reference outputs); 32f stays in float.
 template <typename SrcT, typename ValT>
 __device__ __forceinline__ ValT lutSampleLinear(SrcT src, const ValT *values, const ValT *levels, int nLevels) {
   const int idx = lutFindIndex(src, levels, nLevels);
@@ -123,10 +123,10 @@ __device__ __forceinline__ ValT lutSampleCubic(SrcT src, const ValT *values, con
   const float x1 = static_cast<float>(levels[idx + 1]);
   const float v0 = static_cast<float>(values[idx]);
   const float v1 = static_cast<float>(values[idx + 1]);
-  const float xm = idx >= 1 ? static_cast<float>(levels[idx - 1]) : 2.0f * x0 - x1;
-  const float vm = idx >= 1 ? static_cast<float>(values[idx - 1]) : 2.0f * v0 - v1;
-  const float x2 = idx + 2 < nLevels ? static_cast<float>(levels[idx + 2]) : 2.0f * x1 - x0;
-  const float v2 = idx + 2 < nLevels ? static_cast<float>(values[idx + 2]) : 2.0f * v1 - v0;
+  const float xm = idx >= 1 ? static_cast<float>(levels[idx - 1]): 2.0f * x0 - x1;
+  const float vm = idx >= 1 ? static_cast<float>(values[idx - 1]): 2.0f * v0 - v1;
+  const float x2 = idx + 2 < nLevels ? static_cast<float>(levels[idx + 2]): 2.0f * x1 - x0;
+  const float v2 = idx + 2 < nLevels ? static_cast<float>(values[idx + 2]): 2.0f * v1 - v0;
 
   const float s2 = (v2 - v1) / (x2 - x1);
   const float s1 = (v1 - v0) / (x1 - x0);
@@ -174,7 +174,7 @@ __global__ void lutKernel(const SrcT *pSrc, int nSrcStep, SrcT *pDst, int nDstSt
   using ValT = typename LutValue<SrcT>::type;
   const SrcT *srcRow = getSrcRow(pSrc, y, nSrcStep);
   SrcT *dstRow = getDstRow(pDst, y, nDstStep);
-  const int tables_used = AlphaOnly ? Channels - 1 : Channels;
+  const int tables_used = AlphaOnly ? Channels - 1: Channels;
   for (int c = 0; c < tables_used; ++c) {
     const int index = x * Channels + c;
     const SrcT src = srcRow[index];
@@ -192,7 +192,7 @@ NppStatus launchLut(const SrcT *pSrc, int nSrcStep, SrcT *pDst, int nDstStep, Np
                     const typename LutValue<SrcT>::type *const *pValues,
                     const typename LutValue<SrcT>::type *const *pLevels, const int *nLevels, cudaStream_t stream) {
   using ValT = typename LutValue<SrcT>::type;
-  constexpr int kTablesUsed = AlphaOnly ? Channels - 1 : Channels;
+  constexpr int kTablesUsed = AlphaOnly ? Channels - 1: Channels;
 
   if (!pSrc || !pDst || !pValues || !pLevels || !nLevels) {
     return NPP_NULL_POINTER_ERROR;
@@ -205,7 +205,7 @@ NppStatus launchLut(const SrcT *pSrc, int nSrcStep, SrcT *pDst, int nDstStep, Np
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
-  const int maxLevels = std::is_same<SrcT, Npp8u>::value ? 256 : 1024;
+  const int maxLevels = std::is_same<SrcT, Npp8u>::value ? 256: 1024;
   bool fastPath = std::is_same<SrcT, Npp8u>::value;
   for (int c = 0; c < kTablesUsed; ++c) {
     if (nLevels[c] < 2 || nLevels[c] > maxLevels) {
@@ -292,7 +292,7 @@ NppStatus launchLutC1(const SrcT *pSrc, int nSrcStep, SrcT *pDst, int nDstStep, 
 // ---------------------------------------------------------------------------
 
 __device__ __forceinline__ unsigned int paletteMask(int bitSize) {
-  return bitSize >= 32 ? 0xFFFFFFFFu : ((1u << bitSize) - 1u);
+  return bitSize >= 32 ? 0xFFFFFFFFu: ((1u << bitSize) - 1u);
 }
 
 template <typename SrcT, typename TabT, typename DstT>
@@ -334,12 +334,12 @@ __global__ void paletteMultiKernel(const SrcT *pSrc, int nSrcStep, SrcT *pDst, i
   const unsigned int mask = paletteMask(bitSize);
   const SrcT *srcRow = getSrcRow(pSrc, y, nSrcStep);
   SrcT *dstRow = getDstRow(pDst, y, nDstStep);
-  const int tables_used = AlphaOnly ? Channels - 1 : Channels;
+  const int tables_used = AlphaOnly ? Channels - 1: Channels;
   for (int c = 0; c < tables_used; ++c) {
     const int index = x * Channels + c;
-    // 5090 quirk: the 16u C4 kernel maps the fourth channel through the
+    // reference quirk: the 16u C4 kernel maps the fourth channel through the
     // third table (the 8u C4 kernel uses pTables[3]).
-    const int table = (sizeof(SrcT) == 2 && Channels == 4 && c == 3) ? 2 : c;
+    const int table = (sizeof(SrcT) == 2 && Channels == 4 && c == 3) ? 2: c;
     dstRow[index] = pTables[table][static_cast<unsigned int>(srcRow[index]) & mask];
   }
 }
@@ -363,7 +363,7 @@ __global__ void paletteSwapKernel(const T *pSrc, int nSrcStep, int nAlphaValue, 
     dstRow[dst_index + 2] = pTables[0][static_cast<unsigned int>(srcRow[src_index + 0]) & mask];
   } else {
     // 16u: the *source channels* are reversed while the tables stay in order
-    // (dst0 = table0[src2], dst2 = table2[src0]; measured on the 5090).
+    // (dst0 = table0[src2], dst2 = table2[src0]; measured on the reference).
     dstRow[dst_index + 0] = pTables[0][static_cast<unsigned int>(srcRow[src_index + 2]) & mask];
     dstRow[dst_index + 1] = pTables[1][static_cast<unsigned int>(srcRow[src_index + 1]) & mask];
     dstRow[dst_index + 2] = pTables[2][static_cast<unsigned int>(srcRow[src_index + 0]) & mask];
@@ -427,11 +427,11 @@ __global__ void trilinearKernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, in
 
   float out[3] = {0.0f, 0.0f, 0.0f};
   for (int dz = 0; dz < 2; ++dz) {
-    const float wz = dz ? fz : 1.0f - fz;
+    const float wz = dz ? fz: 1.0f - fz;
     for (int dy = 0; dy < 2; ++dy) {
-      const float wy = dy ? fy : 1.0f - fy;
+      const float wy = dy ? fy: 1.0f - fy;
       for (int dx = 0; dx < 2; ++dx) {
-        const float wx = dx ? fx : 1.0f - fx;
+        const float wx = dx ? fx: 1.0f - fx;
         const unsigned int corner =
             pValues[((iz + dz) * ny + (iy + dy)) * nx + (ix + dx)];
         const float weight = wx * wy * wz;
@@ -512,7 +512,7 @@ NppStatus palette24(const SrcT *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, N
 template <typename SrcT, int Channels, bool AlphaOnly>
 NppStatus paletteMulti(const SrcT *pSrc, int nSrcStep, SrcT *pDst, int nDstStep, NppiSize oSizeROI,
                        const SrcT *const *pTables, int nBitSize, cudaStream_t stream) {
-  constexpr int kTablesUsed = AlphaOnly ? Channels - 1 : Channels;
+  constexpr int kTablesUsed = AlphaOnly ? Channels - 1: Channels;
   if (!pSrc || !pDst || !pTables) {
     return NPP_NULL_POINTER_ERROR;
   }

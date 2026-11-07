@@ -1,6 +1,6 @@
 #pragma once
 
-// CPU-golden drivers for the nppi geometry transform families.
+// CPU-reference output drivers for the nppi geometry transform families.
 //
 // Measured NPP 13.4 mirror contract:
 //  * NPP_HORIZONTAL_AXIS flips top-bottom, NPP_VERTICAL_AXIS flips
@@ -68,7 +68,7 @@ void run_mirror(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const NppiAxis flips[] = {NPP_HORIZONTAL_AXIS, NPP_VERTICAL_AXIS, NPP_BOTH_AXIS};
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if constexpr (Inplace) {
       if ((c.w & 1) || (c.h & 1)) continue;  // the in-place entry points require even dimensions
     }
@@ -90,8 +90,8 @@ void run_mirror(const char *id, Call call) {
     }
     s.dev.copyFromHost(s.host);
     d.dev.copyFromHost(d.host);
-    for (NppiAxis flip : flips) {
-      const std::vector<uint8_t> pre = Inplace ? s.host : d.host;
+    for (NppiAxis flip: flips) {
+      const std::vector<uint8_t> pre = Inplace ? s.host: d.host;
       npp_diff::clear_cuda_error();
       NppStatus st;
       if constexpr (Inplace) {
@@ -111,15 +111,15 @@ void run_mirror(const char *id, Call call) {
       ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
       ++cnt.executed;
       const MirrorAxes ax = mirror_axes(flip);
-      const std::vector<uint8_t> &srcHost = Inplace ? pre : s.host;
-      Buf<S> &out = Inplace ? s : d;
+      const std::vector<uint8_t> &srcHost = Inplace ? pre: s.host;
+      Buf<S> &out = Inplace ? s: d;
       out.dev.copyToHost(out.host);
-      const int srcStep = Inplace ? s.step : s.step;
+      const int srcStep = Inplace ? s.step: s.step;
       std::vector<uint8_t> want = pre;  // alpha channels stay at their pre-call values
       for (int y = 0; y < c.h; ++y)
         for (int x = 0; x < c.w; ++x) {
-          const int sx = ax.flipX ? (c.w - 1 - x) : x;
-          const int sy = ax.flipY ? (c.h - 1 - y) : y;
+          const int sx = ax.flipX ? (c.w - 1 - x): x;
+          const int sy = ax.flipY ? (c.h - 1 - y): y;
           const size_t db = off_bytes<S>(c.oy + y, c.ox + x, out.step, C);
           const size_t sb = off_bytes<S>(c.oy + sy, c.ox + sx, srcStep, C);
           for (int ch = 0; ch < A; ++ch) {
@@ -151,7 +151,7 @@ void run_mirror_batch(const char *id, Call call) {
     int w, h, batch, pad;
   };
   static const BatchCfg cfgs[] = {{7, 5, 3, 0}, {33, 17, 2, 0}, {64, 48, 3, 16}, {1, 1, 2, 0}};
-  for (const BatchCfg &cfg : cfgs) {
+  for (const BatchCfg &cfg: cfgs) {
     if constexpr (Inplace) {
       if ((cfg.w & 1) || (cfg.h & 1)) continue;
     }
@@ -162,7 +162,7 @@ void run_mirror_batch(const char *id, Call call) {
     for (int i = 0; i < B; ++i) {
       Buf<S> *a = new Buf<S>(cfg.w, cfg.h, C, cfg.pad, 0);
       Buf<S> *b = new Buf<S>(cfg.w, cfg.h, C, cfg.pad, 0x5A);
-      fill_regime(*a, C, seed ^ mix64((uint64_t)i), (i & 1) ? kWide : kSmall, i);
+      fill_regime(*a, C, seed ^ mix64((uint64_t)i), (i & 1) ? kWide: kSmall, i);
       a->dev.copyFromHost(a->host);
       b->dev.copyFromHost(b->host);
       bufs.push_back(a);
@@ -170,7 +170,7 @@ void run_mirror_batch(const char *id, Call call) {
       srcHost[(size_t)i] = a->host;
       preHost[(size_t)i] = b->host;
     }
-    for (NppiAxis flip : flips) {
+    for (NppiAxis flip: flips) {
       std::vector<NppiMirrorBatchCXR> h(B);
       for (int i = 0; i < B; ++i) {
         Buf<S> *a = bufs[(size_t)i * 2];
@@ -201,13 +201,13 @@ void run_mirror_batch(const char *id, Call call) {
       for (int i = 0; i < B && !failed; ++i) {
         Buf<S> *out = bufs[(size_t)i * 2 + 1];
         out->dev.copyToHost(out->host);
-        const std::vector<uint8_t> &src = Inplace ? preHost[(size_t)i] : srcHost[(size_t)i];
+        const std::vector<uint8_t> &src = Inplace ? preHost[(size_t)i]: srcHost[(size_t)i];
         std::vector<uint8_t> want = preHost[(size_t)i];
-        const int srcStep = Inplace ? out->step : bufs[(size_t)i * 2]->step;
+        const int srcStep = Inplace ? out->step: bufs[(size_t)i * 2]->step;
         for (int y = 0; y < cfg.h; ++y)
           for (int x = 0; x < cfg.w; ++x) {
-            const int sx = ax.flipX ? (cfg.w - 1 - x) : x;
-            const int sy = ax.flipY ? (cfg.h - 1 - y) : y;
+            const int sx = ax.flipX ? (cfg.w - 1 - x): x;
+            const int sy = ax.flipY ? (cfg.h - 1 - y): y;
             const size_t db = off_bytes<S>(y, x, out->step, C);
             const size_t sb = off_bytes<S>(sy, sx, srcStep, C);
             for (int ch = 0; ch < A; ++ch) {
@@ -223,7 +223,7 @@ void run_mirror_batch(const char *id, Call call) {
       }
       if (failed) break;
     }
-    for (auto *p : bufs) delete p;
+    for (auto *p: bufs) delete p;
     if (cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);
@@ -315,13 +315,13 @@ template <typename S, typename VT> inline void resize_store(S *p, VT v) {
   } else if constexpr (std::is_same_v<S, Npp64f>) {
     *p = (Npp64f)v;
   } else {
-    VT r = v >= (VT)0 ? std::floor(v + (VT)0.5) : std::ceil(v - (VT)0.5);
+    VT r = v >= (VT)0 ? std::floor(v + (VT)0.5): std::ceil(v - (VT)0.5);
     if constexpr (std::is_same_v<S, Npp8u>) {
-      r = r < 0 ? 0 : (r > 255 ? 255 : r);
+      r = r < 0 ? 0: (r > 255 ? 255: r);
     } else if constexpr (std::is_same_v<S, Npp16u>) {
-      r = r < 0 ? 0 : (r > 65535 ? 65535 : r);
+      r = r < 0 ? 0: (r > 65535 ? 65535: r);
     } else if constexpr (std::is_same_v<S, Npp16s>) {
-      r = r < -32768 ? -32768 : (r > 32767 ? 32767 : r);
+      r = r < -32768 ? -32768: (r > 32767 ? 32767: r);
     }
     *p = (S)r;
   }
@@ -334,7 +334,7 @@ inline void lagrange4_host(double t, double w[4]) {
   w[3] = t * (t + 1.0) * (t - 1.0) / 6.0;
 }
 
-inline int resize_clampi(int v, int lo, int hi) { return v < lo ? lo : (v > hi ? hi : v); }
+inline int resize_clampi(int v, int lo, int hi) { return v < lo ? lo: (v > hi ? hi: v); }
 
 // mode: 0 NN, 1 linear, 2 cubic, 3 lanczos, 4 super.
 template <typename S, int NC, typename VT>
@@ -398,7 +398,7 @@ inline void resize_sample(const S *src, int sStepElems, VT sx, VT sy, int mode, 
     for (int c = 0; c < NC; ++c) out[c] = acc[c] / (VT)normSum;
     return;
   }
-  int taps = (mode == 1) ? 2 : (mode == 2 ? 4 : 6);
+  int taps = (mode == 1) ? 2: (mode == 2 ? 4: 6);
   const int base = (int)std::floor((double)sx);
   const int baseY = (int)std::floor((double)sy);
   bool normalize = false;
@@ -495,22 +495,22 @@ inline int resize_mode(int eInterpolation) {
 template <typename S>
 inline void resize_tol(int mode, double &rtol, double &atol) {
   if constexpr (std::is_same_v<S, Npp32f>) {
-    rtol = (mode == NPPI_INTER_LANCZOS) ? 2e-3 : 2e-4;
+    rtol = (mode == NPPI_INTER_LANCZOS) ? 2e-3: 2e-4;
     atol = rtol;
   } else if constexpr (std::is_same_v<S, Npp64f>) {
     // NPP's 64f SqrPixel path computes with float-sized intermediates; the
-    // float model below matches it closely (measured on the 5090).
+    // float model below matches it closely (measured on the reference).
     rtol = 1e-2;
     atol = 1e-2;
   } else if constexpr (std::is_same_v<S, Npp16f>) {
     // Half-precision Lanczos boundary taps differ by up to ~2e-2.
-    rtol = (mode == NPPI_INTER_LANCZOS) ? 3e-2 : 1e-2;
+    rtol = (mode == NPPI_INTER_LANCZOS) ? 3e-2: 1e-2;
     atol = rtol;
   } else {
     rtol = 0.0;
     // NPP's integer resampling rounds differently by one or two LSB depending
     // on the tap order; Lanczos adds one more.
-    atol = (mode == NPPI_INTER_LANCZOS) ? 3.0 : 2.0;
+    atol = (mode == NPPI_INTER_LANCZOS) ? 3.0: 2.0;
   }
 }
 
@@ -534,7 +534,7 @@ inline bool resize_check(const char *id, const GenCase &c, int mode, const std::
           // a tolerance-aware LSB comparison.
           const long long g = (long long)(*(const S *)(got.data() + off));
           const long long w = (long long)(*(const S *)(want.data() + off));
-          const long long d = g > w ? g - w : w - g;
+          const long long d = g > w ? g - w: w - g;
           ok = (double)d <= atol + rtol * std::fabs((double)w);
         } else {
           ok = equal_elem<S>(got.data() + off, want.data() + off, rtol, atol);
@@ -565,10 +565,10 @@ void run_resize(const char *id, Call call) {
   std::string first;
   using VT = typename ResizeTraits<S>::VT;
   // SUPER is deferred: NPP's super-sampling box differs from the in-tree
-  // approximation outside the probe set used to fit it.
+  // approximation outside the measurement set used to fit it.
   const int modes[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, NPPI_INTER_LANCZOS};
   const double scales[] = {0.5, 0.75, 1.0, 1.5, 2.0};
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, 0, (int)c.regime, 0);
@@ -589,12 +589,12 @@ void run_resize(const char *id, Call call) {
     const S *hsrc = s.hptr() + off_bytes<S>(c.oy, c.ox, s.step, C) / sizeof(S);
     const S *dsrc = reinterpret_cast<const S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, C));
     const int srcStepElems = s.step / (int)sizeof(S);
-    for (double sc : scales) {
+    for (double sc: scales) {
       const int dw = std::max(1, (int)std::llround(c.w * sc));
       const int dh = std::max(1, (int)std::llround(c.h * sc));
       Buf<S> d(dw, dh, C, 0, 0x5A);
       d.dev.copyFromHost(d.host);
-      for (int mode : modes) {
+      for (int mode: modes) {
         if (mode == NPPI_INTER_SUPER && sc >= 1.0) continue;
         const std::vector<uint8_t> pre = d.host;
         npp_diff::clear_cuda_error();
@@ -649,11 +649,11 @@ void run_resize_sqr(const char *id, Call call) {
   std::string first;
   using VT = typename ResizeTraits<S>::VT;
   // SUPER is deferred: NPP's super-sampling box differs from the in-tree
-  // approximation outside the probe set used to fit it.
+  // approximation outside the measurement set used to fit it.
   const int modes[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, NPPI_INTER_LANCZOS};
   const double factors[] = {0.5, 1.0, 1.5, 2.0};
   const double shifts[] = {0.0, 0.25};
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, 0, (int)c.regime, 0);
@@ -674,13 +674,13 @@ void run_resize_sqr(const char *id, Call call) {
     const S *hsrc = s.hptr() + off_bytes<S>(c.oy, c.ox, s.step, C) / sizeof(S);
     const S *dsrc = reinterpret_cast<const S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, C));
     const int srcStepElems = s.step / (int)sizeof(S);
-    for (double f : factors) {
+    for (double f: factors) {
       const int dw = std::max(1, (int)std::llround(c.w * f));
       const int dh = std::max(1, (int)std::llround(c.h * f));
       Buf<S> d(dw, dh, C, 0, 0x5A);
       d.dev.copyFromHost(d.host);
-      for (double shift : shifts) {
-        for (int mode : modes) {
+      for (double shift: shifts) {
+        for (int mode: modes) {
           if (mode == NPPI_INTER_SUPER && f >= 1.0) continue;
           const std::vector<uint8_t> pre = d.host;
           npp_diff::clear_cuda_error();
@@ -737,7 +737,7 @@ void run_resize_sqr_advanced_8u(const char *id, Call call) {
     int sw, sh, dw, dh;
   };
   static const Cfg cfgs[] = {{64, 48, 96, 72}, {33, 17, 17, 9}, {128, 96, 64, 48}};
-  for (const Cfg &cfg : cfgs) {
+  for (const Cfg &cfg: cfgs) {
     Buf<Npp8u> s(cfg.sw, cfg.sh, 1, 0, 0);
     std::memset(s.host.data(), 100, s.host.size());
     s.dev.copyFromHost(s.host);
@@ -799,7 +799,7 @@ void run_resize_batch(const char *id, Call call) {
     int sw, sh, dw, dh, batch;
   };
   static const Cfg cfgs[] = {{33, 17, 17, 9, 3}, {64, 48, 32, 24, 2}, {7, 5, 11, 8, 2}};
-  for (const Cfg &cfg : cfgs) {
+  for (const Cfg &cfg: cfgs) {
     const int B = cfg.batch;
     std::vector<Buf<S> *> srcs, dsts;
     std::vector<std::vector<uint8_t>> srcHost(B), preHost(B);
@@ -807,7 +807,7 @@ void run_resize_batch(const char *id, Call call) {
     for (int i = 0; i < B; ++i) {
       Buf<S> *a = new Buf<S>(cfg.sw, cfg.sh, C, 0, 0);
       Buf<S> *d = new Buf<S>(cfg.dw, cfg.dh, C, 0, 0x5A);
-      fill_regime(*a, C, seed ^ mix64((uint64_t)i), (i & 1) ? kWide : kSmall, i);
+      fill_regime(*a, C, seed ^ mix64((uint64_t)i), (i & 1) ? kWide: kSmall, i);
       a->dev.copyFromHost(a->host);
       d->dev.copyFromHost(d->host);
       srcs.push_back(a);
@@ -815,7 +815,7 @@ void run_resize_batch(const char *id, Call call) {
       srcHost[(size_t)i] = a->host;
       preHost[(size_t)i] = d->host;
     }
-    for (int mode : modes) {
+    for (int mode: modes) {
       std::vector<NppiResizeBatchCXR> h(B);
       for (int i = 0; i < B; ++i)
         h[i] = {(const void *)srcs[(size_t)i]->dptr(), srcs[(size_t)i]->step,
@@ -842,7 +842,7 @@ void run_resize_batch(const char *id, Call call) {
         d->dev.copyToHost(d->host);
         std::vector<uint8_t> want = preHost[(size_t)i];
         const VT afx = (VT)((double)cfg.sw / (double)cfg.dw), afy = (VT)((double)cfg.sh / (double)cfg.dh);
-        resize_apply<S, C, A, VT>(srcHost[(size_t)i].data() ? reinterpret_cast<const S *>(srcHost[(size_t)i].data()) : nullptr,
+        resize_apply<S, C, A, VT>(srcHost[(size_t)i].data() ? reinterpret_cast<const S *>(srcHost[(size_t)i].data()): nullptr,
                                   srcs[(size_t)i]->step / (int)sizeof(S),
                                   reinterpret_cast<S *>(want.data()), d->step / (int)sizeof(S),
                                   NppiRect{0, 0, cfg.dw, cfg.dh}, afx, (VT)(-0.5), (VT)(-0.5), afy,
@@ -855,8 +855,8 @@ void run_resize_batch(const char *id, Call call) {
       }
       if (failed) break;
     }
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
     if (cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);
@@ -884,7 +884,7 @@ void run_resize_batch_advanced(const char *id, Call call) {
   for (int i = 0; i < B; ++i) {
     Buf<S> *a = new Buf<S>(cfgs[i].sw, cfgs[i].sh, C, 0, 0);
     Buf<S> *d = new Buf<S>(cfgs[i].dw, cfgs[i].dh, C, 0, 0x5A);
-    fill_regime(*a, C, seed ^ mix64((uint64_t)i), (i & 1) ? kWide : kSmall, i);
+    fill_regime(*a, C, seed ^ mix64((uint64_t)i), (i & 1) ? kWide: kSmall, i);
     a->dev.copyFromHost(a->host);
     d->dev.copyFromHost(d->host);
     srcs.push_back(a);
@@ -899,7 +899,7 @@ void run_resize_batch_advanced(const char *id, Call call) {
     maxW = std::max(maxW, cfgs[i].dw);
     maxH = std::max(maxH, cfgs[i].dh);
   }
-  for (int mode : modes) {
+  for (int mode: modes) {
     std::vector<NppiImageDescriptor> hs(B), hd(B);
     std::vector<NppiResizeBatchROI_Advanced> hr(B);
     for (int i = 0; i < B; ++i) {
@@ -948,8 +948,8 @@ void run_resize_batch_advanced(const char *id, Call call) {
     }
     if (failed) break;
   }
-  for (auto *p : srcs) delete p;
-  for (auto *p : dsts) delete p;
+  for (auto *p: srcs) delete p;
+  for (auto *p: dsts) delete p;
   finish(id, cnt, first);
 }
 
@@ -978,13 +978,13 @@ template <typename S> inline S warp_store(double v) {
   } else {
     const double r = std::floor(v + 0.5);
     if constexpr (std::is_same_v<S, Npp8u>) {
-      return (S)(r < 0.0 ? 0.0 : (r > 255.0 ? 255.0 : r));
+      return (S)(r < 0.0 ? 0.0: (r > 255.0 ? 255.0: r));
     } else if constexpr (std::is_same_v<S, Npp16u>) {
-      return (S)(r < 0.0 ? 0.0 : (r > 65535.0 ? 65535.0 : r));
+      return (S)(r < 0.0 ? 0.0: (r > 65535.0 ? 65535.0: r));
     } else if constexpr (std::is_same_v<S, Npp16s>) {
-      return (S)(r < -32768.0 ? -32768.0 : (r > 32767.0 ? 32767.0 : r));
+      return (S)(r < -32768.0 ? -32768.0: (r > 32767.0 ? 32767.0: r));
     } else if constexpr (std::is_same_v<S, Npp32s>) {
-      return (S)(r < -2147483648.0 ? -2147483648.0 : (r > 2147483647.0 ? 2147483647.0 : r));
+      return (S)(r < -2147483648.0 ? -2147483648.0: (r > 2147483647.0 ? 2147483647.0: r));
     } else {
       return (S)r;
     }
@@ -1077,7 +1077,7 @@ inline bool rotate_check(const char *id, const GenCase &c, int interp, const std
         } else if constexpr (std::is_integral_v<S>) {
           const long long g = (long long)(*(const S *)(got.data() + off));
           const long long w = (long long)(*(const S *)(want.data() + off));
-          const long long d = g > w ? g - w : w - g;
+          const long long d = g > w ? g - w: w - g;
           ok = (double)d <= atol + rtol * std::fabs((double)w);
         } else {
           ok = equal_elem<S>(got.data() + off, want.data() + off, rtol, atol);
@@ -1108,7 +1108,7 @@ void run_rotate(const char *id, Call call) {
   std::string first;
   const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
   const double angles[] = {0.0, 30.0, 45.0, 90.0, 180.0};
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
@@ -1135,9 +1135,9 @@ void run_rotate(const char *id, Call call) {
       double x, y;
     };
     const Shift shifts[] = {{0.0, 0.0}, {c.w / 2.0, c.h / 2.0}};
-    for (double angle : angles)
-      for (const Shift &sh : shifts)
-        for (int interp : interps) {
+    for (double angle: angles)
+      for (const Shift &sh: shifts)
+        for (int interp: interps) {
           const std::vector<uint8_t> pre = d.host;
           npp_diff::clear_cuda_error();
           const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, s.step, NppiRect{0, 0, c.w, c.h},
@@ -1204,7 +1204,7 @@ void run_remap(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 4 || c.h < 4) continue;  // need interior taps for every mode
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> d(c.w, c.h, C, 0, 0x5A);
@@ -1240,7 +1240,7 @@ void run_remap(const char *id, Call call) {
     const S *hsrc = s.hptr() + off_bytes<S>(c.oy, c.ox, s.step, C) / sizeof(S);
     const S *dsrc = reinterpret_cast<const S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, C));
     const int srcStepElems = s.step / (int)sizeof(S);
-    for (int interp : interps) {
+    for (int interp: interps) {
       const std::vector<uint8_t> pre = d.host;
       npp_diff::clear_cuda_error();
       const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, s.step, NppiRect{0, 0, c.w, c.h},
@@ -1354,7 +1354,7 @@ inline S affine_cast(double v) {
     if constexpr (std::is_same_v<S, Npp8u>) { lo = 0.0; hi = 255.0; }
     else if constexpr (std::is_same_v<S, Npp16u>) { lo = 0.0; hi = 65535.0; }
     else if constexpr (std::is_same_v<S, Npp32s>) { lo = -2147483648.0; hi = 2147483520.0; }
-    v = v < lo ? lo : (v > hi ? hi : v);
+    v = v < lo ? lo: (v > hi ? hi: v);
     // __fadd_rz(v, copysign(0.5, v)) followed by F2I.RZ.
     const double s = v + std::copysign(0.5, v);
     float f = (float)s;
@@ -1405,8 +1405,8 @@ inline S affine_sample(const S *src, int stepElems, int w, int h, int ch, float 
     return affine_cast<S>(affine_at(src, stepElems, w, h, x, y, C, ch));
   }
   if (interp == NPPI_INTER_LINEAR) {
-    float ux = fxX < 0.0f ? 0.0f : fxX;
-    float uy = fy < 0.0f ? 0.0f : fy;
+    float ux = fxX < 0.0f ? 0.0f: fxX;
+    float uy = fy < 0.0f ? 0.0f: fy;
     const int x0 = (int)std::floor(ux), y0 = (int)std::floor(uy);
     const float dx = aff_sub(ux, (float)x0), dy = aff_sub(uy, (float)y0);
     const float v00 = (float)affine_at(src, stepElems, w, h, x0, y0, C, ch);
@@ -1451,7 +1451,7 @@ void run_warp_affine(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> d(c.w, c.h, C, 0, 0x5A);
@@ -1488,7 +1488,7 @@ void run_warp_affine(const char *id, Call call) {
     const bool doubleWork = std::is_same_v<S, Npp64f>;
     for (int mi = 0; mi < 6; ++mi) {
       const auto &cf = coeffs[mi];
-      for (int interp : interps) {
+      for (int interp: interps) {
         const std::vector<uint8_t> pre = d.host;
         npp_diff::clear_cuda_error();
         const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, s.step, NppiRect{0, 0, c.w, c.h},
@@ -1576,7 +1576,7 @@ void run_warp_affine_quad(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> d(c.w, c.h, C, 0, 0x5A);
@@ -1600,7 +1600,7 @@ void run_warp_affine_quad(const char *id, Call call) {
     // Quad vertices must be in polygon order (TL, TR, BR, BL); NPP rejects
     // crossed orders.
     const double srcQ[4][2] = {{0, 0}, {w1, 0}, {w1, h1}, {0, h1}};
-    // The quad path rounds nearest-neighbour ties at exactly .5 differently
+    // The quad path rounds nearest-neighbour ties at exactly.5 differently
     // from the coefficient family, so its transforms are chosen with integer
     // inverse coordinates (0.5x upscale instead of 2x downscale).
     double mats[6][2][3] = {
@@ -1622,7 +1622,7 @@ void run_warp_affine_quad(const char *id, Call call) {
         dstQ[i][0] = M[0][0] * srcQ[i][0] + M[0][1] * srcQ[i][1] + M[0][2];
         dstQ[i][1] = M[1][0] * srcQ[i][0] + M[1][1] * srcQ[i][1] + M[1][2];
       }
-      for (int interp : interps) {
+      for (int interp: interps) {
         const std::vector<uint8_t> pre = d.host;
         npp_diff::clear_cuda_error();
         const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, s.step, NppiRect{0, 0, c.w, c.h},
@@ -1688,10 +1688,10 @@ void run_warp_affine_quad(const char *id, Call call) {
 inline void invert_affine_batch(const double in[6], double out[6]) {
   const double det = std::fma(in[0], in[4], -(in[1] * in[3]));
   const bool invertible = det != 0.0;
-  const double inv = 1.0 / (invertible ? det : in[0]);
-  const float m00 = (float)((invertible ? in[4] : 1.0) * inv);
+  const double inv = 1.0 / (invertible ? det: in[0]);
+  const float m00 = (float)((invertible ? in[4]: 1.0) * inv);
   const float m01 = (float)((-in[1]) * inv);
-  const float m10 = (float)((invertible ? -in[3] : 0.0) * inv);
+  const float m10 = (float)((invertible ? -in[3]: 0.0) * inv);
   const float m11 = (float)(in[0] * inv);
   out[0] = m00;
   out[1] = m01;
@@ -1727,7 +1727,7 @@ void run_warp_affine_batch(const char *id, Call call) {
     Buf<S> *a = new Buf<S>(W, H, C, 0, 0);
     Buf<S> *d = new Buf<S>(W, H, C, 0, 0x5A);
     Buf<Npp64f> *cf = new Buf<Npp64f>(6, 1, 1, 0, 0);
-    fill_regime(*a, C, seed ^ mix64((uint64_t)i), (i & 1) ? kWide : kSmall, i);
+    fill_regime(*a, C, seed ^ mix64((uint64_t)i), (i & 1) ? kWide: kSmall, i);
     a->dev.copyFromHost(a->host);
     d->dev.copyFromHost(d->host);
     std::memcpy(cf->host.data(), fwd[i], sizeof(fwd[i]));
@@ -1749,9 +1749,9 @@ void run_warp_affine_batch(const char *id, Call call) {
       reinterpret_cast<NppiWarpAffineBatchCXR *>(list.dptr()), (unsigned)B, ctx);
   if (initSt != NPP_NO_ERROR) {
     GTEST_SKIP() << "[" << id << "] BatchInit failed: " << (int)initSt;
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
-    for (auto *p : coeffs) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
+    for (auto *p: coeffs) delete p;
     return;
   }
   const S *hsrc[3];
@@ -1763,7 +1763,7 @@ void run_warp_affine_batch(const char *id, Call call) {
     dsrc[i] = reinterpret_cast<const S *>(srcs[(size_t)i]->dptr());
   }
   const bool doubleWork = std::is_same_v<S, Npp64f>;
-  for (int interp : interps) {
+  for (int interp: interps) {
     std::vector<std::vector<uint8_t>> pre(B);
     for (int i = 0; i < B; ++i) {
       pre[(size_t)i] = dsts[(size_t)i]->host;
@@ -1816,9 +1816,9 @@ void run_warp_affine_batch(const char *id, Call call) {
     }
     if (failed) break;
   }
-  for (auto *p : srcs) delete p;
-  for (auto *p : dsts) delete p;
-  for (auto *p : coeffs) delete p;
+  for (auto *p: srcs) delete p;
+  for (auto *p: dsts) delete p;
+  for (auto *p: coeffs) delete p;
   finish(id, cnt, first);
 }
 
@@ -1850,7 +1850,7 @@ void run_warp_affine_batch_init(const char *id, Call call) {
   if (st != NPP_NO_ERROR) {
     ++cnt.skipped;
     if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-    for (auto *p : coeffs) delete p;
+    for (auto *p: coeffs) delete p;
     finish(id, cnt, first);
     return;
   }
@@ -1875,7 +1875,7 @@ void run_warp_affine_batch_init(const char *id, Call call) {
       }
     }
   }
-  for (auto *p : coeffs) delete p;
+  for (auto *p: coeffs) delete p;
   finish(id, cnt, first);
 }
 
@@ -1953,7 +1953,7 @@ void run_warp_perspective(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> d(c.w, c.h, C, 0, 0x5A);
@@ -1987,7 +1987,7 @@ void run_warp_perspective(const char *id, Call call) {
     const int srcStepElems = s.step / (int)sizeof(S);
     for (int mi = 0; mi < 6; ++mi) {
       const auto &cf = coeffs[mi];
-      for (int interp : interps) {
+      for (int interp: interps) {
         const std::vector<uint8_t> pre = d.host;
         npp_diff::clear_cuda_error();
         const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, s.step, NppiRect{0, 0, c.w, c.h},
@@ -2105,7 +2105,7 @@ void run_warp_perspective_quad(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> d(c.w, c.h, C, 0, 0x5A);
@@ -2148,7 +2148,7 @@ void run_warp_perspective_quad(const char *id, Call call) {
         dstQ[i][0] = x;
         dstQ[i][1] = y;
       }
-      for (int interp : interps) {
+      for (int interp: interps) {
         const std::vector<uint8_t> pre = d.host;
         npp_diff::clear_cuda_error();
         const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, s.step, NppiRect{0, 0, c.w, c.h},
@@ -2229,7 +2229,7 @@ void run_warp_perspective_batch(const char *id, Call call) {
     Buf<S> *a = new Buf<S>(W, H, C, 0, 0);
     Buf<S> *d = new Buf<S>(W, H, C, 0, 0x5A);
     Buf<Npp64f> *cf = new Buf<Npp64f>(9, 1, 1, 0, 0);
-    fill_regime(*a, C, seed ^ mix64((uint64_t)i), (i & 1) ? kWide : kSmall, i);
+    fill_regime(*a, C, seed ^ mix64((uint64_t)i), (i & 1) ? kWide: kSmall, i);
     a->dev.copyFromHost(a->host);
     d->dev.copyFromHost(d->host);
     std::memcpy(cf->host.data(), fwd[i].m, sizeof(fwd[i].m));
@@ -2251,16 +2251,16 @@ void run_warp_perspective_batch(const char *id, Call call) {
       reinterpret_cast<NppiWarpPerspectiveBatchCXR *>(list.dptr()), (unsigned)B, ctx);
   if (initSt != NPP_NO_ERROR) {
     GTEST_SKIP() << "[" << id << "] BatchInit failed: " << (int)initSt;
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
-    for (auto *p : coeffs) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
+    for (auto *p: coeffs) delete p;
     return;
   }
   const S *hsrc[3];
   const int srcStepElems[3] = {srcs[0]->step / (int)sizeof(S), srcs[1]->step / (int)sizeof(S),
                                srcs[2]->step / (int)sizeof(S)};
   for (int i = 0; i < B; ++i) hsrc[i] = srcs[(size_t)i]->hptr();
-  for (int interp : interps) {
+  for (int interp: interps) {
     std::vector<std::vector<uint8_t>> pre(B);
     for (int i = 0; i < B; ++i) {
       pre[(size_t)i] = dsts[(size_t)i]->host;
@@ -2310,9 +2310,9 @@ void run_warp_perspective_batch(const char *id, Call call) {
     }
     if (failed) break;
   }
-  for (auto *p : srcs) delete p;
-  for (auto *p : dsts) delete p;
-  for (auto *p : coeffs) delete p;
+  for (auto *p: srcs) delete p;
+  for (auto *p: dsts) delete p;
+  for (auto *p: coeffs) delete p;
   finish(id, cnt, first);
 }
 
@@ -2348,7 +2348,7 @@ void run_warp_perspective_batch_init(const char *id, Call call) {
   if (st != NPP_NO_ERROR) {
     ++cnt.skipped;
     if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-    for (auto *p : coeffs) delete p;
+    for (auto *p: coeffs) delete p;
     finish(id, cnt, first);
     return;
   }
@@ -2379,7 +2379,7 @@ void run_warp_perspective_batch_init(const char *id, Call call) {
         }
       }
   }
-  for (auto *p : coeffs) delete p;
+  for (auto *p: coeffs) delete p;
   finish(id, cnt, first);
 }
 
@@ -2399,7 +2399,7 @@ void run_warp_perspective_planar(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     std::vector<Buf<S> *> srcs(P), dsts(P);
     std::vector<std::vector<uint8_t>> pre(P);
@@ -2449,7 +2449,7 @@ void run_warp_perspective_planar(const char *id, Call call) {
     const int dstep = dsts[0]->step / (int)sizeof(S);
     for (int mi = 0; mi < 6; ++mi) {
       const auto &cf = coeffs[mi];
-      for (int interp : interps) {
+      for (int interp: interps) {
         for (int p = 0; p < P; ++p) dsts[(size_t)p]->dev.copyFromHost(pre[(size_t)p]);
         npp_diff::clear_cuda_error();
         const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, srcs[0]->step, NppiRect{0, 0, c.w, c.h}, ddst,
@@ -2500,8 +2500,8 @@ void run_warp_perspective_planar(const char *id, Call call) {
       if (cnt.mismatched >= 8) break;
     }
     if (cnt.mismatched >= 8) break;
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
   }
   finish(id, cnt, first);
 }
@@ -2516,7 +2516,7 @@ void run_warp_perspective_quad_planar(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     std::vector<Buf<S> *> srcs(P), dsts(P);
     std::vector<std::vector<uint8_t>> pre(P);
@@ -2572,7 +2572,7 @@ void run_warp_perspective_quad_planar(const char *id, Call call) {
         dstQ[i][0] = x;
         dstQ[i][1] = y;
       }
-      for (int interp : interps) {
+      for (int interp: interps) {
         for (int p = 0; p < P; ++p) dsts[(size_t)p]->dev.copyFromHost(pre[(size_t)p]);
         npp_diff::clear_cuda_error();
         const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, srcs[0]->step, NppiRect{0, 0, c.w, c.h},
@@ -2615,8 +2615,8 @@ void run_warp_perspective_quad_planar(const char *id, Call call) {
       if (cnt.mismatched >= 8) break;
     }
     if (cnt.mismatched >= 8) break;
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
   }
   finish(id, cnt, first);
 }
@@ -2635,7 +2635,7 @@ void run_warp_affine_planar(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     std::vector<Buf<S> *> srcs(P), dsts(P);
     std::vector<std::vector<uint8_t>> pre(P);
@@ -2683,7 +2683,7 @@ void run_warp_affine_planar(const char *id, Call call) {
     const bool doubleWork = std::is_same_v<S, Npp64f>;
     for (int mi = 0; mi < 6; ++mi) {
       const auto &cf = coeffs[mi];
-      for (int interp : interps) {
+      for (int interp: interps) {
         for (int p = 0; p < P; ++p) dsts[(size_t)p]->dev.copyFromHost(pre[(size_t)p]);
         npp_diff::clear_cuda_error();
         const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, srcs[0]->step, NppiRect{0, 0, c.w, c.h}, ddst,
@@ -2731,8 +2731,8 @@ void run_warp_affine_planar(const char *id, Call call) {
       if (cnt.mismatched >= 8) break;
     }
     if (cnt.mismatched >= 8) break;
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
   }
   finish(id, cnt, first);
 }
@@ -2747,7 +2747,7 @@ void run_warp_affine_quad_planar(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     std::vector<Buf<S> *> srcs(P), dsts(P);
     std::vector<std::vector<uint8_t>> pre(P);
@@ -2801,7 +2801,7 @@ void run_warp_affine_quad_planar(const char *id, Call call) {
         dstQ[i][0] = M[0][0] * srcQ[i][0] + M[0][1] * srcQ[i][1] + M[0][2];
         dstQ[i][1] = M[1][0] * srcQ[i][0] + M[1][1] * srcQ[i][1] + M[1][2];
       }
-      for (int interp : interps) {
+      for (int interp: interps) {
         for (int p = 0; p < P; ++p) dsts[(size_t)p]->dev.copyFromHost(pre[(size_t)p]);
         npp_diff::clear_cuda_error();
         const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, srcs[0]->step, NppiRect{0, 0, c.w, c.h},
@@ -2857,8 +2857,8 @@ void run_warp_affine_quad_planar(const char *id, Call call) {
       if (cnt.mismatched >= 8) break;
     }
     if (cnt.mismatched >= 8) break;
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
   }
   finish(id, cnt, first);
 }
@@ -2912,12 +2912,12 @@ void run_resize_planar(const char *id, Call call) {
   using VT = typename ResizeTraits<S>::VT;
   const int modes[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, NPPI_INTER_LANCZOS};
   const double scales[] = {0.5, 0.75, 1.0, 1.5, 2.0};
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     std::vector<Buf<S> *> srcs;
     const uint64_t seed = case_seed(id, c.w, c.h, c.pad, 0, (int)c.regime, 0);
     planar_fill_src(srcs, P, c.w, c.h, c.ox, c.oy, c.pad, seed, c.regime);
-    for (double sc : scales) {
+    for (double sc: scales) {
       const int dw = std::max(1, (int)std::llround(c.w * sc));
       const int dh = std::max(1, (int)std::llround(c.h * sc));
       std::vector<Buf<S> *> dsts;
@@ -2933,7 +2933,7 @@ void run_resize_planar(const char *id, Call call) {
       S *ddst[4] = {nullptr, nullptr, nullptr, nullptr};
       int sstep[4] = {0, 0, 0, 0};
       planar_ptrs(srcs, dsts, P, c.ox, c.oy, hsrc, dsrc, ddst, sstep);
-      for (int mode : modes) {
+      for (int mode: modes) {
         for (int p = 0; p < P; ++p) dsts[(size_t)p]->dev.copyFromHost(pre[(size_t)p]);
         npp_diff::clear_cuda_error();
         const NppStatus st = call(dsrc, srcs[0]->step, NppiSize{c.w, c.h}, NppiRect{0, 0, c.w, c.h},
@@ -2971,11 +2971,11 @@ void run_resize_planar(const char *id, Call call) {
         }
         if (failed) break;
       }
-      for (auto *p : dsts) delete p;
+      for (auto *p: dsts) delete p;
       if (cnt.mismatched >= 8) break;
     }
     if (cnt.mismatched >= 8) break;
-    for (auto *p : srcs) delete p;
+    for (auto *p: srcs) delete p;
   }
   finish(id, cnt, first);
 }
@@ -2993,12 +2993,12 @@ void run_resize_sqr_planar(const char *id, Call call) {
   const int modes[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, NPPI_INTER_LANCZOS};
   const double factors[] = {0.5, 1.0, 1.5, 2.0};
   const double shifts[] = {0.0, 0.25};
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     std::vector<Buf<S> *> srcs;
     const uint64_t seed = case_seed(id, c.w, c.h, c.pad, 0, (int)c.regime, 0);
     planar_fill_src(srcs, P, c.w, c.h, c.ox, c.oy, c.pad, seed, c.regime);
-    for (double f : factors) {
+    for (double f: factors) {
       const int dw = std::max(1, (int)std::llround(c.w * f));
       const int dh = std::max(1, (int)std::llround(c.h * f));
       std::vector<Buf<S> *> dsts;
@@ -3014,8 +3014,8 @@ void run_resize_sqr_planar(const char *id, Call call) {
       S *ddst[4] = {nullptr, nullptr, nullptr, nullptr};
       int sstep[4] = {0, 0, 0, 0};
       planar_ptrs(srcs, dsts, P, c.ox, c.oy, hsrc, dsrc, ddst, sstep);
-      for (double shift : shifts) {
-        for (int mode : modes) {
+      for (double shift: shifts) {
+        for (int mode: modes) {
           for (int p = 0; p < P; ++p) dsts[(size_t)p]->dev.copyFromHost(pre[(size_t)p]);
           npp_diff::clear_cuda_error();
           const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, srcs[0]->step, NppiRect{0, 0, c.w, c.h},
@@ -3051,11 +3051,11 @@ void run_resize_sqr_planar(const char *id, Call call) {
         }
         if (cnt.mismatched >= 8) break;
       }
-      for (auto *p : dsts) delete p;
+      for (auto *p: dsts) delete p;
       if (cnt.mismatched >= 8) break;
     }
     if (cnt.mismatched >= 8) break;
-    for (auto *p : srcs) delete p;
+    for (auto *p: srcs) delete p;
   }
   finish(id, cnt, first);
 }
@@ -3070,7 +3070,7 @@ void run_remap_planar(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const int interps[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC};
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 4 || c.h < 4) continue;
     std::vector<Buf<S> *> srcs, dsts;
     std::vector<std::vector<uint8_t>> pre(P);
@@ -3102,7 +3102,7 @@ void run_remap_planar(const char *id, Call call) {
     planar_ptrs(srcs, dsts, P, c.ox, c.oy, hsrc, dsrc, ddst, sstep);
     const MapT *hmx = reinterpret_cast<const MapT *>(mx.host.data());
     const MapT *hmy = reinterpret_cast<const MapT *>(my.host.data());
-    for (int interp : interps) {
+    for (int interp: interps) {
       for (int p = 0; p < P; ++p) dsts[(size_t)p]->dev.copyFromHost(pre[(size_t)p]);
       npp_diff::clear_cuda_error();
       const NppStatus st = call(dsrc, NppiSize{c.w, c.h}, srcs[0]->step, NppiRect{0, 0, c.w, c.h},
@@ -3137,8 +3137,8 @@ void run_remap_planar(const char *id, Call call) {
       }
       if (failed) break;
     }
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
     if (cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);

@@ -80,8 +80,8 @@ template <typename T> class DeviceMemory {
 public:
   DeviceMemory() : ptr_(nullptr), size_(0) {}
 
-  // ptr_ must be initialised before allocate() runs: allocate() calls free(),
-  // which cudaFree()s a non-null pointer.  An uninitialised ptr_ made the
+  // ptr_ must be initialised before allocate runs: allocate calls free,
+  // which cudaFrees a non-null pointer.  An uninitialised ptr_ made the
   // harness occasionally free a live device buffer, which showed up as a
   // sticky "illegal memory access" in asynchronous runs.
   explicit DeviceMemory(size_t size) : ptr_(nullptr), size_(size) { allocate(size); }

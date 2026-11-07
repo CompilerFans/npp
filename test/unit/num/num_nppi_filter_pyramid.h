@@ -1,8 +1,8 @@
-// CPU-golden coverage for the Gauss pyramid filters
+// CPU-reference output coverage for the Gauss pyramid filters
 // (nppi_filtering_functions.h):
 //   nppiFilterGaussPyramidLayer{Down,Up}Border.
 //
-// Measured NPP 13.4 semantics (RTX 5090):
+// Measured NPP 13.4 semantics (reference):
 //   Down: destination pixel j samples the source at j*rate + (t - center) for
 //     every tap t (center = (taps-1)/2); non-integer positions are bilinear
 //     (the four neighbours are border-mapped individually), integer rates
@@ -10,7 +10,6 @@
 //     renormalisation).  Border mapping is REPLICATE or MIRROR (reflect-101)
 //     on the fractional tap coordinates.
 //   Up: the reference's exact Gaussian spreading was not decoded (see
-//     scratch/f13_notes.md); the documented model is a nearest-neighbour
 //     upsample src = floor(dst/rate) followed by the user taps.  Only delta
 //     kernels reproduce the reference exactly, so Gaussian up cases are
 //     exercised structurally (call succeeds, output written and finite).
@@ -26,10 +25,10 @@ namespace filtpyr {
 
 inline int borderIndex(int i, int lo, int hi, bool mirror) {
   if (lo > hi) return lo;
-  if (!mirror) return i < lo ? lo : (i > hi ? hi : i);
+  if (!mirror) return i < lo ? lo: (i > hi ? hi: i);
   const int dim = hi - lo + 1;
   i -= lo;
-  while (i < 0 || i >= dim) i = i < 0 ? -i : 2 * dim - 2 - i;
+  while (i < 0 || i >= dim) i = i < 0 ? -i: 2 * dim - 2 - i;
   return i + lo;
 }
 
@@ -37,9 +36,9 @@ template <typename Dst> inline Dst pyrEmit(float v) {
   if constexpr (std::is_same_v<Dst, Npp32f>) {
     return v;
   } else if constexpr (std::is_same_v<Dst, Npp16u>) {
-    return (Npp16u)(!(v > 0.0f) ? 0 : (v >= 65535.0f ? 65535 : (Npp16u)(int)v));
+    return (Npp16u)(!(v > 0.0f) ? 0: (v >= 65535.0f ? 65535: (Npp16u)(int)v));
   } else {
-    return (Npp8u)(!(v > 0.0f) ? 0 : (v >= 255.0f ? 255 : (Npp8u)(int)v));
+    return (Npp8u)(!(v > 0.0f) ? 0: (v >= 255.0f ? 255: (Npp8u)(int)v));
   }
 }
 
@@ -71,7 +70,7 @@ void run_pyramid(const char *id, Call call) {
   const float rate = 2.0f;
   const int m = 8;
   bool failed = false;
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     for (int ki = 0; ki < 3 && !failed; ++ki) {
       for (int bi = 0; bi < 2 && !failed; ++bi) {
         const Ker &ker = kers[ki];

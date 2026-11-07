@@ -1,7 +1,7 @@
-// CPU-golden coverage for the YUV/YCbCr sampling-format and layout
+// CPU-reference output coverage for the YUV/YCbCr sampling-format and layout
 // conversions (pure byte permutation / decimation, no colour arithmetic).
 //
-// Semantics measured on the 5090 (NVIDIA NPP 13.4), matching the in-tree
+// Semantics measured on the reference (NVIDIA NPP 13.4), matching the in-tree
 // c3yuv executor:
 //   * packed C2 rows: YCbCr422 = [Y0 Cb Y1 Cr], YCrCb422 = [Y0 Cr Y1 Cb],
 //     CbYCr422 = [Cb Y0 Cr Y1];
@@ -33,9 +33,9 @@ enum class Kind {
   P2P3_420,  // Y + interleaved 4:1:1 CbCr -> planar 4:2:0 (row quirk)
 };
 
-inline int yOff(int x, int layout) { return ((x & 1) << 1) + (layout == 2 ? 1 : 0); }
-inline int cbOff(int layout) { return layout == 0 ? 1 : (layout == 1 ? 3 : 0); }
-inline int crOff(int layout) { return layout == 0 ? 3 : (layout == 1 ? 1 : 2); }
+inline int yOff(int x, int layout) { return ((x & 1) << 1) + (layout == 2 ? 1: 0); }
+inline int cbOff(int layout) { return layout == 0 ? 1: (layout == 1 ? 3: 0); }
+inline int crOff(int layout) { return layout == 0 ? 3: (layout == 1 ? 1: 2); }
 
 // a0..a2 carry the executor's integer arguments (see the emitter):
 //   C2P3: layoutSrc, px, py, swapDst
@@ -58,7 +58,7 @@ void run_layout(const char *id, Kind kind, int a0, int a1, int a2, int a3, Call 
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4},   {8, 6},   {16, 12}, {32, 24},  {64, 48},
                              {128, 96}, {6, 4},   {10, 6},  {33, 17},  {48, 32}};
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     const int w = cf.w, h = cf.h;
     const uint64_t seed = case_seed(id, w, h, 0, 0, 0, 0);
     const bool srcC2 = kind == Kind::C2P3 || kind == Kind::C2P2 || kind == Kind::C2REORDER;
@@ -140,8 +140,8 @@ void run_layout(const char *id, Kind kind, int a0, int a1, int a2, int a3, Call 
     if (st != NPP_NO_ERROR) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-      for (auto *p : srcs) delete p;
-      for (auto *p : dsts) delete p;
+      for (auto *p: srcs) delete p;
+      for (auto *p: dsts) delete p;
       continue;
     }
     const cudaError_t se = cudaDeviceSynchronize();
@@ -165,20 +165,20 @@ void run_layout(const char *id, Kind kind, int a0, int a1, int a2, int a3, Call 
     };
     if (kind == Kind::C2P3 || kind == Kind::C2P2) {
       const int layoutSrc = a0, px = a1, py = a2, swapDst = a3;
-      const int yh = (py == 2) ? (h & ~1) : h;
-      const int yw = w & ~((px == 2) ? 3 : 1);
+      const int yh = (py == 2) ? (h & ~1): h;
+      const int yw = w & ~((px == 2) ? 3: 1);
       for (int y = 0; y < yh; ++y)
         for (int x = 0; x < yw; ++x) wr(0, x, y, c2At(x, y, yOff(x, layoutSrc)));
-      const int cw = (px == 2) ? (w >> 2) : (w >> 1);
-      const int ch = (py == 2) ? (h >> 1) : h;
+      const int cw = (px == 2) ? (w >> 2): (w >> 1);
+      const int ch = (py == 2) ? (h >> 1): h;
       for (int y = 0; y < ch; ++y)
         for (int x = 0; x < cw; ++x) {
           const int sx = x * px, sy = y * py;  // packed pair indices
           const int cb = c2Pair(sx, sy, cbOff(layoutSrc));
           const int cr = c2Pair(sx, sy, crOff(layoutSrc));
           if (kind == Kind::C2P3) {
-            wr(swapDst ? 2 : 1, x, y, cb);
-            wr(swapDst ? 1 : 2, x, y, cr);
+            wr(swapDst ? 2: 1, x, y, cb);
+            wr(swapDst ? 1: 2, x, y, cr);
           } else {
             const size_t off = (size_t)y * dsts[1]->step + (size_t)x * 2;
             want[1][off] = (uint8_t)cb;
@@ -190,13 +190,13 @@ void run_layout(const char *id, Kind kind, int a0, int a1, int a2, int a3, Call 
       int swapSrc = 0, srcMode = 0, swapDst = 0;
       if (fromP2) swapDst = a0;
       else { swapSrc = a0; srcMode = a1; swapDst = a2; }
-      const int hh = (!fromP2 && srcMode == 2) ? (h & ~1) : h;
+      const int hh = (!fromP2 && srcMode == 2) ? (h & ~1): h;
       const int pairs = w >> 1;
-      const int sCb = swapSrc ? 2 : 1, sCr = swapSrc ? 1 : 2;
+      const int sCb = swapSrc ? 2: 1, sCr = swapSrc ? 1: 2;
       for (int y = 0; y < hh; ++y)
         for (int p = 0; p < pairs; ++p) {
-          const int col = fromP2 ? (p >> 1) : (srcMode == 1 ? (p >> 1) : p);
-          const int row = fromP2 ? y : (srcMode == 2 ? (y >> 1) : y);
+          const int col = fromP2 ? (p >> 1): (srcMode == 1 ? (p >> 1): p);
+          const int row = fromP2 ? y: (srcMode == 2 ? (y >> 1): y);
           int cb, cr;
           if (fromP2) {
             cb = srcAt(1, 2 * col, y);
@@ -238,8 +238,8 @@ void run_layout(const char *id, Kind kind, int a0, int a1, int a2, int a3, Call 
             const int c = x >> 1;
             const int cb = srcAt(1, 2 * c, sy);
             const int cr = srcAt(1, 2 * c + 1, sy);
-            wr(swapDst ? 2 : 1, x, j, cb);
-            wr(swapDst ? 1 : 2, x, j, cr);
+            wr(swapDst ? 2: 1, x, j, cb);
+            wr(swapDst ? 1: 2, x, j, cr);
           }
       }
     } else if (kind == Kind::C2REORDER) {
@@ -254,8 +254,8 @@ void run_layout(const char *id, Kind kind, int a0, int a1, int a2, int a3, Call 
         }
     } else if (kind == Kind::P3RESAMPLE) {
       const int swapSrc = a0, swapDst = a1, mode = a2;
-      const int yh = (mode == 2 || mode == 3 || mode == 4) ? (h & ~1) : h;
-      const int yw = w & ~((mode == 1) ? 3 : 1);
+      const int yh = (mode == 2 || mode == 3 || mode == 4) ? (h & ~1): h;
+      const int yw = w & ~((mode == 1) ? 3: 1);
       for (int y = 0; y < yh; ++y)
         for (int x = 0; x < yw; ++x) wr(0, x, y, srcAt(0, x, y));
       int cw = w >> 1;
@@ -263,8 +263,8 @@ void run_layout(const char *id, Kind kind, int a0, int a1, int a2, int a3, Call 
       if (mode == 1) cw = w >> 2;
       else if (mode == 2 || mode == 4) ch = (h & ~1) >> 1;
       else if (mode == 3) ch = h & ~1;
-      const int sCb = swapSrc ? 2 : 1, sCr = swapSrc ? 1 : 2;
-      const int dCb = swapDst ? 2 : 1, dCr = swapDst ? 1 : 2;
+      const int sCb = swapSrc ? 2: 1, sCr = swapSrc ? 1: 2;
+      const int dCb = swapDst ? 2: 1, dCr = swapDst ? 1: 2;
       for (int y = 0; y < ch; ++y)
         for (int x = 0; x < cw; ++x) {
           int sx = x, sy = y;
@@ -278,14 +278,14 @@ void run_layout(const char *id, Kind kind, int a0, int a1, int a2, int a3, Call 
         }
     } else {  // P3P2
       const int swapSrc = a0, mode = a1;
-      const int yh = (mode == 1 || mode == 3) ? (h & ~1) : h;
-      const int yw = w & ~((mode == 0 || mode == 2) ? 3 : 1);
+      const int yh = (mode == 1 || mode == 3) ? (h & ~1): h;
+      const int yw = w & ~((mode == 0 || mode == 2) ? 3: 1);
       for (int y = 0; y < yh; ++y)
         for (int x = 0; x < yw; ++x) wr(0, x, y, srcAt(0, x, y));
       int cw = w >> 2;
       int ch = h;
       if (mode == 1 || mode == 3) { cw = w >> 1; ch = (h & ~1) >> 1; }
-      const int sCb = swapSrc ? 2 : 1, sCr = swapSrc ? 1 : 2;
+      const int sCb = swapSrc ? 2: 1, sCr = swapSrc ? 1: 2;
       for (int y = 0; y < ch; ++y)
         for (int x = 0; x < cw; ++x) {
           if (mode == 3) {
@@ -309,16 +309,15 @@ void run_layout(const char *id, Kind kind, int a0, int a1, int a2, int a3, Call 
     for (size_t p = 0; p < dsts.size() && !failed; ++p) {
       dsts[p]->dev.copyToHost(dsts[p]->host);
       const GenCase dc{(int)dsts[p]->bw, (int)dsts[p]->bh, 0, 0, 0, kSmall, 0};
-      const int chans = (dstC2 ? (p == 0) : (dstP2 && p == 1)) ? 2 : 1;
+      const int chans = (dstC2 ? (p == 0): (dstP2 && p == 1)) ? 2: 1;
       const bool ok = (chans == 2)
                           ? rotate_check<Npp8u, 2, 2>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p],
-                                                      dsts[p]->step, std::vector<uint8_t>(), cnt, first)
-                          : rotate_check<Npp8u, 1, 1>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p],
+                                                      dsts[p]->step, std::vector<uint8_t>(), cnt, first): rotate_check<Npp8u, 1, 1>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p],
                                                       dsts[p]->step, std::vector<uint8_t>(), cnt, first);
       if (!ok) failed = true;
     }
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
     if (failed || cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);

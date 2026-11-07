@@ -1,7 +1,7 @@
 // Gauss pyramid filter kernels and executor entry points.
 // See nppi_gauss_pyramid_executor.h for the family contract.
 //
-// The down path is probe-verified against NVIDIA NPP 13.4 on the RTX 5090:
+// The down path is measured against NVIDIA NPP 13.4 in the reference implementation:
 // every destination pixel samples the source at `j * rate + (t - center)` per
 // tap, with bilinear interpolation for the fractional part and REPLICATE /
 // MIRROR (reflect-101) applied to the tap coordinate.  Kernel taps are used
@@ -23,7 +23,7 @@ constexpr int kBlockY = 16;
 
 // NPP takes kernel/mask arrays as HOST pointers and stages them internally.
 // cudaMemcpyDefault lets the same path also accept a device pointer (the
-// differential harness passes device-side kernel buffers).
+// test harness passes device-side kernel buffers).
 template <typename K>
 inline NppStatus stage_kernel(const K *pKernel, int count, cudaStream_t stream, K **out) {
   K *d = nullptr;
@@ -48,7 +48,7 @@ inline NppStatus with_staged_kernel(const K *pKernel, int count, cudaStream_t st
   launch(d);
   cudaError_t e = cudaGetLastError();
   cudaFreeAsync(d, stream);
-  return e == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return e == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 inline bool step_too_small(int nDstStep, int rowBytes, int H) {
@@ -69,7 +69,7 @@ __host__ __device__ __forceinline__ int border_index(int i, int lo, int hi, bool
     }
     return i + lo;
   }
-  return i < lo ? lo : (i > hi ? hi : i);
+  return i < lo ? lo: (i > hi ? hi: i);
 }
 
 // Source fetch in pSrc-relative coordinates, border applied per axis.
@@ -200,7 +200,7 @@ NppStatus gaussPyramidBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, N
       oSrcOffset.y >= oSrcSize.height) {
     return NPP_OUT_OFF_RANGE_ERROR;
   }
-  // Measured on the 5090: NPP 13.4 reports an unsupported border type for
+  // Measured on the reference: NPP 13.4 reports an unsupported border type for
   // this family as -14 (the value of NPP_STEP_ERROR), not as
   // NPP_NOT_SUPPORTED_MODE_ERROR like the other filtering families.
   if (eBorderType != NPP_BORDER_REPLICATE && eBorderType != NPP_BORDER_MIRROR) {
@@ -210,7 +210,7 @@ NppStatus gaussPyramidBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, N
   if (!(nRate > 1.0f && nRate <= 10.0f)) return NPP_BAD_ARGUMENT_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   const int rowBytes = oSizeROI.width * CH * (int)sizeof(Dst);
-  // Measured on the 5090: a destination step shorter than one ROI row comes
+  // Measured on the reference: a destination step shorter than one ROI row comes
   // back as -16 (NPP_FFT_FLAG_ERROR, the code NPP 13.4 actually uses here),
   // while an unaligned step is the regular NPP_NOT_EVEN_STEP_ERROR (-108).
   if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_STEP_ERROR;

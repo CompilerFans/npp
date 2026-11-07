@@ -129,7 +129,7 @@ NppStatus launch_mirror_kernel(const T *pSrc, int nSrcStep, T *pDst, int nDstSte
   }
 
   cudaError_t err = cudaGetLastError();
-  return (err == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (err == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 template <typename T>

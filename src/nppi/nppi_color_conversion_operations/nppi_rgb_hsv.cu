@@ -22,7 +22,7 @@ __device__ inline void rgb_to_hsv_pixel(Npp8u r, Npp8u g, Npp8u b, Npp8u &h, Npp
   float delta = maxv - minv;
 
   float hval = 0.0f;
-  float sval = (maxv <= 0.0f) ? 0.0f : (delta / maxv);
+  float sval = (maxv <= 0.0f) ? 0.0f: (delta / maxv);
 
   if (delta > 0.0f) {
     if (maxv == rf) {

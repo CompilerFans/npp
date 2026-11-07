@@ -1,9 +1,9 @@
-// CPU-golden coverage for the UF connected-region label generators
+// CPU-reference output coverage for the UF connected-region label generators
 // (nppi_filtering_functions.h):
 //   nppiLabelMarkersUF_{8u,16u,32u}32u_C1R and the plain/Advanced batch
 //   entry points.
 //
-// Measured NPP 13.4 semantics (RTX 5090):
+// Measured NPP 13.4 semantics (reference):
 //   * every pixel belongs to the connected region of equal-valued pixels
 //     (4-way for nppiNormL1, 8-way for nppiNormInf); there is no special
 //     treatment of zero-valued pixels;
@@ -130,7 +130,7 @@ void run_label(const char *id, Call call) {
   static const int cfgs[][2] = {{64, 64}, {48, 48}, {96, 64}};
   static const int norms[] = {(int)nppiNormL1, (int)nppiNormInf};
   bool failed = false;
-  for (const auto &cf : cfgs) {
+  for (const auto &cf: cfgs) {
     for (int pat = 0; pat < 4 && !failed; ++pat) {
       for (int ni = 0; ni < 2 && !failed; ++ni) {
         const int W = cf[0], H = cf[1];
@@ -144,7 +144,7 @@ void run_label(const char *id, Call call) {
         d.dev.copyFromHost(d.host);
         int need = 0;
         nppiLabelMarkersUFGetBufferSize_32u_C1R(NppiSize{W, H}, &need);
-        npp_functional_test::DeviceMemory<Npp8u> buf((size_t)(need > 0 ? need : 1));
+        npp_functional_test::DeviceMemory<Npp8u> buf((size_t)(need > 0 ? need: 1));
         npp_diff::clear_cuda_error();
         const NppStatus st = call(reinterpret_cast<Src *>(s.dptr()), s.step, reinterpret_cast<Npp32u *>(d.dptr()),
                                   d.step, NppiSize{W, H}, norms[ni], buf.get(), ctx);
@@ -192,8 +192,8 @@ void run_label_batch(const char *id, Call call) {
     const bool eight = norms[ni] == (int)nppiNormInf;
     int ws[nb], hs[nb];
     for (int i = 0; i < nb; ++i) {
-      ws[i] = Advanced ? advSizes[i][0] : 64;
-      hs[i] = Advanced ? advSizes[i][1] : 64;
+      ws[i] = Advanced ? advSizes[i][0]: 64;
+      hs[i] = Advanced ? advSizes[i][1]: 64;
     }
     std::vector<std::vector<Src>> imgs(nb);
     std::vector<std::unique_ptr<npp_functional_test::DeviceMemory<Src>>> src(nb);
@@ -216,7 +216,7 @@ void run_label_batch(const char *id, Call call) {
     npp_functional_test::DeviceMemory<NppiImageDescriptor> sdev(nb), ddev(nb);
     sdev.copyFromHost(sdesc);
     ddev.copyFromHost(ddesc);
-    const NppiSize roi = Advanced ? NppiSize{96, 64} : NppiSize{64, 64};
+    const NppiSize roi = Advanced ? NppiSize{96, 64}: NppiSize{64, 64};
     npp_diff::clear_cuda_error();
     const NppStatus st = call(sdev.get(), ddev.get(), nb, roi, norms[ni], ctx);
     if (st != NPP_NO_ERROR) {

@@ -21,7 +21,7 @@ cudaError_t nppiYUV422ToRGB_8u_C2C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp
 static inline NppiSize yuv422InvRoi(NppiSize roi) { roi.height &= ~1; return roi; }
 static inline NppStatus yuv422InvStatus(cudaError_t s, NppiSize roi) {
   if (s != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  return (roi.height & 1) ? NPP_DOUBLE_SIZE_WARNING : NPP_NO_ERROR;
+  return (roi.height & 1) ? NPP_DOUBLE_SIZE_WARNING: NPP_NO_ERROR;
 }
 
 static inline NppStatus validateYUV422ToRGBInputs(const Npp8u *const pSrc[3], const int rSrcStep[3], void *pDst,
@@ -42,7 +42,7 @@ static inline NppStatus validateYUV422ToRGBInputs(const Npp8u *const pSrc[3], co
   if (rSrcStep[0] <= 0 || rSrcStep[1] <= 0 || rSrcStep[2] <= 0 || nDstStep <= 0) {
     return NPP_STEP_ERROR;
   }
-  const int minDstStep = dstChannels == 0 ? oSizeROI.width : oSizeROI.width * dstChannels;
+  const int minDstStep = dstChannels == 0 ? oSizeROI.width: oSizeROI.width * dstChannels;
   if (nDstStep < minDstStep) {
     return NPP_STEP_ERROR;
   }
@@ -160,7 +160,7 @@ NppStatus nppiYUV422ToRGB_8u_C2C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *p
 
   cudaError_t cudaStatus = nppiYUV422ToRGB_8u_C2C3R_kernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
                                                            nppStreamCtx.hStream);
-  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiYUV422ToRGB_8u_C2C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {

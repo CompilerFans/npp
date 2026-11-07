@@ -15,7 +15,7 @@
 //     policy: NONE = unchanged, BLACK = 0 on boundaries, WHITE = 65535,
 //     ONLY = 0 on boundaries / 65535 elsewhere, CONTRAST = 0/65535 chosen
 //     from the relative root indices.
-// pMarkerLabels may be NULL.  Validation order matches the probe: null
+// pMarkerLabels may be NULL.  Validation order matches the measurement: null
 // src/buffer -8, zero or negative ROI -6, unsupported norm -5, unsupported
 // boundary type -2.
 #include "npp.h"
@@ -35,7 +35,7 @@ __global__ void watershedParentKernel(const Npp16u *pSrc, int nSrcStep, int widt
   const Npp16u *row = (const Npp16u *)((const char *)pSrc + (size_t)y * nSrcStep);
   Npp16u bestValue = row[x];
   int bestIndex = self;
-  const int radius = connectivity == 8 ? 1 : 1;
+  const int radius = connectivity == 8 ? 1: 1;
   for (int dy = -radius; dy <= radius; ++dy) {
     for (int dx = -radius; dx <= radius; ++dx) {
       if (dx == 0 && dy == 0) continue;
@@ -73,7 +73,7 @@ __global__ void watershedOutputKernel(const Npp16u *pSrc, int nSrcStep, int widt
   const int label = pLabel[self];
   bool boundary = false;
   int minNeighborLabel = label;
-  const int radius = connectivity == 8 ? 1 : 1;
+  const int radius = connectivity == 8 ? 1: 1;
   for (int dy = -radius; dy <= radius && !boundary; ++dy) {
     for (int dx = -radius; dx <= radius; ++dx) {
       if (dx == 0 && dy == 0) continue;
@@ -94,11 +94,11 @@ __global__ void watershedOutputKernel(const Npp16u *pSrc, int nSrcStep, int widt
   Npp16u out = value;
   switch (boundaryType) {
     case NPP_WATERSHED_SEGMENT_BOUNDARIES_NONE: out = value; break;
-    case NPP_WATERSHED_SEGMENT_BOUNDARIES_BLACK: out = boundary ? (Npp16u)0 : value; break;
-    case NPP_WATERSHED_SEGMENT_BOUNDARIES_WHITE: out = boundary ? (Npp16u)65535 : value; break;
-    case NPP_WATERSHED_SEGMENT_BOUNDARIES_ONLY: out = boundary ? (Npp16u)0 : (Npp16u)65535; break;
+    case NPP_WATERSHED_SEGMENT_BOUNDARIES_BLACK: out = boundary ? (Npp16u)0: value; break;
+    case NPP_WATERSHED_SEGMENT_BOUNDARIES_WHITE: out = boundary ? (Npp16u)65535: value; break;
+    case NPP_WATERSHED_SEGMENT_BOUNDARIES_ONLY: out = boundary ? (Npp16u)0: (Npp16u)65535; break;
     default:  // CONTRAST: the higher root index side becomes black.
-      out = boundary ? (label > minNeighborLabel ? (Npp16u)0 : (Npp16u)65535) : value;
+      out = boundary ? (label > minNeighborLabel ? (Npp16u)0: (Npp16u)65535): value;
       break;
   }
   *(Npp16u *)((char *)pSrcDst + (size_t)y * nSrcDstStep + (size_t)x * sizeof(Npp16u)) = out;
@@ -123,7 +123,7 @@ NppStatus watershedCommon(Npp16u *pSrcDst, int nSrcDstStep, Npp32u *pMarkerLabel
     return NPP_ERROR;  // measured: generic -2, not NPP_NOT_SUPPORTED_MODE_ERROR
   }
 
-  const int connectivity = eNorm == nppiNormInf ? 8 : 4;
+  const int connectivity = eNorm == nppiNormInf ? 8: 4;
   const size_t count = (size_t)oSizeROI.width * oSizeROI.height;
   int *pParent = nullptr, *pLabel = nullptr, *pChanged = nullptr;
   if (cudaMalloc(&pParent, count * sizeof(int)) != cudaSuccess) return NPP_MEMORY_ALLOCATION_ERR;
@@ -165,7 +165,7 @@ NppStatus watershedCommon(Npp16u *pSrcDst, int nSrcDstStep, Npp32u *pMarkerLabel
   cudaFree(pParent);
   cudaFree(pLabel);
   cudaFree(pChanged);
-  return err == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return err == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 }  // namespace

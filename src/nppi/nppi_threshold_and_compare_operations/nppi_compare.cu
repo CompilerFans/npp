@@ -24,7 +24,7 @@ template <typename T> __device__ inline Npp8u performCompare(T src1, T src2, Npp
   default:
     result = false;
   }
-  return result ? 0xFF : 0x00;
+  return result ? 0xFF: 0x00;
 }
 
 __global__ void nppiCompare_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
@@ -94,7 +94,7 @@ __global__ void nppiCompare_8u_C3R_kernel(const Npp8u *pSrc1, int nSrc1Step, con
   Npp8u r1 = performCompare(src1_row[srcIdx + 1], src2_row[srcIdx + 1], eCompOp);
   Npp8u r2 = performCompare(src1_row[srcIdx + 2], src2_row[srcIdx + 2], eCompOp);
 
-  dst_row[x] = (r0 && r1 && r2) ? 0xFF : 0x00;
+  dst_row[x] = (r0 && r1 && r2) ? 0xFF: 0x00;
 }
 
 __global__ void nppiCompare_16u_C3R_kernel(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
@@ -115,7 +115,7 @@ __global__ void nppiCompare_16u_C3R_kernel(const Npp16u *pSrc1, int nSrc1Step, c
   Npp8u r1 = performCompare(src1_row[srcIdx + 1], src2_row[srcIdx + 1], eCompOp);
   Npp8u r2 = performCompare(src1_row[srcIdx + 2], src2_row[srcIdx + 2], eCompOp);
 
-  dst_row[x] = (r0 && r1 && r2) ? 0xFF : 0x00;
+  dst_row[x] = (r0 && r1 && r2) ? 0xFF: 0x00;
 }
 
 __global__ void nppiCompare_32f_C3R_kernel(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step,
@@ -136,7 +136,7 @@ __global__ void nppiCompare_32f_C3R_kernel(const Npp32f *pSrc1, int nSrc1Step, c
   Npp8u r1 = performCompare(src1_row[srcIdx + 1], src2_row[srcIdx + 1], eCompOp);
   Npp8u r2 = performCompare(src1_row[srcIdx + 2], src2_row[srcIdx + 2], eCompOp);
 
-  dst_row[x] = (r0 && r1 && r2) ? 0xFF : 0x00;
+  dst_row[x] = (r0 && r1 && r2) ? 0xFF: 0x00;
 }
 
 // C4 kernels - compare all 4 channels, output 255 only if ALL channels match
@@ -159,7 +159,7 @@ __global__ void nppiCompare_8u_C4R_kernel(const Npp8u *pSrc1, int nSrc1Step, con
   Npp8u r2 = performCompare(src1_row[srcIdx + 2], src2_row[srcIdx + 2], eCompOp);
   Npp8u r3 = performCompare(src1_row[srcIdx + 3], src2_row[srcIdx + 3], eCompOp);
 
-  dst_row[x] = (r0 && r1 && r2 && r3) ? 0xFF : 0x00;
+  dst_row[x] = (r0 && r1 && r2 && r3) ? 0xFF: 0x00;
 }
 
 __global__ void nppiCompare_16u_C4R_kernel(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
@@ -181,7 +181,7 @@ __global__ void nppiCompare_16u_C4R_kernel(const Npp16u *pSrc1, int nSrc1Step, c
   Npp8u r2 = performCompare(src1_row[srcIdx + 2], src2_row[srcIdx + 2], eCompOp);
   Npp8u r3 = performCompare(src1_row[srcIdx + 3], src2_row[srcIdx + 3], eCompOp);
 
-  dst_row[x] = (r0 && r1 && r2 && r3) ? 0xFF : 0x00;
+  dst_row[x] = (r0 && r1 && r2 && r3) ? 0xFF: 0x00;
 }
 
 __global__ void nppiCompare_32f_C4R_kernel(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step,
@@ -203,7 +203,7 @@ __global__ void nppiCompare_32f_C4R_kernel(const Npp32f *pSrc1, int nSrc1Step, c
   Npp8u r2 = performCompare(src1_row[srcIdx + 2], src2_row[srcIdx + 2], eCompOp);
   Npp8u r3 = performCompare(src1_row[srcIdx + 3], src2_row[srcIdx + 3], eCompOp);
 
-  dst_row[x] = (r0 && r1 && r2 && r3) ? 0xFF : 0x00;
+  dst_row[x] = (r0 && r1 && r2 && r3) ? 0xFF: 0x00;
 }
 
 extern "C" {

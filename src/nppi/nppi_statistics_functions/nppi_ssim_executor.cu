@@ -50,7 +50,7 @@ __global__ void gaussianH(const float *in, float *out, int w, int h, Gauss g) {
   double acc = 0.0;
   for (int k = -5; k <= 5; ++k) {
     int xx = x + k;
-    xx = xx < 0 ? 0 : (xx >= w ? w - 1 : xx);
+    xx = xx < 0 ? 0: (xx >= w ? w - 1: xx);
     acc += (double)g.w[k + 5] * in[(size_t)y * w + xx];
   }
   out[(size_t)y * w + x] = (float)acc;
@@ -63,7 +63,7 @@ __global__ void gaussianV(const float *in, float *out, int w, int h, Gauss g) {
   double acc = 0.0;
   for (int k = -5; k <= 5; ++k) {
     int yy = y + k;
-    yy = yy < 0 ? 0 : (yy >= h ? h - 1 : yy);
+    yy = yy < 0 ? 0: (yy >= h ? h - 1: yy);
     acc += (double)g.w[k + 5] * in[(size_t)yy * w + x];
   }
   out[(size_t)y * w + x] = (float)acc;
@@ -132,10 +132,10 @@ __global__ void decimatePlane(const float *in, float *out, int w, int h, int ow,
   const int x = blockIdx.x * blockDim.x + threadIdx.x;
   const int y = blockIdx.y * blockDim.y + threadIdx.y;
   if (x >= ow || y >= oh) return;
-  const int y0 = y > 0 ? 2 * y - 1 : 0;
-  const int y1 = 2 * y < h ? 2 * y : h - 1;
-  const int x0 = x > 0 ? 2 * x - 1 : 0;
-  const int x1 = 2 * x < w ? 2 * x : w - 1;
+  const int y0 = y > 0 ? 2 * y - 1: 0;
+  const int y1 = 2 * y < h ? 2 * y: h - 1;
+  const int x0 = x > 0 ? 2 * x - 1: 0;
+  const int x1 = 2 * x < w ? 2 * x: w - 1;
   out[(size_t)y * ow + x] =
       0.25f * (in[(size_t)y0 * w + x0] + in[(size_t)y0 * w + x1] + in[(size_t)y1 * w + x0] + in[(size_t)y1 * w + x1]);
 }
@@ -192,8 +192,7 @@ NppStatus ssimChannel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int
   if (st != NPP_NO_ERROR) return st;
   const Npp32f value = (Npp32f)(hsum / (double)(w * h));
   return cudaMemcpyAsync(out + ch, &value, sizeof(value), cudaMemcpyHostToDevice, stream) == cudaSuccess
-             ? NPP_NO_ERROR
-             : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+             ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus wmsssimChannel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, NppiSize roi,
@@ -213,7 +212,7 @@ NppStatus wmsssimChannel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, 
   double result = 1.0;
   for (int level = 0; level < 5; ++level) {
     double hsum = 0.0;
-    const int mode = level < 4 ? 1 : 2;
+    const int mode = level < 4 ? 1: 2;
     NppStatus st = ssimLevel(a, b, w, h, work, mode, kWeights[level], &hsum, stream);
     if (st != NPP_NO_ERROR) {
       cudaFree(buf);
@@ -239,8 +238,7 @@ NppStatus wmsssimChannel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, 
   cudaFree(buf);
   const Npp32f value = (Npp32f)result;
   return cudaMemcpyAsync(out + ch, &value, sizeof(value), cudaMemcpyHostToDevice, stream) == cudaSuccess
-             ? NPP_NO_ERROR
-             : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+             ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus copyBatchDesc(const NppiImageDescriptor *p, int n, std::vector<NppiImageDescriptor> &out,
@@ -249,15 +247,15 @@ NppStatus copyBatchDesc(const NppiImageDescriptor *p, int n, std::vector<NppiIma
   cudaError_t err = cudaMemcpyAsync(out.data(), p, sizeof(NppiImageDescriptor) * (size_t)n, cudaMemcpyDeviceToHost,
                                     stream);
   if (err == cudaSuccess) err = cudaStreamSynchronize(stream);
-  return err == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return err == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 }  // namespace
 
 // The size helpers report a conservative requirement (all working maps for the
 // largest level).  NPP's exact SSIM-family sizes are undocumented internals;
-// the differential tests pin the status contract and sufficiency.
-NppStatus ssimGetBufferHostSize(NppiSize oSizeROI, int channels, int *hpBufferSize) {
+// the reference comparisons pin the status contract and sufficiency.
+NppStatus ssimGetBufferHostSize(NppiSize oSizeROI, int channels, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   // Measured: a negative ROI is accepted (NO_ERROR, no size written).
   if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_NO_ERROR;
@@ -266,24 +264,24 @@ NppStatus ssimGetBufferHostSize(NppiSize oSizeROI, int channels, int *hpBufferSi
   return NPP_NO_ERROR;
 }
 
-NppStatus ssimBatchGetBufferHostSize(NppiSize oSizeROI, int channels, int *hpBufferSize) {
+NppStatus ssimBatchGetBufferHostSize(NppiSize oSizeROI, int channels, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   return ssimGetBufferHostSize(oSizeROI, channels, hpBufferSize);
 }
 
-NppStatus wmsssimGetBufferHostSize(NppiSize oSizeROI, int channels, int *hpBufferSize) {
+NppStatus wmsssimGetBufferHostSize(NppiSize oSizeROI, int channels, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   // Measured: a negative ROI is accepted (NO_ERROR, no size written).
   if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_NO_ERROR;
   const long planes = (long)oSizeROI.width * oSizeROI.height;
-  *hpBufferSize = (int)(channels * (kPlanes + 2) * (planes + 2L * oSizeROI.width) * 4 + 256);
+  *hpBufferSize = (NPP_BUFFER_SIZE_TYPE)(channels * (kPlanes + 2) * (planes + 2L * oSizeROI.width) * 4 + 256);
   return NPP_NO_ERROR;
 }
 
-NppStatus wmsssimBatchGetBufferHostSize(NppiSize oSizeROI, int channels, int *hpBufferSize) {
+NppStatus wmsssimBatchGetBufferHostSize(NppiSize oSizeROI, int channels, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   return wmsssimGetBufferHostSize(oSizeROI, channels, hpBufferSize);
 }
 
-NppStatus msssimGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize) {
+NppStatus msssimGetBufferHostSize(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   return wmsssimGetBufferHostSize(oSizeROI, 1, hpBufferSize);
 }
 
@@ -311,7 +309,7 @@ NppStatus runSSIMBatch(const NppiImageDescriptor *pSrc1, const NppiImageDescript
   st = copyBatchDesc(pSrc2, nBatchSize, h2, stream);
   if (st != NPP_NO_ERROR) return st;
   for (int i = 0; i < nBatchSize; ++i) {
-    const NppiSize roi = advanced ? h1[i].oSize : oSizeROI;
+    const NppiSize roi = advanced ? h1[i].oSize: oSizeROI;
     if (roi.width <= 0 || roi.height <= 0) return NPP_SIZE_ERROR;
     st = runSSIM((const Npp8u *)h1[i].pData, h1[i].nStep, (const Npp8u *)h2[i].pData, h2[i].nStep, roi, channels,
                  pSSIM + (size_t)i * channels, (Npp8u *)pSSIM, stream);
@@ -345,7 +343,7 @@ NppStatus runWMSSSIMBatch(const NppiImageDescriptor *pSrc1, const NppiImageDescr
   st = copyBatchDesc(pSrc2, nBatchSize, h2, stream);
   if (st != NPP_NO_ERROR) return st;
   for (int i = 0; i < nBatchSize; ++i) {
-    const NppiSize roi = advanced ? h1[i].oSize : oSizeROI;
+    const NppiSize roi = advanced ? h1[i].oSize: oSizeROI;
     if (roi.width <= 0 || roi.height <= 0) return NPP_SIZE_ERROR;
     st = runWMSSSIM((const Npp8u *)h1[i].pData, h1[i].nStep, (const Npp8u *)h2[i].pData, h2[i].nStep, roi, channels,
                     pWMSSSIM + (size_t)i * channels, (Npp8u *)pWMSSSIM, stream);

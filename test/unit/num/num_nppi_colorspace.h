@@ -1,4 +1,4 @@
-// CPU-golden coverage for the pointwise XYZ / LUV / YCC / Lab conversions.
+// CPU-reference output coverage for the pointwise XYZ / LUV / YCC / Lab conversions.
 //
 // Formulas mirror the measured NPP 13.4 pipelines (normalized float
 // arithmetic, truncating 8u stores):
@@ -17,8 +17,8 @@
 namespace num {
 namespace cs {
 
-inline float fclamp01(float v) { return v < 0.0f ? 0.0f : (v > 1.0f ? 1.0f : v); }
-inline Npp8u q8(float v) { return v < 0.0f ? (Npp8u)0 : (v > 255.0f ? (Npp8u)255 : (Npp8u)v); }
+inline float fclamp01(float v) { return v < 0.0f ? 0.0f: (v > 1.0f ? 1.0f: v); }
+inline Npp8u q8(float v) { return v < 0.0f ? (Npp8u)0: (v > 255.0f ? (Npp8u)255: (Npp8u)v); }
 
 inline void rgb_to_xyz(Npp8u r, Npp8u g, Npp8u b, Npp8u &x, Npp8u &y, Npp8u &z) {
   const float nr = (float)r * 0.003921569f, ng = (float)g * 0.003921569f, nb = (float)b * 0.003921569f;
@@ -164,8 +164,8 @@ void run_cs(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  constexpr int C = AC4 ? 4 : 3;
-  for (const GenCase &c : make_gen_cases(0)) {
+  constexpr int C = AC4 ? 4: 3;
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<Npp8u> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<Npp8u> d(c.w, c.h, C, 0, 0x5A);
@@ -223,7 +223,7 @@ void run_lab(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<Npp8u> s(c.w + c.ox, c.h + c.oy, 3, c.pad, 0);
     Buf<Npp8u> d(c.w, c.h, 3, 0, 0x5A);

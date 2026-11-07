@@ -10,9 +10,9 @@ __device__ inline void yuv422_to_rgb_bt601(Npp8u y, Npp8u u, Npp8u v, Npp8u &r, 
   const float G = __fsub_rn(__fsub_rn(Y, __fmul_rn(0.39465f, U)), __fmul_rn(0.58060f, V));
   const float B = __fadd_rn(Y, __fmul_rn(2.03211f, U));
   int ri = static_cast<int>(R), gi = static_cast<int>(G), bi = static_cast<int>(B);
-  r = static_cast<Npp8u>(ri < 0 ? 0 : (ri > 255 ? 255 : ri));
-  g = static_cast<Npp8u>(gi < 0 ? 0 : (gi > 255 ? 255 : gi));
-  b = static_cast<Npp8u>(bi < 0 ? 0 : (bi > 255 ? 255 : bi));
+  r = static_cast<Npp8u>(ri < 0 ? 0: (ri > 255 ? 255: ri));
+  g = static_cast<Npp8u>(gi < 0 ? 0: (gi > 255 ? 255: gi));
+  b = static_cast<Npp8u>(bi < 0 ? 0: (bi > 255 ? 255: bi));
 }
 
 __global__ void yuv422_to_rgb_p3c3_kernel(const Npp8u *__restrict__ srcY, int srcYStep, const Npp8u *__restrict__ srcU,
@@ -103,7 +103,7 @@ __global__ void yuv422_to_rgb_c2c3_kernel(const Npp8u *__restrict__ src, int src
   Npp8u u0 = row[pair + 1];
   Npp8u y1 = row[pair + 2];
   Npp8u v0 = row[pair + 3];
-  Npp8u Y = (x & 1) ? y1 : y0;
+  Npp8u Y = (x & 1) ? y1: y0;
 
   Npp8u R, G, B;
   yuv422_to_rgb_bt601(Y, u0, v0, R, G, B);

@@ -24,8 +24,8 @@ inline std::vector<NppsCase> make_npps_cases(int param) {
   static const int lengths[] = {1, 2, 3, 7, 16, 33, 64, 257, 1024, 65537};
   static const Regime regimes[] = {kSmall, kWide, kExtremes};
   std::vector<NppsCase> v;
-  for (int n : lengths)
-    for (Regime r : regimes) v.push_back({n, r, param});
+  for (int n: lengths)
+    for (Regime r: regimes) v.push_back({n, r, param});
   return v;
 }
 
@@ -63,7 +63,7 @@ void run_npps_copy(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const NppsCase &c : make_npps_cases(0)) {
+  for (const NppsCase &c: make_npps_cases(0)) {
     Buf<T> s(c.n, 1, 1, 0, 0xCD);
     Buf<T> d(c.n, 1, 1, 0, 0x5A);
     const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, 0);
@@ -110,7 +110,7 @@ void run_npps_set(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const NppsCase &c : make_npps_cases(0)) {
+  for (const NppsCase &c: make_npps_cases(0)) {
     Buf<T> d(c.n, 1, 1, 0, 0x5A);
     const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, 0);
     Rng rng(seed);
@@ -157,7 +157,7 @@ void run_npps_zero(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const T zero{};
-  for (const NppsCase &c : make_npps_cases(0)) {
+  for (const NppsCase &c: make_npps_cases(0)) {
     Buf<T> d(c.n, 1, 1, 0, 0x5A);
     d.dev.copyFromHost(d.host);
     npp_diff::clear_cuda_error();
@@ -206,9 +206,9 @@ void run_npps_convert(const char *id, Call call, bool sfs, bool round_mode,
   const int modes[3] = {NPP_RND_NEAR, NPP_RND_FINANCIAL, NPP_RND_ZERO};
   RunCounts cnt;
   std::string first;
-  for (int sf : {0, 1, 2}) {
+  for (int sf: {0, 1, 2}) {
     if (!sfs && sf != 0) break;
-    for (const NppsCase &c : make_npps_cases(sf)) {
+    for (const NppsCase &c: make_npps_cases(sf)) {
       Buf<S> s(c.n, 1, 1, 0, 0);
       Buf<D> d(c.n, 1, 1, 0, 0x5A);
       const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, sf);
@@ -217,10 +217,10 @@ void run_npps_convert(const char *id, Call call, bool sfs, bool round_mode,
       fill_npps(s, seed, c.regime, 0, finite_only);
       s.dev.copyFromHost(s.host);
       d.dev.copyFromHost(d.host);
-      for (int mi = 0; mi < (round_mode ? 3 : 1); ++mi) {
+      for (int mi = 0; mi < (round_mode ? 3: 1); ++mi) {
         // Sfs variants without an explicit round-mode parameter use the
         // default nearest/ties-to-even rule.
-        const int mode = round_mode ? modes[mi] : NPP_RND_NEAR;
+        const int mode = round_mode ? modes[mi]: NPP_RND_NEAR;
         npp_diff::clear_cuda_error();
         NppStatus st = call(reinterpret_cast<const S *>(s.dptr()), reinterpret_cast<D *>(d.dptr()),
                             c.n, mode, sf, ctx);
@@ -244,17 +244,15 @@ void run_npps_convert(const char *id, Call call, bool sfs, bool round_mode,
               v = round_mode_host(v, mode, fin_half_up);
             } else if (sfs) {
               // Sfs without eRoundMode defaults to round-half-away-from-zero.
-              v = v >= 0.0 ? std::floor(v + 0.5) : std::ceil(v - 0.5);
+              v = v >= 0.0 ? std::floor(v + 0.5): std::ceil(v - 0.5);
             }
           }
           D r;
           if constexpr (std::is_integral_v<D>) {
             if (std::isnan(v)) v = -std::numeric_limits<double>::infinity();
             double t = v <= (double)std::numeric_limits<long long>::min()
-                           ? (double)std::numeric_limits<long long>::min()
-                           : (v >= (double)std::numeric_limits<long long>::max()
-                                  ? (double)std::numeric_limits<long long>::max()
-                                  : v);
+                           ? (double)std::numeric_limits<long long>::min(): (v >= (double)std::numeric_limits<long long>::max()
+                                  ? (double)std::numeric_limits<long long>::max(): v);
             r = saturate_convert<D>((double)(long long)t);
           } else {
             r = saturate_convert<D>(v);
@@ -264,7 +262,7 @@ void run_npps_convert(const char *id, Call call, bool sfs, bool round_mode,
         }
         ++cnt.executed;
         bool case_failed = false;
-        const double tol = std::is_same_v<D, Npp32f> ? 1e-6 : (std::is_same_v<D, Npp64f> ? 1e-12 : 0.0);
+        const double tol = std::is_same_v<D, Npp32f> ? 1e-6: (std::is_same_v<D, Npp64f> ? 1e-12: 0.0);
         for (int i = 0; i < c.n && !case_failed; ++i) {
           const size_t off = (size_t)i * sizeof(D);
           ++cnt.compared;
@@ -343,9 +341,9 @@ void run_npps_threshold(const char *id, Call call, bool inplace) {
     else if constexpr (std::is_same_v<C, Npp64f>) { rtol = 1e-9; atol = 1e-6; }
     else atol = 1.0;
   }
-  for (int opi = 0; opi < ((K == ThrKind::Threshold || K == ThrKind::ThresholdVal) ? 2 : 1); ++opi) {
-    const int op = (K == ThrKind::Threshold || K == ThrKind::ThresholdVal) ? ops[opi] : 0;
-    for (const NppsCase &c : make_npps_cases(op)) {
+  for (int opi = 0; opi < ((K == ThrKind::Threshold || K == ThrKind::ThresholdVal) ? 2: 1); ++opi) {
+    const int op = (K == ThrKind::Threshold || K == ThrKind::ThresholdVal) ? ops[opi]: 0;
+    for (const NppsCase &c: make_npps_cases(op)) {
       Buf<T> s(c.n, 1, 1, 0, 0);
       Buf<T> d(c.n, 1, 1, 0, 0x5A);
       const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, op);
@@ -379,7 +377,7 @@ void run_npps_threshold(const char *id, Call call, bool inplace) {
       ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id()
                                  << " sync: " << cudaGetErrorString(se);
       d.dev.copyToHost(d.host);
-      const std::vector<uint8_t> &in = inplace ? old_dst : old_src;
+      const std::vector<uint8_t> &in = inplace ? old_dst: old_src;
       std::vector<uint8_t> want = d.host;
       for (int i = 0; i < c.n; ++i) {
         const T v = reinterpret_cast<const T *>(in.data())[i];
@@ -388,13 +386,11 @@ void run_npps_threshold(const char *id, Call call, bool inplace) {
           using C = complex_part_t<T>;
           const double mag = std::hypot((double)v.re, (double)v.im);
           const double lv = (double)level;
-          const bool less = op == NPP_CMP_LESS ? mag < lv : mag > lv;
+          const bool less = op == NPP_CMP_LESS ? mag < lv: mag > lv;
           // NPP never rewrites a zero sample: there is no direction to
           // rescale, and the Val variants follow the same rule.
           const bool val_scaled = mag > 0.0 &&
-              ((K == ThrKind::Threshold) ? less
-               : (K == ThrKind::GT || K == ThrKind::GTVal) ? (mag > lv)
-                                                           : (mag < lv));
+              ((K == ThrKind::Threshold) ? less: (K == ThrKind::GT || K == ThrKind::GTVal) ? (mag > lv): (mag < lv));
           const bool is_val = (K == ThrKind::ThresholdVal || K == ThrKind::GTVal ||
                                K == ThrKind::LTVal);
           if (val_scaled) {
@@ -409,19 +405,19 @@ void run_npps_threshold(const char *id, Call call, bool inplace) {
           }
         } else {
           if (K == ThrKind::Threshold) {
-            const bool cond = op == NPP_CMP_LESS ? (v < level) : (v > level);
-            r = cond ? (T)level : v;
+            const bool cond = op == NPP_CMP_LESS ? (v < level): (v > level);
+            r = cond ? (T)level: v;
           } else if (K == ThrKind::ThresholdVal) {
-            const bool cond = op == NPP_CMP_LESS ? (v < level) : (v > level);
-            r = cond ? value : v;
+            const bool cond = op == NPP_CMP_LESS ? (v < level): (v > level);
+            r = cond ? value: v;
           } else if (K == ThrKind::GT) {
-            r = v > level ? (T)level : v;
+            r = v > level ? (T)level: v;
           } else if (K == ThrKind::LT) {
-            r = v < level ? (T)level : v;
+            r = v < level ? (T)level: v;
           } else if (K == ThrKind::GTVal) {
-            r = v > level ? value : v;
+            r = v > level ? value: v;
           } else if (K == ThrKind::LTVal) {
-            r = v < level ? value : v;
+            r = v < level ? value: v;
           }
         }
         const size_t off = (size_t)i * sizeof(T);
@@ -479,8 +475,8 @@ template <typename D> inline D npps_scale_ll(long long v, int sf) {
     long long q = v / d;
     const long long r = v % d;
     if (r != 0) {
-      const long long ar = r < 0 ? -r : r;
-      const int sign = v < 0 ? -1 : 1;
+      const long long ar = r < 0 ? -r: r;
+      const int sign = v < 0 ? -1: 1;
       if ((ar << 1) > d) q += sign;
       else if ((ar << 1) == d && (q & 1LL)) q += sign;
     }
@@ -498,15 +494,15 @@ template <typename D> inline D npps_scale_ll(long long v, int sf) {
 template <typename D> inline D npps_div_away(long long num, long long den) {
   if (den == 0) {
     if (num == 0) return D(0);
-    if constexpr (std::is_signed_v<D>) return num < 0 ? type_min<D>() : type_max<D>();
+    if constexpr (std::is_signed_v<D>) return num < 0 ? type_min<D>(): type_max<D>();
     else return type_max<D>();
   }
   long long q = num / den;
   const long long r = num % den;
   if (r != 0) {
-    const long long ar = r < 0 ? -r : r;
-    const long long ad = den < 0 ? -den : den;
-    const int sign = ((num < 0) ^ (den < 0)) ? -1 : 1;
+    const long long ar = r < 0 ? -r: r;
+    const long long ad = den < 0 ? -den: den;
+    const int sign = ((num < 0) ^ (den < 0)) ? -1: 1;
     if ((ar << 1) >= ad) q += sign;
   }
   return saturate_convert<D>((double)q);
@@ -519,15 +515,15 @@ template <typename D> inline D npps_div_even(long long num, long long den) {
   long long q = num / den;
   const long long r = num % den;
   if (r != 0) {
-    const long long ar = r < 0 ? -r : r;
-    const long long ad = den < 0 ? -den : den;
-    const int sign = ((num < 0) ^ (den < 0)) ? -1 : 1;
+    const long long ar = r < 0 ? -r: r;
+    const long long ad = den < 0 ? -den: den;
+    const int sign = ((num < 0) ^ (den < 0)) ? -1: 1;
     if ((ar << 1) > ad || ((ar << 1) == ad && (q & 1LL))) q += sign;
   }
   return saturate_convert<D>((double)q);
 }
 
-// nppsDiv / nppsDivC observed on NPP 13.4 (5090): the divisor is the first
+// nppsDiv / nppsDivC observed on NPP 13.4 (reference): the divisor is the first
 // operand (pSrc1).  Scaling is folded into the divisor.  At sf == 0 the
 // narrow unsigned and 32-bit signed paths truncate, while 16-bit paths round
 // half away from zero; at sf > 0 every path rounds half to even.  The zero
@@ -537,13 +533,13 @@ template <typename D> inline D npps_div_ref(long long num, long long den, int sf
     if constexpr (std::is_same_v<D, Npp32s>) {
       if (sf == 0) {
         if (num == 0) return D(0);
-        return num < 0 ? type_min<D>() : type_max<D>();
+        return num < 0 ? type_min<D>(): type_max<D>();
       }
-      if (sf == 1) return (num == 0 || num == 1) ? D(1) : D(0);
+      if (sf == 1) return (num == 0 || num == 1) ? D(1): D(0);
       return D(0);
     } else {
       if (num == 0) return D(0);
-      if constexpr (std::is_signed_v<D>) return num < 0 ? type_min<D>() : type_max<D>();
+      if constexpr (std::is_signed_v<D>) return num < 0 ? type_min<D>(): type_max<D>();
       else return type_max<D>();
     }
   }
@@ -557,7 +553,7 @@ template <typename D> inline D npps_div_ref(long long num, long long den, int sf
     if (sf == 2) {
       // NPP's 32s sf=2 path biases positive quotients by 2*den before an
       // exact half-to-even division by 4*den.
-      const long long adj = (num != 0 && ((num > 0) == (den > 0))) ? num - 2 * den : num;
+      const long long adj = (num != 0 && ((num > 0) == (den > 0))) ? num - 2 * den: num;
       return npps_div_even<D>(adj, den * 4);
     }
   }
@@ -619,12 +615,12 @@ inline D npps_unary_ref(Op op, S a, int sf) {
           const float gamma = std::sqrt(std::max(0.0f, (mod + fr) / 2.0f));
           const float delta = std::sqrt(std::max(0.0f, (mod - fr) / 2.0f));
           r.re = gamma;
-          r.im = fi < 0.0f ? -delta : delta;
+          r.im = fi < 0.0f ? -delta: delta;
         } else {
           const double mod = std::hypot(ar, ai);
           const double gamma = std::sqrt(std::max(0.0, (mod + ar) / 2.0));
           const double delta = std::sqrt(std::max(0.0, (mod - ar) / 2.0));
-          const double im = ai < 0.0 ? -delta : delta;
+          const double im = ai < 0.0 ? -delta: delta;
           if constexpr (std::is_integral_v<C>) {
             const double scale = (double)(1 << sf);
             r.re = (C)(gamma / scale);
@@ -652,7 +648,7 @@ inline D npps_unary_ref(Op op, S a, int sf) {
         if constexpr (std::is_same_v<D, Npp32s>) {
           if (v == (long long)type_min<D>()) return type_min<D>();
         }
-        return saturate_convert<D>((double)(v < 0 ? -v : v));
+        return saturate_convert<D>((double)(v < 0 ? -v: v));
       } else {
         return (D)a;
       }
@@ -663,7 +659,7 @@ inline D npps_unary_ref(Op op, S a, int sf) {
         else return D(0);
       }
       if ((long long)a < 0) {
-        if constexpr (std::is_signed_v<D>) return sf == 0 ? type_min<D>() : D(0);
+        if constexpr (std::is_signed_v<D>) return sf == 0 ? type_min<D>(): D(0);
         else return D(0);
       }
       return scale_round<D>(std::log((double)a), sf);
@@ -765,15 +761,15 @@ inline D npps_const_ref(Op op, S a, CT c, int sf) {
           // scale half-to-even and saturate.
           const float p = (float)as_double(a) * (float)as_double(c);
           if (std::isnan(p)) return D(0);
-          if (std::isinf(p)) return p > 0 ? type_max<D>() : type_min<D>();
+          if (std::isinf(p)) return p > 0 ? type_max<D>(): type_min<D>();
           if (p > 1.0e18f) return type_max<D>();
           if (p < -1.0e18f) return type_min<D>();
-          const long long i = (long long)(p >= 0.0f ? p + 0.5f : p - 0.5f);
+          const long long i = (long long)(p >= 0.0f ? p + 0.5f: p - 0.5f);
           return npps_scale_ll<D>(i, sf);
         }
         double p = as_double(a) * as_double(c);
         if (std::isnan(p)) return D(0);
-        if (std::isinf(p)) return p > 0 ? type_max<D>() : type_min<D>();
+        if (std::isinf(p)) return p > 0 ? type_max<D>(): type_min<D>();
         p = std::ldexp(p, -sf);
         return saturate_convert<D>((double)std::rint(p));
       } else {
@@ -793,6 +789,7 @@ inline D npps_const_ref(Op op, S a, CT c, int sf) {
       }
       return npps_scale_ll<D>(p, sf);
     }
+    return const_scalar<D>(op, (D)a, (D)c, sf);
   } else {
     return eval_const_d<D>(op, as_double(a), as_double(c), sf);
   }
@@ -800,7 +797,7 @@ inline D npps_const_ref(Op op, S a, CT c, int sf) {
 
 // ---------------------------------------------------------------------------
 // References for the remaining npps arithmetic families (calibrated against
-// NPP 13.4 on the 5090):
+// NPP 13.4 on the reference):
 //   * AddProduct accumulates d + a*b in 64 bits (or matching float
 //     precision) and applies the half-to-even Sfs step afterwards.
 //   * Div_Round rounds the full-precision quotient num / (den * 2^sf):
@@ -814,7 +811,7 @@ inline D npps_const_ref(Op op, S a, CT c, int sf) {
 //   * MulC_64f64s_ISfs rounds half away, then biases by sign and shifts.
 // ---------------------------------------------------------------------------
 template <typename D> inline D npps_round_away(double v) {
-  const double r = v >= 0.0 ? std::floor(v + 0.5) : std::ceil(v - 0.5);
+  const double r = v >= 0.0 ? std::floor(v + 0.5): std::ceil(v - 0.5);
   return saturate_convert<D>(r);
 }
 template <typename D> inline D npps_round_half_up(double v) {
@@ -828,19 +825,18 @@ template <typename D>
 inline D npps_div_round_ref(long long num, long long den, int mode, int sf) {
   if (den == 0) {
     if (num == 0) return D(0);
-    if constexpr (std::is_signed_v<D>) return num < 0 ? type_min<D>() : type_max<D>();
+    if constexpr (std::is_signed_v<D>) return num < 0 ? type_min<D>(): type_max<D>();
     else return type_max<D>();
   }
   const long long d = den * (1LL << sf);
   long long q = num / d;
   const long long r = num % d;
   if (r != 0 && mode != (int)NPP_RND_ZERO) {
-    const long long ar = r < 0 ? -r : r;
-    const long long ad = d < 0 ? -d : d;
-    const int sign = ((num < 0) ^ (d < 0)) ? -1 : 1;
+    const long long ar = r < 0 ? -r: r;
+    const long long ad = d < 0 ? -d: d;
+    const int sign = ((num < 0) ^ (d < 0)) ? -1: 1;
     const bool up = mode == (int)NPP_RND_FINANCIAL
-                        ? ((ar << 1) >= ad)
-                        : ((ar << 1) > ad || ((ar << 1) == ad && (q & 1LL)));
+                        ? ((ar << 1) >= ad): ((ar << 1) > ad || ((ar << 1) == ad && (q & 1LL)));
     if (up) q += sign;
   }
   return saturate_convert<D>((double)q);
@@ -883,10 +879,10 @@ inline D npps_mullow_ref(Npp32s a, Npp32s b, int sf) {
 template <typename S, typename V, typename D>
 inline D npps_mulclow_ref(S a, V v) {
   // NPP rounds the float32 product (not a double-precision product) half
-  // away from zero; the distinction matters at exact .5 boundaries.
+  // away from zero; the distinction matters at exact.5 boundaries.
   const float p = (float)a * (float)v;
   if (std::isnan(p)) return D(0);
-  if (std::isinf(p)) return p > 0 ? type_max<D>() : type_min<D>();
+  if (std::isinf(p)) return p > 0 ? type_max<D>(): type_min<D>();
   if (p > 1.0e18f) return type_max<D>();
   if (p < -1.0e18f) return type_min<D>();
   return npps_round_away<D>((double)p);
@@ -944,14 +940,14 @@ inline D npps_mulc64i_ref(Npp64s d, double v, int sf) {
   double p = (double)d * v;
   if (p > 9.0e18) p = 9.0e18;
   if (p < -9.0e18) p = -9.0e18;
-  long long i = (long long)(p >= 0.0 ? p + 0.5 : p - 0.5);
-  if (sf > 0) i = (i + (i >= 0 ? 1 : -1)) >> sf;
+  long long i = (long long)(p >= 0.0 ? p + 0.5: p - 0.5);
+  if (sf > 0) i = (i + (i >= 0 ? 1: -1)) >> sf;
   return (D)i;
 }
 
 // ---------------------------------------------------------------------------
 // npps statistics reductions.  The references below reproduce NPP 13.4's
-// accumulation and finalization rules (validated on the 5090):
+// accumulation and finalization rules (validated on the reference):
 //   * Sum / Norm L1 / L2Sqr accumulate integers exactly in 64 bits and
 //     floats in double; the final Sfs step rounds half to even.
 //   * Mean rounds the real mean half to even to an integer first, then
@@ -1129,7 +1125,7 @@ inline D npps_stat1_ref(const S *p, int n, int sf) {
       long long s = 0;
       for (int i = 0; i < n; ++i) {
         const long long v = (long long)p[i];
-        s += v < 0 ? -v : v;
+        s += v < 0 ? -v: v;
       }
       return npps_scale_ll<D>(s, sf);
     } else if constexpr (K == StatKind::NormL2) {
@@ -1166,7 +1162,7 @@ inline D npps_stat1_ref(const S *p, int n, int sf) {
     if constexpr (K == StatKind::Sum || K == StatKind::Mean || K == StatKind::NormL1) {
       for (int i = 0; i < n; ++i) {
         const double v = (double)p[i];
-        sum += (K == StatKind::NormL1) ? std::fabs(v) : v;
+        sum += (K == StatKind::NormL1) ? std::fabs(v): v;
       }
       if constexpr (K == StatKind::Sum || K == StatKind::NormL1) {
         return npps_scale_from_double<D>(sum, sf);
@@ -1246,7 +1242,7 @@ inline D npps_stat2_ref(const S1 *a, const S2 *b, int n, int sf) {
         double e = d;
         if constexpr (K == StatKind::MaxRelErr || K == StatKind::AvgRelErr) {
           const double den = std::max(ma, mb);
-          e = den > 0.0 ? d / den : 0.0;
+          e = den > 0.0 ? d / den: 0.0;
         }
         if (e > mx) mx = e;
       }
@@ -1302,8 +1298,8 @@ inline D npps_stat2_ref(const S1 *a, const S2 *b, int n, int sf) {
       const double d = std::fabs(da - db);
       double e;
       if constexpr (K == StatKind::MaxRelErr || K == StatKind::AvgRelErr) {
-        const double den = da > db ? da : db;  // signed max, per NPP 13.4
-        e = den > 0.0 ? d / den : 0.0;
+        const double den = da > db ? da: db;  // signed max, per NPP 13.4
+        e = den > 0.0 ? d / den: 0.0;
       } else {
         e = d;
       }
@@ -1323,7 +1319,7 @@ inline D npps_stat2_ref(const S1 *a, const S2 *b, int n, int sf) {
       long long s = 0;
       for (int i = 0; i < n; ++i) {
         const long long d = (long long)a[i] - (long long)b[i];
-        s += d < 0 ? -d : d;
+        s += d < 0 ? -d: d;
       }
       return npps_scale_ll<D>(s, sf);
     } else if constexpr (K == StatKind::NormL2 || K == StatKind::NormL2Sqr) {
@@ -1444,9 +1440,9 @@ inline double npps_zc_ref(const S *p, int n, int mode) {
     } else if (mode == 1) {  // nppZCXor
       if ((prev < S(0)) != (cur < S(0))) total += 1.0;
     } else {  // nppZCC
-      const int sp = (prev > S(0) ? 1 : 0) - (prev < S(0) ? 1 : 0);
-      const int sc = (cur > S(0) ? 1 : 0) - (cur < S(0) ? 1 : 0);
-      total += 0.5 * (double)(sp > sc ? sp - sc : sc - sp);
+      const int sp = (prev > S(0) ? 1: 0) - (prev < S(0) ? 1: 0);
+      const int sc = (cur > S(0) ? 1: 0) - (cur < S(0) ? 1: 0);
+      total += 0.5 * (double)(sp > sc ? sp - sc: sc - sp);
     }
   }
   return total;
@@ -1454,7 +1450,7 @@ inline double npps_zc_ref(const S *p, int n, int mode) {
 
 // Floating-point reductions are order-dependent: NPP reduces in a block tree
 // while the CPU reference sums sequentially.  Keep the input dynamic range
-// bounded and use reduction-appropriate tolerances so the golden comparison
+// bounded and use reduction-appropriate tolerances so the reference output comparison
 // still validates the formula without demanding bit-identical summation.
 template <typename S> inline void npps_stat_clamp_inputs(Buf<S> &b) {
   if constexpr (std::is_floating_point_v<S>) {
@@ -1534,8 +1530,8 @@ void run_npps_binary(const char *id, Call call, const std::vector<int> &sfs, boo
   std::string first;
   double rtol, atol;
   npps_tol<D>(rtol, atol);
-  for (int sf : sfs) {
-    for (const NppsCase &c : make_npps_cases(sf)) {
+  for (int sf: sfs) {
+    for (const NppsCase &c: make_npps_cases(sf)) {
       Buf<S1> a(c.n, 1, 1, 0, 0);
       Buf<S2> b(c.n, 1, 1, 0, 0);
       Buf<D> d(c.n, 1, 1, 0, 0x5A);
@@ -1563,14 +1559,13 @@ void run_npps_binary(const char *id, Call call, const std::vector<int> &sfs, boo
       for (int i = 0; i < c.n; ++i) {
         D r{};
         if constexpr (is_complex_num_v<D>) {
-          const D bv = inplace ? reinterpret_cast<const D *>(old_dst.data())[i] : (D)b.hptr()[i];
+          const D bv = inplace ? reinterpret_cast<const D *>(old_dst.data())[i]: (D)b.hptr()[i];
           if constexpr (O == Op::Div) r = npps_cdiv<D>(bv, (D)a.hptr()[i], sf);
           else r = eval_binary<D>(O, (D)a.hptr()[i], bv, sf);
         } else {
           const double av = as_double(a.hptr()[i]);
           const double bv = inplace
-                                ? as_double(reinterpret_cast<const D *>(old_dst.data())[i])
-                                : as_double(b.hptr()[i]);
+                                ? as_double(reinterpret_cast<const D *>(old_dst.data())[i]): as_double(b.hptr()[i]);
           (void)av;
           (void)bv;
           if (inplace) {
@@ -1591,7 +1586,7 @@ void run_npps_binary(const char *id, Call call, const std::vector<int> &sfs, boo
         if (!equal_elem<D>(d.host.data() + off, want.data() + off, rtol, atol)) {
           char buf[440];
           const S1 av = a.hptr()[i];
-          const S2 bv = inplace ? (S2)reinterpret_cast<const D *>(old_dst.data())[i] : b.hptr()[i];
+          const S2 bv = inplace ? (S2)reinterpret_cast<const D *>(old_dst.data())[i]: b.hptr()[i];
           std::snprintf(buf, sizeof(buf),
                         "[%s] %s sf=%d mismatch at i=%d: got=%s want=%s a=%s b=%s", id,
                         c.id().c_str(), sf, i, dbg_elem<D>(d.host.data() + off).c_str(),
@@ -1610,8 +1605,8 @@ void run_npps_binary(const char *id, Call call, const std::vector<int> &sfs, boo
   finish(id, cnt, first);
 }
 
-// NPP's cbrtf() implementation carries a ~1 ULP approximation error on
-// sm_120 while the CPU golden uses a correctly rounded root.  Inputs whose
+// NPP's cbrtf implementation carries a ~1 ULP approximation error on
+// sm_120 while the CPU reference output uses a correctly rounded root.  Inputs whose
 // scaled root lies within 1e-3 of a half-integer can therefore round in
 // opposite directions on the two sides.  Replace just those boundary values
 // with exact cubes of multiples of four, for which both implementations
@@ -1630,7 +1625,7 @@ template <typename T> inline void sanitize_cbrt_inputs(Buf<T> &b, int sf) {
       if (std::fabs(frac - 0.5) < 1e-3) {
         const int k = 4 * (1 + (i % 320));
         const long long cube = (long long)k * k * k;
-        b.hptr()[i] = (T)(x < 0.0 ? -cube : cube);
+        b.hptr()[i] = (T)(x < 0.0 ? -cube: cube);
       }
     }
   } else {
@@ -1650,8 +1645,8 @@ void run_npps_unary(const char *id, Call call, const std::vector<int> &sfs, bool
   std::string first;
   double rtol, atol;
   npps_tol<D>(rtol, atol);
-  for (int sf : sfs) {
-    for (const NppsCase &c : make_npps_cases(sf)) {
+  for (int sf: sfs) {
+    for (const NppsCase &c: make_npps_cases(sf)) {
       Buf<S> a(c.n, 1, 1, 0, 0);
       Buf<D> d(c.n, 1, 1, 0, 0x5A);
       const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, sf);
@@ -1677,7 +1672,7 @@ void run_npps_unary(const char *id, Call call, const std::vector<int> &sfs, bool
       d.dev.copyToHost(d.host);
       std::vector<uint8_t> want = d.host;
       for (int i = 0; i < c.n; ++i) {
-        const S av = inplace ? reinterpret_cast<const S *>(old_dst.data())[i] : a.hptr()[i];
+        const S av = inplace ? reinterpret_cast<const S *>(old_dst.data())[i]: a.hptr()[i];
         D r = npps_unary_ref<S, D>(O, av, sf);
         const size_t off = (size_t)i * sizeof(D);
         std::memcpy(want.data() + off, &r, sizeof(D));
@@ -1689,7 +1684,7 @@ void run_npps_unary(const char *id, Call call, const std::vector<int> &sfs, bool
         ++cnt.compared;
         if (!equal_elem<D>(d.host.data() + off, want.data() + off, rtol, atol)) {
           char buf[380];
-          const S av = inplace ? reinterpret_cast<const S *>(old_dst.data())[i] : a.hptr()[i];
+          const S av = inplace ? reinterpret_cast<const S *>(old_dst.data())[i]: a.hptr()[i];
           std::snprintf(buf, sizeof(buf),
                         "[%s] %s sf=%d mismatch at i=%d: got=%s want=%s a=%s", id,
                         c.id().c_str(), sf, i, dbg_elem<D>(d.host.data() + off).c_str(),
@@ -1718,8 +1713,8 @@ void run_npps_const(const char *id, Call call, const std::vector<int> &sfs, bool
   std::string first;
   double rtol, atol;
   npps_tol<D>(rtol, atol);
-  for (int sf : sfs) {
-    for (const NppsCase &c : make_npps_cases(sf)) {
+  for (int sf: sfs) {
+    for (const NppsCase &c: make_npps_cases(sf)) {
       Buf<S> a(c.n, 1, 1, 0, 0);
       Buf<D> d(c.n, 1, 1, 0, 0x5A);
       const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, sf);
@@ -1746,7 +1741,7 @@ void run_npps_const(const char *id, Call call, const std::vector<int> &sfs, bool
       d.dev.copyToHost(d.host);
       std::vector<uint8_t> want = d.host;
       for (int i = 0; i < c.n; ++i) {
-        const S av = inplace ? reinterpret_cast<const S *>(old_dst.data())[i] : a.hptr()[i];
+        const S av = inplace ? reinterpret_cast<const S *>(old_dst.data())[i]: a.hptr()[i];
         D r = npps_const_ref<S, D, CT>(O, av, cv, sf);
         const size_t off = (size_t)i * sizeof(D);
         std::memcpy(want.data() + off, &r, sizeof(D));
@@ -1758,7 +1753,7 @@ void run_npps_const(const char *id, Call call, const std::vector<int> &sfs, bool
         ++cnt.compared;
         if (!equal_elem<D>(d.host.data() + off, want.data() + off, rtol, atol)) {
           char buf[340];
-          const S av = inplace ? reinterpret_cast<const S *>(old_dst.data())[i] : a.hptr()[i];
+          const S av = inplace ? reinterpret_cast<const S *>(old_dst.data())[i]: a.hptr()[i];
           std::snprintf(buf, sizeof(buf),
                         "[%s] %s sf=%d c=%s mismatch at i=%d: got=%s want=%s a=%s", id,
                         c.id().c_str(), sf, val_str("c", cv).c_str(), i,
@@ -1792,8 +1787,8 @@ void run_npps_accum(const char *id, Call call, const std::vector<int> &sfs) {
   std::string first;
   double rtol, atol;
   npps_tol<D>(rtol, atol);
-  for (int sf : sfs) {
-    for (const NppsCase &c : make_npps_cases(sf)) {
+  for (int sf: sfs) {
+    for (const NppsCase &c: make_npps_cases(sf)) {
       Buf<S1> a(c.n, 1, 1, 0, 0);
       Buf<S2> b(c.n, 1, 1, 0, 0);
       Buf<D> d(c.n, 1, 1, 0, 0x5A);
@@ -1860,7 +1855,7 @@ void run_npps_accum_c(const char *id, Call call) {
   std::string first;
   double rtol, atol;
   npps_tol<D>(rtol, atol);
-  for (const NppsCase &c : make_npps_cases(0)) {
+  for (const NppsCase &c: make_npps_cases(0)) {
     Buf<S> a(c.n, 1, 1, 0, 0);
     Buf<D> d(c.n, 1, 1, 0, 0x5A);
     const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, 0);
@@ -1919,9 +1914,9 @@ void run_npps_div_round(const char *id, Call call) {
   const int modes[3] = {NPP_RND_NEAR, NPP_RND_FINANCIAL, NPP_RND_ZERO};
   RunCounts cnt;
   std::string first;
-  for (int mode : modes) {
-    for (int sf : {0, 1, 2}) {
-      for (const NppsCase &c : make_npps_cases(mode)) {
+  for (int mode: modes) {
+    for (int sf: {0, 1, 2}) {
+      for (const NppsCase &c: make_npps_cases(mode)) {
         Buf<S1> a(c.n, 1, 1, 0, 0);
         Buf<S2> b(c.n, 1, 1, 0, 0x5A);
         Buf<D> d(c.n, 1, 1, 0, 0x5A);
@@ -1955,8 +1950,7 @@ void run_npps_div_round(const char *id, Call call) {
         std::vector<uint8_t> want = d.host;
         for (int i = 0; i < c.n; ++i) {
           const long long num =
-              Inplace ? (long long)reinterpret_cast<const D *>(old_dst.data())[i]
-                      : (long long)b.hptr()[i];
+              Inplace ? (long long)reinterpret_cast<const D *>(old_dst.data())[i]: (long long)b.hptr()[i];
           const long long den = (long long)a.hptr()[i];
           const D r = npps_div_round_ref<D>(num, den, mode, sf);
           std::memcpy(want.data() + (size_t)i * sizeof(D), &r, sizeof(D));
@@ -1999,8 +1993,8 @@ void run_npps_normalize(const char *id, Call call, const std::vector<int> &sfs) 
   std::string first;
   double rtol, atol;
   npps_tol<A>(rtol, atol);
-  for (int sf : sfs) {
-    for (const NppsCase &c : make_npps_cases(sf)) {
+  for (int sf: sfs) {
+    for (const NppsCase &c: make_npps_cases(sf)) {
       Buf<A> a(c.n, 1, 1, 0, 0);
       Buf<A> d(c.n, 1, 1, 0, 0x5A);
       const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, sf);
@@ -2071,8 +2065,8 @@ void run_npps_mixed_mul(const char *id, Call call) {
   std::string first;
   double rtol, atol;
   npps_tol<D>(rtol, atol);
-  for (int sf : {0, 1, 2}) {
-    for (const NppsCase &c : make_npps_cases(sf)) {
+  for (int sf: {0, 1, 2}) {
+    for (const NppsCase &c: make_npps_cases(sf)) {
       Buf<A> a(c.n, 1, 1, 0, 0);
       Buf<B> b(c.n, 1, 1, 0, 0x5A);
       Buf<D> d(c.n, 1, 1, 0, 0x5A);
@@ -2106,8 +2100,7 @@ void run_npps_mixed_mul(const char *id, Call call) {
       using C = complex_part_t<D>;
       for (int i = 0; i < c.n; ++i) {
         const A av = a.hptr()[i];
-        const B bv = Inplace ? (B)reinterpret_cast<const D *>(old_dst.data())[i]
-                             : b.hptr()[i];
+        const B bv = Inplace ? (B)reinterpret_cast<const D *>(old_dst.data())[i]: b.hptr()[i];
         D r;
         if constexpr (std::is_integral_v<C>) {
           r.re = npps_scale_ll<C>((long long)av * (long long)bv.re, sf);
@@ -2150,8 +2143,8 @@ void run_npps_mullow(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (int sf : {0, 1, 2}) {
-    for (const NppsCase &c : make_npps_cases(sf)) {
+  for (int sf: {0, 1, 2}) {
+    for (const NppsCase &c: make_npps_cases(sf)) {
       Buf<S1> a(c.n, 1, 1, 0, 0);
       Buf<S2> b(c.n, 1, 1, 0, 0x5A);
       Buf<D> d(c.n, 1, 1, 0, 0x5A);
@@ -2210,7 +2203,7 @@ void run_npps_mulclow(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const NppsCase &c : make_npps_cases(0)) {
+  for (const NppsCase &c: make_npps_cases(0)) {
     Buf<S> a(c.n, 1, 1, 0, 0);
     Buf<D> d(c.n, 1, 1, 0, 0x5A);
     const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, 0);
@@ -2265,8 +2258,8 @@ void run_npps_mulc64i(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (int sf : {0, 1, 2}) {
-    for (const NppsCase &c : make_npps_cases(sf)) {
+  for (int sf: {0, 1, 2}) {
+    for (const NppsCase &c: make_npps_cases(sf)) {
       Buf<D> d(c.n, 1, 1, 0, 0x5A);
       const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, sf);
       fill_npps(d, seed, c.regime, 0);
@@ -2323,7 +2316,7 @@ void run_npps_sumln(const char *id, Call call) {
   std::string first;
   double rtol, atol;
   npps_tol<D>(rtol, atol);
-  for (const NppsCase &c : make_npps_cases(0)) {
+  for (const NppsCase &c: make_npps_cases(0)) {
     Buf<S> a(c.n, 1, 1, 0, 0);
     Buf<D> d(1, 1, 1, 0, 0);
     const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, 0);
@@ -2374,7 +2367,7 @@ void run_npps_cauchy(const char *id, Call call) {
   std::string first;
   double rtol, atol;
   npps_tol<F>(rtol, atol);
-  for (const NppsCase &c : make_npps_cases(0)) {
+  for (const NppsCase &c: make_npps_cases(0)) {
     Buf<F> d(c.n, 1, 1, 0, 0x5A);
     const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, 0);
     fill_npps(d, seed, c.regime, 0, true);
@@ -2431,7 +2424,7 @@ void run_npps_cauchy_d(const char *id, Call call) {
   std::string first;
   double rtol, atol;
   npps_tol<F>(rtol, atol);
-  for (const NppsCase &c : make_npps_cases(0)) {
+  for (const NppsCase &c: make_npps_cases(0)) {
     Buf<F> d(c.n, 1, 1, 0, 0x5A);
     const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, 0);
     fill_npps(d, seed, c.regime, 0, true);
@@ -2487,7 +2480,7 @@ void run_npps_cauchy_dd2(const char *id, Call call) {
   std::string first;
   double rtol, atol;
   npps_tol<F>(rtol, atol);
-  for (const NppsCase &c : make_npps_cases(0)) {
+  for (const NppsCase &c: make_npps_cases(0)) {
     Buf<F> d(c.n, 1, 1, 0, 0x5A);
     Buf<F> d2(c.n, 1, 1, 0, 0);
     const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, 0);
@@ -2565,8 +2558,8 @@ void run_npps_stat1(const char *id, Call call, const std::vector<int> &sfs) {
   Buf<uint8_t> scratch(kNppsStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S>;
-  for (int sf : sfs) {
-    for (const NppsCase &c : make_npps_cases(sf)) {
+  for (int sf: sfs) {
+    for (const NppsCase &c: make_npps_cases(sf)) {
       Buf<S> a(c.n, 1, 1, 0, 0);
       Buf<D> out(1, 1, 1, 0, 0x5A);
       const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, sf);
@@ -2624,8 +2617,8 @@ void run_npps_stat2(const char *id, Call call, const std::vector<int> &sfs) {
   Buf<uint8_t> scratch(kNppsStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S1> || std::is_floating_point_v<S2>;
-  for (int sf : sfs) {
-    for (const NppsCase &c : make_npps_cases(sf)) {
+  for (int sf: sfs) {
+    for (const NppsCase &c: make_npps_cases(sf)) {
       Buf<S1> a(c.n, 1, 1, 0, 0);
       Buf<S2> b(c.n, 1, 1, 0, 0);
       Buf<D> out(1, 1, 1, 0, 0x5A);
@@ -2684,8 +2677,8 @@ void run_npps_meanstd(const char *id, Call call, const std::vector<int> &sfs) {
   Buf<uint8_t> scratch(kNppsStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S>;
-  for (int sf : sfs) {
-    for (const NppsCase &c : make_npps_cases(sf)) {
+  for (int sf: sfs) {
+    for (const NppsCase &c: make_npps_cases(sf)) {
       Buf<S> a(c.n, 1, 1, 0, 0);
       Buf<OM> mo(1, 1, 1, 0, 0x5A);
       Buf<OS> so(1, 1, 1, 0, 0x5A);
@@ -2760,7 +2753,7 @@ void run_npps_extrema(const char *id, Call call) {
   Buf<uint8_t> scratch(kNppsStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S>;
-  for (const NppsCase &c : make_npps_cases(0)) {
+  for (const NppsCase &c: make_npps_cases(0)) {
     Buf<S> a(c.n, 1, 1, 0, 0);
     Buf<S> mn(1, 1, 1, 0, 0x5A), mx(1, 1, 1, 0, 0x5A);
     Buf<Npp32s> mi(1, 1, 1, 0, 0x5A), xi(1, 1, 1, 0, 0x5A);
@@ -2774,10 +2767,10 @@ void run_npps_extrema(const char *id, Call call) {
     npp_diff::clear_cuda_error();
     NppStatus st = call(
         reinterpret_cast<const S *>(a.dptr()),
-        WantMin ? reinterpret_cast<S *>(mn.dptr()) : nullptr,
-        WantMinIndx ? reinterpret_cast<int *>(mi.dptr()) : nullptr,
-        WantMax ? reinterpret_cast<S *>(mx.dptr()) : nullptr,
-        WantMaxIndx ? reinterpret_cast<int *>(xi.dptr()) : nullptr,
+        WantMin ? reinterpret_cast<S *>(mn.dptr()): nullptr,
+        WantMinIndx ? reinterpret_cast<int *>(mi.dptr()): nullptr,
+        WantMax ? reinterpret_cast<S *>(mx.dptr()): nullptr,
+        WantMaxIndx ? reinterpret_cast<int *>(xi.dptr()): nullptr,
         c.n, reinterpret_cast<Npp8u *>(scratch.dptr()), ctx);
     if (st != NPP_NO_ERROR) {
       ++cnt.skipped;
@@ -2860,7 +2853,7 @@ void run_npps_every(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const NppsCase &c : make_npps_cases(0)) {
+  for (const NppsCase &c: make_npps_cases(0)) {
     Buf<S> a(c.n, 1, 1, 0, 0);
     Buf<S> d(c.n, 1, 1, 0, 0x5A);
     const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, 0);
@@ -2887,7 +2880,7 @@ void run_npps_every(const char *id, Call call) {
       const S dv = reinterpret_cast<const S *>(old_dst.data())[i];
       // Match the kernel's operand order (dst is the left operand) so that
       // NaN/Inf behaviour agrees as well.
-      const S want = IsMax ? (dv > av ? dv : av) : (dv < av ? dv : av);
+      const S want = IsMax ? (dv > av ? dv: av): (dv < av ? dv: av);
       const size_t off = (size_t)i * sizeof(S);
       if (!equal_elem<S>(d.host.data() + off, reinterpret_cast<const uint8_t *>(&want), 0, 0)) {
         char b[300];
@@ -2916,7 +2909,7 @@ void run_npps_count_range(const char *id, Call call) {
   std::string first;
   Buf<uint8_t> scratch(kNppsStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
-  for (const NppsCase &c : make_npps_cases(0)) {
+  for (const NppsCase &c: make_npps_cases(0)) {
     Buf<Npp32s> a(c.n, 1, 1, 0, 0);
     Buf<Npp32s> out(1, 1, 1, 0, 0x5A);
     const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, 0);
@@ -2925,8 +2918,8 @@ void run_npps_count_range(const char *id, Call call) {
     Npp32s hi = a.hptr()[c.n - 1];
     if (lo > hi) std::swap(lo, hi);
     for (int variant = 0; variant < 2; ++variant) {
-      const Npp32s l = variant == 0 ? lo : hi;
-      const Npp32s h = variant == 0 ? hi : lo;
+      const Npp32s l = variant == 0 ? lo: hi;
+      const Npp32s h = variant == 0 ? hi: lo;
       a.dev.copyFromHost(a.host);
       out.dev.copyFromHost(out.host);
       npp_diff::clear_cuda_error();
@@ -2975,7 +2968,7 @@ void run_npps_zero_crossing(const char *id, Call call) {
   Buf<uint8_t> scratch(kNppsStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S>;
-  for (const NppsCase &c : make_npps_cases(0)) {
+  for (const NppsCase &c: make_npps_cases(0)) {
     Buf<S> a(c.n, 1, 1, 0, 0);
     Buf<Npp32f> out(1, 1, 1, 0, 0x5A);
     const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, 0);
@@ -3024,7 +3017,7 @@ void run_npps_buffer_size(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const int lens[] = {0, 1, 2, 3, 255, 256, 257, 1024, 65537};
-  for (int n : lens) {
+  for (int n: lens) {
     int size = -1;
     NppStatus st = call(n, &size, ctx);
     if (st != NPP_NO_ERROR) {
@@ -3060,7 +3053,7 @@ void run_npps_integral(const char *id, Call call) {
   std::string first;
   Buf<uint8_t> scratch(kNppsStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
-  for (const NppsCase &c : make_npps_cases(0)) {
+  for (const NppsCase &c: make_npps_cases(0)) {
     Buf<Npp32s> a(c.n, 1, 1, 0, 0);
     Buf<Npp32s> d(c.n, 1, 1, 0, 0x5A);
     const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, 0);

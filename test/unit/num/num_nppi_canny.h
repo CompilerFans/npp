@@ -1,6 +1,6 @@
-// CPU-golden coverage for nppiFilterCannyBorder_8u_C1R (nppi_filtering_functions.h).
+// CPU-reference output coverage for nppiFilterCannyBorder_8u_C1R (nppi_filtering_functions.h).
 //
-// Measured NPP 13.4 semantics (RTX 5090), decoded stage by stage:
+// Measured NPP 13.4 semantics (reference), decoded stage by stage:
 //   * phase 1 is the GradientVectorBorder filter (Sobel or Scharr, mask 3x3 or
 //     5x5): integer taps over the oSrcSize image with replicate border
 //     expressed relative to pSrc, magnitude truncated to a saturated Npp16s,
@@ -44,15 +44,15 @@ inline std::vector<Npp8u> make_pattern(int w, int h, int pat) {
     for (int x = 0; x < w; ++x) {
       Npp8u v = 0;
       if (pat == 0) {
-        v = x >= w / 2 ? 200 : 0;                                  // vertical step
+        v = x >= w / 2 ? 200: 0;                                  // vertical step
       } else if (pat == 1) {
-        v = (x >= w / 4 && x < 3 * w / 4 && y >= h / 4 && y < 3 * h / 4) ? 200 : 20;  // rectangle
+        v = (x >= w / 4 && x < 3 * w / 4 && y >= h / 4 && y < 3 * h / 4) ? 200: 20;  // rectangle
       } else if (pat == 2) {
-        v = ((x / 4 + y / 4) % 2) ? 200 : 30;                      // checkerboard
+        v = ((x / 4 + y / 4) % 2) ? 200: 30;                      // checkerboard
       } else if (pat == 3) {
         v = (Npp8u)(x + y);                                        // diagonal ramp
       } else {
-        v = (x + y >= w) ? 200 : 20;                               // 45-degree edge
+        v = (x + y >= w) ? 200: 20;                               // 45-degree edge
       }
       img[(size_t)y * w + x] = v;
     }
@@ -90,7 +90,7 @@ void run_canny(const char *id, Call call) {
   static const int norms[] = {(int)nppiNormL1, (int)nppiNormL2};
   static const int thresh[][2] = {{10, 30}, {200, 400}, {10, 1000}, {100, 100}};
   bool failed = false;
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     const int W = cf.w, H = cf.h, M = cf.margin;
     const int SW = W + 2 * M, SH = H + 2 * M;
     for (int pat = 0; pat < 5 && !failed; ++pat) {
@@ -100,9 +100,9 @@ void run_canny(const char *id, Call call) {
         std::memcpy(s.host.data() + (size_t)(y + M) * s.step + M, img.data() + (size_t)y * W, (size_t)W);
       s.dev.copyFromHost(s.host);
       const int srow = s.step;
-      for (const Filter &f : filters) {
+      for (const Filter &f: filters) {
         num::filtgrad::Coef cx, cy;
-        num::filtgrad::tapsOf(f.type == 0 ? num::filtgrad::kSobel : num::filtgrad::kScharr, f.mask, cx, cy);
+        num::filtgrad::tapsOf(f.type == 0 ? num::filtgrad::kSobel: num::filtgrad::kScharr, f.mask, cx, cy);
         const int maskSize = cx.size;
         const int r = maskSize / 2;
         for (int ni = 0; ni < 2 && !failed; ++ni) {
@@ -123,8 +123,7 @@ void run_canny(const char *id, Call call) {
                 }
               }
               const double magv = norm == (int)nppiNormL1
-                                      ? std::fabs((double)accX) + std::fabs((double)accY)
-                                      : std::sqrt((double)accX * accX + (double)accY * accY);
+                                      ? std::fabs((double)accX) + std::fabs((double)accY): std::sqrt((double)accX * accX + (double)accY * accY);
               mag[(size_t)y * W + x] = emit16(magv);
               ang[(size_t)y * W + x] = std::atan2((double)accY, (double)accX);
             }
@@ -145,19 +144,18 @@ void run_canny(const char *id, Call call) {
                 nms[i] = (Npp16s)m;
               }
             }
-          for (const auto &th : thresh) {
+          for (const auto &th: thresh) {
             const int lo = th[0], hi = th[1];
             Buf<Npp8u> d(W, H, 1, 0, 0x5A);
             d.dev.copyFromHost(d.host);
             const std::vector<uint8_t> pre = d.host;
             int need = 0;
             nppiFilterCannyBorderGetBufferSize(NppiSize{W, H}, &need);
-            npp_functional_test::DeviceMemory<Npp8u> buf((size_t)(need > 0 ? need : 1));
+            npp_functional_test::DeviceMemory<Npp8u> buf((size_t)(need > 0 ? need: 1));
             npp_diff::clear_cuda_error();
             const NppStatus st = call(reinterpret_cast<const Npp8u *>(s.dptr()), s.step, NppiSize{SW, SH},
                                       NppiPoint{M, M}, reinterpret_cast<Npp8u *>(d.dptr()), d.step,
-                                      NppiSize{W, H}, f.type, f.mask == 3 ? (int)NPP_MASK_SIZE_3_X_3
-                                                                         : (int)NPP_MASK_SIZE_5_X_5,
+                                      NppiSize{W, H}, f.type, f.mask == 3 ? (int)NPP_MASK_SIZE_3_X_3: (int)NPP_MASK_SIZE_5_X_5,
                                       (Npp16s)lo, (Npp16s)hi, norm, (int)NPP_BORDER_REPLICATE, buf.get(), ctx);
             if (st != NPP_NO_ERROR) {
               ++cnt.skipped;
@@ -176,7 +174,7 @@ void run_canny(const char *id, Call call) {
                   for (int dx = -1; dx <= 1; ++dx)
                     if (dx != 0 || dy != 0) rmax = std::max(rmax, rawAt(x + dx, y + dy));
                 const bool acc = (m >= hi) || (m >= lo && rmax >= lo);
-                const Npp8u outv = acc ? (Npp8u)0xFF : (Npp8u)0x00;
+                const Npp8u outv = acc ? (Npp8u)0xFF: (Npp8u)0x00;
                 want[(size_t)y * d.step + (size_t)x] = outv;
               }
             d.dev.copyToHost(d.host);
@@ -210,7 +208,7 @@ void run_canny(const char *id, Call call) {
 // ---------------------------------------------------------------------------
 inline std::vector<Npp8u> make_pattern_c3_channel(int w, int h, int ch) {
   // ch0: vertical step; ch1: rectangle; ch2: 45-degree edge.
-  const int pat = ch == 0 ? 0 : (ch == 1 ? 1 : 4);
+  const int pat = ch == 0 ? 0: (ch == 1 ? 1: 4);
   return make_pattern(w, h, pat);
 }
 
@@ -230,7 +228,7 @@ void run_canny_c3(const char *id, Call call) {
   static const int norms[] = {(int)nppiNormL1, (int)nppiNormL2};
   static const int thresh[][2] = {{10, 30}, {200, 400}, {10, 1000}, {100, 100}};
   bool failed = false;
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     const int W = cf.w, H = cf.h;
     for (int variant = 0; variant < 3 && !failed; ++variant) {
       // variant 0: the three-pattern combination; 1: rectangle in channel 0
@@ -243,7 +241,7 @@ void run_canny_c3(const char *id, Call call) {
           for (int c = 0; c < 3; ++c) {
             Npp8u v = 0;
             if (variant == 0) v = pats[(size_t)c][(size_t)y * W + x];
-            else if (variant == 1) v = c == 0 ? pats[1][(size_t)y * W + x] : 0;
+            else if (variant == 1) v = c == 0 ? pats[1][(size_t)y * W + x]: 0;
             else v = pats[1][(size_t)y * W + x];
             img[((size_t)y * W + x) * 3 + c] = v;
           }
@@ -251,9 +249,9 @@ void run_canny_c3(const char *id, Call call) {
       for (int y = 0; y < H; ++y)
         std::memcpy(s.host.data() + (size_t)y * s.step, img.data() + (size_t)y * W * 3, (size_t)W * 3);
       s.dev.copyFromHost(s.host);
-      for (const Filter &f : filters) {
+      for (const Filter &f: filters) {
         num::filtgrad::Coef cx, cy;
-        num::filtgrad::tapsOf(f.type == 0 ? num::filtgrad::kSobel : num::filtgrad::kScharr, f.mask, cx, cy);
+        num::filtgrad::tapsOf(f.type == 0 ? num::filtgrad::kSobel: num::filtgrad::kScharr, f.mask, cx, cy);
         const int maskSize = cx.size;
         const int r = maskSize / 2;
         for (int ni = 0; ni < 2 && !failed; ++ni) {
@@ -278,8 +276,7 @@ void run_canny_c3(const char *id, Call call) {
                 if (sq > bestSq) {
                   bestSq = sq;
                   bestMag = norm == (int)nppiNormL1
-                                ? std::fabs((double)accX) + std::fabs((double)accY)
-                                : std::sqrt(sq);
+                                ? std::fabs((double)accX) + std::fabs((double)accY): std::sqrt(sq);
                   bestAng = std::atan2((double)accY, (double)accX);
                 }
               }
@@ -300,19 +297,18 @@ void run_canny_c3(const char *id, Call call) {
               if (m > 0 && m >= rawAt(x + d.dx1, y + d.dy1) && m >= rawAt(x + d.dx2, y + d.dy2))
                 nms[i] = (Npp16s)m;
             }
-          for (const auto &th : thresh) {
+          for (const auto &th: thresh) {
             const int lo = th[0], hi = th[1];
             Buf<Npp8u> d(W, H, 1, 0, 0x5A);
             d.dev.copyFromHost(d.host);
             const std::vector<uint8_t> pre = d.host;
             int need = 0;
             nppiFilterCannyBorderGetBufferSize(NppiSize{W, H}, &need);
-            npp_functional_test::DeviceMemory<Npp8u> buf((size_t)(need > 0 ? need : 1));
+            npp_functional_test::DeviceMemory<Npp8u> buf((size_t)(need > 0 ? need: 1));
             npp_diff::clear_cuda_error();
             const NppStatus st = call(reinterpret_cast<const Npp8u *>(s.dptr()), s.step, NppiSize{W, H},
                                       NppiPoint{0, 0}, reinterpret_cast<Npp8u *>(d.dptr()), d.step,
-                                      NppiSize{W, H}, f.type, f.mask == 3 ? (int)NPP_MASK_SIZE_3_X_3
-                                                                         : (int)NPP_MASK_SIZE_5_X_5,
+                                      NppiSize{W, H}, f.type, f.mask == 3 ? (int)NPP_MASK_SIZE_3_X_3: (int)NPP_MASK_SIZE_5_X_5,
                                       (Npp16s)lo, (Npp16s)hi, norm, (int)NPP_BORDER_REPLICATE, buf.get(), ctx);
             if (st != NPP_NO_ERROR) {
               ++cnt.skipped;
@@ -331,7 +327,7 @@ void run_canny_c3(const char *id, Call call) {
                   for (int dx = -1; dx <= 1; ++dx)
                     if (dx != 0 || dy != 0) rmax = std::max(rmax, rawAt(x + dx, y + dy));
                 const bool acc = (m >= hi) || (m >= lo && rmax >= lo);
-                want[(size_t)y * d.step + (size_t)x] = acc ? (Npp8u)0xFF : (Npp8u)0x00;
+                want[(size_t)y * d.step + (size_t)x] = acc ? (Npp8u)0xFF: (Npp8u)0x00;
               }
             d.dev.copyToHost(d.host);
             const GenCase gc{W, H, variant, 0, 0, kSmall, f.type * 100 + f.mask * 10 + ni};

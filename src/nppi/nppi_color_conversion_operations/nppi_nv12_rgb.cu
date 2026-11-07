@@ -128,10 +128,10 @@ __global__ void nv21_to_rgb_kernel(const uint8_t *__restrict__ srcY, int srcYSte
 
 __device__ inline void nv12_709_pixel(uint8_t Y, uint8_t U, uint8_t V, uint8_t &R, uint8_t &G, uint8_t &B,
                                       bool fullRange) {
-  const float fy = fullRange ? (float)Y : (float)Y - 16.0f;
+  const float fy = fullRange ? (float)Y: (float)Y - 16.0f;
   const float fu = (float)U - 128.0f;
   const float fv = (float)V - 128.0f;
-  const float *c = fullRange ? YUV2RGB_BT709_FULL : YUV2RGB_BT709;
+  const float *c = fullRange ? YUV2RGB_BT709_FULL: YUV2RGB_BT709;
   R = (uint8_t)fmaxf(0.0f, fminf(255.0f, c[0] * fy + c[1] * fu + c[2] * fv + 0.5f));
   G = (uint8_t)fmaxf(0.0f, fminf(255.0f, c[3] * fy + c[4] * fu + c[5] * fv + 0.5f));
   B = (uint8_t)fmaxf(0.0f, fminf(255.0f, c[6] * fy + c[7] * fu + c[8] * fv + 0.5f));
@@ -222,7 +222,7 @@ __global__ void nv21_to_bgr_kernel(const uint8_t *__restrict__ srcY, int srcYSte
   dst[dst_offset + 1] = G;
   // Measured NPP quirk: the BGR form computes R only when the ROI width is a
   // multiple of 32; otherwise the R slot is zeroed.
-  dst[dst_offset + 2] = (width % 32 == 0) ? R : 0;
+  dst[dst_offset + 2] = (width % 32 == 0) ? R: 0;
   dst[dst_offset + 3] = 0xFF;
 }
 

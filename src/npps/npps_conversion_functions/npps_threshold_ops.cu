@@ -15,9 +15,8 @@ namespace {
 
 constexpr int kBlock = 256;
 
-// Kernel-launch error check moved to the shared header npp_kernel_utils.h
-// (package p0.1); re-exported here so the executors below keep using the
-// unqualified name.
+// Kernel-launch error check moved to the shared header npp_kernel_utils.h;
+// re-exported here so the executors below keep using the unqualified name.
 using npp_kernel::checkCudaKernelError;
 
 // Compare the scalar threshold level against the real part of a sample.
@@ -81,7 +80,7 @@ template <typename T, typename L>
 __global__ void threshold_val_kernel(const T* src, T* dst, NppSignalLength n, L level, T value,
                                      NppCmpOp op) {
   size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-  if (i < (size_t)n) dst[i] = cmp(src[i], level, op) ? value : src[i];
+  if (i < (size_t)n) dst[i] = cmp(src[i], level, op) ? value: src[i];
 }
 
 template <typename T, typename L>

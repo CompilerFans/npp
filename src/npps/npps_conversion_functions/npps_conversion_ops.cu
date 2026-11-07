@@ -19,9 +19,8 @@ namespace {
 
 constexpr int kBlock = 256;
 
-// Kernel-launch error check moved to the shared header npp_kernel_utils.h
-// (package p0.1); re-exported here so the executors below keep using the
-// unqualified name.
+// Kernel-launch error check moved to the shared header npp_kernel_utils.h;
+// re-exported here so the executors below keep using the unqualified name.
 using npp_kernel::checkCudaKernelError;
 
 __device__ __host__ __forceinline__ double pow2d(int sf) {
@@ -34,14 +33,14 @@ __device__ __host__ __forceinline__ double pow2d(int sf) {
 // destination type.
 template <typename D>
 __device__ __host__ __forceinline__ D sat(double v) {
-  if constexpr (std::is_same_v<D, Npp8s>)  { return v <= -128.0 ? (D)-128 : (v >= 127.0 ? (D)127 : (D)v); }
-  else if constexpr (std::is_same_v<D, Npp8u>)   { return v <= 0.0 ? (D)0 : (v >= 255.0 ? (D)255 : (D)v); }
-  else if constexpr (std::is_same_v<D, Npp16s>)  { return v <= -32768.0 ? (D)-32768 : (v >= 32767.0 ? (D)32767 : (D)v); }
-  else if constexpr (std::is_same_v<D, Npp16u>)  { return v <= 0.0 ? (D)0 : (v >= 65535.0 ? (D)65535 : (D)v); }
-  else if constexpr (std::is_same_v<D, Npp32s>)  { return v <= -2147483648.0 ? (D)-2147483647 - 1 : (v >= 2147483647.0 ? (D)2147483647 : (D)v); }
-  else if constexpr (std::is_same_v<D, Npp32u>)  { return v <= 0.0 ? (D)0 : (v >= 4294967295.0 ? (D)4294967295u : (D)v); }
+  if constexpr (std::is_same_v<D, Npp8s>)  { return v <= -128.0 ? (D)-128: (v >= 127.0 ? (D)127: (D)v); }
+  else if constexpr (std::is_same_v<D, Npp8u>)   { return v <= 0.0 ? (D)0: (v >= 255.0 ? (D)255: (D)v); }
+  else if constexpr (std::is_same_v<D, Npp16s>)  { return v <= -32768.0 ? (D)-32768: (v >= 32767.0 ? (D)32767: (D)v); }
+  else if constexpr (std::is_same_v<D, Npp16u>)  { return v <= 0.0 ? (D)0: (v >= 65535.0 ? (D)65535: (D)v); }
+  else if constexpr (std::is_same_v<D, Npp32s>)  { return v <= -2147483648.0 ? (D)-2147483647 - 1: (v >= 2147483647.0 ? (D)2147483647: (D)v); }
+  else if constexpr (std::is_same_v<D, Npp32u>)  { return v <= 0.0 ? (D)0: (v >= 4294967295.0 ? (D)4294967295u: (D)v); }
   else if constexpr (std::is_same_v<D, Npp64s>)  { return (D)v; }
-  else if constexpr (std::is_same_v<D, Npp64u>)  { return v <= 0.0 ? (D)0 : (D)v; }
+  else if constexpr (std::is_same_v<D, Npp64u>)  { return v <= 0.0 ? (D)0: (D)v; }
   else { return (D)v; }
 }
 
@@ -54,16 +53,16 @@ __device__ __host__ __forceinline__ D rnd_sat(double v, NppRoundMode mode) {
     if constexpr (std::is_same_v<A, Npp64s> && std::is_same_v<D, Npp32s>)
       r = (long long)std::floor(v + 0.5);
     else
-      r = (long long)(v >= 0.0 ? v + 0.5 : v - 0.5);
+      r = (long long)(v >= 0.0 ? v + 0.5: v - 0.5);
   } else if (mode == NPP_RND_ZERO) {
     r = (long long)v;
-  } else {  // NPP_RND_NEAR : nearest, ties to even
+  } else {  // NPP_RND_NEAR: nearest, ties to even
     const double av = std::fabs(v);
     const double lo = std::floor(av);
     const double f = av - lo;
     long long m = (long long)lo;
     const bool up = (f > 0.5) || (f == 0.5 && (m & 1LL));
-    r = (v < 0.0) ? -(m + (up ? 1 : 0)) : (m + (up ? 1 : 0));
+    r = (v < 0.0) ? -(m + (up ? 1: 0)): (m + (up ? 1: 0));
   }
   return sat<D>((double)r);
 }

@@ -17,7 +17,7 @@ constexpr int kBlockX = 16;
 constexpr int kBlockY = 16;
 
 template <typename D>
-struct IsFloatDst : std::integral_constant<bool,
+struct IsFloatDst: std::integral_constant<bool,
                        std::is_floating_point_v<D> || std::is_same_v<D, Npp16f>> {};
 
 inline NppStatus finish_launch() {
@@ -56,7 +56,7 @@ __host__ __device__ __forceinline__ Dst to_real(double v) {
 
 // Half bit pattern for f under eRoundMode, applied on the half grid.
 //
-// Measured on the RTX 5090 (NPP 13.4): the reference does NOT integer-round a
+// Measured in the reference implementation (NPP 13.4): the reference does NOT integer-round a
 // 32f source before the half conversion; it selects a float16 rounding flavour
 // instead -- NEAR is ties-to-even, FINANCIAL rounds toward +infinity and ZERO
 // rounds toward zero.  E.g. -1.2 -> 0xbccd / 0xbccc / 0xbccc, 65520 -> inf /
@@ -73,7 +73,7 @@ __host__ __device__ __forceinline__ unsigned short half_bits_rounded(float f, Np
   unsigned short bits = *reinterpret_cast<const unsigned short *>(&h);
   if (mode == NPP_RND_FINANCIAL) {
     if (__half2float(h) < f) {  // next value toward +infinity
-      bits = static_cast<unsigned short>((bits & 0x8000u) ? bits - 1u : bits + 1u);
+      bits = static_cast<unsigned short>((bits & 0x8000u) ? bits - 1u: bits + 1u);
     }
   } else if (mode == NPP_RND_ZERO) {
     const float hr = __half2float(h);
@@ -90,24 +90,21 @@ __host__ __device__ __forceinline__ Npp16f to_half_rounded(double v, NppRoundMod
 }
 
 // Saturating integer emission (no wrap).
-// NaN reaching this point (defensive only: cvt() maps it to 0 first, which is
-// the reference behaviour for every 32f -> integer convert; probe 193) is
+// NaN reaching this point (defensive only: cvt maps it to 0 first, which is
+// the reference behaviour for every 32f -> integer convert; measurement) is
 // emitted as 0 rather than as the destination minimum.
 template <typename Dst>
 __host__ __device__ __forceinline__ Dst saturate_int(double v) {
   if (std::isnan(v)) v = 0.0;
   if constexpr (std::is_same_v<Dst, Npp8s>) {
-    return v <= -128.0 ? static_cast<Dst>(-128) : (v >= 127.0 ? static_cast<Dst>(127) : static_cast<Dst>(v));
+    return v <= -128.0 ? static_cast<Dst>(-128): (v >= 127.0 ? static_cast<Dst>(127): static_cast<Dst>(v));
   } else if constexpr (std::is_unsigned_v<Dst>) {
-    return static_cast<Dst>(v <= 0.0 ? 0.0 : (v >= (double)std::numeric_limits<Dst>::max()
-                                                       ? (double)std::numeric_limits<Dst>::max()
-                                                       : v));
+    return static_cast<Dst>(v <= 0.0 ? 0.0: (v >= (double)std::numeric_limits<Dst>::max()
+                                                       ? (double)std::numeric_limits<Dst>::max(): v));
   } else {
     return static_cast<Dst>(v <= (double)std::numeric_limits<Dst>::min()
-                                  ? (double)std::numeric_limits<Dst>::min()
-                                  : (v >= (double)std::numeric_limits<Dst>::max()
-                                         ? (double)std::numeric_limits<Dst>::max()
-                                         : v));
+                                  ? (double)std::numeric_limits<Dst>::min(): (v >= (double)std::numeric_limits<Dst>::max()
+                                         ? (double)std::numeric_limits<Dst>::max(): v));
   }
 }
 
@@ -120,10 +117,10 @@ __host__ __device__ __forceinline__ double round_mode(double v, NppRoundMode mod
     // Integer-source Sfs kernels add half then floor (ties toward +inf);
     // floating-source kernels round ties away from zero.
     if (integer_source) return std::floor(v + 0.5);
-    return v >= 0.0 ? std::floor(v + 0.5) : std::ceil(v - 0.5);
+    return v >= 0.0 ? std::floor(v + 0.5): std::ceil(v - 0.5);
   }
   if (mode == NPP_RND_ZERO) {
-    return v >= 0.0 ? std::floor(v) : std::ceil(v);
+    return v >= 0.0 ? std::floor(v): std::ceil(v);
   }
   // NPP_RND_NEAR (default): nearest, ties to even.
   const double av = std::fabs(v);
@@ -131,8 +128,8 @@ __host__ __device__ __forceinline__ double round_mode(double v, NppRoundMode mod
   const double fr = av - lo;
   long long m = static_cast<long long>(lo);
   const bool up = (fr > 0.5) || (fr == 0.5 && (m & 1LL));
-  const double mag = m + (up ? 1.0 : 0.0);
-  return v < 0.0 ? -mag : mag;
+  const double mag = m + (up ? 1.0: 0.0);
+  return v < 0.0 ? -mag: mag;
 }
 
 // Core per-pixel conversion.
@@ -157,7 +154,7 @@ __host__ __device__ __forceinline__ Dst cvt(const Src &s, NppRoundMode mode, int
       return to_real<Dst>(v);
     } else {
       // NPP's 32f -> integer converts write 0 for NaN in every round mode
-      // (measured on the 5090: 8u/8s/16u/16s/32u/32s all give 0, while +-inf
+      // (measured on the reference: 8u/8s/16u/16s/32u/32s all give 0, while +-inf
       // saturate to the destination bounds).  The double-to-integer cast is
       // undefined for NaN, so map it before the conversion.
       if (std::isnan(v)) v = 0.0;
@@ -177,7 +174,7 @@ __global__ void convert_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *
   const Src *srow = reinterpret_cast<const Src *>(reinterpret_cast<const char *>(pSrc) + y * nSrcStep);
   Dst *drow = reinterpret_cast<Dst *>(reinterpret_cast<char *>(pDst) + y * nDstStep);
   const int base = x * Channels;
-  const int n = AlphaPr ? 3 : Channels;
+  const int n = AlphaPr ? 3: Channels;
   for (int c = 0; c < n; ++c) {
     drow[base + c] = cvt<Src, Dst, Round, Scale>(srow[base + c], mode, sf);
   }

@@ -1,8 +1,8 @@
 // Fixed-kernel filter kernels and executor entry points.
 // See nppi_filter_fixed_executor.h for the family contract.
 //
-// Kernel tables and the fixed-point emission are the 5090-measured NVIDIA NPP
-// 13.4 behaviour (probe-verified on random and delta images for every dtype):
+// Kernel tables and the fixed-point emission are the reference-measured NVIDIA NPP
+// 13.4 behaviour (measured on random and delta images for every dtype):
 //   * HighPass/Laplace accumulate exact integer kernels (denominator 1).
 //   * LowPass 3x3/5x5 emit trunc((sum + bias) / n) with bias n/2 (4 resp. 12)
 //     -- C truncation toward zero, decisive on 16s inputs.
@@ -53,7 +53,7 @@ inline FixedCoef coef5(const int *k25, int bias, int denom) {
 
 inline FixedCoef fixed_coef(FixedOp op, int maskSize) {
   // HighPass: n*n*center - sum(window) with n = 3 / 5, i.e. a zero-sum kernel
-  // with center tap n*n-1 (8 resp. 24) and -1 elsewhere (probe-verified).
+  // with center tap n*n-1 (8 resp. 24) and -1 elsewhere (measured).
   static const int HighPass3[9] = {-1, -1, -1, -1, 8, -1, -1, -1, -1};
   static const int HighPass5[25] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 24, -1, -1,
                                     -1, -1, -1, -1, -1,  -1, -1, -1, -1, -1};
@@ -67,12 +67,12 @@ inline FixedCoef fixed_coef(FixedOp op, int maskSize) {
   static const int Laplace3[9] = {-1, -1, -1, -1, 8, -1, -1, -1, -1};
   static const int Laplace5[25] = {-1, -3, -4, -3, -1, -3, 0, 6,  0,  -3, -4, 6,  20, 6,  -4,
                                    -3, 0,  6,  0,  -3, -1, -3, -4, -3, -1};
-  const int size = (op == kSharpen) ? 3 : maskSize;
+  const int size = (op == kSharpen) ? 3: maskSize;
   switch (op) {
-    case kHighPass: return size == 5 ? coef5(HighPass5, 0, 1) : coef3(HighPass3, 0, 1);
-    case kLowPass: return size == 5 ? coef5(Box5, 12, 25) : coef3(Box3, 4, 9);
+    case kHighPass: return size == 5 ? coef5(HighPass5, 0, 1): coef3(HighPass3, 0, 1);
+    case kLowPass: return size == 5 ? coef5(Box5, 12, 25): coef3(Box3, 4, 9);
     case kSharpen: return coef3(Sharpen3, 3, 8);
-    case kLaplace: return size == 5 ? coef5(Laplace5, 0, 1) : coef3(Laplace3, 0, 1);
+    case kLaplace: return size == 5 ? coef5(Laplace5, 0, 1): coef3(Laplace3, 0, 1);
   }
   return coef3(Laplace3, 0, 1);
 }
@@ -83,11 +83,11 @@ template <typename Dst>
 __host__ __device__ __forceinline__ Dst fixed_emit(int num, int bias, int denom) {
   const int v = (num + bias) / denom;
   if constexpr (std::is_same_v<Dst, Npp8u>) {
-    return v <= 0 ? (Npp8u)0 : (v >= 255 ? (Npp8u)255 : (Npp8u)v);
+    return v <= 0 ? (Npp8u)0: (v >= 255 ? (Npp8u)255: (Npp8u)v);
   } else if constexpr (std::is_same_v<Dst, Npp16u>) {
-    return v <= 0 ? (Npp16u)0 : (v >= 65535 ? (Npp16u)65535 : (Npp16u)v);
+    return v <= 0 ? (Npp16u)0: (v >= 65535 ? (Npp16u)65535: (Npp16u)v);
   } else if constexpr (std::is_same_v<Dst, Npp16s>) {
-    return v <= -32768 ? (Npp16s)-32768 : (v >= 32767 ? (Npp16s)32767 : (Npp16s)v);
+    return v <= -32768 ? (Npp16s)-32768: (v >= 32767 ? (Npp16s)32767: (Npp16s)v);
   } else {
     static_assert(sizeof(Dst) == 0, "unexpected integer destination type");
   }
@@ -107,7 +107,7 @@ __global__ void fixed_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__
   const int y = blockIdx.y * blockDim.y + threadIdx.y;
   if (x >= width || y >= height) return;
   const int r = coef.size >> 1;
-  const int nch = AlphaPr ? 3 : Channels;
+  const int nch = AlphaPr ? 3: Channels;
   const int loX = -offX, hiX = srcW - 1 - offX;
   const int loY = -offY, hiY = srcH - 1 - offY;
   using Acc = std::conditional_t<std::is_floating_point_v<Src>, float, int>;
@@ -116,13 +116,13 @@ __global__ void fixed_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__
   const char *const srcBase = reinterpret_cast<const char *>(pSrc);
   for (int a = 0; a < coef.size; ++a) {
     int ry = y + a - r;
-    if constexpr (Border) ry = ry < loY ? loY : (ry > hiY ? hiY : ry);
+    if constexpr (Border) ry = ry < loY ? loY: (ry > hiY ? hiY: ry);
     const Src *row = reinterpret_cast<const Src *>(srcBase + static_cast<std::ptrdiff_t>(ry) * nSrcStep);
     for (int b = 0; b < coef.size; ++b) {
       const int kv = coef.k[a][b];
       if (kv == 0) continue;
       int rx = x + b - r;
-      if constexpr (Border) rx = rx < loX ? loX : (rx > hiX ? hiX : rx);
+      if constexpr (Border) rx = rx < loX ? loX: (rx > hiX ? hiX: rx);
       const Src *pix = row + static_cast<std::ptrdiff_t>(rx) * Channels;
       for (int c = 0; c < nch; ++c) acc[c] += static_cast<Acc>(kv) * static_cast<Acc>(pix[c]);
     }
@@ -132,7 +132,7 @@ __global__ void fixed_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__
   if constexpr (std::is_floating_point_v<Src>) {
     // 32f: plain float arithmetic, no integer rounding bias.
     for (int c = 0; c < nch; ++c)
-      drow[c] = static_cast<Dst>(coef.denom == 1 ? acc[c] : acc[c] / static_cast<float>(coef.denom));
+      drow[c] = static_cast<Dst>(coef.denom == 1 ? acc[c]: acc[c] / static_cast<float>(coef.denom));
   } else {
     for (int c = 0; c < nch; ++c) drow[c] = fixed_emit<Dst>(static_cast<int>(acc[c]), coef.bias, coef.denom);
   }
@@ -140,7 +140,7 @@ __global__ void fixed_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__
 
 inline NppStatus finish_launch(cudaStream_t stream) {
   cudaStreamSynchronize(stream);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 inline bool fixed_mask_size(NppiMaskSize eMaskSize, int *size) {
@@ -161,7 +161,7 @@ inline bool fixed_mask_size(NppiMaskSize eMaskSize, int *size) {
 template <typename Dst, int Channels>
 NppStatus check_dst_step(int nDstStep, int roiWidth) {
   const int pix = static_cast<int>(sizeof(Dst)) * Channels;
-  const int align = Channels == 4 ? pix : static_cast<int>(sizeof(Dst));
+  const int align = Channels == 4 ? pix: static_cast<int>(sizeof(Dst));
   const unsigned uStep = static_cast<unsigned>(nDstStep);
   if (uStep < static_cast<unsigned>(roiWidth * pix)) return NPP_STEP_ERROR;
   if (uStep % static_cast<unsigned>(align) != 0) return NPP_NOT_EVEN_STEP_ERROR;
@@ -230,10 +230,10 @@ NppStatus filterFixedBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, Np
                             int nDstStep, NppiSize oSizeROI, NppiBorderType eBorderType, cudaStream_t stream) {
   if (!pSrc || !pDst) return NPP_NULL_POINTER_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
-  // 5090 quirk: nppiFilterSharpenBorder_16u_C1R does not validate the source
+  // reference quirk: nppiFilterSharpenBorder_16u_C1R does not validate the source
   // size, the source offset or the border type (all of those return NO_ERROR);
   // the null, negative-ROI and dst-step checks still apply.  Every other fixed
-  // border variant validates them normally (goldens in NppiFilterFixedDiff).
+  // border variant validates them normally (reference outputs in NppiFilterFixedDiff).
   constexpr bool kIgnoreSrcChecks = std::is_same_v<Src, Npp16u> && std::is_same_v<Dst, Npp16u> &&
                                     Channels == 1 && !AlphaPreserve && Op == kSharpen;
   if constexpr (kIgnoreSrcChecks) {
@@ -258,8 +258,7 @@ NppStatus filterFixedBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, Np
 }  // namespace nppi
 
 // ---------------------------------------------------------------------------
-// Explicit instantiations (f11 package: HighPass/LowPass/Sharpen/Laplace,
-// plain + Border, 128 functions).
+// Explicit instantiations.
 // ---------------------------------------------------------------------------
 // kHighPass
 template NppStatus nppi::filter::filterFixedMask<Npp8u, Npp8u, 1, 0, nppi::filter::kHighPass>(const Npp8u*, int, Npp8u*, int, NppiSize, NppiMaskSize, cudaStream_t);

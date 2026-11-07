@@ -23,8 +23,8 @@ __host__ __device__ __forceinline__ T wiener_emit(float v) {
   if constexpr (std::is_floating_point_v<T>) {
     return static_cast<T>(v);
   } else {
-    const float hi = std::is_same_v<T, Npp8u> ? 255.0f : 32767.0f;
-    const float lo = std::is_same_v<T, Npp8u> ? 0.0f : -32768.0f;
+    const float hi = std::is_same_v<T, Npp8u> ? 255.0f: 32767.0f;
+    const float lo = std::is_same_v<T, Npp8u> ? 0.0f: -32768.0f;
     if (v > hi) v = hi;
     if (v < lo) v = lo;
     return static_cast<T>(v);  // C truncation toward zero
@@ -37,8 +37,8 @@ __device__ __forceinline__ float wiener_stats(const T *__restrict__ pSrc, int nS
                                               int mh, int ax, int ay, int loX, int hiX, int loY, int hiY,
                                               int c, bool rectangle) {
   const char *const base = reinterpret_cast<const char *>(pSrc);
-  auto clampx = [&](int v) { return v < loX ? loX : (v > hiX ? hiX : v); };
-  auto clampy = [&](int v) { return v < loY ? loY : (v > hiY ? hiY : v); };
+  auto clampx = [&](int v) { return v < loX ? loX: (v > hiX ? hiX: v); };
+  auto clampy = [&](int v) { return v < loY ? loY: (v > hiY ? hiY: v); };
   auto load = [&](int yy, int xx) {
     const T *row = reinterpret_cast<const T *>(base + static_cast<std::ptrdiff_t>(yy) * nSrcStep);
     return static_cast<float>(row[static_cast<std::ptrdiff_t>(xx) * Channels + c]);
@@ -60,7 +60,7 @@ __device__ __forceinline__ float wiener_stats(const T *__restrict__ pSrc, int nS
   const int rows = mh - 1;
   for (int r = 0; r < rows; ++r) {
     const int ry = clampy(y + ay - r);
-    const int x0 = ax - (mw - 1) + (r == 0 ? 0 : 1);
+    const int x0 = ax - (mw - 1) + (r == 0 ? 0: 1);
     for (int dx = x0; dx <= ax; ++dx) sum += load(ry, clampx(x + dx));
   }
   return sum;
@@ -73,8 +73,8 @@ __device__ __forceinline__ void wiener_vsum(const T *__restrict__ pSrc, int nSrc
                                             int mh, int ax, int ay, int loX, int hiX, int loY, int hiY,
                                             int c, float mean, float *acc, bool rectangle) {
   const char *const base = reinterpret_cast<const char *>(pSrc);
-  auto clampx = [&](int v) { return v < loX ? loX : (v > hiX ? hiX : v); };
-  auto clampy = [&](int v) { return v < loY ? loY : (v > hiY ? hiY : v); };
+  auto clampx = [&](int v) { return v < loX ? loX: (v > hiX ? hiX: v); };
+  auto clampy = [&](int v) { return v < loY ? loY: (v > hiY ? hiY: v); };
   auto add = [&](int yy, int xx) {
     const T *row = reinterpret_cast<const T *>(base + static_cast<std::ptrdiff_t>(yy) * nSrcStep);
     const float v = static_cast<float>(row[static_cast<std::ptrdiff_t>(xx) * Channels + c]);
@@ -95,7 +95,7 @@ __device__ __forceinline__ void wiener_vsum(const T *__restrict__ pSrc, int nSrc
   const int rows = mh - 1;
   for (int r = 0; r < rows; ++r) {
     const int ry = clampy(y + ay - r);
-    const int x0 = ax - (mw - 1) + (r == 0 ? 0 : 1);
+    const int x0 = ax - (mw - 1) + (r == 0 ? 0: 1);
     for (int dx = x0; dx <= ax; ++dx) add(ry, clampx(x + dx));
   }
 }
@@ -108,7 +108,7 @@ __global__ void wiener_kernel(const T *__restrict__ pSrc, int nSrcStep, T *__res
   const int y = blockIdx.y * blockDim.y + threadIdx.y;
   if (x >= width || y >= height) return;
 
-  const int nch = AlphaPr ? 3 : Channels;
+  const int nch = AlphaPr ? 3: Channels;
   const int loX = -offX, hiX = srcW - 1 - offX;
   const int loY = -offY, hiY = srcH - 1 - offY;
   const float invN = 1.0f / static_cast<float>(mw * mh);
@@ -116,13 +116,13 @@ __global__ void wiener_kernel(const T *__restrict__ pSrc, int nSrcStep, T *__res
   // The centre pixel is a raw source read too: with an ROI that overhangs the
   // image (border entry points allow that), NPP replicates it like every other
   // border read instead of reading past the source buffer.
-  const int cx = x < loX ? loX : (x > hiX ? hiX : x);
-  const int cy = y < loY ? loY : (y > hiY ? hiY : y);
+  const int cx = x < loX ? loX: (x > hiX ? hiX: x);
+  const int cy = y < loY ? loY: (y > hiY ? hiY: y);
   const T *srow = reinterpret_cast<const T *>(srcBase + static_cast<std::ptrdiff_t>(cy) * nSrcStep);
-  const float srcv[4] = {nch > 0 ? static_cast<float>(srow[static_cast<std::ptrdiff_t>(cx) * Channels + 0]) : 0.f,
-                         nch > 1 ? static_cast<float>(srow[static_cast<std::ptrdiff_t>(cx) * Channels + 1]) : 0.f,
-                         nch > 2 ? static_cast<float>(srow[static_cast<std::ptrdiff_t>(cx) * Channels + 2]) : 0.f,
-                         nch > 3 ? static_cast<float>(srow[static_cast<std::ptrdiff_t>(cx) * Channels + 3]) : 0.f};
+  const float srcv[4] = {nch > 0 ? static_cast<float>(srow[static_cast<std::ptrdiff_t>(cx) * Channels + 0]): 0.f,
+                         nch > 1 ? static_cast<float>(srow[static_cast<std::ptrdiff_t>(cx) * Channels + 1]): 0.f,
+                         nch > 2 ? static_cast<float>(srow[static_cast<std::ptrdiff_t>(cx) * Channels + 2]): 0.f,
+                         nch > 3 ? static_cast<float>(srow[static_cast<std::ptrdiff_t>(cx) * Channels + 3]): 0.f};
   T out[4] = {T(0), T(0), T(0), T(0)};
   for (int c = 0; c < nch; ++c) {
     const float sum = wiener_stats<T, Channels>(pSrc, nSrcStep, x, y, mw, mh, ax, ay, loX, hiX, loY, hiY, c,
@@ -151,7 +151,7 @@ __global__ void wiener_kernel(const T *__restrict__ pSrc, int nSrcStep, T *__res
 template <typename T, int Channels>
 NppStatus check_dst_step(int nDstStep, int roiWidth) {
   const int pix = static_cast<int>(sizeof(T)) * Channels;
-  const int align = Channels == 4 ? pix : static_cast<int>(sizeof(T));
+  const int align = Channels == 4 ? pix: static_cast<int>(sizeof(T));
   const unsigned uStep = static_cast<unsigned>(nDstStep);
   if (uStep < static_cast<unsigned>(roiWidth * pix)) return NPP_STEP_ERROR;
   if (align > 1 && uStep % static_cast<unsigned>(align) != 0) return NPP_NOT_EVEN_STEP_ERROR;
@@ -164,7 +164,7 @@ template <typename T, int Channels, bool AlphaPreserve>
 NppStatus filterWienerBorder(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset, T *pDst,
                              int nDstStep, NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor,
                              const Npp32f *aNoise, NppiBorderType eBorderType, cudaStream_t stream) {
-  const int nch = AlphaPreserve ? 3 : Channels;
+  const int nch = AlphaPreserve ? 3: Channels;
   // NPP 13.4 validates (and dereferences) aNoise before anything else.
   if (!aNoise) return NPP_NULL_POINTER_ERROR;
   for (int c = 0; c < nch; ++c) {
@@ -197,14 +197,14 @@ NppStatus filterWienerBorder(const T *pSrc, int nSrcStep, NppiSize oSrcSize, Npp
       oAnchor.x, oAnchor.y, noise, noiseScale, oSrcSize.width, oSrcSize.height, oSrcOffset.x, oSrcOffset.y);
   // Asynchronous, like NPP: no inner stream synchronisation (the entry points
   // must stay usable inside CUDA graph capture).
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 }  // namespace filter
 }  // namespace nppi
 
 // ---------------------------------------------------------------------------
-// Explicit instantiations (f10 package: nppiFilterWienerBorder, 24 functions).
+// Explicit instantiations.
 // ---------------------------------------------------------------------------
 #define NPPI_WIENER_INSTANCE(T)                                                                   \
   template NppStatus nppi::filter::filterWienerBorder<T, 1, false>(                               \

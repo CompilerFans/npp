@@ -12,11 +12,11 @@ namespace statistics {
 // ============================================================================
 
 template <typename T> struct MaxEveryOp {
-  __device__ __host__ T operator()(T a, T b) const { return a > b ? a : b; }
+  __device__ __host__ T operator()(T a, T b) const { return a > b ? a: b; }
 };
 
 template <typename T> struct MinEveryOp {
-  __device__ __host__ T operator()(T a, T b) const { return a < b ? a : b; }
+  __device__ __host__ T operator()(T a, T b) const { return a < b ? a: b; }
 };
 
 // ============================================================================
@@ -65,7 +65,7 @@ public:
         <<<grid, block, 0, stream>>>(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height, op);
 
     cudaError_t err = cudaGetLastError();
-    return (err == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    return (err == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 };
 

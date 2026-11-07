@@ -25,7 +25,7 @@ template <> struct Traits<Npp32f> {
 };
 template <> struct Traits<Npp64f> {
   // NPP's 64f ResizeSqrPixel computes with float-sized intermediates (measured
-  // on the 5090: a double-precision model differs by up to ~5% at large
+  // on the reference: a double-precision model differs by up to ~5% at large
   // factors, float matches).
   using VT = float;
 };
@@ -49,19 +49,19 @@ template <typename T, typename VT> __device__ __forceinline__ void storeVal(T *p
   } else if constexpr (std::is_same_v<T, Npp64f>) {
     *p = static_cast<double>(v);
   } else if constexpr (std::is_same_v<T, Npp8u>) {
-    VT r = v >= (VT)0 ? floor(v + (VT)0.5) : ceil(v - (VT)0.5);
-    r = r < (VT)0 ? (VT)0 : r;
-    r = r > (VT)255 ? (VT)255 : r;
+    VT r = v >= (VT)0 ? floor(v + (VT)0.5): ceil(v - (VT)0.5);
+    r = r < (VT)0 ? (VT)0: r;
+    r = r > (VT)255 ? (VT)255: r;
     *p = static_cast<Npp8u>(r);
   } else if constexpr (std::is_same_v<T, Npp16u>) {
-    VT r = v >= (VT)0 ? floor(v + (VT)0.5) : ceil(v - (VT)0.5);
-    r = r < (VT)0 ? (VT)0 : r;
-    r = r > (VT)65535 ? (VT)65535 : r;
+    VT r = v >= (VT)0 ? floor(v + (VT)0.5): ceil(v - (VT)0.5);
+    r = r < (VT)0 ? (VT)0: r;
+    r = r > (VT)65535 ? (VT)65535: r;
     *p = static_cast<Npp16u>(r);
   } else if constexpr (std::is_same_v<T, Npp16s>) {
-    VT r = v >= (VT)0 ? floor(v + (VT)0.5) : ceil(v - (VT)0.5);
-    r = r < (VT)-32768 ? (VT)-32768 : r;
-    r = r > (VT)32767 ? (VT)32767 : r;
+    VT r = v >= (VT)0 ? floor(v + (VT)0.5): ceil(v - (VT)0.5);
+    r = r < (VT)-32768 ? (VT)-32768: r;
+    r = r > (VT)32767 ? (VT)32767: r;
     *p = static_cast<Npp16s>(r);
   } else {
     *p = static_cast<T>(v);
@@ -80,7 +80,6 @@ enum Mode {
 };
 
 
-
 // 4-point Lagrange cubic stencil {x0-1, x0, x0+1, x0+2} (measured baseline).
 __device__ __forceinline__ void lagrange4(double t, double w[4]) {
   w[0] = -t * (t - 1.0) * (t - 2.0) / 6.0;
@@ -93,7 +92,7 @@ __device__ __forceinline__ void lagrange4(double t, double w[4]) {
 // the 3-lobe Lanczos kernel at d = i/100 (the table also holds a trailing zero
 // so that the last interval can be interpolated).  The values equal the exact
 // double sinc(d)*sinc(d/3) rounded to float32 (NPP's table differs from that
-// rounding by at most 1 ulp); the 64f impulse goldens pin down the table.
+// rounding by at most 1 ulp); the 64f impulse reference outputs pin down the table.
 __device__ __constant__ float kLanczos3Table[302] = {
     1.000000000e+00f, 9.998171930e-01f, 9.992690680e-01f, 9.983559250e-01f, 9.970785380e-01f, 9.954377410e-01f, 9.934347870e-01f,
     9.910711650e-01f, 9.883486030e-01f, 9.852690100e-01f, 9.818348880e-01f, 9.780485030e-01f, 9.739127760e-01f, 9.694306250e-01f,
@@ -160,8 +159,8 @@ __device__ __forceinline__ bool samplePixel(const T *src, int sStep, int srcW, i
   if (mode == MODE_NN) {
     int ix = (int)floor((double)sx + 0.5);
     int iy = (int)floor((double)sy + 0.5);
-    ix = ix < tapLoX ? tapLoX : (ix > tapHiX ? tapHiX : ix);
-    iy = iy < tapLoY ? tapLoY : (iy > tapHiY ? tapHiY : iy);
+    ix = ix < tapLoX ? tapLoX: (ix > tapHiX ? tapHiX: ix);
+    iy = iy < tapLoY ? tapLoY: (iy > tapHiY ? tapHiY: iy);
     const T *p = src + (size_t)iy * stride + (size_t)ix * NC;
     for (int c = 0; c < NC; ++c) out[c] = loadVal<T, VT>(p + c);
     return true;
@@ -169,7 +168,7 @@ __device__ __forceinline__ bool samplePixel(const T *src, int sStep, int srcW, i
   // Separable evaluation: NPP resizes with a horizontal pass followed by a
   // vertical pass, so the x taps are accumulated first and the y taps combine
   // the per-row results.  The rounding of that order is observable in the
-  // integer goldens (e.g. a value of exactly 128.5 stays 128).
+  // integer reference outputs (e.g. a value of exactly 128.5 stays 128).
   constexpr int kMaxTaps = 8;
   double wx[kMaxTaps], wy[kMaxTaps];
   int ox[kMaxTaps], oy[kMaxTaps];
@@ -177,7 +176,7 @@ __device__ __forceinline__ bool samplePixel(const T *src, int sStep, int srcW, i
   double normSum = 1.0;
   bool normalize = false;
   if (mode == MODE_LINEAR || mode == MODE_CUBIC || mode == MODE_LANCZOS) {
-    taps = (mode == MODE_LINEAR) ? 2 : (mode == MODE_CUBIC ? 4 : 6);
+    taps = (mode == MODE_LINEAR) ? 2: (mode == MODE_CUBIC ? 4: 6);
     const int base = (int)floor((double)sx);
     const int baseY = (int)floor((double)sy);
     if (mode == MODE_LINEAR) {
@@ -225,7 +224,7 @@ __device__ __forceinline__ bool samplePixel(const T *src, int sStep, int srcW, i
     // SUPER: area average over the source interval [af*(x-shift), af*(x-shift+1))
     // belonging to each destination pixel, i.e. a box of width 1/f whose start
     // is sx + (1 - 1/f)/2.  Evaluated as the outer product of the axis
-    // overlaps (measured with the super/down* impulse probes).
+    // overlaps (measured with the super/down* impulse measurements).
     double x0 = (double)sx + 0.5 * (1.0 - (double)adjF), y0 = (double)sy + 0.5 * (1.0 - (double)adjFy);
     double x1 = x0 + (double)adjF, y1 = y0 + (double)adjFy;
     int ix0 = (int)floor(x0), ix1 = (int)ceil(x1) - 1;
@@ -261,12 +260,12 @@ __device__ __forceinline__ bool samplePixel(const T *src, int sStep, int srcW, i
     VT acc[NC];
     for (int c = 0; c < NC; ++c) acc[c] = (VT)0;
     for (int j = 0; j < ny; ++j) {
-      int yc = oy[j] < tapLoY ? tapLoY : (oy[j] > tapHiY ? tapHiY : oy[j]);
+      int yc = oy[j] < tapLoY ? tapLoY: (oy[j] > tapHiY ? tapHiY: oy[j]);
       const T *row = src + (size_t)yc * stride;
       VT hs[NC];
       for (int c = 0; c < NC; ++c) hs[c] = (VT)0;
       for (int i = 0; i < nx; ++i) {
-        int xc = ox[i] < tapLoX ? tapLoX : (ox[i] > tapHiX ? tapHiX : ox[i]);
+        int xc = ox[i] < tapLoX ? tapLoX: (ox[i] > tapHiX ? tapHiX: ox[i]);
         const T *p = row + (size_t)xc * NC;
         for (int c = 0; c < NC; ++c) hs[c] += (VT)(wx[i] * (double)loadVal<T, VT>(p + c));
       }
@@ -278,12 +277,12 @@ __device__ __forceinline__ bool samplePixel(const T *src, int sStep, int srcW, i
   VT acc[NC];
   for (int c = 0; c < NC; ++c) acc[c] = (VT)0;
   for (int j = 0; j < taps; ++j) {
-    int yc = oy[j] < tapLoY ? tapLoY : (oy[j] > tapHiY ? tapHiY : oy[j]);
+    int yc = oy[j] < tapLoY ? tapLoY: (oy[j] > tapHiY ? tapHiY: oy[j]);
     const T *row = src + (size_t)yc * stride;
     VT hs[NC];
     for (int c = 0; c < NC; ++c) hs[c] = (VT)0;
     for (int i = 0; i < taps; ++i) {
-      int xc = ox[i] < tapLoX ? tapLoX : (ox[i] > tapHiX ? tapHiX : ox[i]);
+      int xc = ox[i] < tapLoX ? tapLoX: (ox[i] > tapHiX ? tapHiX: ox[i]);
       const T *p = row + (size_t)xc * NC;
       for (int c = 0; c < NC; ++c) hs[c] += (VT)(wx[i] * (double)loadVal<T, VT>(p + c));
     }
@@ -315,8 +314,8 @@ __global__ void resizeKernel(const T *__restrict__ src, int sStep, int srcW, int
     sy = fmaf(afy, (VT)dy - offy, basey);
   }
   if (!(sx >= clipLoX && sx < (VT)clipHiX && sy >= clipLoY && sy < (VT)clipHiY)) return;
-  sx = sx < coordLoX ? coordLoX : (sx > coordHiX ? coordHiX : sx);
-  sy = sy < coordLoY ? coordLoY : (sy > coordHiY ? coordHiY : sy);
+  sx = sx < coordLoX ? coordLoX: (sx > coordHiX ? coordHiX: sx);
+  sy = sy < coordLoY ? coordLoY: (sy > coordHiY ? coordHiY: sy);
   VT v[NC];
   if (!samplePixel<T, NC, VT>(src, sStep, srcW, srcH, sx, sy, mode, afx, afy, tapLoX, tapHiX, tapLoY, tapHiY, v))
     return;
@@ -343,8 +342,8 @@ __global__ void resizePlanarKernel(const T *__restrict__ src, int sStep, int src
     sy = fmaf(afy, (VT)dy - offy, basey);
   }
   if (!(sx >= clipLoX && sx < (VT)clipHiX && sy >= clipLoY && sy < (VT)clipHiY)) return;
-  sx = sx < coordLoX ? coordLoX : (sx > coordHiX ? coordHiX : sx);
-  sy = sy < coordLoY ? coordLoY : (sy > coordHiY ? coordHiY : sy);
+  sx = sx < coordLoX ? coordLoX: (sx > coordHiX ? coordHiX: sx);
+  sy = sy < coordLoY ? coordLoY: (sy > coordHiY ? coordHiY: sy);
   VT v[1];
   if (!samplePixel<T, 1, VT>(src, sStep, srcW, srcH, sx, sy, mode, afx, afy, tapLoX, tapHiX, tapLoY, tapHiY, v))
     return;
@@ -389,7 +388,7 @@ inline int toMode(int eInterpolation) {
 }
 
 // nppiResize extends the source-ROI tap window on the right by the filter
-// radius (measured with coordinate-coded probes): linear allows one pixel past
+// radius (measured with coordinate-coded measurements): linear allows one pixel past
 // the ROI, cubic two and Lanczos three.  The left edge is the ROI start.
 inline int filterRadius(int mode) {
   switch (mode) {
@@ -405,8 +404,8 @@ struct ClipRect {
 };
 
 inline ClipRect intersectROI(NppiRect roi, NppiSize size) {
-  int x0 = roi.x > 0 ? roi.x : 0;
-  int y0 = roi.y > 0 ? roi.y : 0;
+  int x0 = roi.x > 0 ? roi.x: 0;
+  int y0 = roi.y > 0 ? roi.y: 0;
   int x1 = roi.x + roi.width;
   int y1 = roi.y + roi.height;
   if (x1 > size.width) x1 = size.width;
@@ -430,10 +429,10 @@ static void launchKernel(const T *src, int sStep, NppiSize srcSize, ClipRect cli
   const VT big = (VT)1e30;
   // nppiResize clamps the interpolation taps to [ROI start, ROI end] where the
   // end is inclusive of the pixel just past the ROI rectangle (measured).
-  const VT coordLo = clampCoord ? (VT)tapLoX : -big;
-  const VT coordHi = clampCoord ? (VT)tapHiX : big;
-  const VT coordLoY = clampCoord ? (VT)tapLoY : -big;
-  const VT coordHiY = clampCoord ? (VT)tapHiY : big;
+  const VT coordLo = clampCoord ? (VT)tapLoX: -big;
+  const VT coordHi = clampCoord ? (VT)tapHiX: big;
+  const VT coordLoY = clampCoord ? (VT)tapLoY: -big;
+  const VT coordHiY = clampCoord ? (VT)tapHiY: big;
   if (dROI.width <= 0 || dROI.height <= 0) return;
   dim3 block(16, 16);
   dim3 grid((dROI.width + block.x - 1) / block.x, (dROI.height + block.y - 1) / block.y);
@@ -635,7 +634,7 @@ NppStatus sqrPixel(const T *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrc
                    int eInterpolation, cudaStream_t stream) {
   using VT = typename Traits<T>::VT;
   return runSqrPixel<T, VT>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nXFactor, nYFactor, nXShift,
-                            nYShift, eInterpolation, C, AC4 ? 3 : C, stream);
+                            nYShift, eInterpolation, C, AC4 ? 3: C, stream);
 }
 
 template <typename T, int C>
@@ -655,7 +654,7 @@ NppStatus sqrPixelAdvanced(const T *pSrc, NppiSize oSrcSize, int nSrcStep, NppiR
   if (pBuffer == nullptr) return NPP_NULL_POINTER_ERROR;
   using VT = typename Traits<T>::VT;
   return runSqrPixel<T, VT>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nXFactor, nYFactor, 0.0, 0.0,
-                            NPPI_INTER_LANCZOS, C, AC4 ? 3 : C, stream);
+                            NPPI_INTER_LANCZOS, C, AC4 ? 3: C, stream);
 }
 
 template <typename T, int C, bool AC4>
@@ -663,7 +662,7 @@ NppStatus resize(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRO
                  NppiSize oDstSize, NppiRect oDstROI, int eInterpolation, cudaStream_t stream) {
   using VT = typename Traits<T>::VT;
   return runResize<T, VT>(pSrc, nSrcStep, oSrcSize, oSrcROI, pDst, nDstStep, oDstSize, oDstROI, eInterpolation, C,
-                          AC4 ? 3 : C, false, stream);
+                          AC4 ? 3: C, false, stream);
 }
 
 template <typename T, int C>
@@ -690,7 +689,7 @@ NppStatus resizeBatch(NppiSize oSmallestSrcSize, NppiRect oSrcROI, NppiSize oSma
     using VT = typename Traits<T>::VT;
     NppStatus st = runResize<T, VT>(static_cast<const T *>(host[i].pSrc), host[i].nSrcStep, oSmallestSrcSize, oSrcROI,
                                     static_cast<T *>(host[i].pDst), host[i].nDstStep, oSmallestDstSize, oDstROI,
-                                    eInterpolation, C, AC4 ? 3 : C, true, stream);
+                                    eInterpolation, C, AC4 ? 3: C, true, stream);
     if (st != NPP_NO_ERROR) return st;
   }
   return NPP_NO_ERROR;
@@ -719,7 +718,7 @@ NppStatus resizeBatchAdvanced(int nMaxWidth, int nMaxHeight, NppiImageDescriptor
     using VT = typename Traits<T>::VT;
     NppStatus st = runResize<T, VT>(static_cast<const T *>(src[i].pData), src[i].nStep, src[i].oSize,
                                     roi[i].oSrcRectROI, static_cast<T *>(dst[i].pData), dst[i].nStep, dst[i].oSize,
-                                    roi[i].oDstRectROI, eInterpolation, C, AC4 ? 3 : C, true, stream);
+                                    roi[i].oDstRectROI, eInterpolation, C, AC4 ? 3: C, true, stream);
     if (st != NPP_NO_ERROR) return st;
   }
   return NPP_NO_ERROR;

@@ -44,7 +44,7 @@ static NppStatus validateYUV420Inputs(const Npp8u *const pDst[3], const int rDst
 static inline NppiSize yuv420FwdRoi(NppiSize roi) { roi.width &= ~1; roi.height &= ~1; return roi; }
 static inline NppStatus yuv420FwdStatus(cudaError_t s, NppiSize roi) {
   if (s != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  return ((roi.width | roi.height) & 1) ? NPP_DOUBLE_SIZE_WARNING : NPP_NO_ERROR;
+  return ((roi.width | roi.height) & 1) ? NPP_DOUBLE_SIZE_WARNING: NPP_NO_ERROR;
 }
 
 NppStatus nppiRGBToYUV420_8u_C3P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],

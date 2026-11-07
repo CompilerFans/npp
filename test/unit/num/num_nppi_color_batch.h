@@ -1,4 +1,4 @@
-// CPU-golden coverage for the batch color-conversion family
+// CPU-reference output coverage for the batch color-conversion family
 // (nppi_color_conversion.h):
 //   nppiYCbCrTo{BGR,RGB}Batch_8u_{C3R,P3C3R}
 //   nppiYUVTo{BGR,RGB}Batch_8u_{C3R,P3C3R}
@@ -43,9 +43,9 @@ constexpr bool planarK(int k) {
          k == kYUV422P3 || k == kYUV420P3;
 }
 constexpr int subXK(int k) {
-  return (k == kYCbCr422P3 || k == kYCbCr420P3 || k == kYUV422P3 || k == kYUV420P3) ? 2 : 1;
+  return (k == kYCbCr422P3 || k == kYCbCr420P3 || k == kYUV422P3 || k == kYUV420P3) ? 2: 1;
 }
-constexpr int subYK(int k) { return (k == kYCbCr420P3 || k == kYUV420P3) ? 2 : 1; }
+constexpr int subYK(int k) { return (k == kYCbCr420P3 || k == kYUV420P3) ? 2: 1; }
 
 inline Npp8u sat8(float v) { return (Npp8u)std::fminf(std::fmaxf(v, 0.0f), 255.0f); }
 
@@ -89,7 +89,7 @@ void run_batch(const char *id, Call call) {
     int w, h;
   };
   static const Cfg cfgs[] = {{16, 12}, {64, 48}, {128, 96}, {17, 13}};
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     int ws[B], hs[B];
     if constexpr (Adv) {
       ws[0] = cf.w;
@@ -104,7 +104,7 @@ void run_batch(const char *id, Call call) {
         hs[i] = cf.h;
       }
     }
-    const uint64_t seed = case_seed(id, cf.w, cf.h, Adv ? 1 : 0, 0, 0, 0);
+    const uint64_t seed = case_seed(id, cf.w, cf.h, Adv ? 1: 0, 0, 0, 0);
     std::vector<Buf<Npp8u> *> plane[3];
     std::vector<Buf<Npp8u> *> psrc(B), dsts(B);
     std::vector<std::vector<uint8_t>> pre(B);
@@ -132,13 +132,13 @@ void run_batch(const char *id, Call call) {
     // Every pair of this batch shares one ROI (plain) or uses its own size
     // (advanced); two plain variants per case exercise an even and (for
     // subsampled formats) an odd ROI.
-    const int nVariant = Adv ? 1 : 2;
+    const int nVariant = Adv ? 1: 2;
     for (int v = 0; v < nVariant; ++v) {
       int ew[B], eh[B];  // effective converted extent of each pair
       int maxW = 0, maxH = 0;
       for (int i = 0; i < B; ++i) {
-        const int rw = Adv ? ws[i] : (v == 0 ? cf.w : std::max(2, cf.w - 1));
-        const int rh = Adv ? hs[i] : (v == 0 ? cf.h : std::max(2, cf.h - 1));
+        const int rw = Adv ? ws[i]: (v == 0 ? cf.w: std::max(2, cf.w - 1));
+        const int rh = Adv ? hs[i]: (v == 0 ? cf.h: std::max(2, cf.h - 1));
         ew[i] = rw;
         eh[i] = rh;
         if constexpr (SX == 2) ew[i] &= ~1;
@@ -148,8 +148,8 @@ void run_batch(const char *id, Call call) {
       }
       std::vector<NppiImageDescriptor> hs0(B), hs1(B), hs2(B), hd(B);
       for (int i = 0; i < B; ++i) {
-        const int rw = Adv ? ws[i] : cf.w;
-        const int rh = Adv ? hs[i] : cf.h;
+        const int rw = Adv ? ws[i]: cf.w;
+        const int rh = Adv ? hs[i]: cf.h;
         // Descriptor sizes describe the whole logical image on every plane;
         // the reference binds the processed ROI to them (measured: a
         // chroma-sized descriptor makes it convert only that many pixels).
@@ -165,7 +165,7 @@ void run_batch(const char *id, Call call) {
           hs0[(size_t)i] = {(void *)psrc[(size_t)i]->dptr(), psrc[(size_t)i]->step, NppiSize{rw, rh}};
         }
         hd[(size_t)i] = {(void *)dsts[(size_t)i]->dptr(), dsts[(size_t)i]->step,
-                         NppiSize{Adv ? ew[i] : rw, Adv ? eh[i] : rh}};
+                         NppiSize{Adv ? ew[i]: rw, Adv ? eh[i]: rh}};
       }
       Buf<NppiImageDescriptor> ds0(B, 1, 1, 0, 0), ds1(B, 1, 1, 0, 0), ds2(B, 1, 1, 0, 0),
           dd(B, 1, 1, 0, 0);
@@ -181,9 +181,8 @@ void run_batch(const char *id, Call call) {
           (const NppiImageDescriptor *)ds0.dptr(), (const NppiImageDescriptor *)ds1.dptr(),
           (const NppiImageDescriptor *)ds2.dptr()};
       NppiImageDescriptor *pd = (NppiImageDescriptor *)dd.dptr();
-      const NppiSize roi = Adv ? NppiSize{maxW, maxH}
-                               : NppiSize{v == 0 ? cf.w : std::max(2, cf.w - 1),
-                                          v == 0 ? cf.h : std::max(2, cf.h - 1)};
+      const NppiSize roi = Adv ? NppiSize{maxW, maxH}: NppiSize{v == 0 ? cf.w: std::max(2, cf.w - 1),
+                                          v == 0 ? cf.h: std::max(2, cf.h - 1)};
       npp_diff::clear_cuda_error();
       const NppStatus st = call(sp, pd, B, roi, ctx);
       if (st != NPP_NO_ERROR && st != NPP_DOUBLE_SIZE_WARNING) {
@@ -220,9 +219,9 @@ void run_batch(const char *id, Call call) {
             Npp8u r, g, b;
             inv_px<Yuv>(yv, cbv, crv, r, g, b);
             const size_t base = (size_t)y * dsts[(size_t)i]->step + (size_t)x * 3;
-            want[base + (Bgr ? 2 : 0)] = r;
+            want[base + (Bgr ? 2: 0)] = r;
             want[base + 1] = g;
-            want[base + (Bgr ? 0 : 2)] = b;
+            want[base + (Bgr ? 0: 2)] = b;
           }
         Buf<Npp8u> *d = dsts[(size_t)i];
         d->dev.copyToHost(d->host);
@@ -235,10 +234,10 @@ void run_batch(const char *id, Call call) {
       if (failed) break;
     }
     for (int p = 0; p < 3; ++p)
-      for (auto *b : plane[p]) delete b;
-    for (auto *b : psrc)
+      for (auto *b: plane[p]) delete b;
+    for (auto *b: psrc)
       if (b) delete b;
-    for (auto *b : dsts) delete b;
+    for (auto *b: dsts) delete b;
     if (cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);

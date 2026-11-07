@@ -17,9 +17,8 @@ namespace ek = npps::elementwise::detail;
 
 namespace {
 
-// Kernel-launch error check moved to the shared header npp_kernel_utils.h
-// (package p0.1); re-exported here so the executors below keep using the
-// unqualified name.
+// Kernel-launch error check moved to the shared header npp_kernel_utils.h;
+// re-exported here so the executors below keep using the unqualified name.
 using npp_kernel::checkCudaKernelError;
 
 }  // namespace
@@ -51,14 +50,14 @@ __global__ void shift_kernel(const A* src, int shift, A* dst, NppSignalLength n,
   size_t i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i >= (size_t)n) return;
   unsigned long long u = (unsigned long long)src[i];
-  dst[i] = dir ? (A)(u << shift) : (A)(u >> shift);
+  dst[i] = dir ? (A)(u << shift): (A)(u >> shift);
 }
 template <typename A>
 __global__ void shift_inplace_kernel(A* d, int shift, NppSignalLength n, char dir) {
   size_t i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i >= (size_t)n) return;
   unsigned long long u = (unsigned long long)d[i];
-  d[i] = dir ? (A)(u << shift) : (A)(u >> shift);
+  d[i] = dir ? (A)(u << shift): (A)(u >> shift);
 }
 template <typename A>
 __global__ void bitwise_bin_kernel(const A* a, const A* b, A* d, NppSignalLength n, int op) {
@@ -93,7 +92,7 @@ __global__ void mullow_kernel(const Npp32s* a, const Npp32s* b, Npp32s* d, NppSi
   if (i >= (size_t)n) return;
   long long p = (long long)a[i] * (long long)b[i];
   // NPP 13.4: round the full 64-bit product by 2^sf (banker's), then take the
-  // low 32 bits (validated against goldens).
+  // low 32 bits (validated against reference outputs).
   long long scaled = ek::scale_sat<Npp64s>(p, sf);
   d[i] = (Npp32s)(scaled & 0xFFFFFFFFLL);
 }
@@ -104,7 +103,7 @@ __global__ void sumln_partial(const SRC* src, NppSignalLength n, PT* partial) {
   __shared__ PT s[256];
   size_t tid = threadIdx.x;
   size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
-  s[tid] = (idx < (size_t)n) ? (PT)log((double)src[idx]) : (PT)0;
+  s[tid] = (idx < (size_t)n) ? (PT)log((double)src[idx]): (PT)0;
   __syncthreads();
   for (unsigned int st = blockDim.x / 2; st > 0; st >>= 1) {
     if (tid < st) s[tid] += s[tid + st];
@@ -339,7 +338,7 @@ NppStatus sumLn(const A* src, NppSignalLength nLength, D* dst, Npp8u* buf, cudaS
   return run_sumln<A, D>(src, nLength, dst, buf, stream);
 }
 template <typename A>
-NppStatus sumLnGetBufferSize(NppSignalLength nLength, int* hpBufferSize) {
+NppStatus sumLnGetBufferSize(NppSignalLength nLength, NPP_BUFFER_SIZE_TYPE* hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (nLength < 0) return NPP_SIZE_ERROR;
   if (nLength == 0) return NPP_SIZE_ERROR;
@@ -495,8 +494,8 @@ template NppStatus sumLn<Npp16s,Npp32f>(const Npp16s*, NppSignalLength, Npp32f*,
 template NppStatus sumLn<Npp32f,Npp32f>(const Npp32f*, NppSignalLength, Npp32f*, Npp8u*, cudaStream_t);
 template NppStatus sumLn<Npp32f,Npp64f>(const Npp32f*, NppSignalLength, Npp64f*, Npp8u*, cudaStream_t);
 template NppStatus sumLn<Npp64f,Npp64f>(const Npp64f*, NppSignalLength, Npp64f*, Npp8u*, cudaStream_t);
-template NppStatus sumLnGetBufferSize<Npp16s>(NppSignalLength, int*);
-template NppStatus sumLnGetBufferSize<Npp32f>(NppSignalLength, int*);
-template NppStatus sumLnGetBufferSize<Npp64f>(NppSignalLength, int*);
+template NppStatus sumLnGetBufferSize<Npp16s>(NppSignalLength, NPP_BUFFER_SIZE_TYPE *);
+template NppStatus sumLnGetBufferSize<Npp32f>(NppSignalLength, NPP_BUFFER_SIZE_TYPE *);
+template NppStatus sumLnGetBufferSize<Npp64f>(NppSignalLength, NPP_BUFFER_SIZE_TYPE *);
 }  // namespace unary
 }  // namespace npps

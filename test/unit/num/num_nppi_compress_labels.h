@@ -1,9 +1,9 @@
-// CPU-golden coverage for the UF marker-label renumbering functions
+// CPU-reference output coverage for the UF marker-label renumbering functions
 // (nppi_filtering_functions.h):
 //   nppiCompressMarkerLabelsUF_32u_C1IR and the plain/Advanced batch
 //   entry points.
 //
-// Measured NPP 13.4 semantics (RTX 5090):
+// Measured NPP 13.4 semantics (reference):
 //   * the sparse label IDs are renumbered 1..N in ascending order of the old
 //     label value (the label generators store the region's raster-first
 //     index, so this is the order the regions were first encountered);
@@ -28,14 +28,14 @@ namespace compresslabels {
 // Dense renumbering (see the file comment).  newMax receives N.
 inline std::vector<Npp32u> golden_compress(const std::vector<Npp32u> &lab, int *newMax) {
   std::vector<Npp32u> uniq;
-  for (Npp32u v : lab)
+  for (Npp32u v: lab)
     if (v != 0) uniq.push_back(v);
   std::sort(uniq.begin(), uniq.end());
   uniq.erase(std::unique(uniq.begin(), uniq.end()), uniq.end());
   std::map<Npp32u, Npp32u> remap;
   for (size_t i = 0; i < uniq.size(); ++i) remap[uniq[i]] = (Npp32u)(i + 1);
   std::vector<Npp32u> out(lab.size(), 0);
-  for (size_t i = 0; i < lab.size(); ++i) out[i] = lab[i] ? remap[lab[i]] : 0;
+  for (size_t i = 0; i < lab.size(); ++i) out[i] = lab[i] ? remap[lab[i]]: 0;
   if (newMax) *newMax = (int)uniq.size();
   return out;
 }
@@ -138,7 +138,7 @@ void run_compress(const char *id, Call call) {
   std::string first;
   static const int cfgs[][2] = {{64, 64}, {48, 48}, {96, 64}};
   bool failed = false;
-  for (const auto &cf : cfgs) {
+  for (const auto &cf: cfgs) {
     for (int pat = 0; pat < 5 && !failed; ++pat) {
       const int W = cf[0], H = cf[1];
       const std::vector<Npp8u> img = make_pattern<Npp8u>(W, H, pat);
@@ -152,7 +152,7 @@ void run_compress(const char *id, Call call) {
       d.dev.copyFromHost(d.host);
       int need = 0;
       nppiCompressMarkerLabelsGetBufferSize_32u_C1R(W * H, &need);
-      npp_functional_test::DeviceMemory<Npp8u> buf((size_t)(need > 0 ? need : 1));
+      npp_functional_test::DeviceMemory<Npp8u> buf((size_t)(need > 0 ? need: 1));
       int newNumber = 0x5A5A5A5A;
       npp_diff::clear_cuda_error();
       const NppStatus st = call(reinterpret_cast<Npp32u *>(d.dptr()), d.step, NppiSize{W, H}, W * H,
@@ -193,8 +193,8 @@ void run_compress_batch(const char *id, Call call) {
   static const int advSizes[nb][2] = {{64, 64}, {48, 48}, {96, 64}};
   int ws[nb], hs[nb];
   for (int i = 0; i < nb; ++i) {
-    ws[i] = Advanced ? advSizes[i][0] : 64;
-    hs[i] = Advanced ? advSizes[i][1] : 64;
+    ws[i] = Advanced ? advSizes[i][0]: 64;
+    hs[i] = Advanced ? advSizes[i][1]: 64;
   }
   bool failed = false;
   std::vector<std::vector<Npp32u>> seeds(nb), wants(nb);
@@ -214,7 +214,7 @@ void run_compress_batch(const char *id, Call call) {
     int need = 0;
     nppiCompressMarkerLabelsGetBufferSize_32u_C1R(W * H, &need);
     if (need > largest) largest = need;
-    bufs[i].reset(new npp_functional_test::DeviceMemory<Npp8u>((size_t)(need > 0 ? need : 1)));
+    bufs[i].reset(new npp_functional_test::DeviceMemory<Npp8u>((size_t)(need > 0 ? need: 1)));
     desc[i].pData = img[i]->get();
     desc[i].nStep = W * (int)sizeof(Npp32u);
     desc[i].oSize = NppiSize{W, H};
@@ -228,7 +228,7 @@ void run_compress_batch(const char *id, Call call) {
   npp_functional_test::DeviceMemory<Npp32u> ndev(nb);
   std::vector<Npp32u> nsent(nb, 0x5A5A5A5Au);
   ndev.copyFromHost(nsent);
-  const NppiSize roi = Advanced ? NppiSize{96, 64} : NppiSize{64, 64};
+  const NppiSize roi = Advanced ? NppiSize{96, 64}: NppiSize{64, 64};
   npp_diff::clear_cuda_error();
   const NppStatus st = call(ddev.get(), bdev.get(), (unsigned int *)ndev.get(), nb, roi, largest, ctx);
   if (st != NPP_NO_ERROR) {

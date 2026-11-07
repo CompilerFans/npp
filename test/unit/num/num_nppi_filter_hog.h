@@ -1,7 +1,7 @@
-// CPU-golden coverage for nppiHistogramOfGradientsBorder
+// CPU-reference output coverage for nppiHistogramOfGradientsBorder
 // (nppi_filtering_functions.h).
 //
-// Measured NPP 13.4 semantics (RTX 5090):
+// Measured NPP 13.4 semantics (reference):
 //   * per-pixel gradients are the centered [-1,0,+1] differences, REPLICATE
 //     clamped at the source image bounds; the magnitude is sqrt(gx^2+gy^2)
 //     and the orientation atan2(gy,gx) in degrees, negative angles +180;
@@ -16,7 +16,7 @@
 //   which is far below the float comparison tolerance for the axis-aligned
 //   ramps used here.
 //   NPP 13.4 requires a source step of at least 128 bytes for this family
-//   (probe-measured; shorter steps return -16), so the driver uses a
+//   (measurement-measured; shorter steps return -16), so the driver uses a
 //   256-byte pitch.
 #pragma once
 
@@ -25,7 +25,7 @@
 namespace num {
 namespace filthog {
 
-inline int clampi(int v, int lo, int hi) { return v < lo ? lo : (v > hi ? hi : v); }
+inline int clampi(int v, int lo, int hi) { return v < lo ? lo: (v > hi ? hi: v); }
 
 template <typename Src, int C, class Call>
 void run_hog(const char *id, Call call) {
@@ -60,9 +60,9 @@ void run_hog(const char *id, Call call) {
     for (int y = 0; y < H; ++y)
       for (int x = 0; x < W; ++x)
         for (int c = 0; c < C; ++c) {
-          const int v = pats[pi].kind == 0 ? x * 3 : y * 3;
+          const int v = pats[pi].kind == 0 ? x * 3: y * 3;
           s->hptr()[(size_t)y * (s->step / (int)sizeof(Src)) + (size_t)x * C + c] =
-              (Src)(v % (std::is_same_v<Src, Npp8u> ? 200 : 4000));
+              (Src)(v % (std::is_same_v<Src, Npp8u> ? 200: 4000));
         }
     s->dev.copyFromHost(s->host);
     Buf<Npp32f> *d = new Buf<Npp32f>(descCount, nLoc, 1, 0, 0x5A);
@@ -71,7 +71,7 @@ void run_hog(const char *id, Call call) {
     int need = 0;
     nppiHistogramOfGradientsBorderGetBufferSize(
         NppiHOGConfig{cell, block, bins, NppiSize{win, win}}, locs, nLoc, NppiSize{W, H}, &need);
-    npp_functional_test::DeviceMemory<Npp8u> scratch((size_t)(need > 0 ? need : 1));
+    npp_functional_test::DeviceMemory<Npp8u> scratch((size_t)(need > 0 ? need: 1));
     NppiHOGConfig cfg{cell, block, bins, NppiSize{win, win}};
     const Src *sp = reinterpret_cast<const Src *>(s->dptr());
     npp_diff::clear_cuda_error();
@@ -134,7 +134,7 @@ void run_hog(const char *id, Call call) {
             const int base = ((by + cy) * cellsX + (bx + cx)) * bins;
             for (int bin = 0; bin < bins; ++bin) mx = std::max(mx, hist[(size_t)base + bin]);
           }
-        blockMax[(size_t)b] = mx > 0.0f ? mx : 1.0f;
+        blockMax[(size_t)b] = mx > 0.0f ? mx: 1.0f;
       }
       for (int i = 0; i < descCount; ++i) {
         int rest = i;

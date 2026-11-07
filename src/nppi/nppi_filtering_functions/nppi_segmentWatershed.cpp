@@ -5,7 +5,7 @@
 // Forward declarations for GPU functions
 
 extern "C" {
-NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, size_t *hpBufferSize);
+NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE *hpBufferSize);
 NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, Npp32s nSrcDstStep, Npp32u *pMarkerLabels,
                                                 Npp32s nMarkerLabelsStep, NppiNorm eNorm,
                                                 NppiWatershedSegmentBoundaryType eSegmentBoundaryType,
@@ -15,6 +15,7 @@ NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, Npp32s nSrcDstSt
 
 // Get buffer size required for Watershed segmentation
 
+#if !NPP_BUFFER_SIZE_IS_SIZE_T
 NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R(NppiSize oSizeROI, size_t *hpDeviceMemoryBufferSize) {
   if (hpDeviceMemoryBufferSize == nullptr) {
     return NPP_NULL_POINTER_ERROR;
@@ -24,14 +25,22 @@ NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R(NppiSize oSizeROI, size_t *hp
     return NPP_SIZE_ERROR;
   }
 
-  return nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_impl(oSizeROI, hpDeviceMemoryBufferSize);
+  int size = 0;
+  NppStatus status = nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_impl(oSizeROI, &size);
+  if (status == NPP_NO_ERROR && hpDeviceMemoryBufferSize) *hpDeviceMemoryBufferSize = (size_t)size;
+  return status;
 }
+#endif
 
-NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R(NppiSize oSizeROI, int *hpDeviceMemoryBufferSize) {
+NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE *hpDeviceMemoryBufferSize) {
+#if NPP_BUFFER_SIZE_IS_SIZE_T
+  return nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_impl(oSizeROI, hpDeviceMemoryBufferSize);
+#else
   size_t size = 0;
   auto ret = nppiSegmentWatershedGetBufferSize_8u_C1R(oSizeROI, &size);
   *hpDeviceMemoryBufferSize = size;
   return ret;
+#endif
 }
 
 // Watershed image segmentation

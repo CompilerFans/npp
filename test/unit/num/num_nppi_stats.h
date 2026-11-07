@@ -1,9 +1,9 @@
 #pragma once
 
-// CPU-golden drivers for the nppi statistics reduction families.
+// CPU-reference output drivers for the nppi statistics reduction families.
 //
 // Outputs are compared against formulas computed in-process from the ROI;
-// there are no recorded goldens.  The same generated tests build against the
+// there are no reference outputs.  The same generated tests build against the
 // in-tree library and against NVIDIA NPP 13.4.
 
 #include "num_suite.h"
@@ -88,7 +88,7 @@ void run_nppi_reduce1(const char *id, Call call) {
   Buf<uint8_t> scratch(kNppiStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S>;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, 0, (int)c.regime, 0);
     fill_regime(s, C, seed, c.regime, 0, false, false, finite);
@@ -177,13 +177,13 @@ void run_nppi_reduce2(const char *id, Call call) {
   Buf<uint8_t> scratch(kNppiStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S>;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s1(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> s2(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s1.step, s2.step, (int)c.regime, 0);
     // Clamped extremes can leave near-zero variance, where the quality-index
     // ratio is numerically meaningless; use the wide regime instead.
-    const Regime qr = c.regime == kExtremes ? kWide : c.regime;
+    const Regime qr = c.regime == kExtremes ? kWide: c.regime;
     fill_regime(s1, C, seed, qr, 0, false, false, finite);
     fill_regime(s2, C, seed ^ 0x51633e2dull, qr, 1, false, false, finite);
     nppi_clamp_stat_inputs(s1);
@@ -231,19 +231,15 @@ void run_nppi_reduce2(const char *id, Call call) {
       else if constexpr (K == NppiStatKind::NormDiffL2) want = std::sqrt(dsq);
       else if constexpr (K == NppiStatKind::NormDiffInf) want = dinf;
       else if constexpr (K == NppiStatKind::NormRelL1)
-        want = (nsum > 0.0) ? dsum / nsum : (dsum == 0.0 ? 0.0 : (double)std::numeric_limits<S>::max());
+        want = (nsum > 0.0) ? dsum / nsum: (dsum == 0.0 ? 0.0: (double)std::numeric_limits<S>::max());
       else if constexpr (K == NppiStatKind::NormRelL2)
-        want = (nsq > 0.0) ? std::sqrt(dsq) / std::sqrt(nsq)
-                           : (dsq == 0.0 ? 0.0 : (double)std::numeric_limits<S>::max());
+        want = (nsq > 0.0) ? std::sqrt(dsq) / std::sqrt(nsq): (dsq == 0.0 ? 0.0: (double)std::numeric_limits<S>::max());
       else
         // The reference returns the numerator for a zero denominator only in
         // the 8u single-channel kernels; other dtypes/channel counts return
-        // the source-dtype maximum (probed on the 5090).
-        want = (ninf > 0.0) ? dinf / ninf
-                            : (dinf == 0.0 ? 0.0
-                                           : ((std::is_same_v<S, Npp8u> && C == 1)
-                                                  ? dinf
-                                                  : (double)std::numeric_limits<S>::max()));
+        // the source-dtype maximum (measured on the reference).
+        want = (ninf > 0.0) ? dinf / ninf: (dinf == 0.0 ? 0.0: ((std::is_same_v<S, Npp8u> && C == 1)
+                                                  ? dinf: (double)std::numeric_limits<S>::max()));
       ++cnt.compared;
       const size_t off = (size_t)ch * sizeof(Npp64f);
       if (!equal_elem<Npp64f>(out.host.data() + off, reinterpret_cast<const uint8_t *>(&want), rtol, atol)) {
@@ -277,13 +273,13 @@ void run_nppi_error(const char *id, Call call) {
   const bool finite = std::is_floating_point_v<S>;
   const bool rel = (K == NppiStatKind::MaxRelErr || K == NppiStatKind::AvgRelErr);
   const bool avg = (K == NppiStatKind::AvgAbsErr || K == NppiStatKind::AvgRelErr);
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s1(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> s2(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s1.step, s2.step, (int)c.regime, 0);
     // Clamped extremes can leave near-zero variance, where the quality-index
     // ratio is numerically meaningless; use the wide regime instead.
-    const Regime qr = c.regime == kExtremes ? kWide : c.regime;
+    const Regime qr = c.regime == kExtremes ? kWide: c.regime;
     fill_regime(s1, C, seed, qr, 0, false, false, finite);
     fill_regime(s2, C, seed ^ 0x51633e2dull, qr, 1, false, false, finite);
     nppi_clamp_stat_inputs(s1);
@@ -316,13 +312,13 @@ void run_nppi_error(const char *id, Call call) {
           double e = std::fabs(a - b);
           if (rel) {
             const double den = std::max(std::fabs(a), std::fabs(b));
-            e = (den > 0.0) ? e / den : 0.0;
+            e = (den > 0.0) ? e / den: 0.0;
           }
           acc += e;
           mx = std::max(mx, e);
         }
     (void)eps;
-    const double want = avg ? acc / (double)(c.w * c.h * A) : mx;
+    const double want = avg ? acc / (double)(c.w * c.h * A): mx;
     ++cnt.executed;
     ++cnt.compared;
     if (!equal_elem<Npp64f>(out.host.data(), reinterpret_cast<const uint8_t *>(&want), rtol, atol)) {
@@ -353,13 +349,13 @@ void run_nppi_dotprod(const char *id, Call call) {
   Buf<uint8_t> scratch(kNppiStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S>;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s1(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> s2(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s1.step, s2.step, (int)c.regime, 0);
     // Clamped extremes can leave near-zero variance, where the quality-index
     // ratio is numerically meaningless; use the wide regime instead.
-    const Regime qr = c.regime == kExtremes ? kWide : c.regime;
+    const Regime qr = c.regime == kExtremes ? kWide: c.regime;
     fill_regime(s1, C, seed, qr, 0, false, false, finite);
     fill_regime(s2, C, seed ^ 0x51633e2dull, qr, 1, false, false, finite);
     nppi_clamp_stat_inputs(s1);
@@ -421,7 +417,7 @@ void run_nppi_meanstd(const char *id, Call call, int coi = -1) {
   Buf<uint8_t> scratch(kNppiStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S>;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, 0, (int)c.regime, 0);
     fill_regime(s, C, seed, c.regime, 0, false, false, finite);
@@ -448,7 +444,7 @@ void run_nppi_meanstd(const char *id, Call call, int coi = -1) {
     ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
     mo.dev.copyToHost(mo.host);
     so.dev.copyToHost(so.host);
-    const int ch = C > 1 ? (coi - 1) : 0;
+    const int ch = C > 1 ? (coi - 1): 0;
     double sum = 0.0, sq = 0.0;
     for (int y = 0; y < c.h; ++y)
       for (int x = 0; x < c.w; ++x) {
@@ -492,7 +488,7 @@ void run_nppi_extrema(const char *id, Call call) {
   Buf<uint8_t> scratch(kNppiStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S>;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, 0, (int)c.regime, 0);
     fill_regime(s, C, seed, c.regime, 0, false, false, finite);
@@ -511,12 +507,12 @@ void run_nppi_extrema(const char *id, Call call) {
     NppStatus st = call(
         reinterpret_cast<const S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, C)), s.step,
         NppiSize{c.w, c.h}, reinterpret_cast<Npp8u *>(scratch.dptr()),
-        WantMin ? reinterpret_cast<S *>(mn.dptr()) : nullptr,
-        WantMax ? reinterpret_cast<S *>(mx.dptr()) : nullptr,
-        WantMinIdx ? reinterpret_cast<int *>(mnx.dptr()) : nullptr,
-        WantMinIdx ? reinterpret_cast<int *>(mny.dptr()) : nullptr,
-        WantMaxIdx ? reinterpret_cast<int *>(mxx.dptr()) : nullptr,
-        WantMaxIdx ? reinterpret_cast<int *>(mxy.dptr()) : nullptr, ctx);
+        WantMin ? reinterpret_cast<S *>(mn.dptr()): nullptr,
+        WantMax ? reinterpret_cast<S *>(mx.dptr()): nullptr,
+        WantMinIdx ? reinterpret_cast<int *>(mnx.dptr()): nullptr,
+        WantMinIdx ? reinterpret_cast<int *>(mny.dptr()): nullptr,
+        WantMaxIdx ? reinterpret_cast<int *>(mxx.dptr()): nullptr,
+        WantMaxIdx ? reinterpret_cast<int *>(mxy.dptr()): nullptr, ctx);
     if (st != NPP_NO_ERROR) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
@@ -595,7 +591,7 @@ void run_nppi_minmaxindx(const char *id, Call call) {
   Buf<uint8_t> scratch(kNppiStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S>;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, 0, (int)c.regime, 0);
     fill_regime(s, C, seed, c.regime, 0, false, false, finite);
@@ -663,7 +659,7 @@ void run_nppi_minmaxindx_coi(const char *id, Call call) {
   Buf<uint8_t> scratch(kNppiStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S>;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w * c.h < 2) continue;
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, 0, (int)c.regime, 0);
@@ -734,7 +730,7 @@ void run_nppi_every(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const bool finite = std::is_floating_point_v<S>;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
@@ -771,7 +767,7 @@ void run_nppi_every(const char *id, Call call) {
           }
           const S sv = nppi_roi_at<S, C>(s, c, x, y, ch);
           const S dv = reinterpret_cast<const S *>(old_dst.data())[off / sizeof(S)];
-          const S want = IsMax ? (dv > sv ? dv : sv) : (dv < sv ? dv : sv);
+          const S want = IsMax ? (dv > sv ? dv: sv): (dv < sv ? dv: sv);
           if (!equal_elem<S>(d.host.data() + off, reinterpret_cast<const uint8_t *>(&want), 0, 0)) {
             char b[340];
             std::snprintf(b, sizeof(b), "[%s] %s (x=%d,y=%d,ch=%d) got=%s want=%s", id, c.id().c_str(), x, y,
@@ -797,7 +793,7 @@ void run_nppi_buffer_size(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const NppiSize rois[] = {{1, 1}, {3, 2}, {7, 5}, {33, 17}, {257, 129}};
-  for (const NppiSize &r : rois) {
+  for (const NppiSize &r: rois) {
     int size = -1;
     NppStatus st = call(r, &size, ctx);
     if (st != NPP_NO_ERROR) {
@@ -842,7 +838,7 @@ void run_nppi_even_levels_host(const char *id, Call call) {
       {6, -100, 100},  {9, -100, 100},  {17, -100, 100}, {33, -100, 100},
       {17, 0, 100},    {256, 0, 65535}, {3, -32768, 32767}, {2, 100, 100},
       {7, 100, -100},  {9, 100, -100},  {1, 0, 255},     {0, 0, 255}};
-  for (const Cfg &cfg : cfgs) {
+  for (const Cfg &cfg: cfgs) {
     std::vector<Npp32s> levels((size_t)std::max(cfg.n, 1) + 4, (Npp32s)0x5A5A5A5A);
     npp_diff::clear_cuda_error();
     const NppStatus st = call(levels.data(), cfg.n, cfg.lo, cfg.hi, ctx);
@@ -871,7 +867,7 @@ void run_nppi_even_levels_host(const char *id, Call call) {
     for (int i = 1; i < cfg.n; ++i) {
       const Npp32u num = (Npp32u)(cfg.hi - v);
       const Npp32u den = (Npp32u)(cfg.n - i);
-      const Npp32u delta = num / den + (num % den ? 1u : 0u);
+      const Npp32u delta = num / den + (num % den ? 1u: 0u);
       v = (Npp32s)((Npp32u)v + delta);
       want[(size_t)i] = v;
     }
@@ -918,7 +914,7 @@ void run_nppi_circular_radial_profile(const char *id, Call call) {
   static const std::vector<Cfg> cfgs = [] {
     std::vector<Cfg> v;
     const int sizes[][2] = {{17, 17}, {33, 17}, {64, 48}, {257, 129}, {9, 9}};
-    for (auto &s : sizes) {
+    for (auto &s: sizes) {
       const float cx = (float)(s[0] / 2), cy = (float)(s[1] / 2);
       v.push_back({s[0], s[1], cx, cy, 6});
       v.push_back({s[0], s[1], cx + 0.5f, cy + 0.5f, 6});
@@ -928,13 +924,13 @@ void run_nppi_circular_radial_profile(const char *id, Call call) {
     }
     return v;
   }();
-  for (const Cfg &c : cfgs) {
+  for (const Cfg &c: cfgs) {
     Buf<Npp32f> s(c.w, c.h, 1, 0, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, 0, 0, c.samples);
     fill_regime(s, 1, seed, kWide, 0, false, false, true);
     s.dev.copyFromHost(s.host);
     std::vector<NppiProfileData> out((size_t)c.samples + 2);
-    for (auto &o : out) {
+    for (auto &o: out) {
       o.nPixels = -7;
       o.nMeanIntensity = -7.0f;
       o.nStdDevIntensity = -7.0f;
@@ -999,7 +995,7 @@ void run_nppi_circular_radial_profile(const char *id, Call call) {
       if (n[(size_t)k] > 0) {
         mean = sum[(size_t)k] / n[(size_t)k];
         const double var = sq[(size_t)k] / n[(size_t)k] - mean * mean;
-        sd = std::sqrt(var > 0.0 ? var : 0.0);
+        sd = std::sqrt(var > 0.0 ? var: 0.0);
       }
       const NppiProfileData &g = out[(size_t)k];
       // NPP accumulates the moments in single precision, so a one-sample
@@ -1054,23 +1050,23 @@ void run_nppi_elliptical_radial_profile(const char *id, Call call) {
     const int sizes[][2] = {{9, 9}, {33, 17}, {64, 48}, {257, 129}};
     const float ratios[] = {1.0f, 1.5f, 2.0f, 3.7f};
     const float orients[] = {0.0f, 0.3f, 1.2f};
-    for (auto &s : sizes) {
+    for (auto &s: sizes) {
       const float cx = (float)(s[0] / 2), cy = (float)(s[1] / 2);
       v.push_back({s[0], s[1], cx, cy, 2.0f, 0.3f, 4});
       v.push_back({s[0], s[1], cx + 0.5f, cy + 0.5f, 1.5f, 1.2f, 6});
       v.push_back({s[0], s[1], 2.5f, 3.25f, 3.7f, 0.0f, 5});
-      for (float r : ratios) v.push_back({s[0], s[1], cx, cy, r, orients[(int)(r * 10) % 3], 8});
+      for (float r: ratios) v.push_back({s[0], s[1], cx, cy, r, orients[(int)(r * 10) % 3], 8});
       v.push_back({s[0], s[1], cx, cy, 2.0f, 0.5f, 1});
     }
     return v;
   }();
-  for (const Cfg &c : cfgs) {
+  for (const Cfg &c: cfgs) {
     Buf<Npp32f> s(c.w, c.h, 1, 0, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, 0, 1, c.samples);
     fill_regime(s, 1, seed, kWide, 0, false, false, true);
     s.dev.copyFromHost(s.host);
     std::vector<NppiProfileData> out((size_t)c.samples + 2);
-    for (auto &o : out) {
+    for (auto &o: out) {
       o.nPixels = -7;
       o.nMeanIntensity = -7.0f;
       o.nStdDevIntensity = -7.0f;
@@ -1133,7 +1129,7 @@ void run_nppi_elliptical_radial_profile(const char *id, Call call) {
       if (count > 0) {
         mean = sum / count;
         const double var = sq / count - mean * mean;
-        sd = std::sqrt(var > 0.0 ? var : 0.0);
+        sd = std::sqrt(var > 0.0 ? var: 0.0);
       }
       const NppiProfileData &g = out[(size_t)ring];
       ++cnt.compared;
@@ -1188,7 +1184,7 @@ void run_nppi_histogram(const char *id, Call call) {
   Buf<uint8_t> scratch(kNppiStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S>;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, 0, (int)c.regime, 0);
     fill_regime(s, C, seed, c.regime, 0, false, false, finite);
@@ -1232,7 +1228,7 @@ void run_nppi_histogram(const char *id, Call call) {
     Buf<Npp32s> hist((maxlev - 1) * C + 4, 1, 1, 0, 0x5A);
     hist.dev.copyFromHost(hist.host);
     Npp32s *hptr[4];
-    for (int ch = 0; ch < (C == 1 ? 1 : A); ++ch)
+    for (int ch = 0; ch < (C == 1 ? 1: A); ++ch)
       hptr[ch] = reinterpret_cast<Npp32s *>(hist.dptr()) + (size_t)ch * (maxlev - 1);
     npp_diff::clear_cuda_error();
     NppStatus st;
@@ -1242,7 +1238,7 @@ void run_nppi_histogram(const char *id, Call call) {
                 reinterpret_cast<Npp8u *>(scratch.dptr()), ctx);
     } else {
       const LV *lptr[4];
-      for (int ch = 0; ch < (C == 1 ? 1 : A); ++ch) lptr[ch] = lvdev[ch].get();
+      for (int ch = 0; ch < (C == 1 ? 1: A); ++ch) lptr[ch] = lvdev[ch].get();
       st = call(reinterpret_cast<const S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, C)),
                 s.step, NppiSize{c.w, c.h}, hptr, lptr, nlevels,
                 reinterpret_cast<Npp8u *>(scratch.dptr()), ctx);
@@ -1316,7 +1312,7 @@ void run_nppi_integral(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s(c.w + c.pad / (int)sizeof(S) + 1, c.h, 1, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, 0, (int)c.regime, 0);
     fill_regime(s, 1, seed, c.regime, 0);
@@ -1380,7 +1376,7 @@ void run_nppi_sqr_integral(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s(c.w + 1, c.h, 1, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, 0, (int)c.regime, 0);
     fill_regime(s, 1, seed, c.regime, 0);
@@ -1463,7 +1459,7 @@ void run_nppi_count_range_multi(const char *id, Call call) {
   Buf<uint8_t> scratch(kNppiStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S>;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, 0, (int)c.regime, 0);
     fill_regime(s, C, seed, c.regime, 0, false, false, finite);
@@ -1534,7 +1530,7 @@ void run_nppi_histogram_buffer_size(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const NppiSize rois[] = {{1, 1}, {3, 2}, {7, 5}, {33, 17}, {257, 129}};
-  for (const NppiSize &r : rois) {
+  for (const NppiSize &r: rois) {
     int nl[3] = {2, 3, 4};
     int size = -1;
     NppStatus st = call(r, nl, &size, ctx);
@@ -1577,13 +1573,13 @@ void run_nppi_quality_index(const char *id, Call call) {
   Buf<uint8_t> scratch(kNppiStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S>;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s1(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> s2(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s1.step, s2.step, (int)c.regime, 0);
     // Clamped extremes can leave near-zero variance, where the quality-index
     // ratio is numerically meaningless; use the wide regime instead.
-    const Regime qr = c.regime == kExtremes ? kWide : c.regime;
+    const Regime qr = c.regime == kExtremes ? kWide: c.regime;
     fill_regime(s1, C, seed, qr, 0, false, false, finite);
     fill_regime(s2, C, seed ^ 0x51633e2dull, qr, 1, false, false, finite);
     s1.dev.copyFromHost(s1.host);
@@ -1664,7 +1660,7 @@ void run_nppi_mse(const char *id, Call call) {
   std::string first;
   Buf<uint8_t> scratch(kNppiStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s1(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> s2(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s1.step, s2.step, (int)c.regime, 0);
@@ -1699,8 +1695,7 @@ void run_nppi_mse(const char *id, Call call) {
         }
       const double mse = acc / ((double)c.w * c.h);
       float want;
-      if constexpr (Psnr) want = mse <= 0.0 ? std::numeric_limits<float>::infinity()
-                                            : (float)(10.0 * std::log10(65025.0 / mse));
+      if constexpr (Psnr) want = mse <= 0.0 ? std::numeric_limits<float>::infinity(): (float)(10.0 * std::log10(65025.0 / mse));
       else want = (float)mse;
       ++cnt.compared;
       const size_t off = (size_t)ch * sizeof(Npp32f);
@@ -1743,7 +1738,7 @@ void run_nppi_metric_batch(const char *id, Call call) {
   };
   static const BatchCfg cfgs[] = {{7, 5, 3, 0}, {33, 17, 4, 0}, {257, 129, 2, 0},
                                   {64, 48, 3, 16}, {1, 1, 1, 0}, {3, 2, 2, 8}};
-  for (const BatchCfg &cfg : cfgs) {
+  for (const BatchCfg &cfg: cfgs) {
     const int B = cfg.batch;
     std::vector<Buf<uint8_t> *> bufs;
     std::vector<int> ws(B), hs(B);
@@ -1760,11 +1755,11 @@ void run_nppi_metric_batch(const char *id, Call call) {
     auto make_img = [&](int i, uint64_t seed, bool clone_first) {
       Buf<uint8_t> *a = new Buf<uint8_t>(ws[i], hs[i], C, cfg.pad, 0);
       Buf<uint8_t> *b = new Buf<uint8_t>(ws[i], hs[i], C, cfg.pad, 0);
-      fill_regime(*a, C, seed, (i & 1) ? kWide : kSmall, i);
+      fill_regime(*a, C, seed, (i & 1) ? kWide: kSmall, i);
       if (clone_first && i == 0) {
         b->host = a->host;
       } else {
-        fill_regime(*b, C, seed ^ 0x51633e2dull, (i & 1) ? kSmall : kWide, i + 7);
+        fill_regime(*b, C, seed ^ 0x51633e2dull, (i & 1) ? kSmall: kWide, i + 7);
       }
       a->dev.copyFromHost(a->host);
       b->dev.copyFromHost(b->host);
@@ -1811,8 +1806,8 @@ void run_nppi_metric_batch(const char *id, Call call) {
     if (st != NPP_NO_ERROR) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-      for (auto *p : bufs) delete p;
-      for (auto *p : scratch) delete p;
+      for (auto *p: bufs) delete p;
+      for (auto *p: scratch) delete p;
       continue;
     }
     const cudaError_t se = cudaDeviceSynchronize();
@@ -1833,8 +1828,7 @@ void run_nppi_metric_batch(const char *id, Call call) {
             acc += (double)(a - b) * (double)(a - b);
           }
         const double mse = acc / ((double)ws[i] * (double)hs[i]);
-        const float want = Psnr ? (float)(mse <= 0.0 ? INFINITY : 10.0 * std::log10(65025.0 / mse))
-                                : (float)mse;
+        const float want = Psnr ? (float)(mse <= 0.0 ? INFINITY: 10.0 * std::log10(65025.0 / mse)): (float)mse;
         const float got = out.hptr()[(size_t)i * C + ch];
         ++cnt.compared;
         bool ok;
@@ -1855,8 +1849,8 @@ void run_nppi_metric_batch(const char *id, Call call) {
         }
       }
     }
-    for (auto *p : bufs) delete p;
-    for (auto *p : scratch) delete p;
+    for (auto *p: bufs) delete p;
+    for (auto *p: scratch) delete p;
     if (cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);
@@ -1873,7 +1867,7 @@ void run_nppi_rect_stddev(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 3 || c.h < 3) continue;
     const int w = c.w, h = c.h;
     Buf<S> sum((w + 1) * (h + 1), 1, 1, 0, 0);
@@ -1882,7 +1876,7 @@ void run_nppi_rect_stddev(const char *id, Call call) {
     Rng rng(seed);
     std::vector<double> src((size_t)w * h);
     for (size_t i = 0; i < src.size(); ++i)
-      src[i] = (double)(rng.next() % ((S)sizeof(S) == 1 ? 4 : 16));
+      src[i] = (double)(rng.next() % ((S)sizeof(S) == 1 ? 4: 16));
     for (int y = 0; y <= h; ++y)
       for (int x = 0; x <= w; ++x) {
         double s = 0.0, q = 0.0;
@@ -1903,7 +1897,7 @@ void run_nppi_rect_stddev(const char *id, Call call) {
     Buf<DS> dst(ow + 1, oh, 1, 0, 0x5A);
     dst.dev.copyFromHost(dst.host);
     const NppiRect rect{1, 1, 2, 2};
-    const int sf = HasSf ? (int)(rng.next() % 3) : 0;
+    const int sf = HasSf ? (int)(rng.next() % 3): 0;
     npp_diff::clear_cuda_error();
     NppStatus st;
     if constexpr (HasSf) {
@@ -1986,8 +1980,8 @@ void run_nppi_even_levels(const char *id, Call call) {
   std::string first;
   const int levels[] = {2, 3, 4, 5, 8, 17};
   const Npp32s ranges[][2] = {{0, 10}, {-50, 50}, {10, 90}, {0, 255}, {-1000, 1000}};
-  for (int nl : levels)
-    for (const auto &rg : ranges) {
+  for (int nl: levels)
+    for (const auto &rg: ranges) {
       std::vector<Npp32s> out((size_t)nl, -12345);
       npp_diff::clear_cuda_error();
       NppStatus st = call(out.data(), nl, rg[0], rg[1], ctx);
@@ -2001,7 +1995,7 @@ void run_nppi_even_levels(const char *id, Call call) {
       const long long den = nl - 1;
       for (int i = 0; i < nl; ++i) {
         const long long num = (long long)i * span;
-        const long long q = num / den + ((num % den) != 0 ? 1 : 0);
+        const long long q = num / den + ((num % den) != 0 ? 1: 0);
         const Npp32s want = (Npp32s)((long long)rg[0] + q);
         ++cnt.compared;
         if (out[(size_t)i] != want) {
@@ -2028,7 +2022,7 @@ void run_nppi_even_levels(const char *id, Call call) {
 template <typename S, int C>
 inline void nppi_fill_mask(Buf<Npp8u> &m) {
   for (size_t i = 0; i < m.host.size(); ++i)
-    m.host[i] = (i % 3 == 0) ? 0 : (Npp8u)(i % 5 == 0 ? 1 : 255);
+    m.host[i] = (i % 3 == 0) ? 0: (Npp8u)(i % 5 == 0 ? 1: 255);
 }
 
 template <typename S, int C, int A, NppiStatKind K, typename Out, bool UseCOI, class Call>
@@ -2045,7 +2039,7 @@ void run_nppi_reduce1_masked(const char *id, Call call) {
   Buf<uint8_t> scratch(kNppiStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S>;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<Npp8u> m(c.w + c.ox, c.h + c.oy, 1, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, m.step, (int)c.regime, 0);
@@ -2055,7 +2049,7 @@ void run_nppi_reduce1_masked(const char *id, Call call) {
     s.dev.copyFromHost(s.host);
     m.dev.copyFromHost(m.host);
     Rng rng(seed ^ 0x9e3779b97f4a7c15ull);
-    const int coi = C > 1 ? 1 + (int)(rng.next() % C) : 1;
+    const int coi = C > 1 ? 1 + (int)(rng.next() % C): 1;
     Buf<Out> out(4, 1, 1, 0, 0x5A);
     out.dev.copyFromHost(out.host);
     npp_diff::clear_cuda_error();
@@ -2079,7 +2073,7 @@ void run_nppi_reduce1_masked(const char *id, Call call) {
     const cudaError_t se = cudaDeviceSynchronize();
     ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
     out.dev.copyToHost(out.host);
-    const int ch = UseCOI ? coi - 1 : 0;
+    const int ch = UseCOI ? coi - 1: 0;
     double sum = 0.0, sq = 0.0, l1 = 0.0, inf = 0.0;
     long long n = 0;
     for (int y = 0; y < c.h; ++y)
@@ -2106,7 +2100,7 @@ void run_nppi_reduce1_masked(const char *id, Call call) {
     }
     double want_d = 0.0;
     if constexpr (K == NppiStatKind::Sum) want_d = sum;
-    else if constexpr (K == NppiStatKind::Mean) want_d = n ? sum / (double)n : 0.0;
+    else if constexpr (K == NppiStatKind::Mean) want_d = n ? sum / (double)n: 0.0;
     else if constexpr (K == NppiStatKind::NormL1) want_d = l1;
     else if constexpr (K == NppiStatKind::NormL2) want_d = std::sqrt(sq);
     else want_d = inf;
@@ -2143,7 +2137,7 @@ void run_nppi_reduce2_masked(const char *id, Call call) {
   Buf<uint8_t> scratch(kNppiStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S>;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s1(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> s2(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<Npp8u> m(c.w + c.ox, c.h + c.oy, 1, c.pad, 0);
@@ -2157,7 +2151,7 @@ void run_nppi_reduce2_masked(const char *id, Call call) {
     s2.dev.copyFromHost(s2.host);
     m.dev.copyFromHost(m.host);
     Rng rng(seed ^ 0x9e3779b97f4a7c15ull);
-    const int coi = C > 1 ? 1 + (int)(rng.next() % C) : 1;
+    const int coi = C > 1 ? 1 + (int)(rng.next() % C): 1;
     Buf<Npp64f> out(1, 1, 1, 0, 0x5A);
     out.dev.copyFromHost(out.host);
     npp_diff::clear_cuda_error();
@@ -2182,7 +2176,7 @@ void run_nppi_reduce2_masked(const char *id, Call call) {
     const cudaError_t se = cudaDeviceSynchronize();
     ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
     out.dev.copyToHost(out.host);
-    const int ch = UseCOI ? coi - 1 : 0;
+    const int ch = UseCOI ? coi - 1: 0;
     double dsum = 0.0, dsq = 0.0, dinf = 0.0, nsum = 0.0, nsq = 0.0, ninf = 0.0;
     for (int y = 0; y < c.h; ++y)
       for (int x = 0; x < c.w; ++x) {
@@ -2219,16 +2213,12 @@ void run_nppi_reduce2_masked(const char *id, Call call) {
     else if constexpr (K == NppiStatKind::NormDiffL2) want = std::sqrt(dsq);
     else if constexpr (K == NppiStatKind::NormDiffInf) want = dinf;
     else if constexpr (K == NppiStatKind::NormRelL1)
-      want = (nsum > 0.0) ? dsum / nsum : (dsum == 0.0 ? 0.0 : (double)std::numeric_limits<S>::max());
+      want = (nsum > 0.0) ? dsum / nsum: (dsum == 0.0 ? 0.0: (double)std::numeric_limits<S>::max());
     else if constexpr (K == NppiStatKind::NormRelL2)
-      want = (nsq > 0.0) ? std::sqrt(dsq) / std::sqrt(nsq)
-                         : (dsq == 0.0 ? 0.0 : (double)std::numeric_limits<S>::max());
+      want = (nsq > 0.0) ? std::sqrt(dsq) / std::sqrt(nsq): (dsq == 0.0 ? 0.0: (double)std::numeric_limits<S>::max());
     else
-      want = (ninf > 0.0) ? dinf / ninf
-                          : (dinf == 0.0 ? 0.0
-                                         : (std::is_same_v<S, Npp8u>
-                                                ? dinf
-                                                : (double)std::numeric_limits<S>::max()));
+      want = (ninf > 0.0) ? dinf / ninf: (dinf == 0.0 ? 0.0: (std::is_same_v<S, Npp8u>
+                                                ? dinf: (double)std::numeric_limits<S>::max()));
     ++cnt.executed;
     ++cnt.compared;
     if (!equal_elem<Npp64f>(out.host.data(), reinterpret_cast<const uint8_t *>(&want), rtol, atol)) {
@@ -2257,7 +2247,7 @@ void run_nppi_meanstd_masked(const char *id, Call call) {
   Buf<uint8_t> scratch(kNppiStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S>;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<Npp8u> m(c.w + c.ox, c.h + c.oy, 1, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, m.step, (int)c.regime, 0);
@@ -2267,7 +2257,7 @@ void run_nppi_meanstd_masked(const char *id, Call call) {
     s.dev.copyFromHost(s.host);
     m.dev.copyFromHost(m.host);
     Rng rng(seed ^ 0x9e3779b97f4a7c15ull);
-    const int coi = C > 1 ? 1 + (int)(rng.next() % C) : 1;
+    const int coi = C > 1 ? 1 + (int)(rng.next() % C): 1;
     Buf<Npp64f> mo(1, 1, 1, 0, 0x5A), so(1, 1, 1, 0, 0x5A);
     mo.dev.copyFromHost(mo.host);
     so.dev.copyFromHost(so.host);
@@ -2293,7 +2283,7 @@ void run_nppi_meanstd_masked(const char *id, Call call) {
     ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
     mo.dev.copyToHost(mo.host);
     so.dev.copyToHost(so.host);
-    const int ch = UseCOI ? coi - 1 : 0;
+    const int ch = UseCOI ? coi - 1: 0;
     double sum = 0.0, sq = 0.0;
     long long n = 0;
     for (int y = 0; y < c.h; ++y)
@@ -2308,8 +2298,8 @@ void run_nppi_meanstd_masked(const char *id, Call call) {
       ++cnt.skipped;
       continue;
     }
-    const double mean = n ? sum / (double)n : 0.0;
-    double var = n ? sq / (double)n - mean * mean : 0.0;
+    const double mean = n ? sum / (double)n: 0.0;
+    double var = n ? sq / (double)n - mean * mean: 0.0;
     if (!(var > 0.0)) var = 0.0;
     const double sd = std::sqrt(var);
     ++cnt.executed;
@@ -2343,7 +2333,7 @@ void run_nppi_minmaxindx_masked(const char *id, Call call) {
   Buf<uint8_t> scratch(kNppiStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
   const bool finite = std::is_floating_point_v<S>;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w * c.h < 2) continue;
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<Npp8u> m(c.w + c.ox, c.h + c.oy, 1, c.pad, 0);
@@ -2358,7 +2348,7 @@ void run_nppi_minmaxindx_masked(const char *id, Call call) {
     s.dev.copyFromHost(s.host);
     m.dev.copyFromHost(m.host);
     Rng rng(seed ^ 0x9e3779b97f4a7c15ull);
-    const int coi = C > 1 ? 1 + (int)(rng.next() % C) : 1;
+    const int coi = C > 1 ? 1 + (int)(rng.next() % C): 1;
     Buf<S> mn(4, 1, 1, 0, 0x5A), mx(4, 1, 1, 0, 0x5A);
     Buf<Npp32s> mnx(4, 1, 1, 0, 0x5A), mny(4, 1, 1, 0, 0x5A);
     Buf<Npp32s> mxx(4, 1, 1, 0, 0x5A), mxy(4, 1, 1, 0, 0x5A);
@@ -2392,7 +2382,7 @@ void run_nppi_minmaxindx_masked(const char *id, Call call) {
     mn.dev.copyToHost(mn.host); mx.dev.copyToHost(mx.host);
     mnx.dev.copyToHost(mnx.host); mny.dev.copyToHost(mny.host);
     mxx.dev.copyToHost(mxx.host); mxy.dev.copyToHost(mxy.host);
-    const int ch = UseCOI ? coi - 1 : 0;
+    const int ch = UseCOI ? coi - 1: 0;
     bool have = false;
     S vmin{}, vmax{};
     int minx = 0, miny = 0, maxx = 0, maxy = 0;
@@ -2427,7 +2417,7 @@ void run_nppi_minmaxindx_masked(const char *id, Call call) {
 
 // ---------------------------------------------------------------------------
 // CrossCorr / SqrDistance.  The window origin and normalized statistics
-// reproduce the 5090-measured NPP 13.4 contract: Full anchors at
+// reproduce the reference-measured NPP 13.4 contract: Full anchors at
 // (px-(tw-1), py-(th-1)), Same at (px-tw/2, py-th/2), Valid at (px, py);
 // out-of-ROI source samples contribute 0 while the template is always read in
 // full.  NormLevel uses the padded sample count for its moments.  64f
@@ -2466,7 +2456,7 @@ void run_nppi_crosscorr(const char *id, Call call) {
   // depend on test order.  Size the work area from the largest case.
   size_t adv_bytes = 1;
   if constexpr (Advanced) {
-    for (const GenCase &gc : make_gen_cases(0)) {
+    for (const GenCase &gc: make_gen_cases(0)) {
       const int gtw = std::min(gc.w, 2 + (int)(gc.param % 4) + 1);
       const int gth = std::min(gc.h, 2 + (int)((gc.pad / 16) % 3) + 1);
       const size_t need = 4 * sizeof(double) * (size_t)(gc.w + gtw + 2) *
@@ -2481,7 +2471,7 @@ void run_nppi_crosscorr(const char *id, Call call) {
   double rtol = 0.0, atol = 0.0;
   if constexpr (std::is_same_v<D, Npp32f>) { rtol = 1e-5; atol = 1e-5; }
   else if constexpr (std::is_same_v<D, Npp64f>) { rtol = 1e-10; atol = 1e-10; }
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     const int sw = c.w, sh = c.h;
     const int tw = std::min(sw, 2 + (int)(c.param % 4) + 1);
     const int th = std::min(sh, 2 + (int)((c.pad / 16) % 3) + 1);
@@ -2532,9 +2522,9 @@ void run_nppi_crosscorr(const char *id, Call call) {
     NppStatus st = call(
         reinterpret_cast<const S *>(src.dptr()), src.step, NppiSize{sw, sh},
         reinterpret_cast<const S *>(tpl.dptr()), tpl.step, NppiSize{tw, th},
-        reinterpret_cast<D *>(dst.dptr()), dst.step, HasSf ? (int)(c.param % 3) : 0,
+        reinterpret_cast<D *>(dst.dptr()), dst.step, HasSf ? (int)(c.param % 3): 0,
         reinterpret_cast<Npp8u *>(scratch.dptr()),
-        Advanced ? reinterpret_cast<Npp8u *>(scratch2.dptr()) : nullptr, ctx);
+        Advanced ? reinterpret_cast<Npp8u *>(scratch2.dptr()): nullptr, ctx);
     if (st != NPP_NO_ERROR) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
@@ -2544,7 +2534,7 @@ void run_nppi_crosscorr(const char *id, Call call) {
     ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
     dst.dev.copyToHost(dst.host);
     std::vector<uint8_t> want = old_dst;
-    const int sf = HasSf ? (int)(c.param % 3) : 0;
+    const int sf = HasSf ? (int)(c.param % 3): 0;
     for (int py = 0; py < oh; ++py)
       for (int px = 0; px < ow; ++px) {
         int wx, wy;
@@ -2582,7 +2572,7 @@ void run_nppi_crosscorr(const char *id, Call call) {
             double den;
             if constexpr (std::is_same_v<D, Npp64f>) den = (double)std::sqrt((float)(rss * rtt));
             else den = std::sqrt(rss * rtt);
-            value = (Op == XCorrOp::SqrDistance ? sd : rst) / den;
+            value = (Op == XCorrOp::SqrDistance ? sd: rst) / den;
           } else {
             const double n = (double)tw * (double)th;
             const double num = (n * rst - swv * stv) / n;
@@ -2591,8 +2581,7 @@ void run_nppi_crosscorr(const char *id, Call call) {
             const double prod = var_w * var_t;
             if (prod == 0.0) {
               undef[((size_t)py * ow + px) * C + ci] = 1;
-              value = sizeof(D) <= 4 ? (double)std::numeric_limits<float>::max()
-                                     : (double)std::numeric_limits<double>::max();
+              value = sizeof(D) <= 4 ? (double)std::numeric_limits<float>::max(): (double)std::numeric_limits<double>::max();
             } else {
               double den;
               if constexpr (std::is_same_v<D, Npp64f>) den = (double)std::sqrt((float)prod);
@@ -2619,8 +2608,7 @@ void run_nppi_crosscorr(const char *id, Call call) {
             if constexpr (std::is_floating_point_v<D>) {
               const double gd = (double)gv;
               const double sentinel = sizeof(D) <= 4
-                                          ? (double)std::numeric_limits<float>::max()
-                                          : (double)std::numeric_limits<double>::max();
+                                          ? (double)std::numeric_limits<float>::max(): (double)std::numeric_limits<double>::max();
               ok = gd == sentinel || std::fabs(gd) <= 1e-6;
             } else {
               // Unsigned 8-bit destinations store either 0 (NaN folded by
@@ -2670,7 +2658,7 @@ void run_nppi_error_complex(const char *id, Call call) {
   std::string first;
   Buf<uint8_t> scratch(kNppiStatScratch, 1, 1, 0, 0);
   scratch.dev.copyFromHost(scratch.host);
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s1(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> s2(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s1.step, s2.step, (int)c.regime, 0);
@@ -2707,12 +2695,12 @@ void run_nppi_error_complex(const char *id, Call call) {
           if (rel) {
             const double den = std::max(std::hypot((double)a.re, (double)a.im),
                                         std::hypot((double)b.re, (double)b.im));
-            e = den > 0.0 ? d / den : 0.0;
+            e = den > 0.0 ? d / den: 0.0;
           }
           acc += e;
           mx = std::max(mx, e);
         }
-    const double want = avg ? acc / ((double)c.w * c.h * A) : mx;
+    const double want = avg ? acc / ((double)c.w * c.h * A): mx;
     ++cnt.executed;
     ++cnt.compared;
     if (!equal_elem<Npp64f>(out.host.data(), reinterpret_cast<const uint8_t *>(&want), 1e-11, 1e-11)) {
@@ -2732,14 +2720,14 @@ void run_nppi_error_complex(const char *id, Call call) {
 // ---------------------------------------------------------------------------
 // SSIM / WMSSSIM / MSSSIM.
 //
-// The CPU golden mirrors the pipeline decoded from NPP 13.4: an 11x11
+// The CPU reference output mirrors the pipeline decoded from NPP 13.4: an 11x11
 // Gaussian (sigma 1.5, normalized, clamp-to-edge) applied separably to a, b,
 // a^2, b^2 and a*b; biased variance/covariance; C1 = 6.5025, C2 = 58.5225;
 // cs takes the absolute covariance.  SSIM is the mean over all pixels of
 // l*cs.  WMSSSIM multiplies five per-level means after 2x2 shift-clamp
 // decimation: levels 0..3 average cs^w and level 4 averages (l*cs)^w, with
 // w = {0.0448, 0.2856, 0.3001, 0.2363, 0.1333}.  Both are evaluated per
-// colour channel.  Probe 62 measured NPP-vs-model agreement on the 5090 of
+// colour channel.  Measurement 62 measured NPP-vs-model agreement on the reference of
 // <= 1e-6 relative for SSIM and <= 4e-5 for WMSSSIM, so the tests allow
 // 1e-5 and 2e-4.
 //
@@ -2749,7 +2737,7 @@ void run_nppi_error_complex(const char *id, Call call) {
 // and both ROI dimensions must be at least 176.
 //
 // Plain (non-Advanced) batch entry points only work reliably when every
-// descriptor has the same geometry as the shared ROI (probe 62: images with
+// descriptor has the same geometry as the shared ROI (measurement: images with
 // different per-descriptor sizes give garbage).  The batch driver above
 // follows that contract; the Advanced variants use each descriptor's oSize.
 // ---------------------------------------------------------------------------
@@ -2775,7 +2763,7 @@ inline void blur(const float *in, float *tmp, float *out, int w, int h) {
       double acc = 0.0;
       for (int k = -5; k <= 5; ++k) {
         int xx = x + k;
-        xx = xx < 0 ? 0 : (xx >= w ? w - 1 : xx);
+        xx = xx < 0 ? 0: (xx >= w ? w - 1: xx);
         acc += (double)g[k + 5] * in[(size_t)y * w + xx];
       }
       tmp[(size_t)y * w + x] = (float)acc;
@@ -2785,7 +2773,7 @@ inline void blur(const float *in, float *tmp, float *out, int w, int h) {
       double acc = 0.0;
       for (int k = -5; k <= 5; ++k) {
         int yy = y + k;
-        yy = yy < 0 ? 0 : (yy >= h ? h - 1 : yy);
+        yy = yy < 0 ? 0: (yy >= h ? h - 1: yy);
         acc += (double)g[k + 5] * tmp[(size_t)yy * w + x];
       }
       out[(size_t)y * w + x] = (float)acc;
@@ -2795,10 +2783,10 @@ inline void blur(const float *in, float *tmp, float *out, int w, int h) {
 inline void decimate(const float *in, float *out, int w, int h, int ow, int oh) {
   for (int y = 0; y < oh; ++y)
     for (int x = 0; x < ow; ++x) {
-      const int y0 = y > 0 ? 2 * y - 1 : 0;
-      const int y1 = 2 * y < h ? 2 * y : h - 1;
-      const int x0 = x > 0 ? 2 * x - 1 : 0;
-      const int x1 = 2 * x < w ? 2 * x : w - 1;
+      const int y0 = y > 0 ? 2 * y - 1: 0;
+      const int y1 = 2 * y < h ? 2 * y: h - 1;
+      const int x0 = x > 0 ? 2 * x - 1: 0;
+      const int x1 = 2 * x < w ? 2 * x: w - 1;
       out[(size_t)y * ow + x] = 0.25f * (in[(size_t)y0 * w + x0] + in[(size_t)y0 * w + x1] +
                                          in[(size_t)y1 * w + x0] + in[(size_t)y1 * w + x1]);
     }
@@ -2857,7 +2845,7 @@ inline float wmsssim(const Npp8u *p1, int s1, const Npp8u *p2, int s2, int w, in
   double result = 1.0;
   int cw = w, chh = h;
   for (int level = 0; level < 5; ++level) {
-    result *= level_sum(a.data(), b.data(), cw, chh, level < 4 ? 1 : 2, kWeights[level]) /
+    result *= level_sum(a.data(), b.data(), cw, chh, level < 4 ? 1: 2, kWeights[level]) /
               (double)(cw * chh);
     if (level < 4) {
       const int nw = (cw + 1) / 2, nh = (chh + 1) / 2;
@@ -2884,9 +2872,9 @@ void run_nppi_ssim_single(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   npp_functional_test::DeviceMemory<Npp8u> scratch(kSsimScratch);
-  const double rtol = Wm ? 2e-4 : 1e-5;
-  const double atol = Wm ? 2e-4 : 1e-6;
-  for (const GenCase &c : make_gen_cases(0)) {
+  const double rtol = Wm ? 2e-4: 1e-5;
+  const double atol = Wm ? 2e-4: 1e-6;
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<Npp8u> s1(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<Npp8u> s2(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     const uint64_t seed = case_seed(id, c.w, c.h, s1.step, s2.step, (int)c.regime, 0);
@@ -2917,12 +2905,11 @@ void run_nppi_ssim_single(const char *id, Call call) {
     // there (measured) while every real image agrees to <= 1e-6.  Widen the
     // band for those shapes only.
     const bool tiny = c.w * c.h <= 4;
-    const double crtol = tiny ? 5e-4 : rtol;
-    const double catol = tiny ? 1e-5 : atol;
+    const double crtol = tiny ? 5e-4: rtol;
+    const double catol = tiny ? 1e-5: atol;
     bool failed = false;
     for (int ch = 0; ch < C && !failed; ++ch) {
-      const float want = Wm ? ssim_ref::wmsssim(b1, s1.step, b2, s2.step, c.w, c.h, C, ch)
-                            : ssim_ref::ssim(b1, s1.step, b2, s2.step, c.w, c.h, C, ch);
+      const float want = Wm ? ssim_ref::wmsssim(b1, s1.step, b2, s2.step, c.w, c.h, C, ch): ssim_ref::ssim(b1, s1.step, b2, s2.step, c.w, c.h, C, ch);
       const size_t off = (size_t)ch * sizeof(Npp32f);
       ++cnt.compared;
       if (!equal_elem<Npp32f>(out.host.data() + off, reinterpret_cast<const uint8_t *>(&want), crtol, catol)) {
@@ -2957,15 +2944,15 @@ void run_nppi_ssim_batch(const char *id, Call call) {
                                        {64, 48, 3, 16}, {1, 1, 1, 0}, {3, 2, 2, 8}};
   static const BatchCfg kWmCfgs[] = {{16, 16, 3, 0}, {33, 17, 4, 0}, {64, 48, 3, 16},
                                      {97, 65, 2, 0}};
-  const BatchCfg *cfgs = Wm ? kWmCfgs : kSsimCfgs;
-  const int ncfgs = Wm ? 4 : 6;
-  const double rtol = Wm ? 2e-4 : 1e-5;
-  const double atol = Wm ? 2e-4 : 1e-6;
-  const size_t per_scratch = (size_t)(Wm ? 32 : 16) << 20;
+  const BatchCfg *cfgs = Wm ? kWmCfgs: kSsimCfgs;
+  const int ncfgs = Wm ? 4: 6;
+  const double rtol = Wm ? 2e-4: 1e-5;
+  const double atol = Wm ? 2e-4: 1e-6;
+  const size_t per_scratch = (size_t)(Wm ? 32: 16) << 20;
   for (int ci = 0; ci < ncfgs; ++ci) {
     const BatchCfg &cfg = cfgs[ci];
     const int B = cfg.batch;
-    const int floor = Wm ? 16 : 1;
+    const int floor = Wm ? 16: 1;
     std::vector<int> ws(B), hs(B);
     for (int i = 0; i < B; ++i) {
       if constexpr (Advanced) {
@@ -2982,11 +2969,11 @@ void run_nppi_ssim_batch(const char *id, Call call) {
     for (int i = 0; i < B; ++i) {
       Buf<Npp8u> *a = new Buf<Npp8u>(ws[i], hs[i], C, cfg.pad, 0);
       Buf<Npp8u> *b = new Buf<Npp8u>(ws[i], hs[i], C, cfg.pad, 0);
-      fill_regime(*a, C, seed ^ mix64((uint64_t)i), (i & 1) ? kWide : kSmall, i);
+      fill_regime(*a, C, seed ^ mix64((uint64_t)i), (i & 1) ? kWide: kSmall, i);
       if (i == 0) {
         b->host = a->host;
       } else {
-        fill_regime(*b, C, seed ^ mix64((uint64_t)i) ^ 0x51633e2dull, (i & 1) ? kSmall : kWide, i + 7);
+        fill_regime(*b, C, seed ^ mix64((uint64_t)i) ^ 0x51633e2dull, (i & 1) ? kSmall: kWide, i + 7);
       }
       a->dev.copyFromHost(a->host);
       b->dev.copyFromHost(b->host);
@@ -3027,7 +3014,7 @@ void run_nppi_ssim_batch(const char *id, Call call) {
     if (st != NPP_NO_ERROR) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-      for (auto *p : bufs) delete p;
+      for (auto *p: bufs) delete p;
       continue;
     }
     const cudaError_t se = cudaDeviceSynchronize();
@@ -3037,17 +3024,16 @@ void run_nppi_ssim_batch(const char *id, Call call) {
     ++cnt.executed;
     bool failed = false;
     for (int i = 0; i < B && !failed; ++i) {
-      const int gw = Advanced ? ws[i] : cfg.w;
-      const int gh = Advanced ? hs[i] : cfg.h;
+      const int gw = Advanced ? ws[i]: cfg.w;
+      const int gh = Advanced ? hs[i]: cfg.h;
       // Same degenerate-1x1 band as the single-image driver.
       const bool tiny = gw * gh <= 4;
-      const double crtol = tiny ? 5e-4 : rtol;
-      const double catol = tiny ? 1e-5 : atol;
+      const double crtol = tiny ? 5e-4: rtol;
+      const double catol = tiny ? 1e-5: atol;
       for (int ch = 0; ch < C && !failed; ++ch) {
         const float want = Wm
             ? ssim_ref::wmsssim(src1_host[(size_t)i].data(), bufs[(size_t)i * 2]->step,
-                                src2_host[(size_t)i].data(), bufs[(size_t)i * 2 + 1]->step, gw, gh, C, ch)
-            : ssim_ref::ssim(src1_host[(size_t)i].data(), bufs[(size_t)i * 2]->step,
+                                src2_host[(size_t)i].data(), bufs[(size_t)i * 2 + 1]->step, gw, gh, C, ch): ssim_ref::ssim(src1_host[(size_t)i].data(), bufs[(size_t)i * 2]->step,
                              src2_host[(size_t)i].data(), bufs[(size_t)i * 2 + 1]->step, gw, gh, C, ch);
         const float got = out.hptr()[(size_t)i * C + ch];
         ++cnt.compared;
@@ -3064,7 +3050,7 @@ void run_nppi_ssim_batch(const char *id, Call call) {
         }
       }
     }
-    for (auto *p : bufs) delete p;
+    for (auto *p: bufs) delete p;
     if (cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);
@@ -3125,7 +3111,7 @@ void run_nppi_msssim(const char *id, Call call) {
       ++cnt.mismatched;
     }
   };
-  for (const MsCfg &cfg : cfgs) {
+  for (const MsCfg &cfg: cfgs) {
     Buf<Npp8u> a(cfg.w, cfg.h, 1, 16, 0), b(cfg.w, cfg.h, 1, 16, 0);
     const uint64_t seed = case_seed(id, cfg.w, cfg.h, a.step, b.step, 0, 0);
     fill_regime(a, 1, seed, kWide, 0);
@@ -3150,15 +3136,9 @@ void run_nppi_msssim(const char *id, Call call) {
     fill_regime(b, 1, 11, kSmall, 1);
     a.dev.copyFromHost(a.host);
     b.dev.copyFromHost(b.host);
-    for (const MsCfg &cfg : below) run_value(a, b, cfg.w, cfg.h, 0.0f, 0.0, "below_min", false);
+    for (const MsCfg &cfg: below) run_value(a, b, cfg.w, cfg.h, 0.0f, 0.0, "below_min", false);
   }
   finish(id, cnt, first);
 }
 
 }  // namespace num
-
-
-
-
-
-

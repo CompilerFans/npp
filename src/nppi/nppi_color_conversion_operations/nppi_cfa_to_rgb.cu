@@ -100,7 +100,7 @@ __global__ void nppiCFAToRGB_bilinear_kernel(const T *pSrc, int nSrcStep, NppiSi
       g_sum += next_row[src_idx];
       g_count++;
     }
-    g = (g_count > 0) ? (T)(g_sum / g_count) : center;
+    g = (g_count > 0) ? (T)(g_sum / g_count): center;
 
     // Interpolate blue from diagonal neighbors
     int b_count = 0;
@@ -125,7 +125,7 @@ __global__ void nppiCFAToRGB_bilinear_kernel(const T *pSrc, int nSrcStep, NppiSi
       b_sum += next_row[src_idx + 1];
       b_count++;
     }
-    b = (b_count > 0) ? (T)(b_sum / b_count) : center;
+    b = (b_count > 0) ? (T)(b_sum / b_count): center;
 
   } else if (color_type == 1) { // Green pixel
     g = center;
@@ -156,7 +156,7 @@ __global__ void nppiCFAToRGB_bilinear_kernel(const T *pSrc, int nSrcStep, NppiSi
       g_sum += next_row[src_idx];
       g_count++;
     }
-    g = (g_count > 0) ? (T)(g_sum / g_count) : center;
+    g = (g_count > 0) ? (T)(g_sum / g_count): center;
 
     // Interpolate red from diagonal neighbors
     int r_count = 0;
@@ -181,7 +181,7 @@ __global__ void nppiCFAToRGB_bilinear_kernel(const T *pSrc, int nSrcStep, NppiSi
       r_sum += next_row[src_idx + 1];
       r_count++;
     }
-    r = (r_count > 0) ? (T)(r_sum / r_count) : center;
+    r = (r_count > 0) ? (T)(r_sum / r_count): center;
   }
 
   // Store RGB values

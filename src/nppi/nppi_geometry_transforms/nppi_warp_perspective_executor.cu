@@ -45,13 +45,13 @@ __device__ __forceinline__ bool pixelGate(const Mat3 &M, NppiRect src, int x, in
 }
 
 // Forward (source -> destination coefficients) region model: the per-pixel
-// gate only.  Explicit rot90/mirror/projective probes on 13.4 write every
+// gate only.  Explicit rot90/mirror/projective measurements on 13.4 write every
 // in-range pixel, so the source ROI's forward image does not clip x; an
 // earlier left-edge-v x-span model was a small-shape measurement artifact.
 // The batch kernel additionally drops destination rows in PAIRS: a two-row
 // tile is skipped when the left-edge v of its FIRST row is outside
 // [src.y, src.y + height - 1].  The single-image kernel has no such gate.
-// Measured with sub-pixel translations on 13.4 (probe 187; 12x9 ROI):
+// Measured with sub-pixel translations on 13.4 (measurement; 12x9 ROI):
 // ty=0.0001 drops rows 0-1 (v(row0) = -0.0001), ty=2.0 keeps rows 2-8
 // (v(row2) = 0), ty=2.0001 drops rows 2-3, ty=-1.9 keeps rows 0-6
 // (v(row6) = 7.9) and ty=-2.0001 drops rows 6-7 (v(row6) = 8.0001).
@@ -211,7 +211,7 @@ inline NppStatus validateWarp(const void *pSrc, NppiSize oSrcSize, NppiRect oSrc
 inline NppStatus validateQuadCall(const void *pSrc, NppiSize oSrcSize, NppiRect oSrcROI, const double aSrcQuad[4][2],
                                   const void *pDst, int nDstStep, NppiRect oDstROI, const double aDstQuad[4][2],
                                   int eInterpolation) {
-  // Quads first: the order_* probes show NPP_QUADRANGLE_ERROR wins over every
+  // Quads first: the order_* measurements show NPP_QUADRANGLE_ERROR wins over every
   // other contract error.
   if (isDegenerateQuad(aSrcQuad) || isDegenerateQuad(aDstQuad)) return NPP_QUADRANGLE_ERROR;
   if (!pSrc || !pDst) return NPP_NULL_POINTER_ERROR;
@@ -328,7 +328,7 @@ bool solveQuadHomography(const double aSrcQuad[4][2], const double aDstQuad[4][2
 
 bool isDegenerateQuad(const double q[4][2]) {
   // NPP rejects quads with a duplicated vertex or with collinear edges
-  // (NPP_QUADRANGLE_ERROR for both the duplicate and the collinear probes).
+  // (NPP_QUADRANGLE_ERROR for both the duplicate and the collinear measurements).
   for (int i = 0; i < 4; ++i)
     for (int j = i + 1; j < 4; ++j)
       if (q[i][0] == q[j][0] && q[i][1] == q[j][1]) return true;

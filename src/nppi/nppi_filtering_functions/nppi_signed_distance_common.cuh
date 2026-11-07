@@ -1,7 +1,7 @@
 // Shared kernels for the signed PBA distance transforms
 // (nppiSignedDistanceTransformPBA_* and the Abs variants).
 //
-// The reference semantics were decoded from NPP 13.4 on an RTX 5090 and are
+// The reference semantics were decoded from NPP 13.4 in the reference implementation and are
 // documented in test/unit/num/num_nppi_signed_distance_transform.h:
 //   * inside pixels are those with src >= 1; outside sites have src <= 0 or
 //     src < nCutoffValue;
@@ -80,8 +80,8 @@ template <typename CalcT>
 __device__ __forceinline__ CalcT foldedDistance(int x, int y, int sx, int sy, CalcT subX, CalcT subY, CalcT C) {
   const CalcT a = (CalcT)abs(x - sx) + subX;
   const CalcT b = (CalcT)abs(y - sy) + subY;
-  const CalcT major = a >= b ? a : b;
-  const CalcT minor = a >= b ? b : a;
+  const CalcT major = a >= b ? a: b;
+  const CalcT minor = a >= b ? b: a;
   const CalcT d = major - C;
   return sqrt(d * d + minor * minor);
 }
@@ -284,7 +284,7 @@ __global__ void aaAbsKernel(const T *pSrc, int nSrcStep, int width, int height, 
   const int maxCol = counters[3];
   int d = 0;
   if (insideCount > 0) {
-    d = x < minCol ? minCol - x : (x > maxCol ? x - maxCol : 0);
+    d = x < minCol ? minCol - x: (x > maxCol ? x - maxCol: 0);
   }
   const OutT a = (OutT)d + subX;
   const OutT b = (OutT)d + subY;

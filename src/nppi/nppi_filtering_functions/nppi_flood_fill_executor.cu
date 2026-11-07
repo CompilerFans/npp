@@ -48,8 +48,8 @@ __device__ __forceinline__ bool matches(const T *src, int srcStep, int x, int y,
   }
   const T hiLimit = (T)~(T)0;
   for (int c = 0; c < C; ++c) {
-    const T lo = (minv[c] >= seedVal[c]) ? (T)0 : (T)(seedVal[c] - minv[c]);
-    const T hi = (maxv[c] >= (T)(hiLimit - seedVal[c])) ? hiLimit : (T)(seedVal[c] + maxv[c]);
+    const T lo = (minv[c] >= seedVal[c]) ? (T)0: (T)(seedVal[c] - minv[c]);
+    const T hi = (maxv[c] >= (T)(hiLimit - seedVal[c])) ? hiLimit: (T)(seedVal[c] + maxv[c]);
     if (p[c] < lo || p[c] > hi) return false;
   }
   return true;
@@ -57,7 +57,7 @@ __device__ __forceinline__ bool matches(const T *src, int srcStep, int x, int y,
 
 // NPP reads the seed value at `y * nSrcDstStep + x * C * C * sizeof(T)` (the
 // column term is scaled by the channel count twice, measured with
-// tools/probes/f13_probe65); for C1 that is the correct pixel, for C3 it is
+//  for C1 that is the correct pixel, for C3 it is
 // another pixel or even past the end of the image.  Reproduced here.
 template <typename T, int C>
 __global__ void captureSeedKernel(const T *src, int srcStep, NppiPoint seed, T *out) {
@@ -69,7 +69,7 @@ __global__ void captureSeedKernel(const T *src, int srcStep, NppiPoint seed, T *
 __global__ void initMaskKernel(unsigned char *mask, int w, int h, NppiPoint seed) {
   const int total = w * h;
   for (int idx = blockIdx.x * blockDim.x + threadIdx.x; idx < total; idx += gridDim.x * blockDim.x)
-    mask[idx] = (idx == seed.y * w + seed.x) ? 1 : 0;
+    mask[idx] = (idx == seed.y * w + seed.x) ? 1: 0;
 }
 
 __global__ void resetStatsKernel(int *stats) {
@@ -148,7 +148,7 @@ __global__ void writeKernel(T *dst, int dstStep, NppiSize roi, const unsigned ch
         }
       }
     }
-    const T *vals = onBorder ? bndv.v : newv.v;
+    const T *vals = onBorder ? bndv.v: newv.v;
     T *p = (T *)((char *)dst + (long long)y * dstStep) + (long long)x * C;
     for (int c = 0; c < C; ++c) p[c] = vals[c];
     atomicAdd(&stats[1], 1);
@@ -185,9 +185,9 @@ NppStatus run(T *pSrcDst, int nSrcDstStep, NppiPoint oSeed, const T *pNewValue,
   ValuePack<T, C> newPack{}, bndPack{}, minPack{}, maxPack{};
   for (int c = 0; c < C; ++c) {
     newPack.v[c] = pNewValue[c];
-    bndPack.v[c] = (pBoundaryValue != nullptr) ? pBoundaryValue[c] : (T)0;
-    minPack.v[c] = (pMin != nullptr) ? pMin[c] : (T)0;
-    maxPack.v[c] = (pMax != nullptr) ? pMax[c] : (T)0;
+    bndPack.v[c] = (pBoundaryValue != nullptr) ? pBoundaryValue[c]: (T)0;
+    minPack.v[c] = (pMin != nullptr) ? pMin[c]: (T)0;
+    maxPack.v[c] = (pMax != nullptr) ? pMax[c]: (T)0;
   }
   const bool eightWay = (eNorm == nppiNormInf);
   (void)cudaGetLastError();
@@ -233,8 +233,8 @@ NppStatus run(T *pSrcDst, int nSrcDstStep, NppiPoint oSeed, const T *pNewValue,
     pConnectedRegion->oBoundingBox.height = hostStats[5];
     pConnectedRegion->nConnectedPixelCount = (Npp32u)hostStats[1];
     pConnectedRegion->aSeedPixelValue[0] = (Npp32u)hostSeed[0];
-    pConnectedRegion->aSeedPixelValue[1] = (Npp32u)(C > 1 ? hostSeed[1] : 0);
-    pConnectedRegion->aSeedPixelValue[2] = (Npp32u)(C > 2 ? hostSeed[2] : 0);
+    pConnectedRegion->aSeedPixelValue[1] = (Npp32u)(C > 1 ? hostSeed[1]: 0);
+    pConnectedRegion->aSeedPixelValue[2] = (Npp32u)(C > 2 ? hostSeed[2]: 0);
   }
   return NPP_NO_ERROR;
 }

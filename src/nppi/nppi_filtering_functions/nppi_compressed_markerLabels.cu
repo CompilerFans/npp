@@ -121,7 +121,7 @@ __global__ void detectContourPixels_kernel(const Npp32u *pMarkerLabels, int nMar
 
   if (pContoursImage != nullptr) {
     Npp8u *contourRow = reinterpret_cast<Npp8u *>(reinterpret_cast<char *>(pContoursImage) + y * nContoursStep);
-    contourRow[x] = isContour ? 0 : 255;  // reference convention: 0 marks contour pixels
+    contourRow[x] = isContour ? 0: 255;  // reference convention: 0 marks contour pixels
   }
   if (isContour && pContourCounts != nullptr) {
     atomicAdd(&pContourCounts[label], 1u);
@@ -255,7 +255,7 @@ __global__ void computeContourDirection_kernel(const Npp32u *pMarkerLabels, int 
       }
     }
 
-    const Npp8u connected = sameLabel ? 1u : 0u;
+    const Npp8u connected = sameLabel ? 1u: 0u;
     switch (i) {
     case 0:
       info.nTest1EastConnected = connected;
@@ -338,7 +338,7 @@ inline void setNeighborPoint(NppiContourPixelDirectionInfo &info, int direction,
 }
 
 inline void setNeighborConnectedFlag(NppiContourPixelDirectionInfo &info, int direction, bool connected) {
-  const Npp8u value = connected ? 1u : 0u;
+  const Npp8u value = connected ? 1u: 0u;
   switch (direction) {
   case 0:
     info.nTest1EastConnected = value;
@@ -554,7 +554,7 @@ bool isContourDirectionPixel(const NppiContourPixelDirectionInfo &info, Npp32u l
 }
 
 int chooseStartDirection(int backtrackDirection, bool counterclockwise) {
-  return counterclockwise ? (backtrackDirection + 6) % kNeighborCount : (backtrackDirection + 2) % kNeighborCount;
+  return counterclockwise ? (backtrackDirection + 6) % kNeighborCount: (backtrackDirection + 2) % kNeighborCount;
 }
 
 std::vector<NppiPoint> traceOrderedContourForLabel(const std::vector<NppiContourPixelDirectionInfo> &directionImage,
@@ -607,8 +607,7 @@ std::vector<NppiPoint> traceOrderedContourForLabel(const std::vector<NppiContour
     bool foundNext = false;
     const int startDirection = chooseStartDirection(backtrackDirection, counterclockwise);
     for (int offset = 0; offset < kNeighborCount; ++offset) {
-      const int direction = counterclockwise ? (startDirection + offset) % kNeighborCount
-                                             : (startDirection + kNeighborCount - offset) % kNeighborCount;
+      const int direction = counterclockwise ? (startDirection + offset) % kNeighborCount: (startDirection + kNeighborCount - offset) % kNeighborCount;
       const int nextX = currentX + kNeighborDx[direction];
       const int nextY = currentY + kNeighborDy[direction];
       if (!isInBounds(nextX, nextY, width, height)) {
@@ -643,7 +642,7 @@ std::vector<NppiPoint> traceOrderedContourForLabel(const std::vector<NppiContour
     }
   }
 
-  for (const NppiPoint &point : contourPixels) {
+  for (const NppiPoint &point: contourPixels) {
     const size_t idx = pixelOffset(point.x, point.y, width);
     if (visited[idx] == 0) {
       ordered.push_back(point);
@@ -961,7 +960,7 @@ NppStatus nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx_impl
   if (std::all_of(contourCounts.begin(), contourCounts.end(), [](Npp32u value) { return value == 0; })) {
     // Legacy caller may only provide direction image; reconstruct per-label counts.
     contourCounts.assign(labelListSize, 0);
-    for (const NppiContourPixelDirectionInfo &info : hostDirectionImage) {
+    for (const NppiContourPixelDirectionInfo &info: hostDirectionImage) {
       if (info.nMarkerLabelID <= nMaxMarkerLabelID && isContourDirectionPixel(info, info.nMarkerLabelID)) {
         contourCounts[info.nMarkerLabelID]++;
       }
@@ -1009,8 +1008,7 @@ NppStatus nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx_impl
     const Npp32u baseOffset = contourOffsets[labelID];
     const Npp32u writableCount =
         baseOffset < nTotalImagePixelContourCount
-            ? std::min<Npp32u>(static_cast<Npp32u>(orderedPoints.size()), nTotalImagePixelContourCount - baseOffset)
-            : 0;
+            ? std::min<Npp32u>(static_cast<Npp32u>(orderedPoints.size()), nTotalImagePixelContourCount - baseOffset): 0;
 
     pixelsFound[labelID] = writableCount;
     info.nContourPixelsFound = writableCount;
@@ -1113,7 +1111,7 @@ NppStatus nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx_impl
 
 // Shared batch compress implementation.  bCommonRoi selects the non-Advanced
 // entry-point contract: the per-image descriptor ROI and step are ignored and
-// replaced by the common oSizeROI (measured on the 5090, NPP 13.4).
+// replaced by the common oSizeROI (measured on the reference, NPP 13.4).
 static NppStatus compressMarkerLabelsBatchImpl(
     NppiImageDescriptor *pSrcDstBatchList, NppiBufferDescriptor *pBufferList, unsigned int *pNewMaxLabelIDList,
     int nBatchSize, NppiSize oRoi, int nPerImageBufferSize, bool bCommonRoi, NppStreamContext nppStreamCtx) {
@@ -1125,7 +1123,7 @@ static NppStatus compressMarkerLabelsBatchImpl(
   if (pSrcDstBatchList == nullptr || pBufferList == nullptr || pNewMaxLabelIDList == nullptr) {
     return NPP_NULL_POINTER_ERROR;
   }
-  // Measured on the 5090 (probes f13_probe32..36): a negative ROI or a negative
+  // Measured on the reference (measurements): a negative ROI or a negative
   // batch count is NPP_SIZE_ERROR, while a zero ROI, a zero batch count and a
   // non-positive per-image buffer size surface as NPP_CUDA_KERNEL_EXECUTION_ERROR
   // (NPP lets those values reach the kernels).
@@ -1143,7 +1141,7 @@ static NppStatus compressMarkerLabelsBatchImpl(
   std::vector<NppiBufferDescriptor> h_batchBuffers(static_cast<size_t>(nBatchSize));
   std::vector<unsigned int> h_newMaxLabelIDList(static_cast<size_t>(nBatchSize), 0);
 
-  // The batch lists are documented as device memory, but the differential
+  // The batch lists are documented as device memory, but the reference comparison
   // harness also passes host arrays; cudaMemcpyDefault resolves both.
   cudaError_t cudaStatus =
       cudaMemcpyAsync(h_batchImages.data(), pSrcDstBatchList, h_batchImages.size() * sizeof(NppiImageDescriptor),
@@ -1187,8 +1185,7 @@ static NppStatus compressMarkerLabelsBatchImpl(
     // The per-image buffer encodes the effective starting label range: NPP's
     // GetBufferSize is 65556 + 8 * (number of labels).
     const int nStartingNumber = buf.nBufferSize > kCompressBufferFixedOverhead
-                                    ? (buf.nBufferSize - kCompressBufferFixedOverhead) / kCompressBufferBytesPerLabel
-                                    : img.oSize.width * img.oSize.height;
+                                    ? (buf.nBufferSize - kCompressBufferFixedOverhead) / kCompressBufferBytesPerLabel: img.oSize.width * img.oSize.height;
     if (nStartingNumber <= 0) {
       return NPP_BAD_ARGUMENT_ERROR;
     }
@@ -1202,7 +1199,7 @@ static NppStatus compressMarkerLabelsBatchImpl(
     }
 
     // pNewNumber is the number of distinct labels; the compressed labels are
-    // 0-based, so the largest label ID is one less (measured on the 5090:
+    // 0-based, so the largest label ID is one less (measured on the reference:
     // labels 0..4 -> newMaxLabelID 4).
     h_newMaxLabelIDList[batch] = static_cast<unsigned int>(std::max(newMarkerLabelsNumber - 1, 0));
   }

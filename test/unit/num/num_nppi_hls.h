@@ -1,4 +1,4 @@
-// CPU-golden coverage for the packed nppiRGBToHLS / nppiHLSToRGB /
+// CPU-reference output coverage for the packed nppiRGBToHLS / nppiHLSToRGB /
 // nppiRGBToHSV / nppiHSVToRGB 8u conversions (C3R and AC4R).
 //
 // The formulas reproduce the measured conversion pipeline: normalized float
@@ -26,7 +26,7 @@ inline void rgb_to_hls(Npp8u r, Npp8u g, Npp8u b, Npp8u &h, Npp8u &l, Npp8u &s) 
   float hv = 0.0f, sv = 0.0f;
   const float d = maxv - minv;
   if (d > 0.0f) {
-    sv = (lv < 0.5f) ? d / (maxv + minv) : d / (2.0f - maxv - minv);
+    sv = (lv < 0.5f) ? d / (maxv + minv): d / (2.0f - maxv - minv);
     if (maxv == rf) {
       hv = (gf - bf) / d;
       if (gf < bf) hv += 6.0f;
@@ -57,7 +57,7 @@ inline void hls_to_rgb(Npp8u h, Npp8u l, Npp8u s, Npp8u &r, Npp8u &g, Npp8u &b) 
   if (sf <= 0.0f) {
     rf = gf = bf = lf;
   } else {
-    const float qf = (lf < 0.5f) ? (lf * (1.0f + sf)) : (lf + sf - lf * sf);
+    const float qf = (lf < 0.5f) ? (lf * (1.0f + sf)): (lf + sf - lf * sf);
     const float p = 2.0f * lf - qf;
     rf = hue_to_rgb(p, qf, hf + 1.0f / 3.0f);
     gf = hue_to_rgb(p, qf, hf);
@@ -74,7 +74,7 @@ inline void rgb_to_hsv(Npp8u r, Npp8u g, Npp8u b, Npp8u &h, Npp8u &s, Npp8u &v) 
   const float minv = std::min(rf, std::min(gf, bf));
   const float d = maxv - minv;
   float hv = 0.0f;
-  const float sv = (maxv <= 0.0f) ? 0.0f : d / maxv;
+  const float sv = (maxv <= 0.0f) ? 0.0f: d / maxv;
   if (d > 0.0f) {
     if (maxv == rf) {
       hv = (gf - bf) / d;
@@ -129,8 +129,8 @@ void run_hls(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  constexpr int C = AC4 ? 4 : 3;
-  for (const GenCase &c : make_gen_cases(0)) {
+  constexpr int C = AC4 ? 4: 3;
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<Npp8u> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<Npp8u> d(c.w, c.h, C, 0, 0x5A);
@@ -198,7 +198,7 @@ void run_hls_layout(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     std::vector<Buf<Npp8u> *> srcs, dsts;
     std::vector<std::vector<uint8_t>> pre, orig;
@@ -211,9 +211,9 @@ void run_hls_layout(const char *id, Call call) {
       a->dev.copyFromHost(a->host);
       srcs.push_back(a);
     }
-    const int dn = DstPlanar ? DstC : 1;
+    const int dn = DstPlanar ? DstC: 1;
     for (int p = 0; p < dn; ++p) {
-      Buf<Npp8u> *d = new Buf<Npp8u>(c.w, c.h, DstPlanar ? 1 : DstC, 0, 0x5A);
+      Buf<Npp8u> *d = new Buf<Npp8u>(c.w, c.h, DstPlanar ? 1: DstC, 0, 0x5A);
       d->dev.copyFromHost(d->host);
       dsts.push_back(d);
       pre.push_back(d->host);
@@ -254,8 +254,8 @@ void run_hls_layout(const char *id, Call call) {
     if (st != NPP_NO_ERROR) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-      for (auto *p : srcs) delete p;
-      for (auto *p : dsts) delete p;
+      for (auto *p: srcs) delete p;
+      for (auto *p: dsts) delete p;
       continue;
     }
     const cudaError_t se = cudaDeviceSynchronize();
@@ -343,13 +343,13 @@ void run_hls_layout(const char *id, Call call) {
           }
         }
       const GenCase dc{c.w, c.h, 0, 0, 0, kSmall, 0};
-      constexpr int atA = (DstC == 4 && SrcPlanar) ? 4 : (DstC == 4 ? 3 : 3);
+      constexpr int atA = (DstC == 4 && SrcPlanar) ? 4: (DstC == 4 ? 3: 3);
       if (!rotate_check<Npp8u, DstC, atA>(id, dc, NPPI_INTER_NN, pre[0], dsts[0]->host, want, dstep,
                                           std::vector<uint8_t>(), cnt, first))
         failed = true;
     }
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
     if (failed || cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);

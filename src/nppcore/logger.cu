@@ -4,7 +4,7 @@
 
 namespace mpp {
 
-Logger::Logger() : level_(LogLevel::NONE), enabled_(true) {
+Logger::Logger(): level_(LogLevel::NONE), enabled_(true) {
   // Check environment variable for log level
   const char *env_level = std::getenv("MPP_LOG_LEVEL");
   if (env_level) {
@@ -56,28 +56,28 @@ void Logger::log(LogLevel level, const char *level_str, const char *format, va_l
   fflush(stderr);
 }
 
-void Logger::debug(const char *format, ...) {
+void Logger::debug(const char *format,...) {
   va_list args;
   va_start(args, format);
   log(LogLevel::DEBUG, "DEBUG", format, args);
   va_end(args);
 }
 
-void Logger::info(const char *format, ...) {
+void Logger::info(const char *format,...) {
   va_list args;
   va_start(args, format);
   log(LogLevel::INFO, "INFO", format, args);
   va_end(args);
 }
 
-void Logger::warning(const char *format, ...) {
+void Logger::warning(const char *format,...) {
   va_list args;
   va_start(args, format);
   log(LogLevel::WARNING, "WARNING", format, args);
   va_end(args);
 }
 
-void Logger::error(const char *format, ...) {
+void Logger::error(const char *format,...) {
   va_list args;
   va_start(args, format);
   log(LogLevel::ERROR, "ERROR", format, args);

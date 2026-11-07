@@ -1,11 +1,11 @@
 #pragma once
 
-// NPPI point / interpolated / palette LUT executors (package c1).
+// NPPI point / interpolated / palette LUT executors.
 //
-// Semantics are pinned by the differential tests in test/unit/diff
+// Semantics are pinned by reference comparisons
 // (nppiLUT, nppiLUT_Linear, nppiLUT_Cubic, nppiLUTPalette,
 // nppiLUTPaletteSwap and nppiLUT_Trilinear) recorded against NVIDIA NPP 13.4
-// on the RTX 5090.  The important, non-obvious points:
+// in the reference implementation.  The important, non-obvious points:
 //
 //   * point / linear / cubic LUT: pixels outside [levels[0], levels[n-1])
 //     are copied through unchanged; the interval search is a forward scan
@@ -14,7 +14,7 @@
 //     channel has exactly 256 levels: dst = values[src] (levels ignored);
 //   * linear interpolation uses C integer truncation for integer dtypes;
 //     cubic interpolation is the 4-point Newton/divided-difference cubic
-//     evaluated in float (see the SASS-derived formula in the .cu file);
+//     evaluated in float (see the SASS-derived formula in the.cu file);
 //   * row steps are never validated (NPP accepts short, zero and negative
 //     steps), and a width-0 / height>0 ROI returns NPP_SUCCESS for the
 //     point/interp families while height-0 launches an invalid grid and

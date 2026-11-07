@@ -12,9 +12,9 @@ __device__ inline void yuv420_to_rgb_pixel(uint8_t y, uint8_t u, uint8_t v, uint
   const float G = __fsub_rn(__fsub_rn(Y, __fmul_rn(0.39465f, U)), __fmul_rn(0.58060f, V));
   const float B = __fadd_rn(Y, __fmul_rn(2.03211f, U));
   int ri = static_cast<int>(R), gi = static_cast<int>(G), bi = static_cast<int>(B);
-  r = static_cast<uint8_t>(ri < 0 ? 0 : (ri > 255 ? 255 : ri));
-  g = static_cast<uint8_t>(gi < 0 ? 0 : (gi > 255 ? 255 : gi));
-  b = static_cast<uint8_t>(bi < 0 ? 0 : (bi > 255 ? 255 : bi));
+  r = static_cast<uint8_t>(ri < 0 ? 0: (ri > 255 ? 255: ri));
+  g = static_cast<uint8_t>(gi < 0 ? 0: (gi > 255 ? 255: gi));
+  b = static_cast<uint8_t>(bi < 0 ? 0: (bi > 255 ? 255: bi));
 }
 
 __device__ inline void yuv420_to_rgb_bt601_pixel(uint8_t y, uint8_t u, uint8_t v, uint8_t &r, uint8_t &g,

@@ -25,6 +25,7 @@ cudaError_t nppiMean_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, NppiSize oSi
 
 // ============ cuda 12.8 ===================
 // Buffer size calculation for 8u single channel
+NPP_BUFFER_ABI_EXTERN_C
 NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, size_t *hpBufferSize,
                                                      NppStreamContext /*nppStreamCtx*/) {
   // Parameter validation
@@ -46,6 +47,7 @@ NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, size_t *
   return NPP_SUCCESS;
 }
 
+NPP_BUFFER_ABI_EXTERN_C
 NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1R(NppiSize oSizeROI, size_t *hpBufferSize) {
   NppStreamContext ctx{};
   ctx.hStream = nppGetStream(); // NPP managed stream (nppSetStream)
@@ -53,6 +55,7 @@ NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1R(NppiSize oSizeROI, size_t *hpBu
 }
 
 // Buffer size calculation for 32-bit float single channel
+NPP_BUFFER_ABI_EXTERN_C
 NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(NppiSize oSizeROI, size_t *hpBufferSize,
                                                       NppStreamContext /*nppStreamCtx*/) {
   // Parameter validation
@@ -73,6 +76,7 @@ NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(NppiSize oSizeROI, size_t 
   return NPP_SUCCESS;
 }
 
+NPP_BUFFER_ABI_EXTERN_C
 NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1R(NppiSize oSizeROI, size_t *hpBufferSize) {
   NppStreamContext ctx{};
   ctx.hStream = nppGetStream(); // NPP managed stream (nppSetStream)
@@ -81,36 +85,48 @@ NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1R(NppiSize oSizeROI, size_t *hpB
 
 // ================== below 12.8 ============================
 // Buffer size calculation for 8u single channel
-NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, int *hpBufferSize,
+#if !NPP_BUFFER_SIZE_IS_SIZE_T
+NPP_BUFFER_ABI_EXTERN_C
+NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE *hpBufferSize,
                                                      NppStreamContext nppStreamCtx) {
   size_t size = 0;
   auto ret = nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(oSizeROI, &size, nppStreamCtx);
   *hpBufferSize = static_cast<int>(size);
   return ret;
 }
+#endif
 
-NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1R(NppiSize oSizeROI, int *hpBufferSize) {
+#if !NPP_BUFFER_SIZE_IS_SIZE_T
+NPP_BUFFER_ABI_EXTERN_C
+NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1R(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   size_t size = 0;
   auto ret = nppiMeanStdDevGetBufferHostSize_8u_C1R(oSizeROI, &size);
   *hpBufferSize = static_cast<int>(size);
   return ret;
 }
+#endif
 
 // Buffer size calculation for 32-bit float single channel
-NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(NppiSize oSizeROI, int *hpBufferSize,
+#if !NPP_BUFFER_SIZE_IS_SIZE_T
+NPP_BUFFER_ABI_EXTERN_C
+NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE *hpBufferSize,
                                                       NppStreamContext nppStreamCtx) {
   size_t size = 0;
   auto ret = nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(oSizeROI, &size, nppStreamCtx);
   *hpBufferSize = static_cast<int>(size);
   return ret;
 }
+#endif
 
-NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1R(NppiSize oSizeROI, int *hpBufferSize) {
+#if !NPP_BUFFER_SIZE_IS_SIZE_T
+NPP_BUFFER_ABI_EXTERN_C
+NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1R(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   size_t size = 0;
   auto ret = nppiMeanStdDevGetBufferHostSize_32f_C1R(oSizeROI, &size);
   *hpBufferSize = static_cast<int>(size);
   return ret;
 }
+#endif
 // ==========================
 
 // Mean and standard deviation calculation for 8-bit unsigned single channel
@@ -173,6 +189,7 @@ NppStatus nppiMean_StdDev_32f_C1R(const Npp32f *pSrc, int nSrcStep, NppiSize oSi
 
 // ============ cuda 12.8 ===================
 // Buffer size calculation for 8u single channel masked
+NPP_BUFFER_ABI_EXTERN_C
 NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1MR_Ctx(NppiSize oSizeROI, size_t *hpBufferSize,
                                                       NppStreamContext /*nppStreamCtx*/) {
   // Parameter validation
@@ -193,6 +210,7 @@ NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1MR_Ctx(NppiSize oSizeROI, size_t 
   return NPP_SUCCESS;
 }
 
+NPP_BUFFER_ABI_EXTERN_C
 NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1MR(NppiSize oSizeROI, size_t *hpBufferSize) {
   NppStreamContext ctx{};
   ctx.hStream = nppGetStream();
@@ -200,6 +218,7 @@ NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1MR(NppiSize oSizeROI, size_t *hpB
 }
 
 // Buffer size calculation for 32f single channel masked
+NPP_BUFFER_ABI_EXTERN_C
 NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1MR_Ctx(NppiSize oSizeROI, size_t *hpBufferSize,
                                                        NppStreamContext /*nppStreamCtx*/) {
   // Parameter validation
@@ -220,6 +239,7 @@ NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1MR_Ctx(NppiSize oSizeROI, size_t
   return NPP_SUCCESS;
 }
 
+NPP_BUFFER_ABI_EXTERN_C
 NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1MR(NppiSize oSizeROI, size_t *hpBufferSize) {
   NppStreamContext ctx{};
   ctx.hStream = nppGetStream();
@@ -228,36 +248,48 @@ NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1MR(NppiSize oSizeROI, size_t *hp
 
 // ================== below 12.8 ============================
 // Buffer size calculation for 8u single channel masked (int version)
-NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1MR_Ctx(NppiSize oSizeROI, int *hpBufferSize,
+#if !NPP_BUFFER_SIZE_IS_SIZE_T
+NPP_BUFFER_ABI_EXTERN_C
+NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1MR_Ctx(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE *hpBufferSize,
                                                       NppStreamContext nppStreamCtx) {
   size_t size = 0;
   auto ret = nppiMeanStdDevGetBufferHostSize_8u_C1MR_Ctx(oSizeROI, &size, nppStreamCtx);
   *hpBufferSize = static_cast<int>(size);
   return ret;
 }
+#endif
 
-NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1MR(NppiSize oSizeROI, int *hpBufferSize) {
+#if !NPP_BUFFER_SIZE_IS_SIZE_T
+NPP_BUFFER_ABI_EXTERN_C
+NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1MR(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   size_t size = 0;
   auto ret = nppiMeanStdDevGetBufferHostSize_8u_C1MR(oSizeROI, &size);
   *hpBufferSize = static_cast<int>(size);
   return ret;
 }
+#endif
 
 // Buffer size calculation for 32f single channel masked (int version)
-NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1MR_Ctx(NppiSize oSizeROI, int *hpBufferSize,
+#if !NPP_BUFFER_SIZE_IS_SIZE_T
+NPP_BUFFER_ABI_EXTERN_C
+NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1MR_Ctx(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE *hpBufferSize,
                                                        NppStreamContext nppStreamCtx) {
   size_t size = 0;
   auto ret = nppiMeanStdDevGetBufferHostSize_32f_C1MR_Ctx(oSizeROI, &size, nppStreamCtx);
   *hpBufferSize = static_cast<int>(size);
   return ret;
 }
+#endif
 
-NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1MR(NppiSize oSizeROI, int *hpBufferSize) {
+#if !NPP_BUFFER_SIZE_IS_SIZE_T
+NPP_BUFFER_ABI_EXTERN_C
+NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1MR(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   size_t size = 0;
   auto ret = nppiMeanStdDevGetBufferHostSize_32f_C1MR(oSizeROI, &size);
   *hpBufferSize = static_cast<int>(size);
   return ret;
 }
+#endif
 
 // Mean and standard deviation calculation for 8u single channel with mask
 NppStatus nppiMean_StdDev_8u_C1MR_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep,
@@ -318,6 +350,7 @@ NppStatus nppiMean_StdDev_32f_C1MR(const Npp32f *pSrc, int nSrcStep, const Npp8u
 }
 
 // Buffer size calculation for Mean 8u single channel
+NPP_BUFFER_ABI_EXTERN_C
 NppStatus nppiMeanGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, size_t *hpBufferSize,
                                                 NppStreamContext /*nppStreamCtx*/) {
   // Parameter validation
@@ -338,6 +371,7 @@ NppStatus nppiMeanGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, size_t *hpBuff
   return NPP_SUCCESS;
 }
 
+NPP_BUFFER_ABI_EXTERN_C
 NppStatus nppiMeanGetBufferHostSize_8u_C1R(NppiSize oSizeROI, size_t *hpBufferSize) {
   NppStreamContext ctx{};
   ctx.hStream = nppGetStream();
@@ -345,20 +379,26 @@ NppStatus nppiMeanGetBufferHostSize_8u_C1R(NppiSize oSizeROI, size_t *hpBufferSi
 }
 
 // Buffer size calculation for Mean 8u single channel (int version)
-NppStatus nppiMeanGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, int *hpBufferSize,
+#if !NPP_BUFFER_SIZE_IS_SIZE_T
+NPP_BUFFER_ABI_EXTERN_C
+NppStatus nppiMeanGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE *hpBufferSize,
                                                 NppStreamContext nppStreamCtx) {
   size_t size = 0;
   auto ret = nppiMeanGetBufferHostSize_8u_C1R_Ctx(oSizeROI, &size, nppStreamCtx);
   *hpBufferSize = static_cast<int>(size);
   return ret;
 }
+#endif
 
-NppStatus nppiMeanGetBufferHostSize_8u_C1R(NppiSize oSizeROI, int *hpBufferSize) {
+#if !NPP_BUFFER_SIZE_IS_SIZE_T
+NPP_BUFFER_ABI_EXTERN_C
+NppStatus nppiMeanGetBufferHostSize_8u_C1R(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   size_t size = 0;
   auto ret = nppiMeanGetBufferHostSize_8u_C1R(oSizeROI, &size);
   *hpBufferSize = static_cast<int>(size);
   return ret;
 }
+#endif
 
 // Mean calculation for 8-bit unsigned single channel
 NppStatus nppiMean_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer,

@@ -70,7 +70,7 @@ NppStatus executeDeviceConst(const T *pSrc1, int nSrc1Step, T *pDst, int nDstSte
   deviceConstKernel<T, Channels, OpType><<<gridSize, blockSize, 0, stream>>>(
       pSrc1, nSrc1Step, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pDeviceConstants, scaleFactor);
 
-  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 // AC4 execution function - preserves alpha channel
@@ -95,7 +95,7 @@ NppStatus executeDeviceConstAC4(const T *pSrc1, int nSrc1Step, T *pDst, int nDst
   deviceConstKernelAC4<T, OpType><<<gridSize, blockSize, 0, stream>>>(pSrc1, nSrc1Step, pDst, nDstStep, oSizeROI.width,
                                                                       oSizeROI.height, pDeviceConstants, scaleFactor);
 
-  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 // ============================================================================
@@ -115,7 +115,7 @@ __global__ void addDeviceC16fKernel(const Npp16f *pSrc, int nSrcStep, const Npp3
     int idx = x * Channels;
     for (int ch = 0; ch < Channels; ch++) {
       __half val = npp16f_to_half(srcRow[idx + ch]);
-      __half c = __float2half(pConstants[Channels == 1 ? 0 : ch]);
+      __half c = __float2half(pConstants[Channels == 1 ? 0: ch]);
       dstRow[idx + ch] = half_to_npp16f(__hadd(val, c));
     }
   }
@@ -134,7 +134,7 @@ __global__ void subDeviceC16fKernel(const Npp16f *pSrc, int nSrcStep, const Npp3
     int idx = x * Channels;
     for (int ch = 0; ch < Channels; ch++) {
       __half val = npp16f_to_half(srcRow[idx + ch]);
-      __half c = __float2half(pConstants[Channels == 1 ? 0 : ch]);
+      __half c = __float2half(pConstants[Channels == 1 ? 0: ch]);
       dstRow[idx + ch] = half_to_npp16f(__hsub(val, c));
     }
   }
@@ -153,7 +153,7 @@ __global__ void mulDeviceC16fKernel(const Npp16f *pSrc, int nSrcStep, const Npp3
     int idx = x * Channels;
     for (int ch = 0; ch < Channels; ch++) {
       __half val = npp16f_to_half(srcRow[idx + ch]);
-      __half c = __float2half(pConstants[Channels == 1 ? 0 : ch]);
+      __half c = __float2half(pConstants[Channels == 1 ? 0: ch]);
       dstRow[idx + ch] = half_to_npp16f(__hmul(val, c));
     }
   }
@@ -172,7 +172,7 @@ __global__ void divDeviceC16fKernel(const Npp16f *pSrc, int nSrcStep, const Npp3
     int idx = x * Channels;
     for (int ch = 0; ch < Channels; ch++) {
       __half val = npp16f_to_half(srcRow[idx + ch]);
-      __half c = __float2half(pConstants[Channels == 1 ? 0 : ch]);
+      __half c = __float2half(pConstants[Channels == 1 ? 0: ch]);
       dstRow[idx + ch] = half_to_npp16f(__hdiv(val, c));
     }
   }
@@ -195,7 +195,7 @@ NppStatus executeDeviceConst16f(KernelFunc kernel, const Npp16f *pSrc, int nSrcS
   kernel<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pConstant, pDst, nDstStep, oSizeROI.width,
                                              oSizeROI.height);
 
-  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 // ============================================================================

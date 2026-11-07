@@ -24,7 +24,7 @@ struct TwistParams {
 };
 
 inline NppStatus checkLaunch() {
-  return (cudaGetLastError() == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaGetLastError() == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 // ---- dtype conversion helpers ----------------------------------------------
@@ -37,7 +37,7 @@ __device__ __forceinline__ float toFloat(const Npp16f &v) {
   return __half2float(h);
 }
 
-// Integer conversion, pinned by the recorded goldens (RTX 5090, NPP 13.4):
+// Integer conversion, pinned by the reference outputs (reference, NPP 13.4):
 // truncate toward zero, then saturate to the dtype range.  The +0.5f rounding
 // bias of the packed CH>=3 path is added by the caller (BIAS template flag)
 // BEFORE this conversion, so those layouts round half-up.
@@ -61,7 +61,7 @@ template <> __forceinline__ __device__ Npp16s fromFloat<Npp16s>(float v) {
 }
 
 // NPP saturates float results to [-FLT_MAX, FLT_MAX] (a +inf result is stored
-// as FLT_MAX); measured on the 5090 for the overflowing C3/planar cases.
+// as FLT_MAX); measured on the reference for the overflowing C3/planar cases.
 template <> __device__ __forceinline__ Npp32f fromFloat<Npp32f>(float v) {
   if (v > 3.402823466e+38F) return 3.402823466e+38F;
   if (v < -3.402823466e+38F) return -3.402823466e+38F;
@@ -78,17 +78,17 @@ template <> __device__ __forceinline__ Npp16f fromFloat<Npp16f>(float v) {
 
 // The +0.5f bias is applied by the packed CH>=3 kernels of NPP 13.4 for the
 // float and integer dtypes; the Npp16f kernels have no bias on any layout.
-template <typename T> struct has_rounding_bias : std::is_same<T, Npp32f> {};
-template <> struct has_rounding_bias<Npp8u> : std::true_type {};
-template <> struct has_rounding_bias<Npp8s> : std::true_type {};
-template <> struct has_rounding_bias<Npp16u> : std::true_type {};
-template <> struct has_rounding_bias<Npp16s> : std::true_type {};
+template <typename T> struct has_rounding_bias: std::is_same<T, Npp32f> {};
+template <> struct has_rounding_bias<Npp8u>: std::true_type {};
+template <> struct has_rounding_bias<Npp8s>: std::true_type {};
+template <> struct has_rounding_bias<Npp16u>: std::true_type {};
+template <> struct has_rounding_bias<Npp16s>: std::true_type {};
 
 template <typename T, int CH> __host__ __device__ constexpr bool packedBias() {
   return (CH >= 3) && has_rounding_bias<T>::value;
 }
 
-// The BATCH kernels bias differently (measured on the RTX 5090): Npp32f adds
+// The BATCH kernels bias differently (measured in the reference implementation): Npp32f adds
 // the +0.5f bias on EVERY layout (even 32f C1R keeps src + 0.5f), the integer
 // dtypes follow the packed CH >= 3 rule and Npp16f never has a bias.
 template <typename T, int CH> __host__ __device__ constexpr bool batchBias() {
@@ -96,7 +96,7 @@ template <typename T, int CH> __host__ __device__ constexpr bool batchBias() {
 }
 
 // Packed destination steps must be a multiple of the vector width NPP 13.4
-// loads per layout (measured on the RTX 5090): a full 2-element vector for C2,
+// loads per layout (measured in the reference implementation): a full 2-element vector for C2,
 // a full 4-element vector for C4/AC4, a single element for C1/C3 (and for the
 // planar variants).  A violating step returns NPP_NOT_EVEN_STEP_ERROR; the
 // check is a signed modulo, so a negative step with a non-zero residue is
@@ -105,10 +105,10 @@ template <typename T, int CH> __host__ __device__ constexpr bool batchBias() {
 // and only against the destination steps (the packed src step is not
 // validated at all; the planar variants check both).
 template <int CH> __host__ __device__ constexpr int stepMultiple() {
-  return (CH == 2 || CH == 4) ? CH : 1;
+  return (CH == 2 || CH == 4) ? CH: 1;
 }
 
-// Batch clamp (measured on the RTX 5090): comparison-based, so a NaN produced
+// Batch clamp (measured in the reference implementation): comparison-based, so a NaN produced
 // by the dot product (0 * +-inf terms) survives instead of being replaced by
 // fminf/fmaxf NaN-suppression semantics.
 __device__ __forceinline__ float clampRange(float v, const TwistParams &p) {
@@ -136,19 +136,19 @@ template <> __device__ __forceinline__ Npp8u batchFromFloat<Npp8u>(float v) {
 // missing input channels and of the alpha channel are documented in the header.
 // BIAS: the packed 3-channel-and-up path of NPP 13.4 adds a +0.5f rounding
 // bias to the accumulated value and keeps it in the float output (measured on
-// the RTX 5090); C1/C2 packed variants and the planar variants do not.
+// the reference); C1/C2 packed variants and the planar variants do not.
 template <typename T, int CH, bool AC4, bool HAS_CONST, bool BATCH, bool BIAS>
 __device__ __forceinline__ void twistPixel(const T *s, T *d, const TwistParams &p) {
   const float v0 = toFloat(s[0]);
-  const float v1 = (CH >= 2) ? toFloat(s[1]) : 0.0f;
-  const float v2 = (CH >= 3) ? toFloat(s[2]) : 0.0f;
-  const float v3 = (CH == 4 && !AC4) ? toFloat(s[3]) : 0.0f;
+  const float v1 = (CH >= 2) ? toFloat(s[1]): 0.0f;
+  const float v2 = (CH >= 3) ? toFloat(s[2]): 0.0f;
+  const float v3 = (CH == 4 && !AC4) ? toFloat(s[3]): 0.0f;
 
   float o0, o1, o2, o3;
   // BATCH order (measured): the +0.5f bias is added FIRST, then the clamp
   // min(max(acc + 0.5f, nMin), nMax) is applied, then the value is converted.
   // The AC4 batch kernels exempt output channel 2 from the clamp and push it
-  // through the saturating conversion instead (measured on the 5090).
+  // through the saturating conversion instead (measured on the reference).
   if (HAS_CONST) {
     if constexpr (BATCH) {
       // Batch "C" forms take a 4x5 matrix: the constant is the fifth element
@@ -200,11 +200,11 @@ __device__ __forceinline__ void twistPixel(const T *s, T *d, const TwistParams &
     // conversion (measured: 8u 400 -> 255 for channels 0..2); the other batch
     // forms store the low byte.
     constexpr bool kSat = AC4 && !HAS_CONST;
-    d[0] = kSat ? fromFloat<T>(o0) : batchFromFloat<T>(o0);
+    d[0] = kSat ? fromFloat<T>(o0): batchFromFloat<T>(o0);
     if (CH >= 2)
-      d[1] = kSat ? fromFloat<T>(o1) : batchFromFloat<T>(o1);
+      d[1] = kSat ? fromFloat<T>(o1): batchFromFloat<T>(o1);
     if (CH >= 3)
-      d[2] = kSat ? fromFloat<T>(o2) : batchFromFloat<T>(o2);
+      d[2] = kSat ? fromFloat<T>(o2): batchFromFloat<T>(o2);
     if (CH == 4) {
       if (HAS_CONST) {
         d[3] = batchFromFloat<T>(o3);
@@ -281,7 +281,7 @@ __global__ void colorTwistBatchKernel(NppiColorTwistBatchCXR *list, int width, i
   TwistParams p;
   p.nMin = nMin;
   p.nMax = nMax;
-  const int ncoef = HAS_CONST ? 20 : 12;
+  const int ncoef = HAS_CONST ? 20: 12;
   for (int i = 0; i < ncoef; ++i) {
     p.m[i] = entry.pTwist[i];
   }
@@ -291,7 +291,7 @@ __global__ void colorTwistBatchKernel(NppiColorTwistBatchCXR *list, int width, i
     return;
   }
   const T *src = reinterpret_cast<const T *>(entry.pSrc);
-  void *dstRaw = INPLACE ? const_cast<void *>(entry.pSrc) : entry.pDst;
+  void *dstRaw = INPLACE ? const_cast<void *>(entry.pSrc): entry.pDst;
   T *dst = reinterpret_cast<T *>(dstRaw);
   const T *s =
       reinterpret_cast<const T *>(reinterpret_cast<const char *>(src) + (size_t)y * entry.nSrcStep) + (size_t)x * CH;
@@ -301,9 +301,9 @@ __global__ void colorTwistBatchKernel(NppiColorTwistBatchCXR *list, int width, i
 
 // ---- shared host-side validation ----------------------------------------------
 
-// Packed 3x4 twist validation, pinned against NVIDIA NPP 13.4 (RTX 5090):
+// Packed 3x4 twist validation, pinned against NVIDIA NPP 13.4 (reference):
 //  - negative ROI                 -> NPP_SIZE_ERROR
-//  - dst step 0 .. rowBytes-1     -> NPP_STEP_ERROR (an unsigned-range check:
+//  - dst step 0.. rowBytes-1     -> NPP_STEP_ERROR (an unsigned-range check:
 //                                    negative dst steps are ACCEPTED by NPP)
 //  - the source step is NOT validated at all (step 0 aliases row 0, NPP still
 //    launches and returns NPP_NO_ERROR)
@@ -391,7 +391,7 @@ NppStatus twistIR(T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f a
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
-  // The single in-place step plays the destination role: 0 .. rowBytes-1 is
+  // The single in-place step plays the destination role: 0.. rowBytes-1 is
   // NPP_STEP_ERROR, negative steps are accepted (unsigned-range check).
   const size_t rowBytes = (size_t)oSizeROI.width * CH * sizeof(T);
   if (nSrcDstStep >= 0 && (size_t)nSrcDstStep < rowBytes) {
@@ -419,7 +419,7 @@ NppStatus twistIR(T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f a
 
 // ---- planar 3x4 twist --------------------------------------------------------
 
-// Planar 3x4 twist validation, measured on NPP 13.4 (RTX 5090).  Unlike the
+// Planar 3x4 twist validation, measured on NPP 13.4 (reference).  Unlike the
 // packed variants, BOTH steps are validated and the comparison is signed:
 // step <= 0 or step < rowBytes -> NPP_STEP_ERROR (a negative src step is
 // rejected here even though the packed path accepts it).
@@ -550,12 +550,12 @@ NppStatus twistCIR(T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f 
 template <typename T, int CH, bool AC4, bool INPLACE, bool HAS_CONST>
 NppStatus batchTwist(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
                      cudaStream_t stream) {
-  // Validation order measured against NPP 13.4 (RTX 5090): a null list, then
+  // Validation order measured against NPP 13.4 (reference): a null list, then
   // nBatchSize < 2 (NPP_BAD_ARGUMENT_ERROR - "must be > 1" is enforced), then
   // a negative ROI.  Steps and per-entry pointers are NOT validated: NPP
   // launches anyway (a null entry pointer returns NPP_NO_ERROR and faults on
   // the device).  An empty ROI also launches - with a zero grid dimension -
-  // and yields NPP_CUDA_KERNEL_EXECUTION_ERROR, which checkLaunch() below
+  // and yields NPP_CUDA_KERNEL_EXECUTION_ERROR, which checkLaunch below
   // reproduces through the same degenerate launch.
   if (!pBatchList) {
     return NPP_NULL_POINTER_ERROR;

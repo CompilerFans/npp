@@ -1,8 +1,8 @@
-// CPU-golden coverage for the PBA distance transforms
+// CPU-reference output coverage for the PBA distance transforms
 // (nppi_filtering_functions.h):
 //   nppiDistanceTransformPBA_<src><dst>_C1R (14 entry points).
 //
-// Measured NPP 13.4 semantics (RTX 5090):
+// Measured NPP 13.4 semantics (reference):
 //   * a pixel is a "site" when its source value lies in
 //     [nMinSiteValue, nMaxSiteValue];
 //   * pDstTransform holds the Euclidean distance to the nearest site (the
@@ -42,17 +42,17 @@ void run_pba(const char *id, Call call) {
       Buf<Src> *s = new Buf<Src>(W, H, 1, 0, 0);
       fill_regime(*s, 1, seed, kSmall, 0, false, false, false);
       // Build a controlled site pattern: 0 (positive) everywhere, sites = 100.
-      const Src siteVal = std::is_same_v<Src, Npp8s> ? (Src)50 : (Src)100;
+      const Src siteVal = std::is_same_v<Src, Npp8s> ? (Src)50: (Src)100;
       for (int y = 0; y < H; ++y)
         for (int x = 0; x < W; ++x) {
           bool site = false;
           if (pat == 0) site = (x % 5 == 0 && y % 5 == 0);
           else if (pat == 1) site = (x == 1 && y == 1) || (x == W - 2 && y == H - 2) || (x == W / 2 && y == H / 3);
           else site = false;
-          s->hptr()[(size_t)y * (s->step / (int)sizeof(Src)) + (size_t)x] = site ? siteVal : (Src)0;
+          s->hptr()[(size_t)y * (s->step / (int)sizeof(Src)) + (size_t)x] = site ? siteVal: (Src)0;
         }
       s->dev.copyFromHost(s->host);
-      const Src minSite = (Src)1, maxSite = std::is_same_v<Src, Npp8s> ? (Src)100 : (Src)200;
+      const Src minSite = (Src)1, maxSite = std::is_same_v<Src, Npp8s> ? (Src)100: (Src)200;
       Buf<Dst> *d = new Buf<Dst>(W, H, 1, 0, 0x5A);
       d->dev.copyFromHost(d->host);
       const std::vector<uint8_t> pre = d->host;
@@ -64,10 +64,10 @@ void run_pba(const char *id, Call call) {
         delete d;
         continue;
       }
-      npp_functional_test::DeviceMemory<Npp8u> buf(need ? need : 1);
+      npp_functional_test::DeviceMemory<Npp8u> buf(need ? need: 1);
       size_t aneed = 0;
       nppiDistanceTransformPBAGetAntialiasingBufferSize(NppiSize{W, H}, &aneed);
-      npp_functional_test::DeviceMemory<Npp8u> abuf(aneed ? aneed : 1);
+      npp_functional_test::DeviceMemory<Npp8u> abuf(aneed ? aneed: 1);
       Src *sp = reinterpret_cast<Src *>(s->dptr());
       npp_diff::clear_cuda_error();
       const NppStatus st = call(sp, s->step, minSite, maxSite, nullptr, 0, nullptr, 0, nullptr, 0,
@@ -92,7 +92,7 @@ void run_pba(const char *id, Call call) {
       for (int y = 0; y < H; ++y)
         for (int x = 0; x < W; ++x) {
           double best = -1.0;
-          for (auto &sp2 : sites) {
+          for (auto &sp2: sites) {
             const double dx = x - sp2.first, dy = y - sp2.second;
             const double d2 = dx * dx + dy * dy;
             if (best < 0.0 || d2 < best) best = d2;
@@ -101,7 +101,7 @@ void run_pba(const char *id, Call call) {
             // Measured NPP quirk: with no site at all the reported site is
             // (-1,-1) for 16u destinations but (-1,0) for float destinations.
             const double dx = x + 1.0;
-            const double dy = std::is_same_v<Dst, Npp16u> ? y + 1.0 : y;
+            const double dy = std::is_same_v<Dst, Npp16u> ? y + 1.0: y;
             best = (double)((long long)dx * (long long)dx + (long long)dy * (long long)dy);
           }
           Dst out;

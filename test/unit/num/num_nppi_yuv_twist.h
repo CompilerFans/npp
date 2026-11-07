@@ -1,4 +1,4 @@
-// CPU-golden coverage for the ColorTwist variants of the YUV <-> RGB
+// CPU-reference output coverage for the ColorTwist variants of the YUV <-> RGB
 // conversions (8u and 16u).  The user 3x4 matrix is applied directly to the
 // source triple; every result is rounded half up and clamped to the sample
 // range, and 4:2:0 / 4:2:2 chroma is the rounded average of the twisted
@@ -15,11 +15,11 @@
 namespace num {
 namespace yuvtwist {
 
-template <typename T> inline int maxv() { return std::is_same_v<T, Npp8u> ? 255 : 65535; }
+template <typename T> inline int maxv() { return std::is_same_v<T, Npp8u> ? 255: 65535; }
 
 template <typename T> inline int round_clamp(float v, int maxv) {
   const int t = (int)(v + 0.5f);
-  return t < 0 ? 0 : (t > maxv ? maxv : t);
+  return t < 0 ? 0: (t > maxv ? maxv: t);
 }
 
 struct Mat {
@@ -65,7 +65,7 @@ void run_twist(const char *id, Kind kind, int srcPp, int dstPp, T alpha, const f
   const int MAXV = maxv<T>();
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{8, 6}, {16, 12}, {32, 24}, {64, 48}, {128, 96}, {6, 4}, {10, 6}, {48, 32}};
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     const int w = cf.w, h = cf.h;
     const bool fwd = kind == Kind::Fwd420P3 || kind == Kind::Fwd420P3P3 || kind == Kind::Fwd422C2 ||
                      kind == Kind::Fwd422P3 || kind == Kind::Fwd422P3P3;
@@ -140,15 +140,15 @@ void run_twist(const char *id, Kind kind, int srcPp, int dstPp, T alpha, const f
     if (st != NPP_NO_ERROR) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-      for (auto *p : srcs) delete p;
-      for (auto *p : dsts) delete p;
+      for (auto *p: srcs) delete p;
+      for (auto *p: dsts) delete p;
       continue;
     }
     const cudaError_t se = cudaDeviceSynchronize();
     ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << w << "x" << h << " sync: " << cudaGetErrorString(se);
     ++cnt.executed;
 
-    // hptr() is typed: row offsets must be in elements, not bytes.
+    // hptr is typed: row offsets must be in elements, not bytes.
     auto srcPx = [&](int x, int y, float &a, float &b, float &c) {
       const T *s = srcs[0]->hptr() + (size_t)y * (srcs[0]->step / (int)sizeof(T)) + (size_t)x * srcPp;
       a = (float)s[0];
@@ -243,7 +243,7 @@ void run_twist(const char *id, Kind kind, int srcPp, int dstPp, T alpha, const f
           int p = x >> 1;
           if (p > lastPair) p = lastPair;
           const T *rowp = srcs[0]->hptr() + (size_t)y * (srcs[0]->step / (int)sizeof(T)) + (size_t)p * 4;
-          const float fy = (float)rowp[(x & 1) ? 3 : 1];
+          const float fy = (float)rowp[(x & 1) ? 3: 1];
           const float fu = (float)rowp[0];
           const float fv = (float)rowp[2];
           const int vals[3] = {round_clamp<T>(row(t, 0, fy, fu, fv), MAXV),
@@ -257,7 +257,7 @@ void run_twist(const char *id, Kind kind, int srcPp, int dstPp, T alpha, const f
           }
         }
     } else {  // inverse kinds
-      const int spanY = (kind == Kind::Inv420C || kind == Kind::Inv420P3) ? 2 : 1;
+      const int spanY = (kind == Kind::Inv420C || kind == Kind::Inv420P3) ? 2: 1;
       for (int y = 0; y < h; ++y)
         for (int x = 0; x < w; ++x) {
           const float fy = srcPl(0, x, y);
@@ -288,7 +288,7 @@ void run_twist(const char *id, Kind kind, int srcPp, int dstPp, T alpha, const f
     for (size_t p = 0; p < dsts.size() && !failed; ++p) {
       dsts[p]->dev.copyToHost(dsts[p]->host);
       const GenCase dc{(int)dsts[p]->bw, (int)dsts[p]->bh, 0, 0, 0, kSmall, 0};
-      const int chans = dstC2 ? 2 : (dstP3 ? 1 : (fwd ? 1 : dstPp));
+      const int chans = dstC2 ? 2: (dstP3 ? 1: (fwd ? 1: dstPp));
       bool ok;
       if (chans == 1)
         ok = rotate_check<T, 1, 1>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p], dsts[p]->step,
@@ -304,8 +304,8 @@ void run_twist(const char *id, Kind kind, int srcPp, int dstPp, T alpha, const f
                                    std::vector<uint8_t>(), cnt, first);
       if (!ok) failed = true;
     }
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
     if (failed || cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);

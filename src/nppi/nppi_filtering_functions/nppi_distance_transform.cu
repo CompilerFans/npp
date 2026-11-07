@@ -407,8 +407,8 @@ __global__ void mergeSignedDistances_kernel(const int *pSitesExtX, const int *pS
 
   Npp64f *dstRow = (Npp64f *)((char *)pDstTransform + y * nDstTransformStep);
 
-  double distExt = (siteExtX != INF_SITE) ? sqrt(squaredDistanceD(x, y, siteExtX, siteExtY)) : INFINITY;
-  double distInt = (siteIntX != INF_SITE) ? sqrt(squaredDistanceD(x, y, siteIntX, siteIntY)) : INFINITY;
+  double distExt = (siteExtX != INF_SITE) ? sqrt(squaredDistanceD(x, y, siteExtX, siteExtY)): INFINITY;
+  double distInt = (siteIntX != INF_SITE) ? sqrt(squaredDistanceD(x, y, siteIntX, siteIntY)): INFINITY;
 
   // Signed distance: positive inside, negative outside
   if (inside) {
@@ -634,14 +634,14 @@ NppStatus nppiSignedDistanceTransformPBA_32f64f_C1R_Ctx_impl(
   // With an antialiasing workspace the reference emits the positive Euclidean
   // distance to the nearest opposite-class pixel; without it the folded signed
   // transform is produced (both measured).
-  const int mode = pAntialiasingDeviceBuffer != nullptr ? nppi_sdt::kEuclidOpposite : nppi_sdt::kSignedFolded;
+  const int mode = pAntialiasingDeviceBuffer != nullptr ? nppi_sdt::kEuclidOpposite: nppi_sdt::kSignedFolded;
   int insideCount = 0;
   const cudaError_t err = nppi_sdt::runKernels<Npp32f, Npp64f>(
       pSrc, nSrcStep, nCutoffValue, nSubPixelXShift, nSubPixelYShift, pDstVoronoi, nDstVoronoiStep,
       pDstVoronoiIndices, nDstVoronoiIndicesStep, (Npp16u *)pDstVoronoiRelativeManhattanDistances,
       nDstVoronoiRelativeManhattanDistancesStep, pDstTransform, nDstTransformStep, width, height, pDeviceBuffer,
       mode, &insideCount, stream);
-  return err == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return err == cudaSuccess ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiSignedDistanceTransformPBA_64f_C1R_Ctx_impl(
@@ -664,7 +664,7 @@ NppStatus nppiSignedDistanceTransformPBA_64f_C1R_Ctx_impl(
       pDstVoronoiIndices, nDstVoronoiIndicesStep, (Npp16u *)pDstVoronoiRelativeManhattanDistances,
       nDstVoronoiRelativeManhattanDistancesStep, pDstTransform, nDstTransformStep, width, height, pDeviceBuffer,
       nppi_sdt::kSignedFolded, &insideCount, stream);
-  return err == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return err == cudaSuccess ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 } // extern "C"

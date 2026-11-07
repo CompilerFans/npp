@@ -68,7 +68,7 @@ __device__ inline Npp16s clamp_to_16s(float v) {
   } else if (v > 32767.0f) {
     v = 32767.0f;
   }
-  return static_cast<Npp16s>(v >= 0.0f ? v + 0.5f : v - 0.5f);
+  return static_cast<Npp16s>(v >= 0.0f ? v + 0.5f: v - 0.5f);
 }
 
 __global__ void color_to_gray_16u_c3_kernel(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, int width,

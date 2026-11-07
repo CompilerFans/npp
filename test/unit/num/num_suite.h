@@ -1,15 +1,15 @@
 #pragma once
 
-// Full-matrix CPU-golden conformance suite.
+// Full-matrix CPU-reference output conformance suite.
 //
-// Unlike test_num_arithmetic.cpp (one hand-picked 5090-calibrated case list),
+// Unlike test_num_arithmetic.cpp (one hand-picked reference-calibrated case list),
 // this header drives every API variant through a small/medium/large geometry
 // matrix, with padded steps, ROI offsets into a larger allocation and both
 // out-of-place and in-place forms.  Expected values are still computed on the
-// CPU in process; there are no golden recordings and no status assertions.
+// CPU in process; there are no reference output recordings and no status assertions.
 //
 // The reference formulas live in eval_binary/eval_unary/eval_const below.
-// They are calibrated against the NVIDIA NPP 13.4 gate on the RTX 5090: every
+// They are calibrated against the NVIDIA NPP 13.4 gate in the reference implementation: every
 // generated test must pass there before it is accepted as a reference, and
 // the in-tree MPP implementation must then match the same formulas on CUDA and
 // MACA.
@@ -67,15 +67,15 @@ enum class Op {
   Arctan,
 };
 
-template <typename T> struct is_complex_num : std::false_type {};
-template <> struct is_complex_num<Npp8uc> : std::true_type {};
-template <> struct is_complex_num<Npp16uc> : std::true_type {};
-template <> struct is_complex_num<Npp16sc> : std::true_type {};
-template <> struct is_complex_num<Npp32uc> : std::true_type {};
-template <> struct is_complex_num<Npp32sc> : std::true_type {};
-template <> struct is_complex_num<Npp32fc> : std::true_type {};
-template <> struct is_complex_num<Npp64sc> : std::true_type {};
-template <> struct is_complex_num<Npp64fc> : std::true_type {};
+template <typename T> struct is_complex_num: std::false_type {};
+template <> struct is_complex_num<Npp8uc>: std::true_type {};
+template <> struct is_complex_num<Npp16uc>: std::true_type {};
+template <> struct is_complex_num<Npp16sc>: std::true_type {};
+template <> struct is_complex_num<Npp32uc>: std::true_type {};
+template <> struct is_complex_num<Npp32sc>: std::true_type {};
+template <> struct is_complex_num<Npp32fc>: std::true_type {};
+template <> struct is_complex_num<Npp64sc>: std::true_type {};
+template <> struct is_complex_num<Npp64fc>: std::true_type {};
 template <typename T> inline constexpr bool is_complex_num_v = is_complex_num<T>::value;
 
 template <typename T> struct complex_part { using type = T; };
@@ -107,26 +107,26 @@ inline double as_double(Npp16f v) { return half_to_float_host(v); }
 template <typename T> inline T sat_rint(double v) {
   if constexpr (std::is_same_v<T, Npp8u>) {
     const double r = std::rint(v);
-    return (T)(r < 0.0 ? 0.0 : (r > 255.0 ? 255.0 : r));
+    return (T)(r < 0.0 ? 0.0: (r > 255.0 ? 255.0: r));
   } else if constexpr (std::is_same_v<T, Npp8s>) {
     const double r = std::rint(v);
-    return (T)(r < -128.0 ? -128.0 : (r > 127.0 ? 127.0 : r));
+    return (T)(r < -128.0 ? -128.0: (r > 127.0 ? 127.0: r));
   } else if constexpr (std::is_same_v<T, Npp16u>) {
     const double r = std::rint(v);
-    return (T)(r < 0.0 ? 0.0 : (r > 65535.0 ? 65535.0 : r));
+    return (T)(r < 0.0 ? 0.0: (r > 65535.0 ? 65535.0: r));
   } else if constexpr (std::is_same_v<T, Npp16s>) {
     const double r = std::rint(v);
-    return (T)(r < -32768.0 ? -32768.0 : (r > 32767.0 ? 32767.0 : r));
+    return (T)(r < -32768.0 ? -32768.0: (r > 32767.0 ? 32767.0: r));
   } else if constexpr (std::is_same_v<T, Npp32u>) {
     const double r = std::rint(v);
-    return (T)(r < 0.0 ? 0.0 : (r > 4294967295.0 ? 4294967295.0 : r));
+    return (T)(r < 0.0 ? 0.0: (r > 4294967295.0 ? 4294967295.0: r));
   } else if constexpr (std::is_same_v<T, Npp32s>) {
     const double r = std::rint(v);
-    return (T)(r < -2147483648.0 ? -2147483648.0 : (r > 2147483647.0 ? 2147483647.0 : r));
+    return (T)(r < -2147483648.0 ? -2147483648.0: (r > 2147483647.0 ? 2147483647.0: r));
   } else if constexpr (std::is_same_v<T, Npp64u>) {
     const double r = std::rint(v);
     const double hi = 18446744073709551616.0;  // 2^64
-    return (T)(r < 0.0 ? 0.0 : (r >= hi ? hi - 2048.0 : r));
+    return (T)(r < 0.0 ? 0.0: (r >= hi ? hi - 2048.0: r));
   } else if constexpr (std::is_same_v<T, Npp64s>) {
     const double r = std::rint(v);
     if (std::isnan(r)) return (T)(-9223372036854775807LL - 1);
@@ -142,19 +142,19 @@ template <typename T> inline T sat_rint(double v) {
 
 template <typename T> inline T sat_trunc(double v) {
   if constexpr (std::is_same_v<T, Npp8u>)
-    return (T)(v < 0.0 ? 0.0 : (v > 255.0 ? 255.0 : v));
+    return (T)(v < 0.0 ? 0.0: (v > 255.0 ? 255.0: v));
   else if constexpr (std::is_same_v<T, Npp8s>)
-    return (T)(v < -128.0 ? -128.0 : (v > 127.0 ? 127.0 : v));
+    return (T)(v < -128.0 ? -128.0: (v > 127.0 ? 127.0: v));
   else if constexpr (std::is_same_v<T, Npp16u>)
-    return (T)(v < 0.0 ? 0.0 : (v > 65535.0 ? 65535.0 : v));
+    return (T)(v < 0.0 ? 0.0: (v > 65535.0 ? 65535.0: v));
   else if constexpr (std::is_same_v<T, Npp16s>)
-    return (T)(v < -32768.0 ? -32768.0 : (v > 32767.0 ? 32767.0 : v));
+    return (T)(v < -32768.0 ? -32768.0: (v > 32767.0 ? 32767.0: v));
   else if constexpr (std::is_same_v<T, Npp32u>)
-    return (T)(v < 0.0 ? 0.0 : (v > 4294967295.0 ? 4294967295.0 : v));
+    return (T)(v < 0.0 ? 0.0: (v > 4294967295.0 ? 4294967295.0: v));
   else if constexpr (std::is_same_v<T, Npp32s>)
-    return (T)(v < -2147483648.0 ? -2147483648.0 : (v > 2147483647.0 ? 2147483647.0 : v));
+    return (T)(v < -2147483648.0 ? -2147483648.0: (v > 2147483647.0 ? 2147483647.0: v));
   else if constexpr (std::is_same_v<T, Npp64u>)
-    return (T)(std::isnan(v) ? 0.0 : (v <= 0.0 ? 0.0 : (v >= 18446744073709551616.0 ? 18446744073709549568.0 : v)));
+    return (T)(std::isnan(v) ? 0.0: (v <= 0.0 ? 0.0: (v >= 18446744073709551616.0 ? 18446744073709549568.0: v)));
   else if constexpr (std::is_same_v<T, Npp64s>) {
     if (std::isnan(v)) return (T)(-9223372036854775807LL - 1);
     if (v <= -9223372036854775808.0) return (T)(-9223372036854775807LL - 1);
@@ -167,7 +167,7 @@ template <typename T> inline T sat_trunc(double v) {
 inline Npp16f half_round(float v) { return npp_diff::to_npp16f(v); }
 
 // Half emission with the eRoundMode flavour measured for the reference's
-// 32f -> 16f convert (RTX 5090, NPP 13.4): the value is converted straight to
+// 32f -> 16f convert (reference, NPP 13.4): the value is converted straight to
 // half -- no integer rounding happens first -- and NEAR is ties-to-even,
 // FINANCIAL rounds toward +infinity, ZERO rounds toward zero.  Measured:
 // -1.2 -> 0xbccd / 0xbccc / 0xbccc and 65520 -> inf / inf / 65504.
@@ -182,7 +182,7 @@ inline Npp16f half_round_mode(float v, int mode) {
       npp_diff::to_npp16f(v).fp16);
   if (mode == NPP_RND_FINANCIAL) {
     __half h = raw;
-    if (__half2float(h) < v) raw.x = static_cast<unsigned short>((raw.x & 0x8000u) ? raw.x - 1u : raw.x + 1u);
+    if (__half2float(h) < v) raw.x = static_cast<unsigned short>((raw.x & 0x8000u) ? raw.x - 1u: raw.x + 1u);
   } else if (mode == NPP_RND_ZERO) {
     __half h = raw;
     if (std::fabs(__half2float(h)) > std::fabs(v)) raw.x = static_cast<unsigned short>(raw.x - 1u);
@@ -240,14 +240,14 @@ template <typename T> inline T scale_round(double v, int sf) {
 }
 
 // Truncating Sfs step.  NPP's complex 32sc division kernels convert the
-// quotient toward zero rather than rounding (calibrated on the 5090).
+// quotient toward zero rather than rounding (calibrated on the reference).
 template <typename T> inline T scale_trunc(double v, int sf) {
   if (sf > 0) v /= (double)(1ll << sf);
   return from_double_trunc<T>(v);
 }
 
 // NPP's 32-bit signed Sfs division uses a different rounding path from the
-// narrower types (calibrated on the 5090): sf=0 truncates toward zero, sf=1
+// narrower types (calibrated on the reference): sf=0 truncates toward zero, sf=1
 // rounds half-to-even, sf=2 uses floor((num-1)/den) for positive numerators
 // and half-to-even otherwise, and sf>=3 truncates.
 inline Npp32s div_s32(long long num, long long den, int sf) {
@@ -258,7 +258,7 @@ inline Npp32s div_s32(long long num, long long den, int sf) {
     q = (long long)std::rint((double)num / (double)(den * 2));
   } else if (sf == 2) {
     const long long d = den * 4;
-    q = num > 0 ? (num - 1) / d : (long long)std::rint((double)num / (double)d);
+    q = num > 0 ? (num - 1) / d: (long long)std::rint((double)num / (double)d);
   } else {
     q = num / (den << sf);
   }
@@ -280,10 +280,10 @@ template <typename T> inline T bin_scalar(Op op, T a, T b, int p) {
       case Op::Mul: return half_round(fa * fb);
       case Op::Div: return half_round(fb / fa);
       case Op::AbsDiff: return half_round(std::fabs(fa - fb));
-      case Op::Min: return fb < fa ? b : a;
-      case Op::Max: return fb > fa ? b : a;
-      case Op::MinEvery: return fb < fa ? b : a;
-      case Op::MaxEvery: return fb > fa ? b : a;
+      case Op::Min: return fb < fa ? b: a;
+      case Op::Max: return fb > fa ? b: a;
+      case Op::MinEvery: return fb < fa ? b: a;
+      case Op::MaxEvery: return fb > fa ? b: a;
       default: return a;
     }
   } else if constexpr (std::is_floating_point_v<T>) {
@@ -293,10 +293,10 @@ template <typename T> inline T bin_scalar(Op op, T a, T b, int p) {
       case Op::Mul: return (T)((double)a * (double)b);
       case Op::Div: return (T)((double)b / (double)a);
       case Op::AbsDiff: return (T)std::fabs((double)a - (double)b);
-      case Op::Min: return b < a ? b : a;
-      case Op::Max: return b > a ? b : a;
-      case Op::MinEvery: return b < a ? b : a;
-      case Op::MaxEvery: return b > a ? b : a;
+      case Op::Min: return b < a ? b: a;
+      case Op::Max: return b > a ? b: a;
+      case Op::MinEvery: return b < a ? b: a;
+      case Op::MaxEvery: return b > a ? b: a;
       default: return a;
     }
   } else {
@@ -309,10 +309,10 @@ template <typename T> inline T bin_scalar(Op op, T a, T b, int p) {
         if (ia == 0) {
           if constexpr (std::is_same_v<T, Npp8u>) {
             // 8u division by zero: 0/0 saturates to 254, otherwise to 255.
-            return ib == 0 ? T(254) : T(255);
+            return ib == 0 ? T(254): T(255);
           } else {
             if (ib == 0) return T(0);
-            if constexpr (std::is_signed_v<T>) return ib < 0 ? type_min<T>() : type_max<T>();
+            if constexpr (std::is_signed_v<T>) return ib < 0 ? type_min<T>(): type_max<T>();
             else return type_max<T>();
           }
         }
@@ -323,10 +323,10 @@ template <typename T> inline T bin_scalar(Op op, T a, T b, int p) {
       case Op::Or: return (T)(a | b);
       case Op::Xor: return (T)(a ^ b);
       case Op::AbsDiff: return from_double_rint<T>(std::fabs((double)ia - (double)ib));
-      case Op::Min: return b < a ? b : a;
-      case Op::Max: return b > a ? b : a;
-      case Op::MinEvery: return b < a ? b : a;
-      case Op::MaxEvery: return b > a ? b : a;
+      case Op::Min: return b < a ? b: a;
+      case Op::Max: return b > a ? b: a;
+      case Op::MinEvery: return b < a ? b: a;
+      case Op::MaxEvery: return b > a ? b: a;
       default: return a;
     }
   }
@@ -355,7 +355,7 @@ template <typename T> inline T un_scalar(Op op, T a, int p) {
         const double lo = (double)std::numeric_limits<T>::min();
         const double hi = (double)std::numeric_limits<T>::max();
         if (std::isnan(r)) return (T)lo;
-        return (T)(r < lo ? lo : (r > hi ? hi : r));
+        return (T)(r < lo ? lo: (r > hi ? hi: r));
       }
       case Op::Abs: return (T)std::fabs((double)a);
       case Op::Log10: return (T)std::log10((double)a);
@@ -371,11 +371,11 @@ template <typename T> inline T un_scalar(Op op, T a, int p) {
           // >= 182 wrap negative and clamp to 0; sf > 0 uses a wide product.
           if (p == 0) {
             const int16_t sp = (int16_t)(uint16_t)((unsigned)a * (unsigned)a);
-            return sp < 0 ? T(0) : (T)(sp > 255 ? 255 : sp);
+            return sp < 0 ? T(0): (T)(sp > 255 ? 255: sp);
           }
           int prod = (int)a * (int)a;
           prod >>= p;
-          return (T)(prod > 255 ? 255 : prod);
+          return (T)(prod > 255 ? 255: prod);
         }
         return scale_round<T>((double)a * (double)a, p);
       case Op::Sqrt:
@@ -390,7 +390,7 @@ template <typename T> inline T un_scalar(Op op, T a, int p) {
           else return T(0);
         }
         if (a < T(0)) {
-          if constexpr (std::is_signed_v<T>) return p == 0 ? type_min<T>() : T(0);
+          if constexpr (std::is_signed_v<T>) return p == 0 ? type_min<T>(): T(0);
           else return T(0);
         }
         return scale_round<T>(std::log((double)a), p);
@@ -401,13 +401,13 @@ template <typename T> inline T un_scalar(Op op, T a, int p) {
       case Op::Abs:
         if constexpr (std::is_signed_v<T>) {
           if (a == type_min<T>()) return type_max<T>();
-          return (T)(a < T(0) ? -a : a);
+          return (T)(a < T(0) ? -a: a);
         } else {
           return a;
         }
       case Op::Log10:
         if (a <= T(0)) {
-          if constexpr (std::is_signed_v<T>) return p == 0 ? type_min<T>() : T(0);
+          if constexpr (std::is_signed_v<T>) return p == 0 ? type_min<T>(): T(0);
           else return T(0);
         }
         return scale_round<T>(std::log10((double)a), p);
@@ -416,7 +416,7 @@ template <typename T> inline T un_scalar(Op op, T a, int p) {
       case Op::Arctan:
         return scale_round<T>(std::atan((double)a), p);
       case Op::Not: return (T)(~a);
-      case Op::Inv: return (T)(a == T(0) ? 1 : 0);
+      case Op::Inv: return (T)(a == T(0) ? 1: 0);
       default: return a;
     }
   }
@@ -453,10 +453,10 @@ template <typename T> inline T const_scalar(Op op, T a, T c, int p) {
       case Op::DivC:
         if (ic == 0) {
           if constexpr (std::is_same_v<T, Npp8u>) {
-            return ia == 0 ? T(254) : T(255);
+            return ia == 0 ? T(254): T(255);
           } else {
             if (ia == 0) return T(0);
-            if constexpr (std::is_signed_v<T>) return ia < 0 ? type_min<T>() : type_max<T>();
+            if constexpr (std::is_signed_v<T>) return ia < 0 ? type_min<T>(): type_max<T>();
             else return type_max<T>();
           }
         }
@@ -467,7 +467,7 @@ template <typename T> inline T const_scalar(Op op, T a, T c, int p) {
       case Op::DivCRev:
         if (ia == 0) {
           if (ic == 0) return T(0);
-          if constexpr (std::is_signed_v<T>) return ic < 0 ? type_min<T>() : type_max<T>();
+          if constexpr (std::is_signed_v<T>) return ic < 0 ? type_min<T>(): type_max<T>();
           else return type_max<T>();
         }
         return scale_round<T>((double)ic / (double)ia, p);
@@ -515,7 +515,7 @@ template <typename T> inline T eval_binary(Op op, T a, T b, int p) {
         const double im = ((double)b.im * (double)a.re - (double)b.re * (double)a.im) / den;
         if constexpr (std::is_integral_v<R>) {
           // NPP complex division: 32sc truncates; 16sc truncates at sf == 0
-          // and rounds half-to-even above (verified on the 5090).
+          // and rounds half-to-even above (verified on the reference).
           if (den == 0.0) return T{};
           if constexpr (std::is_same_v<R, Npp32s>) {
             out.re = scale_trunc<R>(re, p);
@@ -576,7 +576,7 @@ template <typename T> inline T eval_const(Op op, T a, T c, int p) {
     }
     if (op == Op::DivC) {
       // Full complex divide: a / c.  A zero divisor follows IEEE (NaN
-      // components for 0/0), matching the 5090 complex kernels.
+      // components for 0/0), matching the reference complex kernels.
       const double den = (double)c.re * (double)c.re + (double)c.im * (double)c.im;
       const double re = ((double)a.re * (double)c.re + (double)a.im * (double)c.im) / den;
       const double im = ((double)a.im * (double)c.re - (double)a.re * (double)c.im) / den;
@@ -616,10 +616,10 @@ inline Npp16f half_binary(Op op, float a, float b) {
     case Op::Mul: return half_round(a * b);
     case Op::Div: return half_round(b / a);
     case Op::AbsDiff: return half_round(std::fabs(a - b));
-    case Op::Min: return b < a ? half_round(b) : half_round(a);
-    case Op::Max: return b > a ? half_round(b) : half_round(a);
-    case Op::MinEvery: return b < a ? half_round(b) : half_round(a);
-    case Op::MaxEvery: return b > a ? half_round(b) : half_round(a);
+    case Op::Min: return b < a ? half_round(b): half_round(a);
+    case Op::Max: return b > a ? half_round(b): half_round(a);
+    case Op::MinEvery: return b < a ? half_round(b): half_round(a);
+    case Op::MaxEvery: return b > a ? half_round(b): half_round(a);
     default: return half_round(a);
   }
 }
@@ -701,14 +701,14 @@ inline std::vector<GenCase> make_gen_cases(int param) {
                                  {33, 17}, {64, 48}, {257, 129}, {512, 257}};
   static const Regime regimes[] = {kSmall, kWide, kExtremes};
   std::vector<GenCase> v;
-  for (auto &s : sizes)
-    for (Regime r : regimes) v.push_back({s[0], s[1], 0, 0, 0, r, param});
+  for (auto &s: sizes)
+    for (Regime r: regimes) v.push_back({s[0], s[1], 0, 0, 0, r, param});
   static const int off_sizes[][2] = {{2, 3}, {33, 17}, {257, 129}};
-  for (auto &s : off_sizes)
-    for (Regime r : regimes) v.push_back({s[0], s[1], 16, 2, 3, r, param});
+  for (auto &s: off_sizes)
+    for (Regime r: regimes) v.push_back({s[0], s[1], 16, 2, 3, r, param});
   static const int bigpad_sizes[][2] = {{1, 1}, {64, 48}};
-  for (auto &s : bigpad_sizes)
-    for (Regime r : regimes) v.push_back({s[0], s[1], 32, 1, 1, r, param});
+  for (auto &s: bigpad_sizes)
+    for (Regime r: regimes) v.push_back({s[0], s[1], 32, 1, 1, r, param});
   return v;
 }
 
@@ -723,7 +723,7 @@ inline int align_step(size_t bytes, int pad) { return (int)align16(bytes) + pad;
 template <typename T> inline int safe_pad(int pad) {
   if constexpr (std::is_same_v<T, Npp16s> || std::is_same_v<T, Npp8s> ||
                 std::is_same_v<T, Npp16sc>)
-    return pad == 0 ? 16 : pad;
+    return pad == 0 ? 16: pad;
   return pad;
 }
 
@@ -737,8 +737,7 @@ template <typename T> struct Buf {
   npp_functional_test::DeviceMemory<uint8_t> dev;
 
   Buf() = default;
-  Buf(int w, int h, int channels, int pad, uint8_t fill)
-      : bw(w), bh(h), step(align_step((size_t)w * channels * sizeof(T), pad)),
+  Buf(int w, int h, int channels, int pad, uint8_t fill): bw(w), bh(h), step(align_step((size_t)w * channels * sizeof(T), pad)),
         host((size_t)step * h, fill), dev((size_t)step * h) {}
 
   T *hptr() { return reinterpret_cast<T *>(host.data()); }
@@ -847,7 +846,7 @@ inline void fill_regime(Buf<T> &b, int channels, uint64_t seed, Regime regime, i
   for (size_t i = 0; i < n; ++i) {
     T v = regime_value<T>(rng, regime, i + (size_t)salt);
     if constexpr (std::is_same_v<T, Npp8s>) {
-      // The 5090's multi-channel 8s right-shift kernel is not consistent
+      // The reference's multi-channel 8s right-shift kernel is not consistent
       // about sign extension in its vectorized lanes; restrict those tests
       // to non-negative pixels so both logical and arithmetic shifts agree.
       if (nonnegative) v = (T)(v & 0x7F);
@@ -857,7 +856,7 @@ inline void fill_regime(Buf<T> &b, int channels, uint64_t seed, Regime regime, i
       if ((no_nan && std::isnan(hv)) || (finite_only && !std::isfinite(hv))) v = half_round(0.0f);
     } else if constexpr (std::is_floating_point_v<T>) {
       // The multi-channel 32f compare kernels have lane-dependent NaN
-      // artifacts on the 5090; keep NaN out of those reference inputs.
+      // artifacts on the reference; keep NaN out of those reference inputs.
       if ((no_nan && std::isnan((double)v)) || (finite_only && !std::isfinite((double)v))) v = T(0);
     }
     p[i] = v;
@@ -896,9 +895,9 @@ template <typename Cst> inline void make_const_nonzero(Cst &v) {
 
 template <typename T> inline T no_nan_value(T v) {
   if constexpr (std::is_same_v<T, Npp16f>) {
-    return std::isnan(half_to_float_host(v)) ? half_round(0.0f) : v;
+    return std::isnan(half_to_float_host(v)) ? half_round(0.0f): v;
   } else if constexpr (std::is_floating_point_v<T>) {
-    return std::isnan((double)v) ? T(0) : v;
+    return std::isnan((double)v) ? T(0): v;
   } else {
     return v;
   }
@@ -923,8 +922,8 @@ void run_binary(const char *id, Call call, const std::vector<int> &params, doubl
   }
   RunCounts cnt;
   std::string first;
-  for (int param : params) {
-    for (const GenCase &c : make_gen_cases(param)) {
+  for (int param: params) {
+    for (const GenCase &c: make_gen_cases(param)) {
       Buf<S> s1(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
       Buf<S> s2(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
       Buf<D> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
@@ -1034,8 +1033,8 @@ void run_binary_inplace(const char *id, Call call, const std::vector<int> &param
   }
   RunCounts cnt;
   std::string first;
-  for (int param : params) {
-    for (const GenCase &c : make_gen_cases(param)) {
+  for (int param: params) {
+    for (const GenCase &c: make_gen_cases(param)) {
       Buf<S> src(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
       Buf<S> dst(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
       const uint64_t seed = case_seed(id, c.w, c.h, src.step, dst.step, (int)c.regime, param);
@@ -1120,8 +1119,8 @@ void run_unary(const char *id, Call call, const std::vector<int> &params, double
   }
   RunCounts cnt;
   std::string first;
-  for (int param : params) {
-    for (const GenCase &c : make_gen_cases(param)) {
+  for (int param: params) {
+    for (const GenCase &c: make_gen_cases(param)) {
       Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
       Buf<D> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
       const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, param);
@@ -1195,8 +1194,8 @@ void run_unary_inplace(const char *id, Call call, const std::vector<int> &params
   }
   RunCounts cnt;
   std::string first;
-  for (int param : params) {
-    for (const GenCase &c : make_gen_cases(param)) {
+  for (int param: params) {
+    for (const GenCase &c: make_gen_cases(param)) {
       Buf<S> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
       const uint64_t seed = case_seed(id, c.w, c.h, d.step, d.step, (int)c.regime, param);
       fill_regime(d, C, seed, c.regime, 0);
@@ -1271,13 +1270,13 @@ void run_const(const char *id, Call call, const std::vector<int> &params, double
   }
   RunCounts cnt;
   std::string first;
-  for (int param : params) {
-    for (const GenCase &c : make_gen_cases(param)) {
+  for (int param: params) {
+    for (const GenCase &c: make_gen_cases(param)) {
       Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
       Buf<D> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
       const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, param);
       fill_regime(s, C, seed, c.regime, 0, nonnegative);
-      Cst cval[C > 0 ? C : 1];
+      Cst cval[C > 0 ? C: 1];
       for (int ch = 0; ch < C; ++ch) cval[ch] = make_const<Cst>(seed, ch);
       if (nonzero_const) for (int ch = 0; ch < C; ++ch) make_const_nonzero(cval[ch]);
       Cst c0 = cval[0];
@@ -1286,7 +1285,7 @@ void run_const(const char *id, Call call, const std::vector<int> &params, double
       npp_diff::clear_cuda_error();
       NppStatus st = call(
           reinterpret_cast<const S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, C)), s.step,
-          per_channel ? cval : nullptr, c0,
+          per_channel ? cval: nullptr, c0,
           reinterpret_cast<D *>(d.dptr() + off_bytes<D>(c.oy, c.ox, d.step, C)), d.step,
           NppiSize{c.w, c.h}, param, ctx);
       if (st != NPP_NO_ERROR) {
@@ -1306,7 +1305,7 @@ void run_const(const char *id, Call call, const std::vector<int> &params, double
             if (ch >= A) continue;
             const S a = s.hptr()[(size_t)(c.oy + y) * (s.step / sizeof(S)) +
                                  (size_t)(c.ox + x) * C + ch];
-            const Cst cv = per_channel ? cval[ch] : c0;
+            const Cst cv = per_channel ? cval[ch]: c0;
             D r{};
             if constexpr (is_complex_num_v<D>) r = eval_const<D>(O, (D)a, (D)cv, param);
             else r = eval_const_d<D>(O, as_double(a), as_double(cv), param);
@@ -1321,7 +1320,7 @@ void run_const(const char *id, Call call, const std::vector<int> &params, double
             ++cnt.compared;
             if (!equal_elem<D>(d.host.data() + off, want.data() + off, rtol, atol)) {
               const S ina = s.hptr()[(size_t)(c.oy + y) * (s.step / sizeof(S)) + (size_t)(c.ox + x) * C + ch];
-              const Cst inc = per_channel ? cval[ch] : c0;
+              const Cst inc = per_channel ? cval[ch]: c0;
               const std::string in = val_str("a", ina) + " " + val_str("c", inc);
               char buf[360];
               std::snprintf(buf, sizeof(buf),
@@ -1352,12 +1351,12 @@ void run_const_inplace(const char *id, Call call, const std::vector<int> &params
   }
   RunCounts cnt;
   std::string first;
-  for (int param : params) {
-    for (const GenCase &c : make_gen_cases(param)) {
+  for (int param: params) {
+    for (const GenCase &c: make_gen_cases(param)) {
       Buf<S> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
       const uint64_t seed = case_seed(id, c.w, c.h, d.step, d.step, (int)c.regime, param);
       fill_regime(d, C, seed, c.regime, 0, nonnegative);
-      Cst cval[C > 0 ? C : 1];
+      Cst cval[C > 0 ? C: 1];
       for (int ch = 0; ch < C; ++ch) cval[ch] = make_const<Cst>(seed, ch);
       if (nonzero_const) for (int ch = 0; ch < C; ++ch) make_const_nonzero(cval[ch]);
       Cst c0 = cval[0];
@@ -1365,7 +1364,7 @@ void run_const_inplace(const char *id, Call call, const std::vector<int> &params
       d.dev.copyFromHost(d.host);
       npp_diff::clear_cuda_error();
       NppStatus st = call(
-          per_channel ? cval : nullptr, c0,
+          per_channel ? cval: nullptr, c0,
           reinterpret_cast<S *>(d.dptr() + off_bytes<S>(c.oy, c.ox, d.step, C)), d.step,
           NppiSize{c.w, c.h}, param, ctx);
       if (st != NPP_NO_ERROR) {
@@ -1385,7 +1384,7 @@ void run_const_inplace(const char *id, Call call, const std::vector<int> &params
             if (ch >= A) continue;
             const S a = reinterpret_cast<const S *>(old_dst.data())[
                 (size_t)(c.oy + y) * (d.step / sizeof(S)) + (size_t)(c.ox + x) * C + ch];
-            const Cst cv = per_channel ? cval[ch] : c0;
+            const Cst cv = per_channel ? cval[ch]: c0;
             S r{};
             if constexpr (is_complex_num_v<S>) r = eval_const<S>(O, a, (S)cv, param);
             else r = eval_const_d<S>(O, as_double(a), as_double(cv), param);
@@ -1400,7 +1399,7 @@ void run_const_inplace(const char *id, Call call, const std::vector<int> &params
             ++cnt.compared;
             if (!equal_elem<S>(d.host.data() + off, want.data() + off, rtol, atol)) {
               const S ina = reinterpret_cast<const S *>(old_dst.data())[(size_t)(c.oy + y) * (d.step / sizeof(S)) + (size_t)(c.ox + x) * C + ch];
-              const Cst inc = per_channel ? cval[ch] : c0;
+              const Cst inc = per_channel ? cval[ch]: c0;
               const std::string in = val_str("a", ina) + " " + val_str("c", inc);
               char buf[360];
               std::snprintf(buf, sizeof(buf),
@@ -1434,11 +1433,11 @@ void run_devicec(const char *id, Call call, const std::vector<int> &params, doub
     GTEST_SKIP() << "[" << id << "] no stream context";
     return;
   }
-  constexpr int NC = (C == 1 ? 1 : A);
+  constexpr int NC = (C == 1 ? 1: A);
   RunCounts cnt;
   std::string first;
-  for (int param : params) {
-    for (const GenCase &c : make_gen_cases(param)) {
+  for (int param: params) {
+    for (const GenCase &c: make_gen_cases(param)) {
       Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
       Buf<S> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
       const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, param);
@@ -1476,7 +1475,7 @@ void run_devicec(const char *id, Call call, const std::vector<int> &params, doub
             if (ch >= A) continue;
             const S a = s.hptr()[(size_t)(c.oy + y) * (s.step / sizeof(S)) +
                                  (size_t)(c.ox + x) * C + ch];
-            const CT cv = cval[C == 1 ? 0 : ch];
+            const CT cv = cval[C == 1 ? 0: ch];
             const S r = eval_const_d<S>(O, as_double(a), as_double(cv), param);
             std::memcpy(want.data() + off, &r, sizeof(S));
           }
@@ -1515,11 +1514,11 @@ void run_devicec_inplace(const char *id, Call call, const std::vector<int> &para
     GTEST_SKIP() << "[" << id << "] no stream context";
     return;
   }
-  constexpr int NC = (C == 1 ? 1 : A);
+  constexpr int NC = (C == 1 ? 1: A);
   RunCounts cnt;
   std::string first;
-  for (int param : params) {
-    for (const GenCase &c : make_gen_cases(param)) {
+  for (int param: params) {
+    for (const GenCase &c: make_gen_cases(param)) {
       Buf<S> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
       const uint64_t seed = case_seed(id, c.w, c.h, d.step, d.step, (int)c.regime, param);
       fill_regime(d, C, seed, c.regime, 0);
@@ -1553,7 +1552,7 @@ void run_devicec_inplace(const char *id, Call call, const std::vector<int> &para
             if (ch >= A) continue;
             const S a = reinterpret_cast<const S *>(old_dst.data())[
                 (size_t)(c.oy + y) * (d.step / sizeof(S)) + (size_t)(c.ox + x) * C + ch];
-            const CT cv = cval[C == 1 ? 0 : ch];
+            const CT cv = cval[C == 1 ? 0: ch];
             const S r = eval_const_d<S>(O, as_double(a), as_double(cv), param);
             std::memcpy(want.data() + off, &r, sizeof(S));
           }
@@ -1586,8 +1585,8 @@ void run_devicec_inplace(const char *id, Call call, const std::vector<int> &para
 
 // ---------------------------------------------------------------------------
 // Accumulating operations (AddProduct / AddSquare / AddWeighted).
-//   AddProduct : srcDst += src1 * src2
-//   AddSquare  : srcDst += src * src
+//   AddProduct: srcDst += src1 * src2
+//   AddSquare: srcDst += src * src
 //   AddWeighted: srcDst = alpha * src + (1 - alpha) * srcDst
 // Masked variants only update pixels whose mask byte is non-zero.
 // ---------------------------------------------------------------------------
@@ -1606,8 +1605,8 @@ void run_add_product(const char *id, Call call, const std::vector<int> &params, 
   }
   RunCounts cnt;
   std::string first;
-  for (int param : params) {
-    for (const GenCase &c : make_gen_cases(param)) {
+  for (int param: params) {
+    for (const GenCase &c: make_gen_cases(param)) {
       Buf<S1> a(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
       Buf<S2> b(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
       Buf<D> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
@@ -1617,7 +1616,7 @@ void run_add_product(const char *id, Call call, const std::vector<int> &params, 
       fill_regime(b, C, seed ^ 0x51633e2dull, c.regime, 1);
       fill_regime(d, C, seed ^ 0x2545f491ull, c.regime, 2);
       for (size_t i = 0; i < m.host.size(); ++i)
-        m.host[i] = (i % 3 == 0) ? 0 : (Npp8u)(i % 5 == 0 ? 1 : 255);
+        m.host[i] = (i % 3 == 0) ? 0: (Npp8u)(i % 5 == 0 ? 1: 255);
       const std::vector<uint8_t> old_dst = d.host;
       a.dev.copyFromHost(a.host);
       b.dev.copyFromHost(b.host);
@@ -1699,8 +1698,8 @@ void run_add_square(const char *id, Call call, const std::vector<int> &params, d
   }
   RunCounts cnt;
   std::string first;
-  for (int param : params) {
-    for (const GenCase &c : make_gen_cases(param)) {
+  for (int param: params) {
+    for (const GenCase &c: make_gen_cases(param)) {
       Buf<S> a(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
       Buf<D> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
       Buf<Npp8u> m(c.w + c.ox, c.h + c.oy, 1, c.pad, 0);
@@ -1708,7 +1707,7 @@ void run_add_square(const char *id, Call call, const std::vector<int> &params, d
       fill_regime(a, C, seed, c.regime, 0);
       fill_regime(d, C, seed ^ 0x2545f491ull, c.regime, 2);
       for (size_t i = 0; i < m.host.size(); ++i)
-        m.host[i] = (i % 3 == 0) ? 0 : (Npp8u)(i % 5 == 0 ? 1 : 255);
+        m.host[i] = (i % 3 == 0) ? 0: (Npp8u)(i % 5 == 0 ? 1: 255);
       const std::vector<uint8_t> old_dst = d.host;
       a.dev.copyFromHost(a.host);
       d.dev.copyFromHost(d.host);
@@ -1786,8 +1785,8 @@ void run_add_weighted(const char *id, Call call, const std::vector<int> &params,
   }
   RunCounts cnt;
   std::string first;
-  for (int param : params) {
-    for (const GenCase &c : make_gen_cases(param)) {
+  for (int param: params) {
+    for (const GenCase &c: make_gen_cases(param)) {
       Buf<S> a(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
       Buf<D> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
       Buf<Npp8u> m(c.w + c.ox, c.h + c.oy, 1, c.pad, 0);
@@ -1795,7 +1794,7 @@ void run_add_weighted(const char *id, Call call, const std::vector<int> &params,
       fill_regime(a, C, seed, c.regime, 0);
       fill_regime(d, C, seed ^ 0x2545f491ull, c.regime, 2);
       for (size_t i = 0; i < m.host.size(); ++i)
-        m.host[i] = (i % 3 == 0) ? 0 : (Npp8u)(i % 5 == 0 ? 1 : 255);
+        m.host[i] = (i % 3 == 0) ? 0: (Npp8u)(i % 5 == 0 ? 1: 255);
       const std::vector<uint8_t> old_dst = d.host;
       a.dev.copyFromHost(a.host);
       d.dev.copyFromHost(d.host);
@@ -1875,10 +1874,10 @@ inline D div_round_sfs(long long num, long long den, int mode, int sf) {
     if constexpr (std::is_same_v<D, Npp8u>) {
       // NPP's 8u path: 0/0 -> 254 for NEAR, 255 for the other modes;
       // non-zero numerators always saturate to 255.
-      return num == 0 && mode == (int)NPP_RND_NEAR ? D(254) : D(255);
+      return num == 0 && mode == (int)NPP_RND_NEAR ? D(254): D(255);
     } else {
       if (num == 0) return D(0);
-      if constexpr (std::is_signed_v<D>) return num < 0 ? type_min<D>() : type_max<D>();
+      if constexpr (std::is_signed_v<D>) return num < 0 ? type_min<D>(): type_max<D>();
       else return type_max<D>();
     }
   }
@@ -1886,12 +1885,11 @@ inline D div_round_sfs(long long num, long long den, int mode, int sf) {
   long long q = num / d;
   const long long r = num % d;
   if (r != 0 && mode != (int)NPP_RND_ZERO) {
-    const long long ar = r < 0 ? -r : r;
-    const long long ad = d < 0 ? -d : d;
-    const int sign = ((num < 0) ^ (d < 0)) ? -1 : 1;
+    const long long ar = r < 0 ? -r: r;
+    const long long ad = d < 0 ? -d: d;
+    const int sign = ((num < 0) ^ (d < 0)) ? -1: 1;
     const bool up = mode == (int)NPP_RND_FINANCIAL
-                        ? ((ar << 1) >= ad)
-                        : ((ar << 1) > ad || ((ar << 1) == ad && (q & 1LL)));
+                        ? ((ar << 1) >= ad): ((ar << 1) > ad || ((ar << 1) == ad && (q & 1LL)));
     if (up) q += sign;
   }
   return (D)q;
@@ -1906,9 +1904,9 @@ void run_div_round2d(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (int mode : {0, 1, 2}) {
-    for (int param : {0, 1, 2}) {
-      for (const GenCase &c : make_gen_cases(param)) {
+  for (int mode: {0, 1, 2}) {
+    for (int param: {0, 1, 2}) {
+      for (const GenCase &c: make_gen_cases(param)) {
         Buf<S> a(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
         Buf<S> b(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
         Buf<S> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
@@ -1950,8 +1948,7 @@ void run_div_round2d(const char *id, Call call) {
                                                         (size_t)(c.ox + x) * C + ch];
               const long long num = Inplace
                   ? (long long)reinterpret_cast<const S *>(old_dst.data())[
-                        (size_t)(c.oy + y) * (d.step / sizeof(S)) + (size_t)(c.ox + x) * C + ch]
-                  : (long long)b.hptr()[(size_t)(c.oy + y) * (b.step / sizeof(S)) +
+                        (size_t)(c.oy + y) * (d.step / sizeof(S)) + (size_t)(c.ox + x) * C + ch]: (long long)b.hptr()[(size_t)(c.oy + y) * (b.step / sizeof(S)) +
                                         (size_t)(c.ox + x) * C + ch];
               const S r = div_round_sfs<S>(num, den, mode, param);
               std::memcpy(want.data() + off, &r, sizeof(S));
@@ -2003,7 +2000,7 @@ void run_mul_scale(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> a(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> b(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
@@ -2044,8 +2041,7 @@ void run_mul_scale(const char *id, Call call) {
                                                (size_t)(c.ox + x) * C + ch]);
           const double bv = Inplace
               ? as_double(reinterpret_cast<const S *>(old_dst.data())[
-                    (size_t)(c.oy + y) * (d.step / sizeof(S)) + (size_t)(c.ox + x) * C + ch])
-              : as_double(b.hptr()[(size_t)(c.oy + y) * (b.step / sizeof(S)) +
+                    (size_t)(c.oy + y) * (d.step / sizeof(S)) + (size_t)(c.ox + x) * C + ch]): as_double(b.hptr()[(size_t)(c.oy + y) * (b.step / sizeof(S)) +
                                    (size_t)(c.ox + x) * C + ch]);
           const S r = mulscale_value<S>(av, bv);
           std::memcpy(want.data() + off, &r, sizeof(S));
@@ -2082,10 +2078,10 @@ void run_mul_cscale(const char *id, Call call) {
     GTEST_SKIP() << "[" << id << "] no stream context";
     return;
   }
-  constexpr int NC = (C == 1 ? 1 : A);
+  constexpr int NC = (C == 1 ? 1: A);
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
@@ -2127,9 +2123,8 @@ void run_mul_cscale(const char *id, Call call) {
           if (ch >= A) continue;
           const S av = Inplace
               ? reinterpret_cast<const S *>(old_dst.data())[
-                    (size_t)(c.oy + y) * (d.step / sizeof(S)) + (size_t)(c.ox + x) * C + ch]
-              : s.hptr()[(size_t)(c.oy + y) * (s.step / sizeof(S)) + (size_t)(c.ox + x) * C + ch];
-          const S r = mulscale_value<S>((double)av, (double)cval[C == 1 ? 0 : ch]);
+                    (size_t)(c.oy + y) * (d.step / sizeof(S)) + (size_t)(c.ox + x) * C + ch]: s.hptr()[(size_t)(c.oy + y) * (s.step / sizeof(S)) + (size_t)(c.ox + x) * C + ch];
+          const S r = mulscale_value<S>((double)av, (double)cval[C == 1 ? 0: ch]);
           std::memcpy(want.data() + off, &r, sizeof(S));
         }
     ++cnt.executed;
@@ -2170,7 +2165,7 @@ void run_copy_planar(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     const int w = c.w, h = c.h;
     Buf<S> packed(w + c.pad / (int)sizeof(S) + 1, h, CH, c.pad, 0x5A);
     std::vector<Buf<S> *> planes;
@@ -2186,11 +2181,11 @@ void run_copy_planar(const char *id, Call call) {
     std::vector<std::vector<uint8_t>> planes_in;
     for (int p = 0; p < CH; ++p) planes_in.push_back(planes[(size_t)p]->host);
     packed.dev.copyFromHost(packed.host);
-    for (auto *b : planes) b->dev.copyFromHost(b->host);
+    for (auto *b: planes) b->dev.copyFromHost(b->host);
     std::vector<const S *> host_ptrs;
     std::vector<S *> host_wptrs;
-    for (auto *b : planes) host_wptrs.push_back(reinterpret_cast<S *>(b->dptr()));
-    for (auto *b : planes) host_ptrs.push_back(reinterpret_cast<const S *>(b->dptr()));
+    for (auto *b: planes) host_wptrs.push_back(reinterpret_cast<S *>(b->dptr()));
+    for (auto *b: planes) host_ptrs.push_back(reinterpret_cast<const S *>(b->dptr()));
     const int plane_step = (int)planes[0]->step;
     npp_diff::clear_cuda_error();
     NppStatus st;
@@ -2204,13 +2199,13 @@ void run_copy_planar(const char *id, Call call) {
     if (st != NPP_NO_ERROR) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-      for (auto *b : planes) delete b;
+      for (auto *b: planes) delete b;
       continue;
     }
     const cudaError_t se = cudaDeviceSynchronize();
     ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
     packed.dev.copyToHost(packed.host);
-    for (auto *b : planes) b->dev.copyToHost(b->host);
+    for (auto *b: planes) b->dev.copyToHost(b->host);
     ++cnt.executed;
     bool case_failed = false;
     for (int y = 0; y < h && !case_failed; ++y)
@@ -2251,7 +2246,7 @@ void run_copy_planar(const char *id, Call call) {
             }
           }
         }
-    for (auto *b : planes) delete b;
+    for (auto *b: planes) delete b;
     if (cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);
@@ -2272,7 +2267,7 @@ template <typename D> inline D scale_store(double out, float cl_min, float cl_ma
     return (D)o;
   } else {
     if (std::isnan(out)) return (D)0;
-    const long long mn = std::is_signed_v<D> ? (long long)std::numeric_limits<D>::lowest() : 0;
+    const long long mn = std::is_signed_v<D> ? (long long)std::numeric_limits<D>::lowest(): 0;
     const long long mx = (long long)std::numeric_limits<D>::max();
     if (out >= (double)mx) return (D)mx;
     if (out <= (double)mn) return (D)mn;
@@ -2289,7 +2284,7 @@ void run_scale(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<D> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
@@ -2305,7 +2300,7 @@ void run_scale(const char *id, Call call) {
       else if (pick == 1) { mn = 0.0f; mx = 255.0f; }
       else { mn = -2.5f; mx = 7.5f; }
     }
-    const int hint = HasHint ? (int)(rng.next() % 2) : 0;
+    const int hint = HasHint ? (int)(rng.next() % 2): 0;
     npp_diff::clear_cuda_error();
     NppStatus st = call(reinterpret_cast<const S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, C)),
                         s.step,
@@ -2361,8 +2356,8 @@ void run_scale(const char *id, Call call) {
         for (int ch = 0; ch < C; ++ch) {
           const size_t off = off_bytes<D>(c.oy + y, c.ox + x, d.step, C) + (size_t)ch * sizeof(D);
           ++cnt.compared;
-          const double rtol = std::is_same_v<D, Npp32f> ? 1e-6 : 0.0;
-          const double atol = std::is_same_v<D, Npp32f> ? 1e-5 : 0.0;
+          const double rtol = std::is_same_v<D, Npp32f> ? 1e-6: 0.0;
+          const double atol = std::is_same_v<D, Npp32f> ? 1e-5: 0.0;
           if (!equal_elem<D>(d.host.data() + off, want.data() + off, rtol, atol)) {
             char b[360];
             std::snprintf(b, sizeof(b), "[%s] %s (%d,%d,ch=%d) got=%s want=%s", id, c.id().c_str(),
@@ -2402,8 +2397,8 @@ void run_threshold(const char *id, Call call, const std::vector<int> &params, bo
   }
   RunCounts cnt;
   std::string first;
-  for (int param : params) {
-    for (const GenCase &c : make_gen_cases(param)) {
+  for (int param: params) {
+    for (const GenCase &c: make_gen_cases(param)) {
       Buf<T> src(c.w + c.ox, c.h + c.oy, C, safe_pad<T>(c.pad), 0);
       Buf<T> dst(c.w + c.ox, c.h + c.oy, C, safe_pad<T>(c.pad), 0);
       const uint64_t seed = case_seed(id, c.w, c.h, src.step, dst.step, (int)c.regime, param);
@@ -2414,7 +2409,7 @@ void run_threshold(const char *id, Call call, const std::vector<int> &params, bo
       src.dev.copyFromHost(src.host);
       dst.dev.copyFromHost(dst.host);
 
-      T thr[C > 0 ? C : 1], val[C > 0 ? C : 1], thr2[C > 0 ? C : 1], val2[C > 0 ? C : 1];
+      T thr[C > 0 ? C: 1], val[C > 0 ? C: 1], thr2[C > 0 ? C: 1], val2[C > 0 ? C: 1];
       Rng rng(seed ^ 0x9e3779b97f4a7c15ull);
       for (int ch = 0; ch < C; ++ch) {
         const T v0 = src.hptr()[(size_t)(c.oy + (c.h / 2)) * (src.step / sizeof(T)) +
@@ -2427,19 +2422,19 @@ void run_threshold(const char *id, Call call, const std::vector<int> &params, bo
           // Keep the interval ordered for ordinary finite values; NaN/Inf
           // regimes simply make both comparisons false, which the reference
           // reproduces.
-          thr[ch] = lt < gt ? lt : gt;
-          thr2[ch] = lt < gt ? gt : lt;
+          thr[ch] = lt < gt ? lt: gt;
+          thr2[ch] = lt < gt ? gt: lt;
         } else {
-          thr[ch] = (c.w * c.h) % 3 == 0 ? v0 : r1;
+          thr[ch] = (c.w * c.h) % 3 == 0 ? v0: r1;
           thr2[ch] = r2;
         }
         val[ch] = regime_value<T>(rng, c.regime, 91 + ch);
         val2[ch] = regime_value<T>(rng, c.regime, 111 + ch);
       }
-      const T *tp = per_channel ? thr : &thr[0];
-      const T *vp = per_channel ? val : &val[0];
-      const T *t2p = per_channel ? thr2 : &thr2[0];
-      const T *v2p = per_channel ? val2 : &val2[0];
+      const T *tp = per_channel ? thr: &thr[0];
+      const T *vp = per_channel ? val: &val[0];
+      const T *t2p = per_channel ? thr2: &thr2[0];
+      const T *v2p = per_channel ? val2: &val2[0];
 
       npp_diff::clear_cuda_error();
       NppStatus st = call(
@@ -2456,7 +2451,7 @@ void run_threshold(const char *id, Call call, const std::vector<int> &params, bo
                                  << " sync: " << cudaGetErrorString(se);
       dst.dev.copyToHost(dst.host);
 
-      const std::vector<uint8_t> &in = inplace ? old_dst : old_src;
+      const std::vector<uint8_t> &in = inplace ? old_dst: old_src;
       std::vector<uint8_t> want = dst.host;
       for (int y = 0; y < c.h; ++y)
         for (int x = 0; x < c.w; ++x)
@@ -2465,29 +2460,29 @@ void run_threshold(const char *id, Call call, const std::vector<int> &params, bo
             if (ch >= A) continue;
             const T v = reinterpret_cast<const T *>(in.data())[(size_t)(c.oy + y) * (src.step / sizeof(T)) +
                                                               (size_t)(c.ox + x) * C + ch];
-            const T t = per_channel ? thr[ch] : thr[0];
-            const T vv = per_channel ? val[ch] : val[0];
+            const T t = per_channel ? thr[ch]: thr[0];
+            const T vv = per_channel ? val[ch]: val[0];
             T r = v;
             if (K == ThrKind::Threshold) {
-              const bool cond = param == NPP_CMP_LESS ? (v < t) : (v > t);
-              r = cond ? t : v;
+              const bool cond = param == NPP_CMP_LESS ? (v < t): (v > t);
+              r = cond ? t: v;
             } else if (K == ThrKind::ThresholdVal) {
-              const bool cond = param == NPP_CMP_LESS ? (v < t) : (v > t);
-              r = cond ? vv : v;
+              const bool cond = param == NPP_CMP_LESS ? (v < t): (v > t);
+              r = cond ? vv: v;
             } else if (K == ThrKind::GT) {
-              r = v > t ? t : v;
+              r = v > t ? t: v;
             } else if (K == ThrKind::LT) {
-              r = v < t ? t : v;
+              r = v < t ? t: v;
             } else if (K == ThrKind::GTVal) {
-              r = v > t ? vv : v;
+              r = v > t ? vv: v;
             } else if (K == ThrKind::LTVal) {
-              r = v < t ? vv : v;
+              r = v < t ? vv: v;
             } else {
-              const T tl = per_channel ? thr[ch] : thr[0];
-              const T tg = per_channel ? thr2[ch] : thr2[0];
-              const T vl = per_channel ? val[ch] : val[0];
-              const T vg = per_channel ? val2[ch] : val2[0];
-              r = v < tl ? vl : (v > tg ? vg : v);
+              const T tl = per_channel ? thr[ch]: thr[0];
+              const T tg = per_channel ? thr2[ch]: thr2[0];
+              const T vl = per_channel ? val[ch]: val[0];
+              const T vg = per_channel ? val2[ch]: val2[0];
+              r = v < tl ? vl: (v > tg ? vg: v);
             }
             std::memcpy(want.data() + off, &r, sizeof(T));
           }
@@ -2532,8 +2527,8 @@ void run_compare(const char *id, Call call, const std::vector<int> &params) {
   }
   RunCounts cnt;
   std::string first;
-  for (int param : params) {
-    for (const GenCase &c : make_gen_cases(param)) {
+  for (int param: params) {
+    for (const GenCase &c: make_gen_cases(param)) {
       Buf<T> a(c.w + c.ox, c.h + c.oy, C, safe_pad<T>(c.pad), 0);
       Buf<T> b(c.w + c.ox, c.h + c.oy, C, safe_pad<T>(c.pad), 0);
       Buf<Npp8u> d(c.w + c.ox, c.h + c.oy, 1, safe_pad<T>(c.pad), 0x5A);
@@ -2578,7 +2573,7 @@ void run_compare(const char *id, Call call, const std::vector<int> &params) {
             }
             all = all && cnd;
           }
-          want[off_bytes<Npp8u>(c.oy + y, c.ox + x, d.step, 1)] = all ? 0xFF : 0x00;
+          want[off_bytes<Npp8u>(c.oy + y, c.ox + x, d.step, 1)] = all ? 0xFF: 0x00;
         }
       ++cnt.executed;
       bool case_failed = false;
@@ -2614,13 +2609,13 @@ void run_compare_const(const char *id, Call call, const std::vector<int> &params
   }
   RunCounts cnt;
   std::string first;
-  for (int param : params) {
-    for (const GenCase &c : make_gen_cases(param)) {
+  for (int param: params) {
+    for (const GenCase &c: make_gen_cases(param)) {
       Buf<T> a(c.w + c.ox, c.h + c.oy, C, safe_pad<T>(c.pad), 0);
       Buf<Npp8u> d(c.w + c.ox, c.h + c.oy, 1, safe_pad<T>(c.pad), 0x5A);
       const uint64_t seed = case_seed(id, c.w, c.h, a.step, d.step, (int)c.regime, param);
       fill_regime(a, C, seed, c.regime, 0, false, true, true);
-      T cv[C > 0 ? C : 1];
+      T cv[C > 0 ? C: 1];
       Rng rng(seed ^ 0x9e3779b97f4a7c15ull);
       for (int ch = 0; ch < C; ++ch) cv[ch] = no_nan_value(regime_value<T>(rng, c.regime, 131 + ch));
       a.dev.copyFromHost(a.host);
@@ -2628,7 +2623,7 @@ void run_compare_const(const char *id, Call call, const std::vector<int> &params
       npp_diff::clear_cuda_error();
       NppStatus st = call(
           reinterpret_cast<const T *>(a.dptr() + off_bytes<T>(c.oy, c.ox, a.step, C)), a.step,
-          per_channel ? cv : &cv[0],
+          per_channel ? cv: &cv[0],
           d.dptr() + off_bytes<Npp8u>(c.oy, c.ox, d.step, 1), d.step, NppiSize{c.w, c.h}, param,
           ctx);
       if (st != NPP_NO_ERROR) {
@@ -2646,7 +2641,7 @@ void run_compare_const(const char *id, Call call, const std::vector<int> &params
           bool all = true;
           for (int ch = 0; ch < A; ++ch) {
             const T va = a.hptr()[(size_t)(c.oy + y) * (a.step / sizeof(T)) + (size_t)(c.ox + x) * C + ch];
-            const T vb = per_channel ? cv[ch] : cv[0];
+            const T vb = per_channel ? cv[ch]: cv[0];
             bool cnd = false;
             switch (param) {
               case NPP_CMP_LESS: cnd = va < vb; break;
@@ -2660,7 +2655,7 @@ void run_compare_const(const char *id, Call call, const std::vector<int> &params
             }
             all = all && cnd;
           }
-          want[off_bytes<Npp8u>(c.oy + y, c.ox + x, d.step, 1)] = all ? 0xFF : 0x00;
+          want[off_bytes<Npp8u>(c.oy + y, c.ox + x, d.step, 1)] = all ? 0xFF: 0x00;
         }
       ++cnt.executed;
       bool case_failed = false;
@@ -2700,8 +2695,8 @@ void run_compare_eps(const char *id, Call call, const std::vector<double> &eps_p
   }
   RunCounts cnt;
   std::string first;
-  for (double eps : eps_params) {
-    for (const GenCase &c : make_gen_cases(0)) {
+  for (double eps: eps_params) {
+    for (const GenCase &c: make_gen_cases(0)) {
       Buf<T> a(c.w + c.ox, c.h + c.oy, C, safe_pad<T>(c.pad), 0);
       Buf<T> b(c.w + c.ox, c.h + c.oy, C, safe_pad<T>(c.pad), 0);
       Buf<Npp8u> d(c.w + c.ox, c.h + c.oy, 1, safe_pad<T>(c.pad), 0x5A);
@@ -2736,7 +2731,7 @@ void run_compare_eps(const char *id, Call call, const std::vector<double> &eps_p
             const T vb = b.hptr()[(size_t)(c.oy + y) * (b.step / sizeof(T)) + (size_t)(c.ox + x) * C + ch];
             all = all && (std::fabs((double)va - (double)vb) <= eps);
           }
-          want[off_bytes<Npp8u>(c.oy + y, c.ox + x, d.step, 1)] = all ? 0xFF : 0x00;
+          want[off_bytes<Npp8u>(c.oy + y, c.ox + x, d.step, 1)] = all ? 0xFF: 0x00;
         }
       ++cnt.executed;
       bool case_failed = false;
@@ -2773,13 +2768,13 @@ void run_compare_eps_const(const char *id, Call call, const std::vector<double> 
   }
   RunCounts cnt;
   std::string first;
-  for (double eps : eps_params) {
-    for (const GenCase &c : make_gen_cases(0)) {
+  for (double eps: eps_params) {
+    for (const GenCase &c: make_gen_cases(0)) {
       Buf<T> a(c.w + c.ox, c.h + c.oy, C, safe_pad<T>(c.pad), 0);
       Buf<Npp8u> d(c.w + c.ox, c.h + c.oy, 1, safe_pad<T>(c.pad), 0x5A);
       const uint64_t seed = case_seed(id, c.w, c.h, a.step, d.step, (int)c.regime, 0);
       fill_regime(a, C, seed, c.regime, 0, false, true, true);
-      T cv[C > 0 ? C : 1];
+      T cv[C > 0 ? C: 1];
       Rng rng(seed ^ 0x9e3779b97f4a7c15ull);
       for (int ch = 0; ch < C; ++ch) cv[ch] = no_nan_value(regime_value<T>(rng, c.regime, 131 + ch));
       a.dev.copyFromHost(a.host);
@@ -2787,7 +2782,7 @@ void run_compare_eps_const(const char *id, Call call, const std::vector<double> 
       npp_diff::clear_cuda_error();
       NppStatus st = call(
           reinterpret_cast<const T *>(a.dptr() + off_bytes<T>(c.oy, c.ox, a.step, C)), a.step,
-          per_channel ? cv : &cv[0],
+          per_channel ? cv: &cv[0],
           d.dptr() + off_bytes<Npp8u>(c.oy, c.ox, d.step, 1), d.step, NppiSize{c.w, c.h},
           (Npp32f)eps, ctx);
       if (st != NPP_NO_ERROR) {
@@ -2805,10 +2800,10 @@ void run_compare_eps_const(const char *id, Call call, const std::vector<double> 
           bool all = true;
           for (int ch = 0; ch < A; ++ch) {
             const T va = a.hptr()[(size_t)(c.oy + y) * (a.step / sizeof(T)) + (size_t)(c.ox + x) * C + ch];
-            const T vb = per_channel ? cv[ch] : cv[0];
+            const T vb = per_channel ? cv[ch]: cv[0];
             all = all && (std::fabs((double)va - (double)vb) <= eps);
           }
-          want[off_bytes<Npp8u>(c.oy + y, c.ox + x, d.step, 1)] = all ? 0xFF : 0x00;
+          want[off_bytes<Npp8u>(c.oy + y, c.ox + x, d.step, 1)] = all ? 0xFF: 0x00;
         }
       ++cnt.executed;
       bool case_failed = false;
@@ -2855,18 +2850,18 @@ void run_set(const char *id, Call call, bool per_channel, bool fill_all, bool ma
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     const int pad = safe_pad<T>(c.pad);
     Buf<T> d(c.w + c.ox, c.h + c.oy, C, pad, 0x5A);
     Buf<Npp8u> m(c.w + c.ox, c.h + c.oy, 1, pad, 0xFF);
     const uint64_t seed = case_seed(id, c.w, c.h, d.step, m.step, (int)c.regime, 0);
     Rng rng(seed);
-    VT vals[C > 0 ? C : 1];
+    VT vals[C > 0 ? C: 1];
     for (int ch = 0; ch < C; ++ch) vals[ch] = regime_value<VT>(rng, c.regime, 3 + ch);
     const VT scalar = regime_value<VT>(rng, c.regime, 1);
     if (masked) {
       for (int y = 0; y < m.bh; ++y)
-        for (int x = 0; x < m.bw; ++x) m.host[(size_t)y * m.step + x] = ((x * 7 + y * 13) % 5 == 0) ? 0 : 0xFF;
+        for (int x = 0; x < m.bw; ++x) m.host[(size_t)y * m.step + x] = ((x * 7 + y * 13) % 5 == 0) ? 0: 0xFF;
     }
     d.dev.copyFromHost(d.host);
     if (masked) m.dev.copyFromHost(m.host);
@@ -2874,8 +2869,8 @@ void run_set(const char *id, Call call, bool per_channel, bool fill_all, bool ma
     NppStatus st = call(vals, scalar,
                         reinterpret_cast<T *>(d.dptr() + off_bytes<T>(c.oy, c.ox, d.step, C)), d.step,
                         NppiSize{c.w, c.h},
-                        masked ? m.dptr() + off_bytes<Npp8u>(c.oy, c.ox, m.step, 1) : nullptr,
-                        masked ? m.step : 0, ctx);
+                        masked ? m.dptr() + off_bytes<Npp8u>(c.oy, c.ox, m.step, 1): nullptr,
+                        masked ? m.step: 0, ctx);
     if (st != NPP_NO_ERROR) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
@@ -2891,10 +2886,10 @@ void run_set(const char *id, Call call, bool per_channel, bool fill_all, bool ma
         if (masked && m.host[(size_t)(c.oy + y) * m.step + (c.ox + x)] == 0) continue;
         // C3CR/C4CR set only the selected (first) channel; plain Set writes
         // the active channels and leaves AC4 alpha untouched.
-        const int channels = fill_all ? 1 : A;
+        const int channels = fill_all ? 1: A;
         for (int ch = 0; ch < channels; ++ch) {
           const size_t off = off_bytes<T>(c.oy + y, c.ox + x, d.step, C) + (size_t)ch * sizeof(T);
-          const VT v = (fill_all ? scalar : (per_channel ? vals[ch] : scalar));
+          const VT v = (fill_all ? scalar: (per_channel ? vals[ch]: scalar));
           const T r = convert_value<T>(v);
           std::memcpy(want.data() + off, &r, sizeof(T));
         }
@@ -2927,7 +2922,7 @@ void run_set(const char *id, Call call, bool per_channel, bool fill_all, bool ma
 
 // ---------------------------------------------------------------------------
 // Copy family.  The source and destination may have different packed channel
-// counts (C1C3 / C3C1 ...); NCOPY channels are copied from the source pixel
+// counts (C1C3 / C3C1...); NCOPY channels are copied from the source pixel
 // to the destination pixel, the remaining destination channels are preserved
 // (AC4 alpha, C3CR selected-channel, C1Cx insertion).  Masked variants copy
 // only where the 8u mask pixel is non-zero.
@@ -2941,7 +2936,7 @@ void run_copy(const char *id, Call call, bool masked) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<T> s(c.w + c.ox, c.h + c.oy, SCH, safe_pad<T>(c.pad), 0xCD);
     Buf<T> d(c.w + c.ox, c.h + c.oy, DCH, safe_pad<T>(c.pad), 0x5A);
     Buf<Npp8u> m(c.w + c.ox, c.h + c.oy, 1, safe_pad<T>(c.pad), 0xFF);
@@ -2950,7 +2945,7 @@ void run_copy(const char *id, Call call, bool masked) {
     if (masked)
       for (int y = 0; y < m.bh; ++y)
         for (int x = 0; x < m.bw; ++x)
-          m.host[(size_t)y * m.step + x] = ((x * 11 + y * 7) % 4 == 0) ? 0 : 0xFF;
+          m.host[(size_t)y * m.step + x] = ((x * 11 + y * 7) % 4 == 0) ? 0: 0xFF;
     s.dev.copyFromHost(s.host);
     d.dev.copyFromHost(d.host);
     if (masked) m.dev.copyFromHost(m.host);
@@ -2958,8 +2953,8 @@ void run_copy(const char *id, Call call, bool masked) {
     NppStatus st = call(
         reinterpret_cast<const T *>(s.dptr() + off_bytes<T>(c.oy, c.ox, s.step, SCH)), s.step,
         reinterpret_cast<T *>(d.dptr() + off_bytes<T>(c.oy, c.ox, d.step, DCH)), d.step,
-        NppiSize{c.w, c.h}, masked ? m.dptr() + off_bytes<Npp8u>(c.oy, c.ox, m.step, 1) : nullptr,
-        masked ? m.step : 0, ctx);
+        NppiSize{c.w, c.h}, masked ? m.dptr() + off_bytes<Npp8u>(c.oy, c.ox, m.step, 1): nullptr,
+        masked ? m.step: 0, ctx);
     if (st != NPP_NO_ERROR) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
@@ -3018,7 +3013,7 @@ void run_transpose(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     const int pad = safe_pad<T>(c.pad);
     Buf<T> s(c.w + c.ox, c.h + c.oy, C, pad, 0xCD);
     Buf<T> d(c.h + c.ox, c.w + c.oy, C, pad, 0x5A);
@@ -3086,7 +3081,7 @@ void run_dup(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     const int pad = safe_pad<T>(c.pad);
     Buf<T> s(c.w + c.ox, c.h + c.oy, 1, pad, 0xCD);
     Buf<T> d(c.w + c.ox, c.h + c.oy, STRIDE, pad, 0x5A);
@@ -3156,7 +3151,7 @@ void run_swap(const char *id, Call call, bool inplace) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     const int pad = safe_pad<T>(c.pad);
     Buf<T> s(c.w + c.ox, c.h + c.oy, SC, pad, 0xCD);
     Buf<T> d(c.w + c.ox, c.h + c.oy, DC, pad, 0x5A);
@@ -3164,7 +3159,7 @@ void run_swap(const char *id, Call call, bool inplace) {
     fill_regime(s, SC, seed, c.regime, 0);
     // In-place APIs operate on the source buffer; out-of-place keeps a
     // separate destination initialized with the sentinel.
-    const std::vector<uint8_t> old = inplace ? s.host : d.host;
+    const std::vector<uint8_t> old = inplace ? s.host: d.host;
     s.dev.copyFromHost(s.host);
     if (!inplace) d.dev.copyFromHost(d.host);
     Rng rng(seed ^ 0x2545f491ull);
@@ -3190,7 +3185,7 @@ void run_swap(const char *id, Call call, bool inplace) {
     if (inplace) dptr = reinterpret_cast<T *>(s.dptr() + off_bytes<T>(c.oy, c.ox, s.step, SC));
     const T *sptr = reinterpret_cast<const T *>(s.dptr() + off_bytes<T>(c.oy, c.ox, s.step, SC));
     npp_diff::clear_cuda_error();
-    NppStatus st = call(sptr, s.step, dptr, inplace ? s.step : d.step, NppiSize{c.w, c.h}, ord,
+    NppStatus st = call(sptr, s.step, dptr, inplace ? s.step: d.step, NppiSize{c.w, c.h}, ord,
                         value, ctx);
     if (st != NPP_NO_ERROR) {
       ++cnt.skipped;
@@ -3201,9 +3196,9 @@ void run_swap(const char *id, Call call, bool inplace) {
     ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id()
                                << " sync: " << cudaGetErrorString(se);
     if (inplace) s.dev.copyToHost(s.host); else d.dev.copyToHost(d.host);
-    std::vector<uint8_t> want = inplace ? s.host : d.host;
-    const int dstep = inplace ? s.step : d.step;
-    const std::vector<uint8_t> &src_host = inplace ? old : s.host;
+    std::vector<uint8_t> want = inplace ? s.host: d.host;
+    const int dstep = inplace ? s.step: d.step;
+    const std::vector<uint8_t> &src_host = inplace ? old: s.host;
     for (int y = 0; y < c.h; ++y)
       for (int x = 0; x < c.w; ++x) {
         for (int ch = 0; ch < DC; ++ch) {
@@ -3232,10 +3227,10 @@ void run_swap(const char *id, Call call, bool inplace) {
         for (int ch = 0; ch < DC; ++ch) {
           const size_t off = off_bytes<T>(c.oy + y, c.ox + x, dstep, DC) + (size_t)ch * sizeof(T);
           ++cnt.compared;
-          if (!equal_elem<T>((inplace ? s.host : d.host).data() + off, want.data() + off, 0, 0)) {
+          if (!equal_elem<T>((inplace ? s.host: d.host).data() + off, want.data() + off, 0, 0)) {
             char buf[460];
             char sdesc[200];
-            const std::vector<uint8_t> &dbgsrc = inplace ? old : s.host;
+            const std::vector<uint8_t> &dbgsrc = inplace ? old: s.host;
             int used = std::snprintf(sdesc, sizeof(sdesc), "src0..%d=", SC - 1);
             for (int q = 0; q < SC; ++q) {
               used += std::snprintf(sdesc + used, sizeof(sdesc) - (size_t)used, " %s",
@@ -3248,7 +3243,7 @@ void run_swap(const char *id, Call call, bool inplace) {
                           "[%s] %s mismatch at (x=%d,y=%d,ch=%d): got=%s want=%s "
                           "ord=%d,%d,%d,%d %s",
                           id, c.id().c_str(), x, y, ch,
-                          dbg_elem<T>((inplace ? s.host : d.host).data() + off).c_str(),
+                          dbg_elem<T>((inplace ? s.host: d.host).data() + off).c_str(),
                           dbg_elem<T>(want.data() + off).c_str(), ord[0], ord[1], ord[2], ord[3],
                           sdesc);
             if (first.empty()) first = buf;
@@ -3281,7 +3276,7 @@ void run_border(const char *id, Call call, bool per_channel) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     const int sw = c.w, sh = c.h, top = 1, left = 2;
     const int dw = sw + 2 * left, dh = sh + 2 * top;
     const int pad = safe_pad<T>(c.pad);
@@ -3292,7 +3287,7 @@ void run_border(const char *id, Call call, bool per_channel) {
     s.dev.copyFromHost(s.host);
     d.dev.copyFromHost(d.host);
     Rng rng(seed ^ 0x9e3779b97f4a7c15ull);
-    VT vals[C > 0 ? C : 1];
+    VT vals[C > 0 ? C: 1];
     for (int ch = 0; ch < C; ++ch) vals[ch] = regime_value<VT>(rng, c.regime, 5 + ch);
     const VT scalar = vals[0];
     npp_diff::clear_cuda_error();
@@ -3300,7 +3295,7 @@ void run_border(const char *id, Call call, bool per_channel) {
         reinterpret_cast<const T *>(s.dptr() + off_bytes<T>(0, 0, s.step, C)), s.step,
         NppiSize{sw, sh},
         reinterpret_cast<T *>(d.dptr() + off_bytes<T>(0, 0, d.step, C)), d.step,
-        NppiSize{dw, dh}, top, left, per_channel ? vals : nullptr, scalar, ctx);
+        NppiSize{dw, dh}, top, left, per_channel ? vals: nullptr, scalar, ctx);
     if (st != NPP_NO_ERROR) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
@@ -3320,7 +3315,7 @@ void run_border(const char *id, Call call, bool per_channel) {
           if (inner) {
             r = s.hptr()[(size_t)(0 + sy) * (s.step / sizeof(T)) + (size_t)(0 + sx) * C + ch];
           } else if (K == BorderKind::Const) {
-            r = convert_value<T>(per_channel ? vals[ch] : scalar);
+            r = convert_value<T>(per_channel ? vals[ch]: scalar);
           } else {
             int rx = sx, ry = sy;
             if (K == BorderKind::Replicate) {
@@ -3383,10 +3378,10 @@ void run_subpix(const char *id, Call call) {
   for (int oi = 0; oi < (int)(sizeof(offsets) / sizeof(offsets[0])); ++oi) {
     const float dx = offsets[oi][0], dy = offsets[oi][1];
     // NPP uses only the fractional part of the sub-pixel offset; the integer
-    // part is discarded (probe: dx=1.5 behaves exactly like dx=0.5).
+    // part is discarded (measurement: dx=1.5 behaves exactly like dx=0.5).
     const float fdx = dx - std::trunc(dx);
     const float fdy = dy - std::trunc(dy);
-    for (const GenCase &c : make_gen_cases(0)) {
+    for (const GenCase &c: make_gen_cases(0)) {
       const int pad = safe_pad<T>(c.pad);
       Buf<T> s(c.w + c.ox + 2, c.h + c.oy + 2, C, pad, 0xCD);
       Buf<T> d(c.w + c.ox, c.h + c.oy, C, pad, 0x5A);
@@ -3417,16 +3412,16 @@ void run_subpix(const char *id, Call call) {
           if (sx < 0.f) { xa0 = 0; fx = 0.f; }
           else if (sx >= (float)c.w) { xa0 = c.w - 1; fx = 0.f; }
           else { xa0 = (int)sx; fx = sx - (float)xa0; }
-          xa1 = (xa0 + 1 < c.w) ? xa0 + 1 : xa0;
+          xa1 = (xa0 + 1 < c.w) ? xa0 + 1: xa0;
           if (sy < 0.f) { ya0 = 0; fy = 0.f; }
           else if (sy >= (float)c.h) { ya0 = c.h - 1; fy = 0.f; }
           else { ya0 = (int)sy; fy = sy - (float)ya0; }
-          ya1 = (ya0 + 1 < c.h) ? ya0 + 1 : ya0;
+          ya1 = (ya0 + 1 < c.h) ? ya0 + 1: ya0;
           for (int ch = 0; ch < A; ++ch) {
             auto at = [&](int yy, int xx) {
               return s.hptr()[(size_t)(c.oy + yy) * (s.step / sizeof(T)) + (size_t)(c.ox + xx) * C + ch];
             };
-            // The 5090 kernel interpolates in float even for 32s inputs;
+            // The reference kernel interpolates in float even for 32s inputs;
             // mirroring the float expression keeps large integers bit-equal.
             const float v00 = (float)at(ya0, xa0), v10 = (float)at(ya0, xa1);
             const float v01 = (float)at(ya1, xa0), v11 = (float)at(ya1, xa1);
@@ -3450,8 +3445,8 @@ void run_subpix(const char *id, Call call) {
         }
       ++cnt.executed;
       bool case_failed = false;
-      const double rtol = std::is_same_v<T, Npp32f> ? 1e-5 : 0.0;
-      const double atol = std::is_same_v<T, Npp32f> ? 1e-4 : 0.0;
+      const double rtol = std::is_same_v<T, Npp32f> ? 1e-5: 0.0;
+      const double atol = std::is_same_v<T, Npp32f> ? 1e-4: 0.0;
       // Integer interpolation is computed through float in the kernel; the
       // achievable accuracy is a few ulps of the largest source magnitude,
       // not of the (possibly cancelled) result.
@@ -3521,16 +3516,15 @@ inline double round_mode_host(double v, int mode, bool integer_source = false) {
   // NPP's integer-source Sfs kernels implement FINANCIAL as (v+0.5) floor,
   // i.e. ties toward +infinity; the floating-source kernels round away.
   if (mode == NPP_RND_FINANCIAL)
-    return integer_source ? std::floor(v + 0.5)
-                          : (v >= 0.0 ? std::floor(v + 0.5) : std::ceil(v - 0.5));
-  if (mode == NPP_RND_ZERO) return v >= 0.0 ? std::floor(v) : std::ceil(v);
+    return integer_source ? std::floor(v + 0.5): (v >= 0.0 ? std::floor(v + 0.5): std::ceil(v - 0.5));
+  if (mode == NPP_RND_ZERO) return v >= 0.0 ? std::floor(v): std::ceil(v);
   const double av = std::fabs(v);
   const double lo = std::floor(av);
   const double fr = av - lo;
   long long m = (long long)lo;
   const bool up = (fr > 0.5) || (fr == 0.5 && (m & 1LL));
-  const double mag = (double)m + (up ? 1.0 : 0.0);
-  return v < 0.0 ? -mag : mag;
+  const double mag = (double)m + (up ? 1.0: 0.0);
+  return v < 0.0 ? -mag: mag;
 }
 
 template <typename D> inline D saturate_convert(double v) {
@@ -3542,11 +3536,11 @@ template <typename D> inline D saturate_convert(double v) {
     if (std::isnan(v)) v = -std::numeric_limits<double>::infinity();
     if constexpr (std::is_unsigned_v<D>) {
       const double hi = (double)type_max<D>();
-      return (D)(v <= 0.0 ? 0.0 : (v >= hi ? hi : v));
+      return (D)(v <= 0.0 ? 0.0: (v >= hi ? hi: v));
     } else {
       const double lo = (double)type_min<D>();
       const double hi = (double)type_max<D>();
-      return (D)(v <= lo ? lo : (v >= hi ? hi : v));
+      return (D)(v <= lo ? lo: (v >= hi ? hi: v));
     }
   }
 }
@@ -3561,9 +3555,9 @@ void run_convert(const char *id, Call call, bool sfs, bool round_mode, bool fin_
   const int modes[3] = {NPP_RND_NEAR, NPP_RND_FINANCIAL, NPP_RND_ZERO};
   RunCounts cnt;
   std::string first;
-  for (int sf : {0, 1, 2}) {
+  for (int sf: {0, 1, 2}) {
     if (!sfs && sf != 0) break;
-    for (const GenCase &c : make_gen_cases(sf)) {
+    for (const GenCase &c: make_gen_cases(sf)) {
       const int pad = safe_pad<S>(c.pad);
       Buf<S> s(c.w + c.ox, c.h + c.oy, C, pad, 0xCD);
       Buf<D> d(c.w + c.ox, c.h + c.oy, C, pad, 0x5A);
@@ -3573,10 +3567,10 @@ void run_convert(const char *id, Call call, bool sfs, bool round_mode, bool fin_
       fill_regime(s, C, seed, c.regime, 0, false, false, finite_only);
       s.dev.copyFromHost(s.host);
       d.dev.copyFromHost(d.host);
-      for (int mi = 0; mi < (round_mode ? 3 : 1); ++mi) {
+      for (int mi = 0; mi < (round_mode ? 3: 1); ++mi) {
         // Sfs variants without an explicit round-mode parameter use the
         // default nearest/ties-to-even rule.
-        const int mode = round_mode ? modes[mi] : NPP_RND_NEAR;
+        const int mode = round_mode ? modes[mi]: NPP_RND_NEAR;
         npp_diff::clear_cuda_error();
         NppStatus st = call(
             reinterpret_cast<const S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, C)), s.step,
@@ -3603,7 +3597,7 @@ void run_convert(const char *id, Call call, bool sfs, bool round_mode, bool fin_
                 // The reference converts straight to half with eRoundMode as
                 // the float16 rounding flavour (see half_round_mode); no
                 // integer rounding is applied first.
-                r = half_round_mode((float)v, (sfs || round_mode) ? mode : NPP_RND_NEAR);
+                r = half_round_mode((float)v, (sfs || round_mode) ? mode: NPP_RND_NEAR);
               } else {
                 // NPP applies eRoundMode to the value before the destination
                 // format conversion.
@@ -3615,10 +3609,8 @@ void run_convert(const char *id, Call call, bool sfs, bool round_mode, bool fin_
                   // 32f -> integer convert writes 0 for NaN).
                   if (std::isnan(v)) v = 0.0;
                   double t = v <= (double)std::numeric_limits<long long>::min()
-                                 ? (double)std::numeric_limits<long long>::min()
-                                 : (v >= (double)std::numeric_limits<long long>::max()
-                                        ? (double)std::numeric_limits<long long>::max()
-                                        : v);
+                                 ? (double)std::numeric_limits<long long>::min(): (v >= (double)std::numeric_limits<long long>::max()
+                                        ? (double)std::numeric_limits<long long>::max(): v);
                   r = saturate_convert<D>((double)(long long)t);
                 } else {
                   r = saturate_convert<D>(v);
@@ -3634,7 +3626,7 @@ void run_convert(const char *id, Call call, bool sfs, bool round_mode, bool fin_
             for (int ch = 0; ch < C; ++ch) {
               const size_t off = off_bytes<D>(c.oy + y, c.ox + x, d.step, C) + (size_t)ch * sizeof(D);
               ++cnt.compared;
-              const double rt = std::is_same_v<D, Npp32f> ? 1e-6 : 0.0;
+              const double rt = std::is_same_v<D, Npp32f> ? 1e-6: 0.0;
               if (!equal_elem<D>(d.host.data() + off, want.data() + off, rt, rt)) {
                 char buf[360];
                 std::snprintf(buf, sizeof(buf),
@@ -3660,7 +3652,7 @@ void run_convert(const char *id, Call call, bool sfs, bool round_mode, bool fin_
 
 // ---------------------------------------------------------------------------
 // AlphaComp / AlphaCompC / AlphaPremul.  NPP composes integer alpha with a
-// fixed-point pipeline measured on the 5090: every alpha application is
+// fixed-point pipeline measured on the reference: every alpha application is
 //     mul(x, e) = (x*e + max/2) >> log2(max+1)
 // with alpha == max acting as 1.0 (max+1) and (1-alpha) mapping 0 -> max+1
 // and max -> 0.  32f uses the plain Porter-Duff formulas.  ATOP and XOR apply
@@ -3682,7 +3674,7 @@ template <> struct AlphaFpRef<Npp16u> {
 // the type's positive maximum.  NPP matches it exactly only while the sample
 // and alpha values stay in [0, max/4]; above that the reference's
 // float/saturation path is not reproducible by a stable formula (measured on
-// the 5090), so the drivers clamp the inputs to that range.
+// the reference), so the drivers clamp the inputs to that range.
 template <> struct AlphaFpRef<Npp8s> {
   static constexpr int64_t kMax = 127;
   static constexpr int kShift = 7;
@@ -3745,14 +3737,13 @@ template <typename S> inline int64_t alpha_mul_premul(int64_t x, int64_t e) {
   return (x * e + AlphaFpRef<S>::kRound) >> AlphaFpRef<S>::kShift;
 }
 template <typename S> inline int64_t alpha_norm(int64_t a) {
-  return a == AlphaFpRef<S>::kMax ? AlphaFpRef<S>::kMax + 1 : a;
+  return a == AlphaFpRef<S>::kMax ? AlphaFpRef<S>::kMax + 1: a;
 }
 template <typename S> inline int64_t alpha_comp(int64_t a) {
-  return a == 0 ? AlphaFpRef<S>::kMax + 1
-                : (a == AlphaFpRef<S>::kMax ? 0 : AlphaFpRef<S>::kMax + 1 - a);
+  return a == 0 ? AlphaFpRef<S>::kMax + 1: (a == AlphaFpRef<S>::kMax ? 0: AlphaFpRef<S>::kMax + 1 - a);
 }
 template <typename S> inline S alpha_sat(int64_t v) {
-  return v < 0 ? S(0) : (v > AlphaFpRef<S>::kMax ? S(AlphaFpRef<S>::kMax) : S(v));
+  return v < 0 ? S(0): (v > AlphaFpRef<S>::kMax ? S(AlphaFpRef<S>::kMax): S(v));
 }
 
 template <typename S>
@@ -3841,7 +3832,7 @@ template <typename S> inline S alpha_alpha_ref(NppiAlphaOp op, S a1, S a2) {
     default: r = x1; break;
     }
     // The composed alpha stays in [0,1].
-    return (S)(r < 0.0 ? 0.0 : (r > 1.0 ? 1.0 : r));
+    return (S)(r < 0.0 ? 0.0: (r > 1.0 ? 1.0: r));
   } else {
     const int64_t A1 = alpha_norm<S>(a1), A2 = alpha_norm<S>(a2);
     const int64_t C1 = alpha_comp<S>(a1), C2 = alpha_comp<S>(a2);
@@ -3917,8 +3908,7 @@ template <typename S> inline int alpha_tol(NppiAlphaOp op) {
     return (op == NPPI_OP_ALPHA_ATOP || op == NPPI_OP_ALPHA_XOR ||
             op == NPPI_OP_ALPHA_OVER_PREMUL || op == NPPI_OP_ALPHA_ATOP_PREMUL ||
             op == NPPI_OP_ALPHA_XOR_PREMUL)
-               ? 1
-               : 0;
+               ? 1: 0;
   }
 }
 
@@ -3958,7 +3948,7 @@ void run_alphacomp_c(const char *id, Call call) {
   alpha_const_pairs<S>(pairs);
   const bool flt = std::is_same_v<S, Npp32f>;
   const double ftol = 1e-6;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s1(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> s2(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
@@ -3984,7 +3974,7 @@ void run_alphacomp_c(const char *id, Call call) {
     s1.dev.copyFromHost(s1.host);
     s2.dev.copyFromHost(s2.host);
     d.dev.copyFromHost(d.host);
-    for (auto pr : pairs) {
+    for (auto pr: pairs) {
       S a1 = pr.first;
       S a2 = pr.second;
       if constexpr (AcAlpha && !std::is_same_v<S, Npp32f>) {
@@ -4038,8 +4028,8 @@ void run_alphacomp_c(const char *id, Call call) {
             for (int ch = 0; ch < C; ++ch) {
               const size_t off = off_bytes<S>(c.oy + y, c.ox + x, d.step, C) + (size_t)ch * sizeof(S);
               ++cnt.compared;
-              const int tol = flt ? 0 : alpha_tol<S>(op);
-              if (!alpha_close<S>(d.host.data() + off, want.data() + off, flt ? 1e-4 : 0.0, tol)) {
+              const int tol = flt ? 0: alpha_tol<S>(op);
+              if (!alpha_close<S>(d.host.data() + off, want.data() + off, flt ? 1e-4: 0.0, tol)) {
                 char b[380];
                 std::snprintf(b, sizeof(b),
                               "[%s] %s op=%d a1=%g a2=%g (%d,%d,ch=%d) got=%s want=%s", id,
@@ -4072,7 +4062,7 @@ void run_alphacomp_pixel(const char *id, Call call) {
   std::string first;
   const bool flt = std::is_same_v<S, Npp32f>;
   const double ftol = 1e-6;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s1(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> s2(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
@@ -4100,14 +4090,14 @@ void run_alphacomp_pixel(const char *id, Call call) {
       for (size_t i = 0; i < n1; ++i)
         if ((int)(i % C) == A) {
           if constexpr (flt) s1.hptr()[i] = (S)r.unit_double();
-          else if (s1.hptr()[i] >= S(AlphaFpRef<S>::kMax - (sizeof(S) == 2 ? 257 : 1)))
-            s1.hptr()[i] = S(AlphaFpRef<S>::kMax - (sizeof(S) == 2 ? 257 : 1));
+          else if (s1.hptr()[i] >= S(AlphaFpRef<S>::kMax - (sizeof(S) == 2 ? 257: 1)))
+            s1.hptr()[i] = S(AlphaFpRef<S>::kMax - (sizeof(S) == 2 ? 257: 1));
         }
       for (size_t i = 0; i < n2; ++i)
         if ((int)(i % C) == A) {
           if constexpr (flt) s2.hptr()[i] = (S)r.unit_double();
-          else if (s2.hptr()[i] >= S(AlphaFpRef<S>::kMax - (sizeof(S) == 2 ? 257 : 1)))
-            s2.hptr()[i] = S(AlphaFpRef<S>::kMax - (sizeof(S) == 2 ? 257 : 1));
+          else if (s2.hptr()[i] >= S(AlphaFpRef<S>::kMax - (sizeof(S) == 2 ? 257: 1)))
+            s2.hptr()[i] = S(AlphaFpRef<S>::kMax - (sizeof(S) == 2 ? 257: 1));
         }
     }
     s1.dev.copyFromHost(s1.host);
@@ -4157,11 +4147,9 @@ void run_alphacomp_pixel(const char *id, Call call) {
             ++cnt.compared;
             // OVER_PREMUL's composed alpha carries an extra rounding at
             // large 16-bit alphas (measured: up to two LSB).
-            const int tol = flt ? 0
-                                : ((ch == A && op == NPPI_OP_ALPHA_OVER_PREMUL)
-                                       ? 2
-                                       : alpha_tol<S>(op));
-            if (!alpha_close<S>(d.host.data() + off, want.data() + off, flt ? 1e-4 : 0.0, tol)) {
+            const int tol = flt ? 0: ((ch == A && op == NPPI_OP_ALPHA_OVER_PREMUL)
+                                       ? 2: alpha_tol<S>(op));
+            if (!alpha_close<S>(d.host.data() + off, want.data() + off, flt ? 1e-4: 0.0, tol)) {
               char b[520];
               const size_t q1 = off_bytes<S>(c.oy + y, c.ox + x, s1.step, C);
               const size_t q2 = off_bytes<S>(c.oy + y, c.ox + x, s2.step, C);
@@ -4202,7 +4190,7 @@ void run_alphapremul(const char *id, Call call) {
   const double ftol = 1e-6;
   std::vector<S> alphas;
   if constexpr (ConstAlpha) alphas = alpha_singles<S>();
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
@@ -4213,15 +4201,15 @@ void run_alphapremul(const char *id, Call call) {
       for (size_t i = 0; i < n; ++i)
         if ((int)(i % C) == A) {
           if constexpr (flt) s.hptr()[i] = (S)r.unit_double();
-          else if (s.hptr()[i] >= S(AlphaFpRef<S>::kMax - (sizeof(S) == 2 ? 257 : 1)))
-            s.hptr()[i] = S(AlphaFpRef<S>::kMax - (sizeof(S) == 2 ? 257 : 1));
+          else if (s.hptr()[i] >= S(AlphaFpRef<S>::kMax - (sizeof(S) == 2 ? 257: 1)))
+            s.hptr()[i] = S(AlphaFpRef<S>::kMax - (sizeof(S) == 2 ? 257: 1));
         }
     }
     const std::vector<uint8_t> src_in = s.host;
     d.dev.copyFromHost(d.host);
-    const size_t count = ConstAlpha ? alphas.size() : 1;
+    const size_t count = ConstAlpha ? alphas.size(): 1;
     for (size_t ai = 0; ai < count; ++ai) {
-      const S alpha = ConstAlpha ? alphas[ai] : S(0);
+      const S alpha = ConstAlpha ? alphas[ai]: S(0);
       s.dev.copyFromHost(src_in);
       d.dev.copyFromHost(d.host);
       const std::vector<uint8_t> pre = d.host;
@@ -4248,32 +4236,32 @@ void run_alphapremul(const char *id, Call call) {
       ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: "
                                  << cudaGetErrorString(se);
       ++cnt.executed;
-      std::vector<uint8_t> want = Inplace ? src_in : pre;
+      std::vector<uint8_t> want = Inplace ? src_in: pre;
       for (int y = 0; y < c.h; ++y)
         for (int x = 0; x < c.w; ++x) {
           const size_t so = off_bytes<S>(c.oy + y, c.ox + x, s.step, C);
-          const size_t wo = Inplace ? so : off_bytes<S>(c.oy + y, c.ox + x, d.step, C);
+          const size_t wo = Inplace ? so: off_bytes<S>(c.oy + y, c.ox + x, d.step, C);
           const S src_alpha =
               *reinterpret_cast<const S *>(src_in.data() + so + (size_t)A * sizeof(S));
-          const S pa = ConstAlpha ? alpha : src_alpha;
+          const S pa = ConstAlpha ? alpha: src_alpha;
           for (int ch = 0; ch < A; ++ch) {
             const S v = *reinterpret_cast<const S *>(src_in.data() + so + (size_t)ch * sizeof(S));
             const S r = alpha_premul_ref<S>(v, pa);
             std::memcpy(want.data() + wo + (size_t)ch * sizeof(S), &r, sizeof(S));
           }
           if constexpr (AcAlpha) {
-            const S out_alpha = ConstAlpha ? alpha : src_alpha;
+            const S out_alpha = ConstAlpha ? alpha: src_alpha;
             std::memcpy(want.data() + wo + (size_t)A * sizeof(S), &out_alpha, sizeof(S));
           }
         }
-      const uint8_t *got_base = Inplace ? s.host.data() : d.host.data();
+      const uint8_t *got_base = Inplace ? s.host.data(): d.host.data();
       bool failed = false;
       for (int y = 0; y < c.h && !failed; ++y)
         for (int x = 0; x < c.w && !failed; ++x)
           for (int ch = 0; ch < C; ++ch) {
             const size_t off = off_bytes<S>(c.oy + y, c.ox + x, s.step, C) + (size_t)ch * sizeof(S);
             ++cnt.compared;
-            if (!alpha_close<S>(got_base + off, want.data() + off, flt ? 1e-4 : 0.0, 0)) {
+            if (!alpha_close<S>(got_base + off, want.data() + off, flt ? 1e-4: 0.0, 0)) {
               char b[380];
               std::snprintf(b, sizeof(b), "[%s] %s (%d,%d,ch=%d) got=%s want=%s", id,
                             c.id().c_str(), x, y, ch, dbg_elem<S>(got_base + off).c_str(),
@@ -4305,7 +4293,7 @@ void run_magnitude(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<Npp32fc> s(c.w + c.ox, c.h + c.oy, 1, c.pad, 0);
     Buf<Npp32f> d(c.w + c.ox, c.h + c.oy, 1, c.pad, 0x5A);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
@@ -4332,14 +4320,13 @@ void run_magnitude(const char *id, Call call) {
       for (int x = 0; x < c.w && !failed; ++x) {
         const Npp32fc v = s.hptr()[(size_t)(c.oy + y) * (s.step / 8) + (c.ox + x)];
         const float sq = v.re * v.re + v.im * v.im;
-        const float want = Sqr ? sq : std::sqrt(sq);
+        const float want = Sqr ? sq: std::sqrt(sq);
         const size_t off = off_bytes<Npp32f>(c.oy + y, c.ox + x, d.step, 1);
         ++cnt.compared;
         float got = 0.0f;
         std::memcpy(&got, d.host.data() + off, sizeof(float));
         const bool ok = std::isinf(want)
-                            ? (std::isinf(got) && std::signbit(got) == std::signbit(want))
-                            : std::fabs((double)got - (double)want) <=
+                            ? (std::isinf(got) && std::signbit(got) == std::signbit(want)): std::fabs((double)got - (double)want) <=
                                   1e-5 * std::fabs((double)want) + 1e-6;
         if (!ok) {
           char b[320];

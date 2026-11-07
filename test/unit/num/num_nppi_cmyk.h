@@ -1,4 +1,4 @@
-// CPU-golden coverage for the JPEG CMYK/YCCK conversions:
+// CPU-reference output coverage for the JPEG CMYK/YCCK conversions:
 //   nppiCMYKOrYCCKToRGB/BGR_JPEG_8u_{P4C3R,P4P3R} and
 //   nppiYCCKToCMYK_JPEG_601_8u_P4R.
 //
@@ -19,7 +19,7 @@ namespace cmyk {
 
 inline Npp8u sat(double v) {
   const int t = (int)v;
-  return (Npp8u)(t < 0 ? 0 : (t > 255 ? 255 : t));
+  return (Npp8u)(t < 0 ? 0: (t > 255 ? 255: t));
 }
 
 enum class Out { C3, C4, P3 };
@@ -37,7 +37,7 @@ void run_cmyk_to_rgb(const char *id, Call call) {
   std::string first;
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {16, 12}, {32, 24}, {64, 48}, {5, 4}, {17, 13}};
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     const int w = cf.w, h = cf.h;
     const uint64_t seed = case_seed(id, w, h, 0, 0, 0, 0);
     std::vector<Buf<Npp8u> *> srcs;
@@ -76,8 +76,8 @@ void run_cmyk_to_rgb(const char *id, Call call) {
     if (st != NPP_NO_ERROR) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-      for (auto *p : srcs) delete p;
-      for (auto *p : dsts) delete p;
+      for (auto *p: srcs) delete p;
+      for (auto *p: dsts) delete p;
       continue;
     }
     ASSERT_EQ(cudaDeviceSynchronize(), cudaSuccess) << "[" << id << "] sync";
@@ -93,14 +93,14 @@ void run_cmyk_to_rgb(const char *id, Call call) {
         }
         if (O == Out::P3) {
           for (int c = 0; c < 3; ++c) {
-            const int p = Bgr ? 2 - c : c;
+            const int p = Bgr ? 2 - c: c;
             want[(size_t)p][(size_t)y * dsts[(size_t)p]->step + (size_t)x] = (uint8_t)v[c];
           }
         } else {
           const size_t base = (size_t)y * dsts[0]->step + (size_t)x * 3;
-          want[0][base + (Bgr ? 2 : 0)] = (uint8_t)v[0];
+          want[0][base + (Bgr ? 2: 0)] = (uint8_t)v[0];
           want[0][base + 1] = (uint8_t)v[1];
-          want[0][base + (Bgr ? 0 : 2)] = (uint8_t)v[2];
+          want[0][base + (Bgr ? 0: 2)] = (uint8_t)v[2];
         }
       }
     bool failed = false;
@@ -109,13 +109,12 @@ void run_cmyk_to_rgb(const char *id, Call call) {
       const GenCase dc{w, h, 0, 0, 0, kSmall, 0};
       const bool ok = (O == Out::P3)
                           ? rotate_check<Npp8u, 1, 1>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p],
-                                                      dsts[p]->step, {}, cnt, first)
-                          : rotate_check<Npp8u, 3, 3>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p],
+                                                      dsts[p]->step, {}, cnt, first): rotate_check<Npp8u, 3, 3>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p],
                                                       dsts[p]->step, {}, cnt, first);
       if (!ok) failed = true;
     }
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
     if (failed || cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);
@@ -133,7 +132,7 @@ void run_ycck_to_cmyk(const char *id, Call call) {
   std::string first;
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {16, 12}, {32, 24}, {64, 48}, {5, 4}, {17, 13}};
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     const int w = cf.w, h = cf.h;
     const uint64_t seed = case_seed(id, w, h, 0, 0, 0, 0);
     std::vector<Buf<Npp8u> *> srcs;
@@ -155,8 +154,8 @@ void run_ycck_to_cmyk(const char *id, Call call) {
     if (st != NPP_NO_ERROR) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-      for (auto *p : srcs) delete p;
-      for (auto *p : dsts) delete p;
+      for (auto *p: srcs) delete p;
+      for (auto *p: dsts) delete p;
       continue;
     }
     ASSERT_EQ(cudaDeviceSynchronize(), cudaSuccess) << "[" << id << "] sync";
@@ -183,8 +182,8 @@ void run_ycck_to_cmyk(const char *id, Call call) {
                                      first))
         failed = true;
     }
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
     if (failed || cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);

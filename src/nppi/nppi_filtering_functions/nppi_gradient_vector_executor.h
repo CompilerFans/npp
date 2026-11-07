@@ -1,7 +1,6 @@
 // GradientVector executor: nppiGradientVector{Sobel,Prewitt,Scharr}Border.
 //
-// Semantics measured against NVIDIA NPP 13.4 (RTX 5090), see
-// tools/probes/f13_probe{4..10}.cu:
+// Semantics measured against NVIDIA NPP 13.4 (reference):
 //   * X output = -(Vert response) for Sobel/Prewitt but +(Vert response) for
 //     Scharr; Y output = +(Horiz response) for all three.  The 3x3 tables are
 //     the same taps as the derivative-filter executor; Sobel additionally
@@ -9,7 +8,7 @@
 //   * Magnitude: L1 = |X|+|Y|, L2 = sqrt(X^2+Y^2); a 16s destination is
 //     truncated toward zero, a 32f destination keeps the float value.
 //     Angle = atan2(Y, X) in radians (NPP evaluates it in double precision;
-//     the difference to atan2f is <= 1 ulp, far below the differential-test
+//     the difference to atan2f is <= 1 ulp, far below the reference-comparison
 //     tolerance).
 //   * Outputs are individually optional; a null output is not written.  All
 //     four null -> NPP_NULL_POINTER_ERROR.

@@ -48,7 +48,7 @@ NppStatus nppiNV12ToYUV420_8u_P2P3R_Ctx(const Npp8u *const pSrc[2], int nSrcStep
                                                             pDst[1], aDstStep[1], pDst[2], aDstStep[2], oSizeROI,
                                                             nppStreamCtx.hStream);
 
-  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiNV12ToYUV420_8u_P2P3R(const Npp8u *const pSrc[2], int nSrcStep, Npp8u *pDst[3], int aDstStep[3],

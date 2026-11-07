@@ -1,8 +1,8 @@
-// CPU-golden coverage for the running-sum filters
+// CPU-reference output coverage for the running-sum filters
 // (nppi_filtering_functions.h):
 //   nppiSumWindowRow / Column and their *Border variants (8u,16u,16s -> 32f).
 //
-// Measured NPP 13.4 semantics (RTX 5090):
+// Measured NPP 13.4 semantics (reference):
 //   dst(x,y)[c] = sum_{i=0}^{mask-1} src[x - ax + i][y][c]   (row)
 //                 sum_{i=0}^{mask-1} src[x][y - ay + i][c]   (column)
 //   i.e. the window starts at the destination coordinate minus the anchor.
@@ -19,7 +19,7 @@
 namespace num {
 namespace filtsum {
 
-inline int clampi(int v, int lo, int hi) { return v < lo ? lo : (v > hi ? hi : v); }
+inline int clampi(int v, int lo, int hi) { return v < lo ? lo: (v > hi ? hi: v); }
 
 // Row=false selects the column kernel.
 template <typename Src, int C, bool Row, bool Border, class Call>
@@ -38,12 +38,12 @@ void run_sumwindow(const char *id, Call call) {
   static const int masks[] = {3, 5, 7};
   const int m = 6;
   bool failed = false;
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     for (int mi = 0; mi < 3 && !failed; ++mi) {
       const int mask = masks[mi];
       const int anchor = mask / 2;
       const int W = cf.w + 2 * m, H = cf.h + 2 * m;
-      const uint64_t seed = case_seed(id, cf.w, cf.h, mask, Border ? 1 : 0, 0, 0);
+      const uint64_t seed = case_seed(id, cf.w, cf.h, mask, Border ? 1: 0, 0, 0);
       Buf<Src> *s = new Buf<Src>(W, H, C, 0, 0);
       fill_regime(*s, C, seed, kWide, 0, false, false, false);
       s->dev.copyFromHost(s->host);
@@ -55,7 +55,7 @@ void run_sumwindow(const char *id, Call call) {
                                                     (size_t)m * C * sizeof(Src));
       npp_diff::clear_cuda_error();
       const NppStatus st = call(sp, s->step, reinterpret_cast<Npp32f *>(d->dptr()), d->step, NppiSize{cf.w, cf.h}, NppiSize{W, H},
-                                NppiPoint{m, m}, mask, anchor, Border ? (int)NPP_BORDER_REPLICATE : 0,
+                                NppiPoint{m, m}, mask, anchor, Border ? (int)NPP_BORDER_REPLICATE: 0,
                                 ctx);
       if (st != NPP_NO_ERROR) {
         ++cnt.skipped;

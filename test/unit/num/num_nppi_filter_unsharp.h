@@ -1,7 +1,7 @@
-// CPU-golden coverage for nppiFilterUnsharpBorder
+// CPU-reference output coverage for nppiFilterUnsharpBorder
 // (nppi_filtering_functions.h).
 //
-// Measured NPP 13.4 semantics (RTX 5090, probe-verified):
+// Measured NPP 13.4 semantics (reference, measured):
 //   * taps: normalised 2-D Gaussian exp(-(dy^2+dx^2)/(2 sigma^2)) / sum,
 //     evaluated in double and stored as float; k = 2*ceil(radius)+1 for an
 //     explicit radius (auto radius is not exercised here).
@@ -22,7 +22,7 @@
 namespace num {
 namespace filtunsharp {
 
-inline int clampi(int v, int lo, int hi) { return v < lo ? lo : (v > hi ? hi : v); }
+inline int clampi(int v, int lo, int hi) { return v < lo ? lo: (v > hi ? hi: v); }
 
 inline double tailEps(int dtype) {
   switch (dtype) {
@@ -68,18 +68,18 @@ inline void buildTaps(std::vector<float> &taps, int r, float sigma) {
       sum += v;
     }
   const double inv = 1.0 / sum;
-  for (auto &t : taps) t = (float)((double)t * inv);
+  for (auto &t: taps) t = (float)((double)t * inv);
 }
 
 template <typename Dst> inline Dst unsharpEmit(double v) {
   if constexpr (std::is_same_v<Dst, Npp32f>) {
     return (Npp32f)v;
   } else if constexpr (std::is_same_v<Dst, Npp8u>) {
-    return (Npp8u)(v <= 0.0 ? 0 : (v >= 255.0 ? 255 : (Npp8u)(int)v));
+    return (Npp8u)(v <= 0.0 ? 0: (v >= 255.0 ? 255: (Npp8u)(int)v));
   } else if constexpr (std::is_same_v<Dst, Npp16u>) {
-    return (Npp16u)(v <= 0.0 ? 0 : (v >= 65535.0 ? 65535 : (Npp16u)(int)v));
+    return (Npp16u)(v <= 0.0 ? 0: (v >= 65535.0 ? 65535: (Npp16u)(int)v));
   } else {
-    return (Npp16s)(v <= -32768.0 ? -32768 : (v >= 32767.0 ? 32767 : (Npp16s)(int)v));
+    return (Npp16s)(v <= -32768.0 ? -32768: (v >= 32767.0 ? 32767: (Npp16s)(int)v));
   }
 }
 
@@ -98,17 +98,17 @@ void run_unsharp(const char *id, Call call) {
   static const Cfg cfgs[] = {{8, 6}, {33, 25}, {96, 64}};
   static const float radii[] = {1.0f, 2.0f};
   const float sigma = 1.0f, weight = 1.5f;
-  const double scale = DType == 0 ? 128.0 : DType == 1 ? 32768.0 : DType == 2 ? 16384.0 : 4294967296.0;
+  const double scale = DType == 0 ? 128.0: DType == 1 ? 32768.0: DType == 2 ? 16384.0: 4294967296.0;
   // The reference taps differ from the double-precision model by far less
   // than one LSB, but a threshold placed inside the data's |src-blurred|
   // distribution flips the copy branch on those tiny differences.  The copy
   // subcase therefore uses a threshold above the whole dynamic range, which
   // pins the branch itself; the sharpening path (threshold 0) pins the blur.
-  const float copyThreshold = DType == 0 ? 2.0f : DType == 1 ? 2.0f : DType == 2 ? 4.0f : 1e-6f;
+  const float copyThreshold = DType == 0 ? 2.0f: DType == 1 ? 2.0f: DType == 2 ? 4.0f: 1e-6f;
   const float thresholds[2] = {0.0f, copyThreshold};
   const int m = 1;  // clamp box is the ROI itself, so any margin works
   bool failed = false;
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     for (int ri = 0; ri < 2 && !failed; ++ri) {
       for (int ti = 0; ti < 2 && !failed; ++ti) {
         const float radius = radii[ri];
@@ -162,8 +162,7 @@ void run_unsharp(const char *id, Call call) {
               const double sv = load(x, y, c);
               const double hp = sv - acc[c];
               const double out = (useThreshold && std::fabs(hp) <= (double)threshold * scale)
-                                     ? sv
-                                     : sv + (double)weight * hp;
+                                     ? sv: sv + (double)weight * hp;
               const Dst o = unsharpEmit<Dst>(out);
               const size_t off = (size_t)y * d->step + ((size_t)x * C + (size_t)c) * sizeof(Dst);
               std::memcpy(want.data() + off, &o, sizeof(Dst));

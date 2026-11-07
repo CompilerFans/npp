@@ -1,6 +1,6 @@
-// Fused absdiff + Greater-Than-Value threshold entry points (package p2.3).
+// Fused absdiff + Greater-Than-Value threshold entry points.
 // Runtime-dispatched over NppDataType (8U/16U/16S/32F) and NppiChannels
-// (CH_1 / CH_3 / CH_A4).  Semantics baseline: NVIDIA NPP 13.4 on RTX 5090.
+// (CH_1 / CH_3 / CH_A4).  Semantics baseline: NVIDIA NPP 13.4 in the reference implementation.
 //
 //   out = absdiff(a, b);   if (out > thr[c]) out = val[c];  else out = absdiff
 // For CH_A4 the operation is applied to RGB and the alpha element is copied
@@ -12,7 +12,7 @@
 namespace {
 
 template <typename T> __device__ __forceinline__ T fabsDiff(T a, T b) {
-  return (T)(a >= b ? a - b : b - a);
+  return (T)(a >= b ? a - b: b - a);
 }
 
 // Threshold / value arrays are copied by value into the kernel.
@@ -33,7 +33,7 @@ __global__ void kFused(const T* p1, int s1, const T* p2, int s2, T* pDst, int sD
     if (PHY == 4 && c == 3) continue;  // A4 alpha element is left untouched
     const int ti = c;
     const T ad = fabsDiff(a[x * PHY + c], b[x * PHY + c]);
-    d[x * PHY + c] = (ad > fd.thr[ti]) ? fd.val[ti] : ad;
+    d[x * PHY + c] = (ad > fd.thr[ti]) ? fd.val[ti]: ad;
   }
 }
 
@@ -47,7 +47,7 @@ inline NppStatus fusedRun(const void* p1, int s1, const void* p2, int s2, void* 
   (void)cudaGetLastError();
   kFused<T, PHY, ARR><<<g, b, 0, st>>>((const T*)p1, s1, (const T*)p2, s2, (T*)pDst, sD,
                                        w, h, fd);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 template <typename T, int PHY, int ARR>
@@ -60,7 +60,7 @@ inline NppStatus fusedRunI(const void* pD, int sD, const void* p2, int s2,
   (void)cudaGetLastError();
   kFused<T, PHY, ARR><<<g, b, 0, st>>>((const T*)pD, sD, (const T*)p2, s2, (T*)pD, sD,
                                        w, h, fd);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 struct ChConfig { int phy; int arr; };

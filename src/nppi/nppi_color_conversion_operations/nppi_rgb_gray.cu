@@ -7,7 +7,7 @@
 #define WEIGHT_B 0.114f
 
 __device__ inline int round_to_int(float value) {
-  return static_cast<int>(value >= 0.0f ? value + 0.5f : value - 0.5f);
+  return static_cast<int>(value >= 0.0f ? value + 0.5f: value - 0.5f);
 }
 
 __device__ inline Npp16u clamp_u16(int value) {

@@ -1,9 +1,9 @@
-// c3 package YUV/YCbCr layout executor kernels.
+// c3 YUV/YCbCr layout executor kernels.
 //
 // Every conversion here is a pure byte permutation / decimation of the
 // source samples: no color-space arithmetic happens in this file.  The
-// mapping was measured on an RTX 5090 with NVIDIA NPP 13.4 (goldens are
-// recorded by test/unit/diff/test_nppi_c3_yuv_layout_generated.cpp) and is
+// mapping was measured in the reference implementation with NVIDIA NPP 13.4 (reference outputs are
+// recorded by reference comparisons and is
 // reproduced verbatim, including the 4:1:1 -> 4:2:0 row-interleaving quirk.
 
 #include "nppi_c3_yuv_layout_executor.h"
@@ -27,7 +27,7 @@ inline bool step_ok(int nStep, int nMinRowBytes) {
 }
 inline bool roi_valid(NppiSize roi) { return roi.width >= 0 && roi.height >= 0; }
 inline NppStatus launch_ok() {
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 // Packed C2 pair layouts (measured):
@@ -35,10 +35,10 @@ inline NppStatus launch_ok() {
 //   1 YCrCb422: [Y0 Cr Y1 Cb]   (luma in slots 0/2, chroma swapped)
 //   2 CbYCr422: [Cb Y0 Cr Y1]   (luma in slots 1/3)
 __device__ __forceinline__ int c2_y_offset(int x, int layout) {
-  return ((x & 1) << 1) + (layout == 2 ? 1 : 0);
+  return ((x & 1) << 1) + (layout == 2 ? 1: 0);
 }
-__device__ __forceinline__ int c2_cb_offset(int layout) { return layout == 0 ? 1 : (layout == 1 ? 3 : 0); }
-__device__ __forceinline__ int c2_cr_offset(int layout) { return layout == 0 ? 3 : (layout == 1 ? 1 : 2); }
+__device__ __forceinline__ int c2_cb_offset(int layout) { return layout == 0 ? 1: (layout == 1 ? 3: 0); }
+__device__ __forceinline__ int c2_cr_offset(int layout) { return layout == 0 ? 3: (layout == 1 ? 1: 2); }
 
 __global__ void k_y_from_c2(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u *__restrict__ pDst, int nDstStep,
                             int width, int height, int yw, int layout) {
@@ -107,12 +107,12 @@ __global__ void k_p3_to_c2(const Npp8u *__restrict__ pSrc0, const Npp8u *__restr
   if (p >= (width >> 1) || y >= height) {
     return;
   }
-  const int col = (srcMode == 1) ? (p >> 1) : p;
-  const int row = (srcMode == 2) ? (y >> 1) : y;
-  const Npp8u *planeCb = SRCSWAP ? pSrc2 : pSrc1;
-  const Npp8u *planeCr = SRCSWAP ? pSrc1 : pSrc2;
-  const int cbStep = SRCSWAP ? s2 : s1;
-  const int crStep = SRCSWAP ? s1 : s2;
+  const int col = (srcMode == 1) ? (p >> 1): p;
+  const int row = (srcMode == 2) ? (y >> 1): y;
+  const Npp8u *planeCb = SRCSWAP ? pSrc2: pSrc1;
+  const Npp8u *planeCr = SRCSWAP ? pSrc1: pSrc2;
+  const int cbStep = SRCSWAP ? s2: s1;
+  const int crStep = SRCSWAP ? s1: s2;
   const Npp8u cb = planeCb[(size_t)row * cbStep + col];
   const Npp8u cr = planeCr[(size_t)row * crStep + col];
   const Npp8u *sy = pSrc0 + (size_t)y * s0;
@@ -306,16 +306,16 @@ NppStatus c2ToP3(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], const int aDst
     return NPP_NO_ERROR;
   }
   const int w = oSizeROI.width, h = oSizeROI.height;
-  const int yh = (py == 2) ? (h & ~1) : h;
-  const int yw = w & ~((px == 2) ? 3 : 1);
+  const int yh = (py == 2) ? (h & ~1): h;
+  const int yw = w & ~((px == 2) ? 3: 1);
   k_y_from_c2<<<gridFor(yw, yh), dim3(kBlockX, kBlockY), 0, stream>>>(pSrc, nSrcStep, pDst[0], aDstStep[0], w, yh, yw,
                                                                     layoutSrc);
-  const int cw = (px == 2) ? (w >> 2) : (w >> 1);
-  const int ch = (py == 2) ? (h >> 1) : h;
-  Npp8u *planeCb = swapDst ? pDst[2] : pDst[1];
-  Npp8u *planeCr = swapDst ? pDst[1] : pDst[2];
-  const int stepCb = swapDst ? aDstStep[2] : aDstStep[1];
-  const int stepCr = swapDst ? aDstStep[1] : aDstStep[2];
+  const int cw = (px == 2) ? (w >> 2): (w >> 1);
+  const int ch = (py == 2) ? (h >> 1): h;
+  Npp8u *planeCb = swapDst ? pDst[2]: pDst[1];
+  Npp8u *planeCr = swapDst ? pDst[1]: pDst[2];
+  const int stepCb = swapDst ? aDstStep[2]: aDstStep[1];
+  const int stepCr = swapDst ? aDstStep[1]: aDstStep[2];
   if (cw > 0 && ch > 0) {
     k_chroma_from_c2<<<gridFor(cw, ch), dim3(kBlockX, kBlockY), 0, stream>>>(
         pSrc, nSrcStep, planeCb, stepCb, planeCr, stepCr, cw, ch, px, py, layoutSrc);
@@ -338,12 +338,12 @@ NppStatus c2ToP2(const Npp8u *pSrc, int nSrcStep, Npp8u *pDstY, int nDstYStep, N
     return NPP_NO_ERROR;
   }
   const int w = oSizeROI.width, h = oSizeROI.height;
-  const int yh = (py == 2) ? (h & ~1) : h;
-  const int yw = w & ~((px == 2) ? 3 : 1);
+  const int yh = (py == 2) ? (h & ~1): h;
+  const int yw = w & ~((px == 2) ? 3: 1);
   k_y_from_c2<<<gridFor(yw, yh), dim3(kBlockX, kBlockY), 0, stream>>>(pSrc, nSrcStep, pDstY, nDstYStep, w, yh, yw,
                                                                     layoutSrc);
-  const int cw = (px == 2) ? (w >> 2) : (w >> 1);
-  const int ch = (py == 2) ? (h >> 1) : h;
+  const int cw = (px == 2) ? (w >> 2): (w >> 1);
+  const int ch = (py == 2) ? (h >> 1): h;
   if (cw > 0 && ch > 0 && pDstCbCr) {
     k_chroma_from_c2_p2<<<gridFor(cw, ch), dim3(kBlockX, kBlockY), 0, stream>>>(pSrc, nSrcStep, pDstCbCr, nDstCbCrStep,
                                                                                 cw, ch, px, py, layoutSrc);
@@ -366,7 +366,7 @@ NppStatus p3ToC2(const Npp8u *const pSrc[3], const int aSrcStep[3], Npp8u *pDst,
     return NPP_NO_ERROR;
   }
   const int w = oSizeROI.width;
-  const int h = (srcMode == 2) ? (oSizeROI.height & ~1) : oSizeROI.height;
+  const int h = (srcMode == 2) ? (oSizeROI.height & ~1): oSizeROI.height;
   const int pairs = w >> 1;
   if (pairs == 0 || h == 0) {
     return launch_ok();
@@ -400,7 +400,7 @@ NppStatus p2ToC2_411(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr, i
   if (!roi_valid(oSizeROI)) {
     return NPP_SIZE_ERROR;
   }
-  // The 5090 validates the luma source step here (p2c2_small_src_y_step).
+  // The reference validates the luma source step here (p2c2_small_src_y_step).
   if (!step_ok(nSrcYStep, oSizeROI.width) || !step_ok(nDstStep, 2 * oSizeROI.width)) {
     return NPP_STEP_ERROR;
   }
@@ -509,16 +509,16 @@ NppStatus p3Resample(const Npp8u *const pSrc[3], const int aSrcStep[3], Npp8u *p
     return NPP_NO_ERROR;
   }
   const int w = oSizeROI.width, h = oSizeROI.height;
-  const int yh = (mode == 2 || mode == 3 || mode == 4) ? (h & ~1) : h;
-  const int yw = w & ~((mode == 1) ? 3 : 1);
+  const int yh = (mode == 2 || mode == 3 || mode == 4) ? (h & ~1): h;
+  const int yw = w & ~((mode == 1) ? 3: 1);
   k_copy_y<<<gridFor(yw, yh), dim3(kBlockX, kBlockY), 0, stream>>>(pSrc[0], aSrcStep[0], pDst[0], aDstStep[0], w, yh,
                                                                  yw);
-  const Npp8u *srcCb = swapSrc ? pSrc[2] : pSrc[1];
-  const Npp8u *srcCr = swapSrc ? pSrc[1] : pSrc[2];
-  Npp8u *dstCb = swapDst ? pDst[2] : pDst[1];
-  Npp8u *dstCr = swapDst ? pDst[1] : pDst[2];
-  const int srcCStep = swapSrc ? aSrcStep[2] : aSrcStep[1];
-  const int dstCStep = swapDst ? aDstStep[2] : aDstStep[1];
+  const Npp8u *srcCb = swapSrc ? pSrc[2]: pSrc[1];
+  const Npp8u *srcCr = swapSrc ? pSrc[1]: pSrc[2];
+  Npp8u *dstCb = swapDst ? pDst[2]: pDst[1];
+  Npp8u *dstCr = swapDst ? pDst[1]: pDst[2];
+  const int srcCStep = swapSrc ? aSrcStep[2]: aSrcStep[1];
+  const int dstCStep = swapDst ? aDstStep[2]: aDstStep[1];
   int cw = w >> 1;
   int ch = h;
   if (mode == 1) {
@@ -570,12 +570,12 @@ NppStatus p3ToP2(const Npp8u *const pSrc[3], const int aSrcStep[3], Npp8u *pDstY
     return NPP_NO_ERROR;
   }
   const int w = oSizeROI.width, h = oSizeROI.height;
-  const int yh = (mode == 1 || mode == 3) ? (h & ~1) : h;
-  const int yw = w & ~((mode == 0 || mode == 2) ? 3 : 1);
+  const int yh = (mode == 1 || mode == 3) ? (h & ~1): h;
+  const int yw = w & ~((mode == 0 || mode == 2) ? 3: 1);
   k_copy_y<<<gridFor(yw, yh), dim3(kBlockX, kBlockY), 0, stream>>>(pSrc[0], aSrcStep[0], pDstY, nDstYStep, w, yh, yw);
-  const Npp8u *srcCb = swapSrc ? pSrc[2] : pSrc[1];
-  const Npp8u *srcCr = swapSrc ? pSrc[1] : pSrc[2];
-  const int srcCStep = swapSrc ? aSrcStep[2] : aSrcStep[1];
+  const Npp8u *srcCb = swapSrc ? pSrc[2]: pSrc[1];
+  const Npp8u *srcCr = swapSrc ? pSrc[1]: pSrc[2];
+  const int srcCStep = swapSrc ? aSrcStep[2]: aSrcStep[1];
   int cw = w >> 2;
   int ch = h;
   if (mode == 1) {

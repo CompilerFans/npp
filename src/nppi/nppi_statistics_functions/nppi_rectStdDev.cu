@@ -27,7 +27,7 @@ __global__ void rectStdDevKernel_32s32f_C1R(const Npp32s *pSrc, int srcStep, con
   const double sumSq = sqrRow1[x2] - sqrRow0[x2] - sqrRow1[x1] + sqrRow0[x1];
   const double count = (double)rect.width * rect.height;
   double variance = (count * sumSq - sum * sum) / (count * count);
-  variance = variance > 0.0 ? variance : 0.0;
+  variance = variance > 0.0 ? variance: 0.0;
   Npp32f *dstRow = (Npp32f *)((Npp8u *)pDst + y * dstStep);
   dstRow[x] = static_cast<Npp32f>(sqrt(variance));
 }

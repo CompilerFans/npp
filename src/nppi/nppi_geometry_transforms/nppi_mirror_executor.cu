@@ -17,8 +17,8 @@ inline bool validFlip(NppiAxis flip) {
 }
 
 inline void flipAxes(NppiAxis flip, int *flipX, int *flipY) {
-  *flipX = (flip == NPP_VERTICAL_AXIS || flip == NPP_BOTH_AXIS) ? 1 : 0;
-  *flipY = (flip == NPP_HORIZONTAL_AXIS || flip == NPP_BOTH_AXIS) ? 1 : 0;
+  *flipX = (flip == NPP_VERTICAL_AXIS || flip == NPP_BOTH_AXIS) ? 1: 0;
+  *flipY = (flip == NPP_HORIZONTAL_AXIS || flip == NPP_BOTH_AXIS) ? 1: 0;
 }
 
 // Out-of-place mirror kernel.
@@ -30,9 +30,9 @@ __global__ void mirrorOopKernel(const T *pSrc, int nSrcStep, T *pDst, int nDstSt
   if (x >= width || y >= height) {
     return;
   }
-  const int srcX = flipX ? (width - 1 - x) : x;
-  const int srcY = flipY ? (height - 1 - y) : y;
-  constexpr int kWrite = AlphaPreserve ? 3 : Channels;  // AC4 leaves the alpha untouched
+  const int srcX = flipX ? (width - 1 - x): x;
+  const int srcY = flipY ? (height - 1 - y): y;
+  constexpr int kWrite = AlphaPreserve ? 3: Channels;  // AC4 leaves the alpha untouched
   const T *s = reinterpret_cast<const T *>(reinterpret_cast<const char *>(pSrc) + (size_t)srcY * nSrcStep) +
                (size_t)srcX * Channels;
   T *d =
@@ -53,14 +53,14 @@ __global__ void mirrorSwapKernel(T *pSrcDst, int nSrcDstStep, int width, int hei
   if (x >= width || y >= height) {
     return;
   }
-  const int srcX = flipX ? (width - 1 - x) : x;
-  const int srcY = flipY ? (height - 1 - y) : y;
+  const int srcX = flipX ? (width - 1 - x): x;
+  const int srcY = flipY ? (height - 1 - y): y;
   const size_t a = (size_t)y * width + x;
   const size_t b = (size_t)srcY * width + srcX;
   if (a >= b) {
     return;  // the pair is handled by the thread holding the smaller index
   }
-  constexpr int kWrite = AlphaPreserve ? 3 : Channels;  // AC4 leaves the alpha in place
+  constexpr int kWrite = AlphaPreserve ? 3: Channels;  // AC4 leaves the alpha in place
   T *pa = reinterpret_cast<T *>(reinterpret_cast<char *>(pSrcDst) + (size_t)y * nSrcDstStep) + (size_t)x * Channels;
   T *pb =
       reinterpret_cast<T *>(reinterpret_cast<char *>(pSrcDst) + (size_t)srcY * nSrcDstStep) + (size_t)srcX * Channels;
@@ -82,9 +82,9 @@ __global__ void mirrorBatchOopKernel(const NppiMirrorBatchCXR *pBatchList, int w
   if (x >= width || y >= height) {
     return;
   }
-  const int srcX = flipX ? (width - 1 - x) : x;
-  const int srcY = flipY ? (height - 1 - y) : y;
-  constexpr int kWrite = AlphaPreserve ? 3 : Channels;  // AC4 leaves the alpha untouched
+  const int srcX = flipX ? (width - 1 - x): x;
+  const int srcY = flipY ? (height - 1 - y): y;
+  constexpr int kWrite = AlphaPreserve ? 3: Channels;  // AC4 leaves the alpha untouched
   const T *s =
       reinterpret_cast<const T *>(reinterpret_cast<const char *>(entry.pSrc) + (size_t)srcY * entry.nSrcStep) +
       (size_t)srcX * Channels;
@@ -106,14 +106,14 @@ __global__ void mirrorBatchSwapKernel(const NppiMirrorBatchCXR *pBatchList, int 
   if (x >= width || y >= height) {
     return;
   }
-  const int srcX = flipX ? (width - 1 - x) : x;
-  const int srcY = flipY ? (height - 1 - y) : y;
+  const int srcX = flipX ? (width - 1 - x): x;
+  const int srcY = flipY ? (height - 1 - y): y;
   const size_t a = (size_t)y * width + x;
   const size_t b = (size_t)srcY * width + srcX;
   if (a >= b) {
     return;
   }
-  constexpr int kWrite = AlphaPreserve ? 3 : Channels;  // AC4 leaves the alpha in place
+  constexpr int kWrite = AlphaPreserve ? 3: Channels;  // AC4 leaves the alpha in place
   T *pa = reinterpret_cast<T *>(reinterpret_cast<char *>(entry.pDst) + (size_t)y * entry.nDstStep) +
           (size_t)x * Channels;
   T *pb =
@@ -134,10 +134,10 @@ inline dim3 gridSize(int width, int height, int nBatch) {
 
 inline NppStatus launchStatus() {
   const cudaError_t err = cudaGetLastError();
-  return (err == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (err == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-// NVIDIA NPP 13.4 (RTX 5090) requires each step to be a multiple of the
+// NVIDIA NPP 13.4 (reference) requires each step to be a multiple of the
 // largest power of two dividing the pixel size in bytes (8u C3 -> 1, 32f C3
 // -> 4, 16s C4 -> 8, 32f C4/AC4 -> 16); anything else returns
 // NPP_NOT_EVEN_STEP_ERROR. Note C3 is NOT required to be a full pixel
@@ -206,7 +206,7 @@ NppStatus mirrorInPlace(T *pSrcDst, int nSrcDstStep, NppiSize oROI, NppiAxis fli
     return NPP_NULL_POINTER_ERROR;
   }
   // NVIDIA NPP 13.4 only accepts even width and height for in-place mirror;
-  // the parity check fires before the flip check (measured on RTX 5090).
+  // the parity check fires before the flip check (measured in the reference implementation).
   if ((oROI.width % 2) != 0 || (oROI.height % 2) != 0) {
     return NPP_SIZE_ERROR;
   }
@@ -225,7 +225,7 @@ NppStatus mirrorInPlace(T *pSrcDst, int nSrcDstStep, NppiSize oROI, NppiAxis fli
 namespace {
 
 // Host-side validation shared by the batch entry points.  Measured order
-// (NVIDIA NPP 13.4, RTX 5090): nBatchSize < 2 -> negative/zero size -> (IR
+// (NVIDIA NPP 13.4, reference): nBatchSize < 2 -> negative/zero size -> (IR
 // only) odd dimensions -> invalid flip.
 inline NppStatus validateBatch(NppiSize oSizeROI, NppiAxis flip, int nBatchSize, bool requireEven) {
   if (nBatchSize < 2) {

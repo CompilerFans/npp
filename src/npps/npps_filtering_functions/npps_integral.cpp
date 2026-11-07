@@ -2,7 +2,7 @@
 #include "npp_version_compat.h"
 #include <cuda_runtime.h>
 
-// Kernel declarations (implemented in .cu file)
+// Kernel declarations (implemented in.cu file)
 extern "C" {
 cudaError_t nppsIntegral_32s_kernel(const Npp32s *pSrc, Npp32s *pDst, size_t nLength, Npp8u *pDeviceBuffer,
                                     cudaStream_t stream);
@@ -43,7 +43,7 @@ NppStatus nppsIntegralImpl(const Npp32s *pSrc, Npp32s *pDst, size_t nLength, Npp
 
   cudaError_t cudaStatus = nppsIntegral_32s_kernel(pSrc, pDst, nLength, pDeviceBuffer, stream);
 
-  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 } // namespace

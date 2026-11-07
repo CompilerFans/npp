@@ -1,6 +1,6 @@
 #pragma once
 
-// CPU-golden drivers for the nppi morphological operations.
+// CPU-reference output drivers for the nppi morphological operations.
 //
 // Measured NPP 13.4 contracts reproduced here:
 //  * The plain Erode/Dilate (and Erode3x3/Dilate3x3) entry points read outside
@@ -23,11 +23,11 @@
 namespace num {
 
 template <typename T> inline T morph_pick(bool dilate, T a, T b) {
-  if (dilate) return b > a ? b : a;
-  return b < a ? b : a;
+  if (dilate) return b > a ? b: a;
+  return b < a ? b: a;
 }
 
-inline int morph_clamp(int v, int lo, int hi) { return v < lo ? lo : (v > hi ? hi : v); }
+inline int morph_clamp(int v, int lo, int hi) { return v < lo ? lo: (v > hi ? hi: v); }
 
 // One output sample.  border=false samples only taps inside the image (the
 // caller guarantees the whole window is interior).
@@ -60,7 +60,7 @@ inline T morph_sample(const T *src, int stepElems, int w, int h, int x, int y, c
       }
     }
   }
-  return any ? acc : T(0);
+  return any ? acc: T(0);
 }
 
 // Interior window for the plain (non-border) families.
@@ -82,8 +82,7 @@ struct MorphMask {
   int mw = 0, mh = 0, ax = 0, ay = 0;
   std::vector<uint8_t> host;
   npp_functional_test::DeviceMemory<uint8_t> dev;
-  MorphMask(int w, int h, int anchorX, int anchorY, const std::vector<uint8_t> &values)
-      : mw(w), mh(h), ax(anchorX), ay(anchorY), host(values), dev(values.size()) {
+  MorphMask(int w, int h, int anchorX, int anchorY, const std::vector<uint8_t> &values): mw(w), mh(h), ax(anchorX), ay(anchorY), host(values), dev(values.size()) {
     dev.copyFromHost(host);
   }
 };
@@ -119,7 +118,7 @@ void run_morph_plain3(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     int x0, x1, y0, y1;
     if (!morph_interior3(c.w, c.h, &x0, &x1, &y0, &y1)) continue;  // no defined output pixel
     // The plain entry points sample outside the ROI at the borders.  NPP
@@ -183,7 +182,7 @@ void run_morph_plain_mask(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const std::vector<MorphMask *> masks = morph_masks();
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     // Same undefined-border memory requirement as the 3x3 driver; the margin
     // covers the largest mask (5x3 / 3x5) used below.
     const int margin = 6;
@@ -194,7 +193,7 @@ void run_morph_plain_mask(const char *id, Call call) {
     fill_regime(s, C, seed, c.regime, 0, false, false, std::is_floating_point_v<S>);
     s.dev.copyFromHost(s.host);
     d.dev.copyFromHost(d.host);
-    for (MorphMask *m : masks) {
+    for (MorphMask *m: masks) {
       int x0, x1, y0, y1;
       if (!morph_interior(c.w, c.h, m->mw, m->mh, m->ax, m->ay, &x0, &x1, &y0, &y1)) continue;
       const std::vector<uint8_t> pre = d.host;
@@ -240,7 +239,7 @@ void run_morph_plain_mask(const char *id, Call call) {
     }
     if (cnt.mismatched >= 8) break;
   }
-  for (auto *m : masks) delete m;
+  for (auto *m: masks) delete m;
   finish(id, cnt, first);
 }
 
@@ -291,7 +290,7 @@ void run_morph_border3(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s(c.w + c.ox, c.h + c.oy, C, c.pad, 0);
     Buf<S> d(c.w + c.ox, c.h + c.oy, C, c.pad, 0x5A);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
@@ -342,7 +341,7 @@ void run_morph_border_mask(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const std::vector<MorphMask *> masks = morph_masks();
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     // Same undefined-border memory requirement as the 3x3 driver; the margin
     // covers the largest mask (5x3 / 3x5) used below.
     const int margin = 6;
@@ -353,7 +352,7 @@ void run_morph_border_mask(const char *id, Call call) {
     fill_regime(s, C, seed, c.regime, 0, false, false, std::is_floating_point_v<S>);
     s.dev.copyFromHost(s.host);
     d.dev.copyFromHost(d.host);
-    for (MorphMask *m : masks) {
+    for (MorphMask *m: masks) {
       const std::vector<uint8_t> pre = d.host;
       npp_diff::clear_cuda_error();
       const NppStatus st = call(
@@ -387,7 +386,7 @@ void run_morph_border_mask(const char *id, Call call) {
     }
     if (cnt.mismatched >= 8) break;
   }
-  for (auto *m : masks) delete m;
+  for (auto *m: masks) delete m;
   finish(id, cnt, first);
 }
 
@@ -404,7 +403,7 @@ void run_morph_combo(const char *id, Call call) {
   const std::vector<MorphMask *> masks = morph_masks();
   npp_functional_test::DeviceMemory<uint8_t> scratch(kMorphScratch);
   const bool firstDilate = (Kind == 1 || Kind == 2 || Kind == 4);
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     // Same undefined-border memory requirement as the 3x3 driver; the margin
     // covers the largest mask (5x3 / 3x5) used below.
     const int margin = 6;
@@ -415,7 +414,7 @@ void run_morph_combo(const char *id, Call call) {
     fill_regime(s, C, seed, c.regime, 0, false, false, std::is_floating_point_v<S>);
     s.dev.copyFromHost(s.host);
     d.dev.copyFromHost(d.host);
-    for (MorphMask *m : masks) {
+    for (MorphMask *m: masks) {
       const std::vector<uint8_t> pre = d.host;
       npp_diff::clear_cuda_error();
       const NppStatus st = call(
@@ -457,10 +456,10 @@ void run_morph_combo(const char *id, Call call) {
             const S b = src[(size_t)y * stepElems + (size_t)x * C + ch];
             S v;
             if constexpr (std::is_floating_point_v<S>) {
-              v = (Kind == 2 || Kind == 4) ? (S)(a - b) : (Kind == 3 ? (S)(b - a) : a);
+              v = (Kind == 2 || Kind == 4) ? (S)(a - b): (Kind == 3 ? (S)(b - a): a);
             } else {
               const long long av = (long long)a, bv = (long long)b;
-              const long long r = (Kind == 2 || Kind == 4) ? av - bv : (Kind == 3 ? bv - av : av);
+              const long long r = (Kind == 2 || Kind == 4) ? av - bv: (Kind == 3 ? bv - av: av);
               v = (S)r;
             }
             std::memcpy(want.data() + base + (size_t)ch * sizeof(S), &v, sizeof(S));
@@ -471,7 +470,7 @@ void run_morph_combo(const char *id, Call call) {
     }
     if (cnt.mismatched >= 8) break;
   }
-  for (auto *m : masks) delete m;
+  for (auto *m: masks) delete m;
   finish(id, cnt, first);
 }
 
@@ -493,7 +492,7 @@ void run_morph_gray(const char *id, Call call) {
     maskDev.copyFromHost(hv);
   }
   const int mw = 3, mh = 3, ax = 1, ay = 1;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     Buf<S> s(c.w + c.ox, c.h + c.oy, 1, c.pad, 0);
     Buf<S> d(c.w + c.ox, c.h + c.oy, 1, c.pad, 0x5A);
     const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
@@ -528,20 +527,20 @@ void run_morph_gray(const char *id, Call call) {
           for (int mx = 0; mx < mw; ++mx) {
             const int cx = morph_clamp(x + mx - ax, 0, c.w - 1);
             // Every tap participates: the mask is an additive structuring
-            // element, not a selector (measured on the 5090).
+            // element, not a selector (measured on the reference).
             const double v = (double)src[(size_t)cy * stepElems + cx] +
                              (double)maskVals[(size_t)my * mw + mx];
             if (!any) {
               acc = v;
               any = true;
             } else {
-              acc = Dilate ? (v > acc ? v : acc) : (v < acc ? v : acc);
+              acc = Dilate ? (v > acc ? v: acc): (v < acc ? v: acc);
             }
           }
         }
         S v;
         if constexpr (std::is_same_v<S, Npp8u>) {
-          acc = acc < 0.0 ? 0.0 : (acc > 255.0 ? 255.0 : acc);
+          acc = acc < 0.0 ? 0.0: (acc > 255.0 ? 255.0: acc);
           v = (S)acc;
         } else {
           v = (S)acc;

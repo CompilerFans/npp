@@ -1,4 +1,4 @@
-// CPU-golden coverage for the 8u gamma transforms and the RGB/color-to-gray
+// CPU-reference output coverage for the 8u gamma transforms and the RGB/color-to-gray
 // and gradient-to-gray families.
 //
 // The gamma tables below are the 256-entry LUTs measured from NVIDIA NPP 13.4
@@ -59,7 +59,7 @@ inline S round_clamp(double v) {
     if constexpr (std::is_same_v<S, Npp8u>) { lo = 0.0; hi = 255.0; }
     else if constexpr (std::is_same_v<S, Npp16u>) { lo = 0.0; hi = 65535.0; }
     else if constexpr (std::is_same_v<S, Npp16s>) { lo = -32768.0; hi = 32767.0; }
-    const double r = v >= 0.0 ? std::floor(v + 0.5) : std::ceil(v - 0.5);
+    const double r = v >= 0.0 ? std::floor(v + 0.5): std::ceil(v - 0.5);
     if (r < lo) return (S)lo;
     if (r > hi) return (S)hi;
     return (S)r;
@@ -95,8 +95,8 @@ void run_gamma(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  const unsigned char *lut = Fwd ? kGammaFwd : kGammaInv;
-  for (const GenCase &c : make_gen_cases(0)) {
+  const unsigned char *lut = Fwd ? kGammaFwd: kGammaInv;
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     if constexpr (Layout == 2) {
       std::vector<Buf<Npp8u> *> srcs;
@@ -130,8 +130,8 @@ void run_gamma(const char *id, Call call) {
         if (st != NPP_NO_ERROR) {
           ++cnt.skipped;
           if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-          for (auto *p : srcs) delete p;
-          for (auto *p : dsts) delete p;
+          for (auto *p: srcs) delete p;
+          for (auto *p: dsts) delete p;
           continue;
         }
         const cudaError_t se = cudaDeviceSynchronize();
@@ -153,8 +153,8 @@ void run_gamma(const char *id, Call call) {
                                          srcs[(size_t)p]->step, std::vector<uint8_t>(), cnt, first))
             failed = true;
         }
-        for (auto *p : srcs) delete p;
-        for (auto *p : dsts) delete p;
+        for (auto *p: srcs) delete p;
+        for (auto *p: dsts) delete p;
         if (failed || cnt.mismatched >= 8) break;
       } else {
         npp_diff::clear_cuda_error();
@@ -162,8 +162,8 @@ void run_gamma(const char *id, Call call) {
         if (st != NPP_NO_ERROR) {
           ++cnt.skipped;
           if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-          for (auto *p : srcs) delete p;
-          for (auto *p : dsts) delete p;
+          for (auto *p: srcs) delete p;
+          for (auto *p: dsts) delete p;
           continue;
         }
         const cudaError_t se = cudaDeviceSynchronize();
@@ -184,12 +184,12 @@ void run_gamma(const char *id, Call call) {
                                          want, dsts[(size_t)p]->step, std::vector<uint8_t>(), cnt, first))
             failed = true;
         }
-        for (auto *p : srcs) delete p;
-        for (auto *p : dsts) delete p;
+        for (auto *p: srcs) delete p;
+        for (auto *p: dsts) delete p;
         if (failed || cnt.mismatched >= 8) break;
       }
     } else {
-      constexpr int CH = Layout == 0 ? 3 : 4;
+      constexpr int CH = Layout == 0 ? 3: 4;
       Buf<Npp8u> s(c.w + c.ox, c.h + c.oy, CH, c.pad, 0);
       Buf<Npp8u> d(c.w, c.h, CH, 0, 0x5A);
       fill_regime(s, CH, case_seed(id, c.w, c.h, s.step, d.step, 0, 0), c.regime, 0, false, false, false);
@@ -273,8 +273,8 @@ void run_color_to_gray(const char *id, Call call, int ncoef) {
       {0.299f, 0.587f, 0.114f, 0.0f},
       {0.25f, 0.5f, 0.25f, 0.1f},
   };
-  constexpr int CH = Layout == 0 ? 3 : 4;
-  for (const GenCase &c : make_gen_cases(0)) {
+  constexpr int CH = Layout == 0 ? 3: 4;
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<S> s(c.w + c.ox, c.h + c.oy, CH, c.pad, 0);
     Buf<S> d(c.w, c.h, 1, 0, 0x5A);
@@ -293,11 +293,11 @@ void run_color_to_gray(const char *id, Call call, int ncoef) {
     d.dev.copyFromHost(d.host);
     const S *hsrc = s.hptr() + off_bytes<S>(c.oy, c.ox, s.step, CH) / sizeof(S);
     const S *dsrc = reinterpret_cast<const S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, CH));
-    const int ncases = FixedWeights ? 1 : 2;
+    const int ncases = FixedWeights ? 1: 2;
     static const float fixedCo[4] = {0.299f, 0.587f, 0.114f, 0.0f};
     for (int ci = 0; ci < ncases; ++ci) {
       float co[4];
-      std::memcpy(co, FixedWeights ? fixedCo : coeffSets[ci], sizeof(co));
+      std::memcpy(co, FixedWeights ? fixedCo: coeffSets[ci], sizeof(co));
       const std::vector<uint8_t> pre = d.host;
       npp_diff::clear_cuda_error();
       const NppStatus st = call(dsrc, s.step, reinterpret_cast<S *>(d.dptr()), d.step, NppiSize{c.w, c.h}, co,
@@ -347,7 +347,7 @@ void run_gradient_gray(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   const int norms[3] = {nppiNormL1, nppiNormL2, nppiNormInf};
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     Buf<S> s(c.w + c.ox, c.h + c.oy, 3, c.pad, 0);
     Buf<S> d(c.w, c.h, 1, 0, 0x5A);
@@ -390,10 +390,9 @@ void run_gradient_gray(const char *id, Call call) {
           const float b = (float)as_double(hsrc[so + 2]);
           float value = 0.0f;
           constexpr bool kScale = !std::is_same_v<S, Npp32f>;
-          if (norms[ni] == nppiNormL1) value = kScale ? (r + g + b) * (1.0f / 3.0f) : (r + g + b);
+          if (norms[ni] == nppiNormL1) value = kScale ? (r + g + b) * (1.0f / 3.0f): (r + g + b);
           else if (norms[ni] == nppiNormL2)
-            value = kScale ? std::sqrt(r * r + g * g + b * b) * 0.5773502691896257f
-                           : std::sqrt(r * r + g * g + b * b);
+            value = kScale ? std::sqrt(r * r + g * g + b * b) * 0.5773502691896257f: std::sqrt(r * r + g * g + b * b);
           else value = std::max(r, std::max(g, b));
           S out;
           if constexpr (std::is_same_v<S, Npp32f>) out = (S)value;

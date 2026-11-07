@@ -4,9 +4,9 @@
 // These three families share the Border validation skeleton of the filtering
 // module but each has its own arithmetic; the common contract lives here.
 //
-// Measured semantics (RTX 5090, NVIDIA NPP 13.4, probes f13_probe26/27):
+// Measured semantics (reference, NVIDIA NPP 13.4, measurements):
 //
-// Bilateral (documented formula, probe-verified for step 1; step > 1 is
+// Bilateral (documented formula, measured for step 1; step > 1 is
 // implemented with the literal `x + w*step` sampling and is NOT bit-exact
 // against NPP, which snaps the kernel centre to a grid - see f13_notes.md):
 //   dst = sum(W1*W2*S) / sum(W1*W2) over the (2r+1)^2 kernel,

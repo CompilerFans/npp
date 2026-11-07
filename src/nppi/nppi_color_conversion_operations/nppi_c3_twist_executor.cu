@@ -1,4 +1,4 @@
-// c3 package ColorTwist kernels (see nppi_c3_twist_executor.h).
+// c3 ColorTwist kernels (see nppi_c3_twist_executor.h).
 
 #include "nppi_c3_twist_executor.h"
 
@@ -19,7 +19,7 @@ inline bool step_ok(int nStep, int nMinRowBytes) {
 }
 inline bool roi_valid(NppiSize roi) { return roi.width >= 0 && roi.height >= 0; }
 inline NppStatus launch_ok() {
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 struct Twist {
@@ -38,7 +38,7 @@ __host__ __device__ __forceinline__ Twist loadTwist(const Npp32f a[3][4]) {
 
 __device__ __forceinline__ int round_clamp(float v, int maxv) {
   int t = static_cast<int>(v + 0.5f);
-  return t < 0 ? 0 : (t > maxv ? maxv : t);
+  return t < 0 ? 0: (t > maxv ? maxv: t);
 }
 
 __device__ __forceinline__ float twistRow(const Twist &t, int row, float a, float b, float c) {
@@ -81,8 +81,8 @@ __global__ void k_fwd420_c3(const T *__restrict__ pSrc, int nSrcStep, T *__restr
   }
   for (int r = 1; r < 3; ++r) {
     const float avg = (v[r][0] + v[r][1] + v[r][2] + v[r][3]) * 0.25f;
-    T *dst = r == 1 ? pDst1 : pDst2;
-    const int st = r == 1 ? s1 : s2;
+    T *dst = r == 1 ? pDst1: pDst2;
+    const int st = r == 1 ? s1: s2;
     dst[(size_t)j * st + x] = static_cast<T>(round_clamp(avg, MAXV));
   }
 }
@@ -300,7 +300,7 @@ __global__ void k_inv422_c2(const T *__restrict__ pSrc, int nSrcStep, T *__restr
     p = lastPair;
   }
   const T *s = pSrc + (size_t)y * nSrcStep + (size_t)p * 4;
-  const float fy = static_cast<float>(s[(x & 1) ? 3 : 1]);
+  const float fy = static_cast<float>(s[(x & 1) ? 3: 1]);
   const float fu = static_cast<float>(s[0]);
   const float fv = static_cast<float>(s[2]);
   T *d = pDst + (size_t)y * nDstStep + (size_t)x * 3;

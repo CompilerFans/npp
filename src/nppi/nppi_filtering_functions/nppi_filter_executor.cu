@@ -1,6 +1,6 @@
 // nppiFilter32f / nppiFilterBorder(32f) / nppiFilterRow(32f) / nppiFilterColumn(32f)
 // kernels and executor entry points.  See nppi_filter_executor.h for the family
-// contract (semantics measured against NVIDIA NPP 13.4 on an RTX 5090).
+// contract (semantics measured against NVIDIA NPP 13.4 in the reference implementation).
 #include "npp.h"
 #include "nppi_filter_executor.h"
 #include <cuda_runtime.h>
@@ -21,7 +21,7 @@ inline NppStatus finish_launch() {
   return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-// NPP's empty/negative-kernel and zero-mask behaviour (5090): the destination
+// NPP's empty/negative-kernel and zero-mask behaviour (reference): the destination
 // is zero-filled over [0, limitX) x [0, limitY) with the per-axis limit
 //   limit(dim, k) = clamp(dim - 1 + k, 0, dim)   (k = kernel dim / mask size)
 // i.e. a kernel of size 0 leaves the last line untouched, a size of 1 or more
@@ -29,7 +29,7 @@ inline NppStatus finish_launch() {
 // AC4 filters zero only the RGB channels and preserve the alpha channel.
 template <typename Dst, int CH, bool AC4 = false>
 __global__ void zeroFillKernel(Dst *pDst, int nDstStep, int limitX, int limitY) {
-  constexpr int kNch = AC4 ? (CH < 3 ? CH : 3) : CH;
+  constexpr int kNch = AC4 ? (CH < 3 ? CH: 3): CH;
   const int x = blockIdx.x * kBlockX + threadIdx.x;
   const int y = blockIdx.y * kBlockY + threadIdx.y;
   if (x >= limitX || y >= limitY) return;
@@ -52,12 +52,12 @@ inline NppStatus launchZeroFill(Dst *pDst, int nDstStep, int limitX, int limitY,
 inline int fill_limit(int dim, int k) {
   const int lim = dim - 1 + k;
   if (lim <= 0) return 0;
-  return lim > dim ? dim : lim;
+  return lim > dim ? dim: lim;
 }
 
 // NPP takes kernel/mask arrays as HOST pointers and stages them internally.
 // cudaMemcpyDefault lets the same path also accept a device pointer (the
-// differential harness passes device-side kernel buffers).
+// test harness passes device-side kernel buffers).
 template <typename K>
 inline NppStatus stage_kernel(const K *pKernel, int count, cudaStream_t stream, K **out) {
   K *d = nullptr;
@@ -82,11 +82,11 @@ inline NppStatus with_staged_kernel(const K *pKernel, int count, cudaStream_t st
   launch(d);
   cudaError_t e = cudaGetLastError();
   cudaFreeAsync(d, stream);
-  return e == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return e == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 __host__ __device__ __forceinline__ int clampi(int v, int lo, int hi) {
-  return v < lo ? lo : (v > hi ? hi : v);
+  return v < lo ? lo: (v > hi ? hi: v);
 }
 
 // Source sample as float (all supported source types are arithmetic).
@@ -145,16 +145,16 @@ __host__ __device__ __forceinline__ Npp16f emit_dst<Npp16f>(float acc) {
 // NPP's 8u C4/AC4 1D filter path (row/column, border and non-border) does its
 // accumulation in unsigned 32-bit SATURATING arithmetic and divides unsigned;
 // a negative signed sum therefore lands high and saturates to 255, not 0.
-// Measured on the 5090 with controlled taps: k=[-2,5,1] over 82/26/134 sums to
+// Measured on the reference with controlled taps: k=[-2,5,1] over 82/26/134 sums to
 // 100 but emits 255, and eight taps of 2^29 divided by 2^31-1 emit 2 (wrap
 // would emit 0, signed saturation 0).
 __host__ __device__ __forceinline__ unsigned sat_add_u32(unsigned a, unsigned b) {
-  return b > 0xFFFFFFFFu - a ? 0xFFFFFFFFu : a + b;
+  return b > 0xFFFFFFFFu - a ? 0xFFFFFFFFu: a + b;
 }
 
 __host__ __device__ __forceinline__ Npp8u emit_u8_unsigned(unsigned acc, int nDivisor) {
   const unsigned q = acc / (unsigned)nDivisor;
-  return static_cast<Npp8u>(q > 255u ? 255u : q);
+  return static_cast<Npp8u>(q > 255u ? 255u: q);
 }
 
 // Saturate an already-integral (post-division) result into the destination.
@@ -183,7 +183,7 @@ template <typename Src, typename Dst, int CH, bool AC4>
 __global__ void filter2d_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__restrict__ pDst,
                                 int nDstStep, int W, int H, const Npp32f *__restrict__ pKernel,
                                 int kw, int kh, int ax, int ay) {
-  constexpr int kNch = AC4 ? 3 : CH;
+  constexpr int kNch = AC4 ? 3: CH;
   const int x = blockIdx.x * kBlockX + threadIdx.x;
   const int y = blockIdx.y * kBlockY + threadIdx.y;
   if (x >= W || y >= H) return;
@@ -212,7 +212,7 @@ __global__ void filter2d_border32f_kernel(const Src *__restrict__ pSrc, int nSrc
                                           int nDstStep, int W, int H,
                                           const Npp32f *__restrict__ pKernel, int kw, int kh,
                                           int ax, int ay) {
-  constexpr int kNch = AC4 ? 3 : CH;
+  constexpr int kNch = AC4 ? 3: CH;
   const int x = blockIdx.x * kBlockX + threadIdx.x;
   const int y = blockIdx.y * kBlockY + threadIdx.y;
   if (x >= W || y >= H) return;
@@ -246,7 +246,7 @@ __global__ void filter2d_border_div_kernel(const Src *__restrict__ pSrc, int nSr
                                            int nDstStep, int W, int H,
                                            const Npp32s *__restrict__ pKernel, int kw, int kh,
                                            int ax, int ay, int nDivisor) {
-  constexpr int kNch = AC4 ? 3 : CH;
+  constexpr int kNch = AC4 ? 3: CH;
   const int x = blockIdx.x * kBlockX + threadIdx.x;
   const int y = blockIdx.y * kBlockY + threadIdx.y;
   if (x >= W || y >= H) return;
@@ -284,7 +284,7 @@ template <typename Src, typename Dst, int CH, bool AC4>
 __global__ void filter2d_div_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__restrict__ pDst,
                                     int nDstStep, int W, int H, const Npp32s *__restrict__ pKernel,
                                     int kw, int kh, int ax, int ay, int nDivisor) {
-  constexpr int kNch = AC4 ? 3 : CH;
+  constexpr int kNch = AC4 ? 3: CH;
   const int x = blockIdx.x * kBlockX + threadIdx.x;
   const int y = blockIdx.y * kBlockY + threadIdx.y;
   if (x >= W || y >= H) return;
@@ -318,7 +318,7 @@ template <typename Src, typename Dst, int CH, bool AC4>
 __global__ void filter2d_64f_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__restrict__ pDst,
                                     int nDstStep, int W, int H, const Npp64f *__restrict__ pKernel,
                                     int kw, int kh, int ax, int ay) {
-  constexpr int kNch = AC4 ? 3 : CH;
+  constexpr int kNch = AC4 ? 3: CH;
   const int x = blockIdx.x * kBlockX + threadIdx.x;
   const int y = blockIdx.y * kBlockY + threadIdx.y;
   if (x >= W || y >= H) return;
@@ -340,7 +340,7 @@ __global__ void filter2d_64f_kernel(const Src *__restrict__ pSrc, int nSrcStep, 
 // ---------------------------------------------------------------------------
 // 32f C1R with an odd square kernel: NPP uses a specialised path that clamps
 // every tap into the ROI (replicate inside the ROI), unlike every other kernel
-// shape/layout, which reads raw.  Measured on the 5090 with shape probes.
+// shape/layout, which reads raw.  Measured on the reference with shape measurements.
 // ---------------------------------------------------------------------------
 template <typename Src, typename Dst, int CH>
 __global__ void filter2d_clamp32f_kernel(const Src *__restrict__ pSrc, int nSrcStep,
@@ -370,7 +370,7 @@ __global__ void filter2d_clamp32f_kernel(const Src *__restrict__ pSrc, int nSrcS
 // ---------------------------------------------------------------------------
 // 32f C1R row/column with an odd mask >= 3: like the 2D C1R square kernels,
 // NPP clamps the taps into the ROI along the filter axis.  Measured on the
-// 5090 (the C3/C4/AC4 and even-mask families read raw).
+// reference (the C3/C4/AC4 and even-mask families read raw).
 // ---------------------------------------------------------------------------
 template <typename Src, typename Dst, int CH>
 __global__ void filter_row_clamp32f_kernel(const Src *__restrict__ pSrc, int nSrcStep,
@@ -414,7 +414,7 @@ __global__ void filter_col_clamp32f_kernel(const Src *__restrict__ pSrc, int nSr
 
 // ---------------------------------------------------------------------------
 // 64f row/column with nMaskSize <= 0: NPP performs a single tap at the anchor
-// with k[0] (the signed anchor is used as-is).  Measured on the 5090.
+// with k[0] (the signed anchor is used as-is).  Measured on the reference.
 // ---------------------------------------------------------------------------
 template <typename Src, typename Dst, int CH>
 __global__ void filter_row_1tap_64f_kernel(const Src *__restrict__ pSrc, int nSrcStep,
@@ -453,7 +453,7 @@ template <typename Src, typename Dst, int CH, bool AC4>
 __global__ void filter_row_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__restrict__ pDst,
                                   int nDstStep, int W, int H, const Npp32f *__restrict__ pKernel,
                                   int mask, int ax) {
-  constexpr int kNch = AC4 ? 3 : CH;
+  constexpr int kNch = AC4 ? 3: CH;
   const int x = blockIdx.x * kBlockX + threadIdx.x;
   const int y = blockIdx.y * kBlockY + threadIdx.y;
   if (x >= W || y >= H) return;
@@ -473,7 +473,7 @@ template <typename Src, typename Dst, int CH, bool AC4>
 __global__ void filter_col_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__restrict__ pDst,
                                   int nDstStep, int W, int H, const Npp32f *__restrict__ pKernel,
                                   int mask, int ay) {
-  constexpr int kNch = AC4 ? 3 : CH;
+  constexpr int kNch = AC4 ? 3: CH;
   const int x = blockIdx.x * kBlockX + threadIdx.x;
   const int y = blockIdx.y * kBlockY + threadIdx.y;
   if (x >= W || y >= H) return;
@@ -497,7 +497,7 @@ template <typename Src, typename Dst, int CH, bool AC4>
 __global__ void filter_row_div_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__restrict__ pDst,
                                       int nDstStep, int W, int H, const Npp32s *__restrict__ pKernel,
                                       int mask, int ax, int nDivisor) {
-  constexpr int kNch = AC4 ? 3 : CH;
+  constexpr int kNch = AC4 ? 3: CH;
   // NPP's 8u C4/AC4 1D path uses unsigned ring arithmetic (see emit_u8_unsigned).
   constexpr bool kUnsignedU8x4 = std::is_same_v<Src, Npp8u> && std::is_same_v<Dst, Npp8u> && CH == 4;
   const int x = blockIdx.x * kBlockX + threadIdx.x;
@@ -537,7 +537,7 @@ template <typename Src, typename Dst, int CH, bool AC4>
 __global__ void filter_col_div_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__restrict__ pDst,
                                       int nDstStep, int W, int H, const Npp32s *__restrict__ pKernel,
                                       int mask, int ay, int nDivisor) {
-  constexpr int kNch = AC4 ? 3 : CH;
+  constexpr int kNch = AC4 ? 3: CH;
   constexpr bool kUnsignedU8x4 = std::is_same_v<Src, Npp8u> && std::is_same_v<Dst, Npp8u> && CH == 4;
   const int x = blockIdx.x * kBlockX + threadIdx.x;
   const int y = blockIdx.y * kBlockY + threadIdx.y;
@@ -581,7 +581,7 @@ template <typename Src, typename Dst, int CH, bool AC4>
 __global__ void filter_row_64f_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__restrict__ pDst,
                                       int nDstStep, int W, int H, const Npp64f *__restrict__ pKernel,
                                       int mask, int ax) {
-  constexpr int kNch = AC4 ? 3 : CH;
+  constexpr int kNch = AC4 ? 3: CH;
   const int x = blockIdx.x * kBlockX + threadIdx.x;
   const int y = blockIdx.y * kBlockY + threadIdx.y;
   if (x >= W || y >= H) return;
@@ -601,7 +601,7 @@ template <typename Src, typename Dst, int CH, bool AC4>
 __global__ void filter_col_64f_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__restrict__ pDst,
                                       int nDstStep, int W, int H, const Npp64f *__restrict__ pKernel,
                                       int mask, int ay) {
-  constexpr int kNch = AC4 ? 3 : CH;
+  constexpr int kNch = AC4 ? 3: CH;
   const int x = blockIdx.x * kBlockX + threadIdx.x;
   const int y = blockIdx.y * kBlockY + threadIdx.y;
   if (x >= W || y >= H) return;
@@ -626,7 +626,7 @@ __global__ void filter_row_border32f_kernel(const Src *__restrict__ pSrc, int nS
                                             int sh, int offx, int offy, Dst *__restrict__ pDst,
                                             int nDstStep, int W, int H,
                                             const Npp32f *__restrict__ pKernel, int mask, int ax) {
-  constexpr int kNch = AC4 ? 3 : CH;
+  constexpr int kNch = AC4 ? 3: CH;
   const int x = blockIdx.x * kBlockX + threadIdx.x;
   const int y = blockIdx.y * kBlockY + threadIdx.y;
   if (x >= W || y >= H) return;
@@ -651,7 +651,7 @@ __global__ void filter_col_border32f_kernel(const Src *__restrict__ pSrc, int nS
                                             int sh, int offx, int offy, Dst *__restrict__ pDst,
                                             int nDstStep, int W, int H,
                                             const Npp32f *__restrict__ pKernel, int mask, int ay) {
-  constexpr int kNch = AC4 ? 3 : CH;
+  constexpr int kNch = AC4 ? 3: CH;
   const int x = blockIdx.x * kBlockX + threadIdx.x;
   const int y = blockIdx.y * kBlockY + threadIdx.y;
   if (x >= W || y >= H) return;
@@ -681,7 +681,7 @@ __global__ void filter_row_border_div_kernel(const Src *__restrict__ pSrc, int n
                                              int nDstStep, int W, int H,
                                              const Npp32s *__restrict__ pKernel, int mask, int ax,
                                              int nDivisor) {
-  constexpr int kNch = AC4 ? 3 : CH;
+  constexpr int kNch = AC4 ? 3: CH;
   constexpr bool kUnsignedU8x4 = std::is_same_v<Src, Npp8u> && std::is_same_v<Dst, Npp8u> && CH == 4;
   const int x = blockIdx.x * kBlockX + threadIdx.x;
   const int y = blockIdx.y * kBlockY + threadIdx.y;
@@ -727,7 +727,7 @@ __global__ void filter_col_border_div_kernel(const Src *__restrict__ pSrc, int n
                                              int nDstStep, int W, int H,
                                              const Npp32s *__restrict__ pKernel, int mask, int ay,
                                              int nDivisor) {
-  constexpr int kNch = AC4 ? 3 : CH;
+  constexpr int kNch = AC4 ? 3: CH;
   constexpr bool kUnsignedU8x4 = std::is_same_v<Src, Npp8u> && std::is_same_v<Dst, Npp8u> && CH == 4;
   const int x = blockIdx.x * kBlockX + threadIdx.x;
   const int y = blockIdx.y * kBlockY + threadIdx.y;
@@ -784,9 +784,9 @@ __global__ void sum_window_row_kernel(const Src *__restrict__ pSrc, int nSrcStep
   for (int c = 0; c < CH; ++c) {
     float acc = 0.0f;
     // Non-border sum-window reads raw source taps (no clipping/replication);
-    // the differential buffers carry margins for the window overhang.  The
+    // the test buffers carry margins for the window overhang.  The
     // rightmost tap coordinate is clamped to W + mask - 1 (measured on the
-    // 5090 with impulse probes; the column kernel has no such clamp).
+    // reference with impulse measurements; the column kernel has no such clamp).
     const int kmax = W + mask - 1;
     for (int i = 0; i < mask; ++i) {
       int k = x - ax + i;  // NPP window: [x-ax, x-ax+mask-1]
@@ -1004,7 +1004,7 @@ NppStatus filterDiv(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, Nppi
       oAnchor.y > kh) {
     return NPP_OUT_OFF_RANGE_ERROR;
   }
-  // 5090: step size and the empty-ROI no-op are checked before the divisor.
+  // reference: step size and the empty-ROI no-op are checked before the divisor.
   const int rowBytes = oSizeROI.width * CH * (int)sizeof(Dst);
   if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_STEP_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
@@ -1034,7 +1034,7 @@ NppStatus filter64f(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, Nppi
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   const int kw = oKernelSize.width;
   const int kh = oKernelSize.height;
-  // 5090: nppiFilter_64f_C1R does NOT validate the anchor (anchor {4,1} with a
+  // reference: nppiFilter_64f_C1R does NOT validate the anchor (anchor {4,1} with a
   // 3x3 kernel is NO_ERROR); the integer/32f variants keep the check.
   const int rowBytes = oSizeROI.width * CH * (int)sizeof(Dst);
   if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_STEP_ERROR;
@@ -1125,7 +1125,7 @@ NppStatus filterRowDiv(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, N
                        cudaStream_t stream) {
   if (pSrc == nullptr || pDst == nullptr) return NPP_NULL_POINTER_ERROR;
   if (oROI.width < 0 || oROI.height < 0) return NPP_SIZE_ERROR;
-  // 5090: the filter-axis empty ROI is the no-op and is checked before the
+  // reference: the filter-axis empty ROI is the no-op and is checked before the
   // anchor; a zero cross-axis is a SIZE error.  The anchor is validated against
   // [1 - roiDim, mask] (inclusive), before the step and divisor checks.
   if (oROI.width == 0) return NPP_NO_ERROR;
@@ -1180,7 +1180,7 @@ NppStatus filterRow64f(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, N
                        const Npp64f *pKernel, int nMaskSize, int nAnchor, cudaStream_t stream) {
   if (pSrc == nullptr || pDst == nullptr) return NPP_NULL_POINTER_ERROR;
   if (oROI.width < 0 || oROI.height < 0) return NPP_SIZE_ERROR;
-  // 5090: nppiFilterRow/Column_64f_C1R never validate the anchor.  A mask of
+  // reference: nppiFilterRow/Column_64f_C1R never validate the anchor.  A mask of
   // zero or below is a single tap at the (signed) anchor with k[0]; a positive
   // mask is the usual window, with the anchor clamped into [0, mask-1] to keep
   // raw taps in bounds (NPP accepts out-of-range anchors here).
@@ -1195,7 +1195,7 @@ NppStatus filterRow64f(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, N
           pSrc, nSrcStep, pDst, nDstStep, oROI.width, oROI.height, pk, nAnchor);
     });
   }
-  const int ax = nAnchor < 0 ? 0 : (nAnchor > nMaskSize - 1 ? nMaskSize - 1 : nAnchor);
+  const int ax = nAnchor < 0 ? 0: (nAnchor > nMaskSize - 1 ? nMaskSize - 1: nAnchor);
   return with_staged_kernel(pKernel, nMaskSize, stream, [&](const Npp64f *pk) {
     filter_row_64f_kernel<Src, Dst, CH, AC4><<<grid, block, 0, stream>>>(
         pSrc, nSrcStep, pDst, nDstStep, oROI.width, oROI.height, pk, nMaskSize, ax);
@@ -1218,7 +1218,7 @@ NppStatus filterColumn64f(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep
           pSrc, nSrcStep, pDst, nDstStep, oROI.width, oROI.height, pk, nAnchor);
     });
   }
-  const int ay = nAnchor < 0 ? 0 : (nAnchor > nMaskSize - 1 ? nMaskSize - 1 : nAnchor);
+  const int ay = nAnchor < 0 ? 0: (nAnchor > nMaskSize - 1 ? nMaskSize - 1: nAnchor);
   return with_staged_kernel(pKernel, nMaskSize, stream, [&](const Npp64f *pk) {
     filter_col_64f_kernel<Src, Dst, CH, AC4><<<grid, block, 0, stream>>>(
         pSrc, nSrcStep, pDst, nDstStep, oROI.width, oROI.height, pk, nMaskSize, ay);
@@ -1300,7 +1300,7 @@ NppStatus filterRowBorderDiv(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, N
   if (pSrc == nullptr || pDst == nullptr) return NPP_NULL_POINTER_ERROR;
   if (oSrcSize.width <= 0 || oSrcSize.height <= 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
-  // 5090: the source-offset check runs before the border-mode check.
+  // reference: the source-offset check runs before the border-mode check.
   if (oSrcOffset.x < 0 || oSrcOffset.x >= oSrcSize.width || oSrcOffset.y < 0 ||
       oSrcOffset.y >= oSrcSize.height) {
     return NPP_OUT_OFF_RANGE_ERROR;
@@ -1363,7 +1363,7 @@ NppStatus sumWindowRow(const Src *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep
                        int nMaskSize, int nAnchor, cudaStream_t stream) {
   if (pSrc == nullptr || pDst == nullptr) return NPP_NULL_POINTER_ERROR;
   if (oROI.width < 0 || oROI.height < 0) return NPP_SIZE_ERROR;
-  // 5090 sum-window contract: mask <= 0 -> MASK_SIZE; anchor >= mask ->
+  // reference sum-window contract: mask <= 0 -> MASK_SIZE; anchor >= mask ->
   // ANCHOR; anchor < -mask -> OUT_OFF_RANGE; a zero cross-axis is a SIZE
   // error while a zero filter-axis is the no-op.
   if (oROI.width == 0) return NPP_NO_ERROR;   // filter axis: empty no-op

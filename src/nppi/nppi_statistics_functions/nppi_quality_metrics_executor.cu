@@ -1,4 +1,4 @@
-// Quality / error metric executors for package s2 (see the header for the
+// Quality / error metric executors for this module (see the header for the
 // semantics contract).  Reductions accumulate in double precision.
 #include "nppi_quality_metrics_executor.h"
 
@@ -131,7 +131,7 @@ __global__ void mseKernel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSr
   acc = block_reduce<double>(acc);
   if (threadIdx.x == 0) {
     const double mse = acc / (double)total;
-    pOut[c] = DO_PSNR ? psnr_from_mse(mse) : (Npp32f)mse;
+    pOut[c] = DO_PSNR ? psnr_from_mse(mse): (Npp32f)mse;
   }
 }
 
@@ -234,7 +234,7 @@ __global__ void rectStdDevS32Kernel(const Npp32s *pSrc, int nSrcStep, const Npp3
 
 bool step_ok(int step, int width, int channels, int esize) { return step >= width * channels * esize; }
 
-// Per-channel CountInRange / MSE scratch formula (5090): for 8u inputs the
+// Per-channel CountInRange / MSE scratch formula (reference): for 8u inputs the
 // scratch is 1024 bytes per row below 128 rows and 12 bytes per row above;
 // 32f always uses 12 bytes per row.
 int rowScratchBytes(int height, bool is8u) {
@@ -252,9 +252,9 @@ int batchScratchBytes(NppiSize roi, int channels) {
 }  // namespace
 
 // ---------------------------------------------------------------------------
-// Buffer-size helpers (NVIDIA NPP 13.4 formulas measured with the 5090 sweep).
+// Buffer-size helpers (NVIDIA NPP 13.4 formulas measured with the reference sweep).
 // ---------------------------------------------------------------------------
-NppStatus qualityIndexGetBufferHostSize(NppiSize oSizeROI, int channels, int *hpBufferSize) {
+NppStatus qualityIndexGetBufferHostSize(NppiSize oSizeROI, int channels, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
@@ -264,23 +264,23 @@ NppStatus qualityIndexGetBufferHostSize(NppiSize oSizeROI, int channels, int *hp
 }
 
 NppStatus countInRangeGetBufferHostSize(NppiSize oSizeROI, int channels, bool alpha, int elemSize,
-                                        int *hpBufferSize) {
+                                        NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
-  *hpBufferSize = (alpha ? channels - 1 : channels) * rowScratchBytes(oSizeROI.height, elemSize == 1);
+  *hpBufferSize = (alpha ? channels - 1: channels) * rowScratchBytes(oSizeROI.height, elemSize == 1);
   return NPP_NO_ERROR;
 }
 
-NppStatus mseGetBufferHostSize(NppiSize oSizeROI, int channels, int *hpBufferSize) {
+NppStatus mseGetBufferHostSize(NppiSize oSizeROI, int channels, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   return countInRangeGetBufferHostSize(oSizeROI, channels, false, 1, hpBufferSize);
 }
 
-NppStatus psnrGetBufferHostSize(NppiSize oSizeROI, int channels, int *hpBufferSize) {
+NppStatus psnrGetBufferHostSize(NppiSize oSizeROI, int channels, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   return countInRangeGetBufferHostSize(oSizeROI, channels, false, 1, hpBufferSize);
 }
 
-NppStatus mseBatchGetBufferHostSize(NppiSize oSizeROI, int channels, int *hpBufferSize) {
+NppStatus mseBatchGetBufferHostSize(NppiSize oSizeROI, int channels, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
@@ -288,7 +288,7 @@ NppStatus mseBatchGetBufferHostSize(NppiSize oSizeROI, int channels, int *hpBuff
   return NPP_NO_ERROR;
 }
 
-NppStatus psnrBatchGetBufferHostSize(NppiSize oSizeROI, int channels, int *hpBufferSize) {
+NppStatus psnrBatchGetBufferHostSize(NppiSize oSizeROI, int channels, NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   return mseBatchGetBufferHostSize(oSizeROI, channels, hpBufferSize);
 }
 
@@ -306,12 +306,12 @@ NppStatus runQualityIndex(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSr
       !step_ok(nSrc2Step, oSizeROI.width, channels, esize)) {
     return NPP_STEP_ERROR;
   }
-  // A 4-channel step must be a multiple of the pixel size (the 5090 returns
+  // A 4-channel step must be a multiple of the pixel size (the reference returns
   // NOT_EVEN_STEP_ERROR for a 32f AC4 step of 36; STEP_ERROR takes precedence
   // when the step is also too short).
-  const int align = channels == 4 ? channels * esize : esize;
+  const int align = channels == 4 ? channels * esize: esize;
   if (nSrc1Step % align != 0 || nSrc2Step % align != 0) return NPP_NOT_EVEN_STEP_ERROR;
-  const int nch = alpha ? channels - 1 : channels;
+  const int nch = alpha ? channels - 1: channels;
   if (nch < 1 || nch > 4) return NPP_NUMBER_OF_CHANNELS_ERROR;
 
   double *dSums = nullptr;
@@ -367,7 +367,7 @@ NppStatus runCountInRange1(const D *pSrc, int nSrcStep, NppiSize oSizeROI, int *
   if (!(nLowerBound <= nUpperBound)) return NPP_RANGE_ERROR;
   countInRange1Kernel<D><<<1, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pCounts,
                                                    nLowerBound, nUpperBound);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 template <typename D>
@@ -378,7 +378,7 @@ NppStatus runCountInRangeN(const D *pSrc, int nSrcStep, NppiSize oSizeROI, int *
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if (!step_ok(nSrcStep, oSizeROI.width, channels, (int)sizeof(D))) return NPP_STEP_ERROR;
-  const int nch = alpha ? channels - 1 : channels;
+  const int nch = alpha ? channels - 1: channels;
   for (int c = 0; c < nch; ++c) {
     if (!(aLowerBound[c] <= aUpperBound[c])) return NPP_RANGE_ERROR;
   }
@@ -389,7 +389,7 @@ NppStatus runCountInRangeN(const D *pSrc, int nSrcStep, NppiSize oSizeROI, int *
   }
   countInRangeNKernel<D><<<nch, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, channels,
                                                      bounds, aCounts);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 // ---------------------------------------------------------------------------
@@ -405,10 +405,10 @@ NppStatus runMSE(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, N
       !step_ok(nSrc2Step, oSizeROI.width, channels, (int)sizeof(D))) {
     return NPP_STEP_ERROR;
   }
-  const int nch = alpha ? channels - 1 : channels;
+  const int nch = alpha ? channels - 1: channels;
   mseKernel<D, false><<<nch, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height,
                                                   channels, pMSE);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 template <typename D>
@@ -421,10 +421,10 @@ NppStatus runPSNR(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, 
       !step_ok(nSrc2Step, oSizeROI.width, channels, (int)sizeof(D))) {
     return NPP_STEP_ERROR;
   }
-  const int nch = alpha ? channels - 1 : channels;
+  const int nch = alpha ? channels - 1: channels;
   mseKernel<D, true><<<nch, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height,
                                                  channels, pPSNR);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 // ---------------------------------------------------------------------------
@@ -448,7 +448,7 @@ NppStatus runMetricBatch(const NppiImageDescriptor *pSrc1, const NppiImageDescri
   if (err == cudaSuccess) err = cudaStreamSynchronize(stream);
   if (err != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   for (int i = 0; i < nBatchSize; ++i) {
-    const NppiSize roi = advanced ? h1[i].oSize : oSizeROI;
+    const NppiSize roi = advanced ? h1[i].oSize: oSizeROI;
     if (roi.width <= 0 || roi.height <= 0) return NPP_SIZE_ERROR;
     if (h2[i].nStep < roi.width * channels || h1[i].nStep < roi.width * channels) return NPP_STEP_ERROR;
     mseKernel<Npp8u, DO_PSNR><<<channels, kBlock, 0, stream>>>(
@@ -512,9 +512,9 @@ NppStatus runHistogramEven(const void *pSrc, int nSrcStep, NppiSize oSizeROI, Np
   if (!pSrc || !pHist || !nLevels || !nLowerLevel || !nUpperLevel) return NPP_NULL_POINTER_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
-  const int esize = srcKind == 0 ? 1 : (srcKind == 3 ? 4 : 2);
+  const int esize = srcKind == 0 ? 1: (srcKind == 3 ? 4: 2);
   if (!step_ok(nSrcStep, oSizeROI.width, channels, esize)) return NPP_STEP_ERROR;
-  const int nch = alpha ? channels - 1 : channels;
+  const int nch = alpha ? channels - 1: channels;
   for (int c = 0; c < nch; ++c) {
     if (!pHist[c]) return NPP_NULL_POINTER_ERROR;
     if (nLevels[c] < 2) return NPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR;
@@ -526,7 +526,7 @@ NppStatus runHistogramEven(const void *pSrc, int nSrcStep, NppiSize oSizeROI, Np
     case 2: launchHistogramEven<Npp16s>(pSrc, nSrcStep, oSizeROI, pHist, nLevels, nLowerLevel, nUpperLevel, channels, nch, stream); break;
     default: return NPP_DATA_TYPE_ERROR;
   }
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus runHistogramRangeI(const void *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *const *pHist,
@@ -535,9 +535,9 @@ NppStatus runHistogramRangeI(const void *pSrc, int nSrcStep, NppiSize oSizeROI, 
   if (!pSrc || !pHist || !pLevels || !nLevels) return NPP_NULL_POINTER_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
-  const int esize = srcKind == 0 ? 1 : 2;
+  const int esize = srcKind == 0 ? 1: 2;
   if (!step_ok(nSrcStep, oSizeROI.width, channels, esize)) return NPP_STEP_ERROR;
-  const int nch = alpha ? channels - 1 : channels;
+  const int nch = alpha ? channels - 1: channels;
   for (int c = 0; c < nch; ++c) {
     if (!pHist[c] || !pLevels[c]) return NPP_NULL_POINTER_ERROR;
     if (nLevels[c] < 2) return NPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR;
@@ -548,7 +548,7 @@ NppStatus runHistogramRangeI(const void *pSrc, int nSrcStep, NppiSize oSizeROI, 
     case 2: launchHistogramRange<Npp16s, Npp32s>(pSrc, nSrcStep, oSizeROI, pHist, (const void *const *)pLevels, nLevels, channels, nch, stream); break;
     default: return NPP_DATA_TYPE_ERROR;
   }
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus runHistogramRangeF(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *const *pHist,
@@ -558,14 +558,14 @@ NppStatus runHistogramRangeF(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if (!step_ok(nSrcStep, oSizeROI.width, channels, 4)) return NPP_STEP_ERROR;
-  const int nch = alpha ? channels - 1 : channels;
+  const int nch = alpha ? channels - 1: channels;
   for (int c = 0; c < nch; ++c) {
     if (!pHist[c] || !pLevels[c]) return NPP_NULL_POINTER_ERROR;
     if (nLevels[c] < 2) return NPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR;
   }
   launchHistogramRange<Npp32f, Npp32f>(pSrc, nSrcStep, oSizeROI, pHist, (const void *const *)pLevels, nLevels,
                                        channels, nch, stream);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 // ---------------------------------------------------------------------------
@@ -593,7 +593,7 @@ NppStatus runRectStdDevF32(const Npp32f *pSrc, int nSrcStep, const Npp64f *pSqr,
   dim3 grid((oSizeROI.width + 15) / 16, (oSizeROI.height + 15) / 16);
   rectStdDevF32Kernel<Npp32f><<<grid, block, 0, stream>>>(pSrc, nSrcStep, pSqr, nSqrStep, pDst, nDstStep,
                                                           oSizeROI.width, oSizeROI.height, oRect);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus runRectStdDevS32(const Npp32s *pSrc, int nSrcStep, const Npp32s *pSqr, int nSqrStep, Npp32s *pDst,
@@ -605,7 +605,7 @@ NppStatus runRectStdDevS32(const Npp32s *pSrc, int nSrcStep, const Npp32s *pSqr,
   dim3 grid((oSizeROI.width + 15) / 16, (oSizeROI.height + 15) / 16);
   rectStdDevS32Kernel<<<grid, block, 0, stream>>>(pSrc, nSrcStep, pSqr, nSqrStep, pDst, nDstStep, oSizeROI.width,
                                                   oSizeROI.height, oRect, nScaleFactor);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus evenLevelsHost(Npp32s *hpLevels, int nLevels, Npp32s nLowerLevel, Npp32s nUpperLevel) {
@@ -619,7 +619,7 @@ NppStatus evenLevelsHost(Npp32s *hpLevels, int nLevels, Npp32s nLowerLevel, Npp3
   for (int i = 1; i < nLevels; ++i) {
     const Npp32u num = (Npp32u)(nUpperLevel - v);
     const Npp32u den = (Npp32u)(nLevels - i);
-    const Npp32u delta = num / den + (num % den ? 1u : 0u);
+    const Npp32u delta = num / den + (num % den ? 1u: 0u);
     v = (Npp32s)((Npp32u)v + delta);
     hpLevels[i] = v;
   }

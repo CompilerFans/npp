@@ -5,18 +5,18 @@
 //   / nppsAndC / nppsOrC / nppsXorC / nppsAddProductC / nppsMulC_Low
 //   / nppsNormalize
 //
-// Host-visible surface (safe for plain .cpp translation units): the executor
+// Host-visible surface (safe for plain.cpp translation units): the executor
 // entry-point templates are declared here and defined + explicitly
 // instantiated in npps_constant_ops.cu.
 //
-// Semantics (validated against NVIDIA NPP 13.4 by differential tests):
-//   * constant binary  : pDst = op(pSrc, nValue)
+// Semantics (validated against NVIDIA NPP 13.4 by reference comparisons):
+//   * constant binary: pDst = op(pSrc, nValue)
 //   * in-place (_I/_ISfs): pSrcDst = op(pSrcDst, nValue)
-//   * nppsAddProductC  : pDst = pDst + pSrc * nValue      (accumulate)
-//   * nppsSubCRev      : pDst = nValue - pSrc
-//   * nppsDivCRev      : pDst = nValue / pSrc
-//   * nppsMulC_Low     : low part of (pSrc * nValue) written to the output
-//   * nppsNormalize    : pDst = (pSrc - vSub) / vDiv
+//   * nppsAddProductC: pDst = pDst + pSrc * nValue      (accumulate)
+//   * nppsSubCRev: pDst = nValue - pSrc
+//   * nppsDivCRev: pDst = nValue / pSrc
+//   * nppsMulC_Low: low part of (pSrc * nValue) written to the output
+//   * nppsNormalize: pDst = (pSrc - vSub) / vDiv
 //
 // Integer results are computed in a 64-bit accumulator and saturated to the
 // destination type.  nScaleFactor is a right shift ("integer result scaling")

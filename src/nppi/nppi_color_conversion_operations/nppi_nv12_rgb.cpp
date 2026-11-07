@@ -140,7 +140,7 @@ NppStatus nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSr
   if (nDstStep < oSizeROI.width * 3) return NPP_STEP_ERROR;
   cudaError_t st = nppiNV12ToRGB_709HDTV_8u_P2C3R_kernel(pSrc[0], rSrcStep, pSrc[1], rSrcStep, pDst, nDstStep,
                                                          oSizeROI, nppStreamCtx.hStream);
-  return st == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return st == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiNV12ToRGB_709HDTV_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
@@ -399,7 +399,7 @@ NppStatus nppiNV12ToBGR_709HDTV_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSr
   if (nDstStep < oSizeROI.width * 3) return NPP_STEP_ERROR;
   cudaError_t st = nppiNV12ToBGR_709HDTV_8u_P2C3R_kernel(pSrc[0], rSrcStep, pSrc[1], rSrcStep, pDst, nDstStep,
                                                          oSizeROI, nppStreamCtx.hStream);
-  return st == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return st == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiNV12ToBGR_709HDTV_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,

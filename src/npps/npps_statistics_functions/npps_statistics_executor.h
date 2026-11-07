@@ -1,9 +1,8 @@
 #pragma once
 
-// Shared 1D reduction executor for the npps statistics families
-// (package p2.4: npps_statistics_functions.h).
+// Shared 1D reduction executor for the npps statistics families.
 //
-// Host-visible surface (safe for plain .cpp translation units):
+// Host-visible surface (safe for plain.cpp translation units):
 //   * accumulator type traits + GetBufferSize helpers (inline, host-only)
 //   * executor entry-point templates (declared here, defined in
 //     npps_stats_reduce.cu / npps_stats_extrema.cu and explicitly
@@ -11,17 +10,17 @@
 //
 // GPU kernels / functors live under #if defined(__CUDACC__).
 //
-// Semantics (validated against NVIDIA NPP 13.4 on an RTX 5090 by the
-// differential tests in test_npps_statistics_generated.cpp):
-//   * Sum / Mean / DotProd / Norm(+Diff) Sfs : divide by 2^nScaleFactor with
+// Semantics (validated against NVIDIA NPP 13.4 in the reference implementation by the
+// reference comparisons in test_npps_statistics_generated.cpp):
+//   * Sum / Mean / DotProd / Norm(+Diff) Sfs: divide by 2^nScaleFactor with
 //     round-half-to-even (banker's rounding), then saturate.
-//   * StdDev / MeanStdDev : SAMPLE normalization (n-1 divisor);
+//   * StdDev / MeanStdDev: SAMPLE normalization (n-1 divisor);
 //     n == 1 -> NPP_SIZE_ERROR.  The Sfs std-dev output truncates toward
 //     zero while the mean output uses banker's rounding.
-//   * Min / Max (+Indx/Abs) : ties resolve to the lowest index; a NaN on
+//   * Min / Max (+Indx/Abs): ties resolve to the lowest index; a NaN on
 //     the right-hand side of the comparison propagates, a NaN on the
 //     left-hand side loses.
-//   * MinEvery / MaxEvery : pSrcDst = op(pSrcDst, pSrc) (dst is the left
+//   * MinEvery / MaxEvery: pSrcDst = op(pSrcDst, pSrc) (dst is the left
 //     operand); no device buffer is used.
 //   * Norm L1 = sum|x| (complex: sum of moduli), L2 = sqrt(sum x^2),
 //     L2Sqr = sum x^2, Inf = max|x|.
@@ -71,18 +70,18 @@ using npps::elementwise::detail::scale_sat;
 // complex integer pair / complex float pair accumulators
 struct LL2 {
   long long re, im;
-  __host__ __device__ LL2() : re(0), im(0) {}
-  __host__ __device__ LL2(long long r, long long i) : re(r), im(i) {}
+  __host__ __device__ LL2(): re(0), im(0) {}
+  __host__ __device__ LL2(long long r, long long i): re(r), im(i) {}
 };
 struct D2 {
   double re, im;
-  __host__ __device__ D2() : re(0.0), im(0.0) {}
-  __host__ __device__ D2(double r, double i) : re(r), im(i) {}
+  __host__ __device__ D2(): re(0.0), im(0.0) {}
+  __host__ __device__ D2(double r, double i): re(r), im(i) {}
 };
 struct MSD {  // mean/std-dev partial: sum and sum of squares
   double sum, sumsq;
-  __host__ __device__ MSD() : sum(0.0), sumsq(0.0) {}
-  __host__ __device__ MSD(double s, double q) : sum(s), sumsq(q) {}
+  __host__ __device__ MSD(): sum(0.0), sumsq(0.0) {}
+  __host__ __device__ MSD(double s, double q): sum(s), sumsq(q) {}
 };
 
 __host__ __device__ inline LL2 operator+(LL2 a, LL2 b) { return LL2(a.re + b.re, a.im + b.im); }
@@ -127,9 +126,9 @@ constexpr int kBlock = 256;
 
 // ---------------------------------------------------------------------------
 // Device-side final rounding helpers
-//   fin_round : divide by 2^sf, round half-to-even, saturate
+//   fin_round: divide by 2^sf, round half-to-even, saturate
 //               (Sum/Mean/Norm, and StdDev after its integer sqrt truncation)
-//   fin_trunc : divide by 2^sf, truncate toward zero, saturate (kept for the
+//   fin_trunc: divide by 2^sf, truncate toward zero, saturate (kept for the
 //               callers that really truncate; StdDev does not use it)
 // ---------------------------------------------------------------------------
 template <typename D>
@@ -158,13 +157,13 @@ __device__ __host__ __forceinline__ D fin_trunc(double x, int sf) {
   }
 }
 
-template <typename Acc> struct is_ll2 : std::false_type {};
-template <> struct is_ll2<LL2> : std::true_type {};
+template <typename Acc> struct is_ll2: std::false_type {};
+template <> struct is_ll2<LL2>: std::true_type {};
 
 }  // namespace detail
 
 // ---------------------------------------------------------------------------
-// Executor entry points (defined in the .cu translation units)
+// Executor entry points (defined in the.cu translation units)
 // ---------------------------------------------------------------------------
 
 // Sum / Mean / StdDev / MeanStdDev.  nScaleFactor is 0 for the non-Sfs
@@ -194,7 +193,7 @@ NppStatus extrema(const T* pSrc, NppSignalLength nLength, T* pMin, int* pMinIndx
                   int* pMaxIndx, bool wantMin, bool wantMax, bool wantIndx,
                   Npp8u* pDeviceBuffer, cudaStream_t stream);
 
-// MinEvery / MaxEvery : pSrcDst = op(pSrcDst, pSrc) (no device buffer).
+// MinEvery / MaxEvery: pSrcDst = op(pSrcDst, pSrc) (no device buffer).
 template <typename T, bool IsMax>
 NppStatus every(const T* pSrc, T* pSrcDst, NppSignalLength nLength, cudaStream_t stream);
 
@@ -237,7 +236,7 @@ NppStatus zero_crossing(const T* pSrc, NppSignalLength nLength, Npp32f* pValZC,
 // ---------------------------------------------------------------------------
 namespace detail {
 
-inline NppStatus buffer_size_bytes(size_t slot_bytes, int nLength, int* hpBufferSize) {
+inline NppStatus buffer_size_bytes(size_t slot_bytes, int nLength, NPP_BUFFER_SIZE_TYPE* hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   // NVIDIA never validates the length here: negative values simply become a
   // huge element count and the size saturates.
@@ -250,7 +249,7 @@ inline NppStatus buffer_size_bytes(size_t slot_bytes, int nLength, int* hpBuffer
   } else {
     blocks = (n + static_cast<size_t>(kBlock - 1)) / static_cast<size_t>(kBlock);
   }
-  size_t bytes = (blocks > SIZE_MAX / slot_bytes) ? SIZE_MAX : blocks * slot_bytes;
+  size_t bytes = (blocks > SIZE_MAX / slot_bytes) ? SIZE_MAX: blocks * slot_bytes;
   if (bytes > static_cast<size_t>(INT_MAX)) bytes = static_cast<size_t>(INT_MAX);
   *hpBufferSize = static_cast<int>(bytes);
   return NPP_NO_ERROR;
@@ -259,46 +258,46 @@ inline NppStatus buffer_size_bytes(size_t slot_bytes, int nLength, int* hpBuffer
 }  // namespace detail
 
 template <typename T>
-inline NppStatus sum_buffer_size(int nLength, int* hpBufferSize) {
+inline NppStatus sum_buffer_size(int nLength, NPP_BUFFER_SIZE_TYPE* hpBufferSize) {
   return detail::buffer_size_bytes(sizeof(AddAcc<T>), nLength, hpBufferSize);
 }
 
 template <typename T>
-inline NppStatus mean_buffer_size(int nLength, int* hpBufferSize) {
+inline NppStatus mean_buffer_size(int nLength, NPP_BUFFER_SIZE_TYPE* hpBufferSize) {
   return detail::buffer_size_bytes(sizeof(AddAcc<T>), nLength, hpBufferSize);
 }
 
 template <typename T>
-inline NppStatus stddev_buffer_size(int nLength, int* hpBufferSize) {
+inline NppStatus stddev_buffer_size(int nLength, NPP_BUFFER_SIZE_TYPE* hpBufferSize) {
   return detail::buffer_size_bytes(sizeof(MSD), nLength, hpBufferSize);
 }
 
 template <typename T>
-inline NppStatus extrema_buffer_size(int nLength, int* hpBufferSize) {
+inline NppStatus extrema_buffer_size(int nLength, NPP_BUFFER_SIZE_TYPE* hpBufferSize) {
   return detail::buffer_size_bytes(sizeof(ExtSlot<T>), nLength, hpBufferSize);
 }
 
 template <typename T, NormKind K>
-inline NppStatus norm_buffer_size(int nLength, int* hpBufferSize) {
-  const size_t slot = (K == NormKind::Inf) ? sizeof(double) : sizeof(NormAcc<T>);
+inline NppStatus norm_buffer_size(int nLength, NPP_BUFFER_SIZE_TYPE* hpBufferSize) {
+  const size_t slot = (K == NormKind::Inf) ? sizeof(double): sizeof(NormAcc<T>);
   return detail::buffer_size_bytes(slot, nLength, hpBufferSize);
 }
 
 // DotProd partials are always a double2 pair so one helper serves every
 // mixed-type variant.
-inline NppStatus dotprod_buffer_size(int nLength, int* hpBufferSize) {
+inline NppStatus dotprod_buffer_size(int nLength, NPP_BUFFER_SIZE_TYPE* hpBufferSize) {
   return detail::buffer_size_bytes(sizeof(D2), nLength, hpBufferSize);
 }
 
-inline NppStatus err_buffer_size(int nLength, int* hpBufferSize) {
+inline NppStatus err_buffer_size(int nLength, NPP_BUFFER_SIZE_TYPE* hpBufferSize) {
   return detail::buffer_size_bytes(sizeof(double), nLength, hpBufferSize);
 }
 
-inline NppStatus count_buffer_size(int nLength, int* hpBufferSize) {
+inline NppStatus count_buffer_size(int nLength, NPP_BUFFER_SIZE_TYPE* hpBufferSize) {
   return detail::buffer_size_bytes(sizeof(int), nLength, hpBufferSize);
 }
 
-inline NppStatus zc_buffer_size(int nLength, int* hpBufferSize) {
+inline NppStatus zc_buffer_size(int nLength, NPP_BUFFER_SIZE_TYPE* hpBufferSize) {
   return detail::buffer_size_bytes(sizeof(double), nLength, hpBufferSize);
 }
 
@@ -469,7 +468,7 @@ struct FinErr {
   Npp64f* out;
   bool avg;
   __device__ void operator()(double v, size_t n) const {
-    *out = avg ? v / static_cast<double>(n) : v;
+    *out = avg ? v / static_cast<double>(n): v;
   }
 };
 
@@ -542,7 +541,7 @@ struct LoadNorm {
     } else if constexpr (std::is_integral_v<T>) {
       const long long v = re_ll(x);
       if constexpr (K == NormKind::L1) {
-        return static_cast<Acc>(v < 0 ? -v : v);
+        return static_cast<Acc>(v < 0 ? -v: v);
       } else {
         return static_cast<Acc>(v * v);
       }
@@ -573,7 +572,7 @@ struct LoadNormDiff {
     } else if constexpr (std::is_integral_v<T>) {
       const long long d = re_ll(a) - re_ll(b);
       if constexpr (K == NormKind::L1) {
-        return static_cast<Acc>(d < 0 ? -d : d);
+        return static_cast<Acc>(d < 0 ? -d: d);
       } else {
         return static_cast<Acc>(d * d);
       }
@@ -637,8 +636,8 @@ struct LoadDot {
 // Error metric contribution (max-reduced).  MaxAbs/AvgAbs use |a-b|;
 // MaxRel/AvgRel use |a-b| / max(a,b), i.e. the SIGNED maximum of the two
 // operands, which is what NPP 13.4 actually computes (the documented
-// max(|a|,|b|) is wrong for real types; measured on the RTX 5090).  A
-// non-positive denominator contributes 0 (probe: (-46,0), (-5,-3) and
+// max(|a|,|b|) is wrong for real types; measured in the reference implementation).  A
+// non-positive denominator contributes 0 (measurement: (-46,0), (-5,-3) and
 // all-negative inputs all return 0).  Complex variants work on moduli,
 // where |z| >= 0 makes the signed/absolute distinction moot.
 template <typename T, ErrKind K>
@@ -654,8 +653,8 @@ struct LoadErr {
         const double br = static_cast<double>(b.re), bi = static_cast<double>(b.im);
         const double ma = sqrt(ar * ar + ai * ai);
         const double mb = sqrt(br * br + bi * bi);
-        const double den = ma > mb ? ma : mb;
-        return den > 0.0 ? d / den : 0.0;
+        const double den = ma > mb ? ma: mb;
+        return den > 0.0 ? d / den: 0.0;
       } else {
         return d;
       }
@@ -664,8 +663,8 @@ struct LoadErr {
       const double db = static_cast<double>(b);
       const double d = fabs(da - db);
       if constexpr (kRel) {
-        const double den = da > db ? da : db;  // signed max, per NPP 13.4
-        return den > 0.0 ? d / den : 0.0;
+        const double den = da > db ? da: db;  // signed max, per NPP 13.4
+        return den > 0.0 ? d / den: 0.0;
       } else {
         return d;
       }
@@ -682,7 +681,7 @@ __device__ __forceinline__ ExtV<T> ext_min(ExtV<T> a, ExtV<T> b) {
   if (!b.valid) return a;
   if (!a.valid) return b;
   if (a.v < b.v) return a;
-  if (a.v == b.v) return a.idx < b.idx ? a : b;
+  if (a.v == b.v) return a.idx < b.idx ? a: b;
   return b;
 }
 
@@ -691,7 +690,7 @@ __device__ __forceinline__ ExtV<T> ext_max(ExtV<T> a, ExtV<T> b) {
   if (!b.valid) return a;
   if (!a.valid) return b;
   if (a.v > b.v) return a;
-  if (a.v == b.v) return a.idx < b.idx ? a : b;
+  if (a.v == b.v) return a.idx < b.idx ? a: b;
   return b;
 }
 
@@ -752,7 +751,7 @@ static __global__ void partial_max1_kernel(const A* a, size_t n, double* partial
   sdata[tid] = v;
   __syncthreads();
   for (unsigned s = kBlock / 2; s > 0; s >>= 1) {
-    if (tid < s) sdata[tid] = sdata[tid] > sdata[tid + s] ? sdata[tid] : sdata[tid + s];
+    if (tid < s) sdata[tid] = sdata[tid] > sdata[tid + s] ? sdata[tid]: sdata[tid + s];
     __syncthreads();
   }
   if (tid == 0) partials[blockIdx.x] = sdata[0];
@@ -769,7 +768,7 @@ static __global__ void partial_max2_kernel(const A* a, const B* b, size_t n, dou
   sdata[tid] = v;
   __syncthreads();
   for (unsigned s = kBlock / 2; s > 0; s >>= 1) {
-    if (tid < s) sdata[tid] = sdata[tid] > sdata[tid + s] ? sdata[tid] : sdata[tid + s];
+    if (tid < s) sdata[tid] = sdata[tid] > sdata[tid + s] ? sdata[tid]: sdata[tid + s];
     __syncthreads();
   }
   if (tid == 0) partials[blockIdx.x] = sdata[0];
@@ -783,9 +782,9 @@ static __global__ void count_partial_kernel(const Npp32s* src, size_t n, Npp32s 
   const size_t i = static_cast<size_t>(blockIdx.x) * kBlock + tid;
   int c = 0;
   if (i < n) {
-    // NPP counts the strict open interval lo < x < hi (probed on the 5090:
+    // NPP counts the strict open interval lo < x < hi (measured on the reference:
     // {10,11,19,20,21} with lo=10/hi=20 -> 2), so an inverted range counts 0.
-    c = (src[i] > lo && src[i] < hi) ? 1 : 0;
+    c = (src[i] > lo && src[i] < hi) ? 1: 0;
   }
   sdata[tid] = c;
   __syncthreads();
@@ -834,17 +833,17 @@ __device__ __forceinline__ double zc_pair(const T& prev, const T& cur, NppsZCTyp
     case nppZCR: {
       const bool up = prev > 0 && cur < 0;
       const bool dn = prev < 0 && cur > 0;
-      return (up || dn) ? 1.0 : 0.0;
+      return (up || dn) ? 1.0: 0.0;
     }
     case nppZCXor: {
       // NPP compares against zero (it does not use signbit), so -0.0 and
       // +0.0 are treated identically.
-      return ((prev < T(0)) != (cur < T(0))) ? 1.0 : 0.0;
+      return ((prev < T(0)) != (cur < T(0))) ? 1.0: 0.0;
     }
-    default: {  // nppZCC : 0.5 * |sgn3(prev) - sgn3(cur)|
-      const int sp = (prev > 0 ? 1 : 0) - (prev < 0 ? 1 : 0);
-      const int sc = (cur > 0 ? 1 : 0) - (cur < 0 ? 1 : 0);
-      return 0.5 * static_cast<double>(sp > sc ? sp - sc : sc - sp);
+    default: {  // nppZCC: 0.5 * |sgn3(prev) - sgn3(cur)|
+      const int sp = (prev > 0 ? 1: 0) - (prev < 0 ? 1: 0);
+      const int sc = (cur > 0 ? 1: 0) - (cur < 0 ? 1: 0);
+      return 0.5 * static_cast<double>(sp > sc ? sp - sc: sc - sp);
     }
   }
 }
@@ -861,7 +860,7 @@ static __global__ void zc_partial_kernel(const T* src, size_t n, NppsZCType mode
   double c = 0.0;
   if (i >= 1 && i < n) {
     const T cur = sx[tid];
-    const T prev = (tid == 0) ? sx[kBlock] : sx[tid - 1];
+    const T prev = (tid == 0) ? sx[kBlock]: sx[tid - 1];
     c = zc_pair(prev, cur, mode);
   }
   __shared__ double sdata[kBlock];
@@ -874,7 +873,7 @@ static __global__ void zc_partial_kernel(const T* src, size_t n, NppsZCType mode
   if (tid == 0) partials[blockIdx.x] = sdata[0];
 }
 
-// elementwise MinEvery / MaxEvery : pSrcDst = op(pSrcDst, pSrc)
+// elementwise MinEvery / MaxEvery: pSrcDst = op(pSrcDst, pSrc)
 template <typename T, bool IsMax>
 static __global__ void every_kernel(const T* src, T* d, size_t n) {
   const size_t i = static_cast<size_t>(blockIdx.x) * kBlock + threadIdx.x;
@@ -882,9 +881,9 @@ static __global__ void every_kernel(const T* src, T* d, size_t n) {
   const T a = d[i];
   const T b = src[i];
   if constexpr (IsMax) {
-    d[i] = a > b ? a : b;
+    d[i] = a > b ? a: b;
   } else {
-    d[i] = a < b ? a : b;
+    d[i] = a < b ? a: b;
   }
 }
 
@@ -910,11 +909,11 @@ static __global__ void finalize_max_kernel(const double* partials, size_t nblock
   __shared__ double sdata[kBlock];
   const unsigned tid = threadIdx.x;
   double v = -INFINITY;
-  for (size_t i = tid; i < nblocks; i += kBlock) v = v > partials[i] ? v : partials[i];
+  for (size_t i = tid; i < nblocks; i += kBlock) v = v > partials[i] ? v: partials[i];
   sdata[tid] = v;
   __syncthreads();
   for (unsigned s = kBlock / 2; s > 0; s >>= 1) {
-    if (tid < s) sdata[tid] = sdata[tid] > sdata[tid + s] ? sdata[tid] : sdata[tid + s];
+    if (tid < s) sdata[tid] = sdata[tid] > sdata[tid + s] ? sdata[tid]: sdata[tid + s];
     __syncthreads();
   }
   if (tid == 0) fin(sdata[0], n);

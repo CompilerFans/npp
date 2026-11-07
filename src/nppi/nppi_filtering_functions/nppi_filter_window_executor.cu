@@ -17,7 +17,7 @@ constexpr int kBlockX = 16;
 constexpr int kBlockY = 16;
 
 inline NppStatus finish_launch() {
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 // Step checks shared by the standard families (measured): the unsigned
@@ -26,7 +26,7 @@ inline NppStatus finish_launch() {
 // where the whole 4-element pixel must be aligned.
 template <typename T, int Ch>
 inline int step_alignment() {
-  return (int)sizeof(T) * (Ch == 4 ? 4 : 1);
+  return (int)sizeof(T) * (Ch == 4 ? 4: 1);
 }
 
 template <typename T, int Ch>
@@ -56,27 +56,26 @@ enum class WOp { Box, Min, Max, Median };
 
 __device__ __forceinline__ int map_border(int v, int n, int mode) {
   if (n <= 0) return 0;
-  if (mode == NPP_BORDER_REPLICATE) return v < 0 ? 0 : (v >= n ? n - 1 : v);
+  if (mode == NPP_BORDER_REPLICATE) return v < 0 ? 0: (v >= n ? n - 1: v);
   if (n == 1) return 0;
   if (mode == NPP_BORDER_MIRROR) {  // 4: reflect without repeating the edge
     const int p = 2 * (n - 1);
     v %= p;
     if (v < 0) v += p;
-    return v < n ? v : p - v;
+    return v < n ? v: p - v;
   }
   // value 5: reflect repeating the edge (BoxBorder accepts it as well)
   const int p = 2 * n;
   v %= p;
   if (v < 0) v += p;
-  return v < n ? v : p - 1 - v;
+  return v < n ? v: p - 1 - v;
 }
 
 template <typename T>
 __device__ __forceinline__ unsigned long long order_key(T v) {
   if constexpr (std::is_floating_point_v<T>) {
     const unsigned u = __float_as_uint((float)v);
-    return (u & 0x80000000u) ? (unsigned long long)(~u)
-                             : ((unsigned long long)u | 0x80000000ull);
+    return (u & 0x80000000u) ? (unsigned long long)(~u): ((unsigned long long)u | 0x80000000ull);
   } else if constexpr (std::is_signed_v<T>) {
     using U = std::make_unsigned_t<T>;
     const U u = (U)v;
@@ -90,7 +89,7 @@ template <typename T>
 __device__ __forceinline__ T from_order_key(unsigned long long k) {
   if constexpr (std::is_floating_point_v<T>) {
     unsigned u = (unsigned)k;
-    u = (u & 0x80000000u) ? (u ^ 0x80000000u) : ~u;
+    u = (u & 0x80000000u) ? (u ^ 0x80000000u): ~u;
     return (T)__uint_as_float(u);
   } else if constexpr (std::is_signed_v<T>) {
     using U = std::make_unsigned_t<T>;
@@ -160,7 +159,7 @@ __global__ void window_kernel(const T *pSrc, int nSrcStep, T *pDst, int nDstStep
   const int y = blockIdx.y * kBlockY + threadIdx.y;
   if (x >= roi.width || y >= roi.height) return;
 
-  constexpr int kNch = AlphaPreserve ? 3 : Ch;
+  constexpr int kNch = AlphaPreserve ? 3: Ch;
   const int area = mask.width * mask.height;
   const int nsamp = area;
 
@@ -225,7 +224,7 @@ __global__ void window_kernel(const T *pSrc, int nSrcStep, T *pDst, int nDstStep
                                                borderMode, c, k2);
         // Mean of the two middle samples, truncated toward zero.  NPP's own
         // 16s even-median tie rounding is not self-consistent across windows
-        // (the same -327 sum rounds both ways), so the differential test for
+        // (the same -327 sum rounds both ways), so the reference comparison for
         // 16s allows a 1-LSB tolerance instead of pinning it.
         out = clamp_int<T>(((long long)v1 + (long long)v2) / 2);
       }
@@ -256,11 +255,11 @@ NppStatus filterBox(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize
   if (!pSrc || !pDst) return NPP_NULL_POINTER_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oMaskSize.width < 0 || oMaskSize.height < 0)
-    return (oSizeROI.width == 0 || oSizeROI.height == 0) ? NPP_SIZE_ERROR : NPP_OUT_OFF_RANGE_ERROR;
+    return (oSizeROI.width == 0 || oSizeROI.height == 0) ? NPP_SIZE_ERROR: NPP_OUT_OFF_RANGE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) {
     // measured: the 8u/64f single-channel box paths accept every empty-ROI
     // call; the other instantiations reject the specialized square odd mask
-    // kernels (3x3, 5x5, ...) because the mask does not fit the empty ROI,
+    // kernels (3x3, 5x5,...) because the mask does not fit the empty ROI,
     // while even / non-square / 1x1 masks succeed.  A mask larger than a
     // positive ROI is accepted by every instantiation.
     if constexpr ((std::is_same_v<T, Npp8u> || std::is_same_v<T, Npp64f>) && Ch == 1) {
@@ -268,7 +267,7 @@ NppStatus filterBox(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize
     } else {
       const bool specialized = oMaskSize.width == oMaskSize.height &&
                                (oMaskSize.width % 2) == 1 && oMaskSize.width >= 3;
-      return specialized ? NPP_MASK_SIZE_ERROR : NPP_NO_ERROR;
+      return specialized ? NPP_MASK_SIZE_ERROR: NPP_NO_ERROR;
     }
   }
   NppStatus st = check_dst_step<T, Ch>(nDstStep, oSizeROI.width);
@@ -314,7 +313,7 @@ NppStatus filterBoxBorder(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPo
     } else {
       const bool specialized = oMaskSize.width == oMaskSize.height &&
                                (oMaskSize.width % 2) == 1 && oMaskSize.width >= 3;
-      return specialized ? NPP_MASK_SIZE_ERROR : NPP_NO_ERROR;
+      return specialized ? NPP_MASK_SIZE_ERROR: NPP_NO_ERROR;
     }
   }
   NppStatus st = check_dst_step<T, Ch>(nDstStep, oSizeROI.width);
@@ -327,15 +326,14 @@ NppStatus filterBoxBorder(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPo
 }
 
 // nppiFilterBoxBorderAdvanced: REPLICATE only, and the only family without
-// mask / anchor / source-step validation (all measured on the 5090).
+// mask / anchor / source-step validation (all measured on the reference).
 //
 // NOTE ON SEMANTICS: NVIDIA 13.4's "advanced" kernel only reproduces the
 // documented replicate-box result when oSizeROI.width == oSrcSize.width and
 // oSrcOffset.x == 0; every other geometry reads a window that is displaced by
 // oSizeROI.width per row index (full impulse-response decode in
-// scratch/f9_semantics.md, section 9).  This entry point implements the
 // documented semantics everywhere and mirrors the measured validation
-// contract; the differential suite only asserts source data for the geometry
+// contract; the reference comparisons only asserts source data for the geometry
 // where the reference agrees (test_nppi_filter_box_border_advanced_generated).
 template <typename T, int Ch>
 NppStatus filterBoxBorderAdvanced(const T *pSrc, int nSrcStep, NppiSize oSrcSize,
@@ -353,7 +351,7 @@ NppStatus filterBoxBorderAdvanced(const T *pSrc, int nSrcStep, NppiSize oSrcSize
   // measured quirk: a zero-width ROI with a positive height reports STEP and a
   // fully empty ROI reports OK; neither consults the destination step.
   if (oSizeROI.width == 0) {
-    return oSizeROI.height > 0 ? NPP_STEP_ERROR : NPP_NO_ERROR;
+    return oSizeROI.height > 0 ? NPP_STEP_ERROR: NPP_NO_ERROR;
   }
   if (oSizeROI.height == 0) return NPP_NO_ERROR;
   // measured: the minimum destination step is the row size divided by the
@@ -362,7 +360,7 @@ NppStatus filterBoxBorderAdvanced(const T *pSrc, int nSrcStep, NppiSize oSrcSize
   // byte count rather than a row size.  The alignment test uses the element
   // size (whole pixels for 4-channel layouts), as in the other families.
   {
-    const int vec = (oSizeROI.width % 4 == 0) ? 4 : ((oSizeROI.width % 2 == 0) ? 2 : 1);
+    const int vec = (oSizeROI.width % 4 == 0) ? 4: ((oSizeROI.width % 2 == 0) ? 2: 1);
     const long long minStep = (long long)oSizeROI.width * (int)(sizeof(T) * Ch) / vec;
     if ((Npp32u)nDstStep < (Npp32u)minStep) return NPP_STEP_ERROR;
     if (nDstStep % step_alignment<T, Ch>() != 0) return NPP_NOT_EVEN_STEP_ERROR;
@@ -385,7 +383,7 @@ NppStatus filterMinMax(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiS
   if (oMaskSize.width <= 0 || oMaskSize.height <= 0) return NPP_SIZE_ERROR;
   NppStatus st = check_dst_step<T, Ch>(nDstStep, oSizeROI.width);
   if (st != NPP_NO_ERROR) return st;
-  return launch_window<T, Ch, AlphaPreserve, IsMax ? WOp::Max : WOp::Min, false>(
+  return launch_window<T, Ch, AlphaPreserve, IsMax ? WOp::Max: WOp::Min, false>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, 0, 0, NppiSize{0, 0}, 0,
       stream);
 }
@@ -405,7 +403,7 @@ NppStatus filterMinMaxBorder(const T *pSrc, int nSrcStep, NppiSize oSrcSize, Npp
   if (oMaskSize.width <= 0 || oMaskSize.height <= 0) return NPP_SIZE_ERROR;
   NppStatus st = check_dst_step<T, Ch>(nDstStep, oSizeROI.width);
   if (st != NPP_NO_ERROR) return st;
-  return launch_window<T, Ch, AlphaPreserve, IsMax ? WOp::Max : WOp::Min, true>(
+  return launch_window<T, Ch, AlphaPreserve, IsMax ? WOp::Max: WOp::Min, true>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, oSrcOffset.x, oSrcOffset.y,
       oSrcSize, (int)eBorderType, stream);
 }
@@ -454,10 +452,10 @@ NppStatus filterMedianBorder(const T *pSrc, int nSrcStep, NppiSize oSrcSize,
 }
 
 // GetBufferSize is ROI-independent (measured); the plain dispatch is a table
-// measured on the 5090 for mask dimensions up to 40 in each direction.
+// measured on the reference for mask dimensions up to 40 in each direction.
 template <int Ch>
 inline int layout_index() {
-  return Ch == 1 ? 0 : (Ch == 3 ? 1 : 2);
+  return Ch == 1 ? 0: (Ch == 3 ? 1: 2);
 }
 
 template <typename T, int Ch>
@@ -467,10 +465,7 @@ NppStatus medianGetBufferSize(NppiSize oSizeROI, NppiSize oMaskSize, Npp32u *pBu
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;  // size untouched (measured)
   if (oMaskSize.width == 0 || oMaskSize.height == 0) return NPP_NO_ERROR;  // size untouched (measured)
   const int layout = layout_index<Ch>();
-  const int dtypeIdx = std::is_same_v<T, Npp8u> ? 0
-                      : std::is_same_v<T, Npp16u> ? 1
-                      : std::is_same_v<T, Npp16s> ? 2
-                                                  : 3;
+  const int dtypeIdx = std::is_same_v<T, Npp8u> ? 0: std::is_same_v<T, Npp16u> ? 1: std::is_same_v<T, Npp16s> ? 2: 3;
   const int idx = dtypeIdx * 4 + layout;
   const int mw = oMaskSize.width;
   const int mh = oMaskSize.height;
@@ -483,7 +478,7 @@ NppStatus medianGetBufferSize(NppiSize oSizeROI, NppiSize oMaskSize, Npp32u *pBu
     // fallback outside the measured 40x40 range (see the header notes)
     buffered = (long long)mw * mh * (long long)sizeof(T) > 192;
   }
-  const long long value = buffered ? 49152ll * (long long)sizeof(T) * mw * mh : 0;
+  const long long value = buffered ? 49152ll * (long long)sizeof(T) * mw * mh: 0;
   *pBufferSize = (Npp32u)value;
   return NPP_NO_ERROR;
 }
@@ -498,7 +493,7 @@ NppStatus medianBorderGetBufferSize(NppiSize oSizeROI, NppiSize oMaskSize, Npp32
   const int mw = oMaskSize.width;
   const int mh = oMaskSize.height;
   const bool buffered = (long long)mw * mh * (long long)sizeof(T) > 192;
-  *pBufferSize = (Npp32u)(buffered ? 49152ll * (long long)sizeof(T) * mw * mh : 0);
+  *pBufferSize = (Npp32u)(buffered ? 49152ll * (long long)sizeof(T) * mw * mh: 0);
   return NPP_NO_ERROR;
 }
 

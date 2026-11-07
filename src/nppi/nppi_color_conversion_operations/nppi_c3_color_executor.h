@@ -1,9 +1,8 @@
-// c3 package executor: NPPI YUV/YCbCr/YCC/CMYK color-space conversions
-// (nppi_color_conversion.h, docs/agent_packages/c3.md).
+// c3 executor: NPPI YUV/YCbCr/YCC/CMYK color-space conversions
 //
-// Semantics baseline: NVIDIA NPP 13.4 (RTX 5090).  Coefficients were fitted
-// from dense 8-bit channel ramps (test/unit/diff/test_nppi_c3_color_generated.cpp
-// records the goldens) and are applied in single precision with C-style
+// Semantics baseline: NVIDIA NPP 13.4 (reference).  Coefficients were fitted
+// from dense 8-bit channel ramps (reference comparisons
+// records the reference outputs) and are applied in single precision with C-style
 // truncation towards zero and saturation to [0,255].
 //
 // Matrix ids:

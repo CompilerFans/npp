@@ -31,12 +31,12 @@ inline std::vector<T> make_pattern(int w, int h, int pat) {
       } else if (pat == 1) {
         v = (T)(x * 2);                                  // horizontal ramp (no wrap)
       } else if (pat == 2) {
-        v = (T)(x < w / 2 ? 50 : 200);                   // vertical step
+        v = (T)(x < w / 2 ? 50: 200);                   // vertical step
       } else if (pat == 3) {
-        v = (T)(y < h / 3 ? 30 : (y < 2 * h / 3 ? 90 : 45));  // horizontal bands
+        v = (T)(y < h / 3 ? 30: (y < 2 * h / 3 ? 90: 45));  // horizontal bands
       } else {
         // Two plateaus with a raised middle band.
-        v = (T)(20 + (x >= w / 4 && x < 3 * w / 4 ? 60 : 0));
+        v = (T)(20 + (x >= w / 4 && x < 3 * w / 4 ? 60: 0));
       }
       img[(size_t)y * w + x] = v;
     }
@@ -49,7 +49,7 @@ inline bool check_invariants(const char *id, const GenCase &c, const std::vector
                              RunCounts &cnt, std::string &first) {
   const double white = (double)(T)~(T)0;
   std::vector<uint8_t> seenIn(1 << 16, 0);
-  for (T v : in) seenIn[(size_t)v] = 1;
+  for (T v: in) seenIn[(size_t)v] = 1;
   bool ok = true;
   auto fail = [&](const char *what, int x, int y, double got, double want) {
     char b[360];
@@ -111,7 +111,7 @@ void run_watershed(const char *id, Call call) {
   static const int cfgs[][2] = {{64, 64}, {96, 64}, {48, 48}};
   static const int norms[] = {(int)nppiNormL1, (int)nppiNormInf};
   bool failed = false;
-  for (const auto &cf : cfgs) {
+  for (const auto &cf: cfgs) {
     for (int pat = 0; pat < 5 && !failed; ++pat) {
       for (int ni = 0; ni < 2 && !failed; ++ni) {
         for (int mode = 0; mode < 5 && !failed; ++mode) {
@@ -123,13 +123,13 @@ void run_watershed(const char *id, Call call) {
           s.dev.copyFromHost(s.host);
           Buf<Npp32u> lab(W, H, 1, 0, 0x5A);
           lab.dev.copyFromHost(lab.host);
-          size_t need = 0;
+          NPP_BUFFER_SIZE_TYPE need = 0;
           if constexpr (std::is_same_v<T, Npp16u>) {
             nppiSegmentWatershedGetBufferSize_16u_C1R(NppiSize{W, H}, &need);
           } else {
             nppiSegmentWatershedGetBufferSize_8u_C1R(NppiSize{W, H}, &need);
           }
-          npp_functional_test::DeviceMemory<Npp8u> buf((size_t)(need > 0 ? need : 1));
+          npp_functional_test::DeviceMemory<Npp8u> buf((size_t)(need > 0 ? need: 1));
           npp_diff::clear_cuda_error();
           const NppStatus st = call(reinterpret_cast<T *>(s.dptr()), s.step,
                                     reinterpret_cast<Npp32u *>(lab.dptr()), lab.step,

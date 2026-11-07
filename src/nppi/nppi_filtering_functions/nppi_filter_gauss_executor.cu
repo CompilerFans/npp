@@ -25,12 +25,10 @@ __host__ __device__ __forceinline__ Dst gauss_emit(float acc) {
     // NPP truncates toward zero, then saturates to the full destination range
     // (including the negative side; a user kernel in GaussAdvanced can drive
     // the accumulator below zero).
-    constexpr float kLo = std::is_same_v<Dst, Npp16s> ? -32768.0f : 0.0f;
-    constexpr float kHi = std::is_same_v<Dst, Npp8u> ? 255.0f
-                         : std::is_same_v<Dst, Npp16u> ? 65535.0f
-                                                       : 32767.0f;
-    const float lo = acc < kLo ? kLo : acc;
-    const float v = lo > kHi ? kHi : lo;
+    constexpr float kLo = std::is_same_v<Dst, Npp16s> ? -32768.0f: 0.0f;
+    constexpr float kHi = std::is_same_v<Dst, Npp8u> ? 255.0f: std::is_same_v<Dst, Npp16u> ? 65535.0f: 32767.0f;
+    const float lo = acc < kLo ? kLo: acc;
+    const float v = lo > kHi ? kHi: lo;
     const int truncated = static_cast<int>(v);
     return static_cast<Dst>(truncated);
   }
@@ -79,20 +77,20 @@ __global__ void gauss_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__
   const int y = blockIdx.y * blockDim.y + threadIdx.y;
   if (x >= width || y >= height) return;
 
-  const int nch = AlphaPr ? 3 : Channels;
+  const int nch = AlphaPr ? 3: Channels;
   const int loX = -offX, hiX = srcW - 1 - offX;
   const int loY = -offY, hiY = srcH - 1 - offY;
   const char *const srcBase = reinterpret_cast<const char *>(pSrc);
   float acc[4] = {0.0f, 0.0f, 0.0f, 0.0f};
   for (int j = 0; j < taps; ++j) {
     int ry = y + j - r;
-    if constexpr (Border) ry = ry < loY ? loY : (ry > hiY ? hiY : ry);
+    if constexpr (Border) ry = ry < loY ? loY: (ry > hiY ? hiY: ry);
     const Src *row = reinterpret_cast<const Src *>(srcBase + static_cast<std::ptrdiff_t>(ry) * nSrcStep);
-    const float kj = useShared ? sK[j] : pUserKernel[j];
+    const float kj = useShared ? sK[j]: pUserKernel[j];
     for (int i = 0; i < taps; ++i) {
       int rx = x + i - r;
-      if constexpr (Border) rx = rx < loX ? loX : (rx > hiX ? hiX : rx);
-      const float ki = useShared ? sK[i] : pUserKernel[i];
+      if constexpr (Border) rx = rx < loX ? loX: (rx > hiX ? hiX: rx);
+      const float ki = useShared ? sK[i]: pUserKernel[i];
       const float kv = kj * ki;
       const Src *pix = row + static_cast<std::ptrdiff_t>(rx) * Channels;
       for (int c = 0; c < nch; ++c) acc[c] = fmaf(kv, static_cast<float>(pix[c]), acc[c]);
@@ -108,7 +106,7 @@ inline NppStatus finish_launch(cudaStream_t stream) {
   // cudaStreamSynchronize here (the value is only used to keep the signature
   // uniform with the other executors).
   (void)stream;
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 inline bool gauss_fixed_taps(NppiMaskSize eMaskSize, int *taps) {
@@ -127,7 +125,7 @@ inline bool gauss_fixed_taps(NppiMaskSize eMaskSize, int *taps) {
 template <typename Dst, int Channels>
 NppStatus check_dst_step(int nDstStep, int roiWidth) {
   const int pix = static_cast<int>(sizeof(Dst)) * Channels;
-  const int align = Channels == 4 ? pix : static_cast<int>(sizeof(Dst));
+  const int align = Channels == 4 ? pix: static_cast<int>(sizeof(Dst));
   const unsigned uStep = static_cast<unsigned>(nDstStep);
   if (uStep < static_cast<unsigned>(roiWidth * pix)) return NPP_STEP_ERROR;
   if (align > 1 && uStep % static_cast<unsigned>(align) != 0) return NPP_NOT_EVEN_STEP_ERROR;
@@ -143,7 +141,7 @@ NppStatus launch(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, NppiSiz
   (void)cudaGetLastError();
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + kBlockX - 1) / kBlockX, (oSizeROI.height + kBlockY - 1) / kBlockY);
-  const int sharedBytes = taps <= kMaxSharedTaps ? taps * static_cast<int>(sizeof(float)) : 0;
+  const int sharedBytes = taps <= kMaxSharedTaps ? taps * static_cast<int>(sizeof(float)): 0;
   gauss_kernel<Src, Dst, Channels, AlphaPr, Border, Advanced><<<grid, block, sharedBytes, stream>>>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pUserKernel, taps, oSrcSize.width,
       oSrcSize.height, oSrcOffset.x, oSrcOffset.y);
@@ -188,7 +186,7 @@ NppStatus filterGaussAdvanced(const Src *pSrc, int nSrcStep, Dst *pDst, int nDst
   if (!pSrc || !pDst || !pKernel) return NPP_NULL_POINTER_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) {
-    // 5090 quirk: the empty-ROI path validates the tap count differently from
+    // reference quirk: the empty-ROI path validates the tap count differently from
     // the regular path (<=0 -> SIZE_ERROR, 1/2 -> MASK_SIZE_ERROR, >=3 passes
     // regardless of parity).
     if (nFilterTaps <= 0) return NPP_SIZE_ERROR;
@@ -196,7 +194,7 @@ NppStatus filterGaussAdvanced(const Src *pSrc, int nSrcStep, Dst *pDst, int nDst
     return NPP_NO_ERROR;
   }
   if (nFilterTaps < 0) return NPP_OUT_OFF_RANGE_ERROR;
-  // 5090 order: tap counts below 3 are rejected before the dst-step check, but
+  // reference order: tap counts below 3 are rejected before the dst-step check, but
   // an even tap count >= 3 is rejected only after it (taps4 + small step ->
   // STEP_ERROR; taps0 + small step -> MASK_SIZE_ERROR).
   if (nFilterTaps < 3) return NPP_MASK_SIZE_ERROR;
@@ -221,7 +219,7 @@ NppStatus filterGaussAdvancedBorder(const Src *pSrc, int nSrcStep, NppiSize oSrc
     return NPP_OUT_OFF_RANGE_ERROR;
   if (eBorderType != NPP_BORDER_REPLICATE) return NPP_NOT_SUPPORTED_MODE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) {
-    // 5090 quirk: the empty-ROI path rejects only taps < 3 (MASK_SIZE_ERROR)
+    // reference quirk: the empty-ROI path rejects only taps < 3 (MASK_SIZE_ERROR)
     // and accepts any odd or even count >= 3.
     if (nFilterTaps < 3) return NPP_MASK_SIZE_ERROR;
     return NPP_NO_ERROR;
@@ -243,8 +241,7 @@ NppStatus filterGaussAdvancedBorder(const Src *pSrc, int nSrcStep, NppiSize oSrc
 }  // namespace nppi
 
 // ---------------------------------------------------------------------------
-// Explicit instantiations (f10 package: Gauss / GaussBorder /
-// GaussAdvanced / GaussAdvancedBorder, 122 functions).
+// Explicit instantiations.
 // ---------------------------------------------------------------------------
 #define NPPI_GAUSS_INSTANCE(T)                                                                     \
   template NppStatus nppi::filter::filterGauss<T, T, 1, false>(const T *, int, T *, int, NppiSize,  \

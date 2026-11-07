@@ -50,9 +50,9 @@ __global__ void rgb_to_yuv_c3_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDs
     Npp8u *pDstRow = (Npp8u *)((char *)pDst + y * nDstStep);
 
     int idx = x * 3;
-    Npp8u r = kBgr ? pSrcRow[idx + 2] : pSrcRow[idx + 0];
+    Npp8u r = kBgr ? pSrcRow[idx + 2]: pSrcRow[idx + 0];
     Npp8u g = pSrcRow[idx + 1];
-    Npp8u b = kBgr ? pSrcRow[idx + 0] : pSrcRow[idx + 2];
+    Npp8u b = kBgr ? pSrcRow[idx + 0]: pSrcRow[idx + 2];
 
     Npp8u yv, uv, vv;
     rgb_to_yuv_pixel(r, g, b, yv, uv, vv);
@@ -74,9 +74,9 @@ __global__ void rgb_to_ycbcr_c3_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *p
     Npp8u *pDstRow = (Npp8u *)((char *)pDst + y * nDstStep);
 
     int idx = x * 3;
-    Npp8u r = kBgr ? pSrcRow[idx + 2] : pSrcRow[idx + 0];
+    Npp8u r = kBgr ? pSrcRow[idx + 2]: pSrcRow[idx + 0];
     Npp8u g = pSrcRow[idx + 1];
-    Npp8u b = kBgr ? pSrcRow[idx + 0] : pSrcRow[idx + 2];
+    Npp8u b = kBgr ? pSrcRow[idx + 0]: pSrcRow[idx + 2];
 
     Npp8u yv, cbv, crv;
     rgb_to_ycbcr_pixel(r, g, b, yv, cbv, crv);
@@ -98,9 +98,9 @@ __global__ void rgb_to_yuv_ac4_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pD
     Npp8u *pDstRow = (Npp8u *)((char *)pDst + y * nDstStep);
 
     int idx = x * 4;
-    Npp8u r = kBgr ? pSrcRow[idx + 2] : pSrcRow[idx + 0];
+    Npp8u r = kBgr ? pSrcRow[idx + 2]: pSrcRow[idx + 0];
     Npp8u g = pSrcRow[idx + 1];
-    Npp8u b = kBgr ? pSrcRow[idx + 0] : pSrcRow[idx + 2];
+    Npp8u b = kBgr ? pSrcRow[idx + 0]: pSrcRow[idx + 2];
 
     Npp8u yv, uv, vv;
     rgb_to_yuv_pixel(r, g, b, yv, uv, vv);
@@ -123,9 +123,9 @@ __global__ void rgb_to_ycbcr_ac4_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *
     Npp8u *pDstRow = (Npp8u *)((char *)pDst + y * nDstStep);
 
     int idx = x * 4;
-    Npp8u r = kBgr ? pSrcRow[idx + 2] : pSrcRow[idx + 0];
+    Npp8u r = kBgr ? pSrcRow[idx + 2]: pSrcRow[idx + 0];
     Npp8u g = pSrcRow[idx + 1];
-    Npp8u b = kBgr ? pSrcRow[idx + 0] : pSrcRow[idx + 2];
+    Npp8u b = kBgr ? pSrcRow[idx + 0]: pSrcRow[idx + 2];
 
     Npp8u yv, cbv, crv;
     rgb_to_ycbcr_pixel(r, g, b, yv, cbv, crv);
@@ -150,9 +150,9 @@ __global__ void rgb_to_yuv_c3p3_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *p
     Npp8u *pDstRowV = (Npp8u *)((char *)pDstV + y * nDstStep);
 
     int idx = x * 3;
-    Npp8u r = kBgr ? pSrcRow[idx + 2] : pSrcRow[idx + 0];
+    Npp8u r = kBgr ? pSrcRow[idx + 2]: pSrcRow[idx + 0];
     Npp8u g = pSrcRow[idx + 1];
-    Npp8u b = kBgr ? pSrcRow[idx + 0] : pSrcRow[idx + 2];
+    Npp8u b = kBgr ? pSrcRow[idx + 0]: pSrcRow[idx + 2];
 
     Npp8u yv, uv, vv;
     rgb_to_yuv_pixel(r, g, b, yv, uv, vv);
@@ -176,9 +176,9 @@ __global__ void rgb_to_ycbcr_c3p3_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u 
     Npp8u *pDstRowCr = (Npp8u *)((char *)pDstCr + y * nDstStep);
 
     int idx = x * 3;
-    Npp8u r = kBgr ? pSrcRow[idx + 2] : pSrcRow[idx + 0];
+    Npp8u r = kBgr ? pSrcRow[idx + 2]: pSrcRow[idx + 0];
     Npp8u g = pSrcRow[idx + 1];
-    Npp8u b = kBgr ? pSrcRow[idx + 0] : pSrcRow[idx + 2];
+    Npp8u b = kBgr ? pSrcRow[idx + 0]: pSrcRow[idx + 2];
 
     Npp8u yv, cbv, crv;
     rgb_to_ycbcr_pixel(r, g, b, yv, cbv, crv);
@@ -248,9 +248,9 @@ __global__ void rgb_to_yuv_ac4p4_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *
     Npp8u *pDstRowA = (Npp8u *)((char *)pDstA + y * nDstStep);
 
     int idx = x * 4;
-    Npp8u r = kBgr ? pSrcRow[idx + 2] : pSrcRow[idx + 0];
+    Npp8u r = kBgr ? pSrcRow[idx + 2]: pSrcRow[idx + 0];
     Npp8u g = pSrcRow[idx + 1];
-    Npp8u b = kBgr ? pSrcRow[idx + 0] : pSrcRow[idx + 2];
+    Npp8u b = kBgr ? pSrcRow[idx + 0]: pSrcRow[idx + 2];
     Npp8u a = pSrcRow[idx + 3];
 
     Npp8u yv, uv, vv;
@@ -276,9 +276,9 @@ __global__ void rgb_to_ycbcr_ac4p3_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u
     Npp8u *pDstRowCr = (Npp8u *)((char *)pDstCr + y * nDstStep);
 
     int idx = x * 4;
-    Npp8u r = kBgr ? pSrcRow[idx + 2] : pSrcRow[idx + 0];
+    Npp8u r = kBgr ? pSrcRow[idx + 2]: pSrcRow[idx + 0];
     Npp8u g = pSrcRow[idx + 1];
-    Npp8u b = kBgr ? pSrcRow[idx + 0] : pSrcRow[idx + 2];
+    Npp8u b = kBgr ? pSrcRow[idx + 0]: pSrcRow[idx + 2];
 
     Npp8u yv, cbv, crv;
     rgb_to_ycbcr_pixel(r, g, b, yv, cbv, crv);
@@ -303,9 +303,9 @@ __global__ void rgb_to_ycbcr_ac4p4_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u
     Npp8u *pDstRowA = (Npp8u *)((char *)pDstA + y * nDstStep);
 
     int idx = x * 4;
-    Npp8u r = kBgr ? pSrcRow[idx + 2] : pSrcRow[idx + 0];
+    Npp8u r = kBgr ? pSrcRow[idx + 2]: pSrcRow[idx + 0];
     Npp8u g = pSrcRow[idx + 1];
-    Npp8u b = kBgr ? pSrcRow[idx + 0] : pSrcRow[idx + 2];
+    Npp8u b = kBgr ? pSrcRow[idx + 0]: pSrcRow[idx + 2];
     Npp8u a = pSrcRow[idx + 3];
 
     Npp8u yv, cbv, crv;
@@ -361,9 +361,9 @@ __global__ void yuv_to_rgb_c3_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDs
     Npp8u r, g, b;
     yuv_to_rgb_pixel(pSrcRow[idx + 0], pSrcRow[idx + 1], pSrcRow[idx + 2], r, g, b);
 
-    pDstRow[idx + 0] = kBgr ? b : r;
+    pDstRow[idx + 0] = kBgr ? b: r;
     pDstRow[idx + 1] = g;
-    pDstRow[idx + 2] = kBgr ? r : b;
+    pDstRow[idx + 2] = kBgr ? r: b;
   }
 }
 
@@ -382,9 +382,9 @@ __global__ void yuv_to_rgb_ac4_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pD
     Npp8u r, g, b;
     yuv_to_rgb_pixel(pSrcRow[idx + 0], pSrcRow[idx + 1], pSrcRow[idx + 2], r, g, b);
 
-    pDstRow[idx + 0] = kBgr ? b : r;
+    pDstRow[idx + 0] = kBgr ? b: r;
     pDstRow[idx + 1] = g;
-    pDstRow[idx + 2] = kBgr ? r : b;
+    pDstRow[idx + 2] = kBgr ? r: b;
     // AC4: NPP leaves the destination alpha untouched (measured).
   }
 }
@@ -405,9 +405,9 @@ __global__ void yuv_to_rgb_p3c3_kernel(const Npp8u *pSrcY, int nSrcStep, const N
     yuv_to_rgb_pixel(pSrcRowY[x], pSrcRowU[x], pSrcRowV[x], r, g, b);
 
     int idx = x * 3;
-    pDstRow[idx + 0] = kBgr ? b : r;
+    pDstRow[idx + 0] = kBgr ? b: r;
     pDstRow[idx + 1] = g;
-    pDstRow[idx + 2] = kBgr ? r : b;
+    pDstRow[idx + 2] = kBgr ? r: b;
   }
 }
 
@@ -454,9 +454,9 @@ __global__ void ycbcr_to_rgb_c3_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *p
     Npp8u r, g, b;
     ycbcr_to_rgb_pixel(pSrcRow[idx + 0], pSrcRow[idx + 1], pSrcRow[idx + 2], r, g, b);
 
-    pDstRow[idx + 0] = kBgr ? b : r;
+    pDstRow[idx + 0] = kBgr ? b: r;
     pDstRow[idx + 1] = g;
-    pDstRow[idx + 2] = kBgr ? r : b;
+    pDstRow[idx + 2] = kBgr ? r: b;
   }
 }
 
@@ -474,9 +474,9 @@ __global__ void ycbcr_to_rgb_ac4_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *
     Npp8u r, g, b;
     ycbcr_to_rgb_pixel(pSrcRow[idx + 0], pSrcRow[idx + 1], pSrcRow[idx + 2], r, g, b);
 
-    pDstRow[idx + 0] = kBgr ? b : r;
+    pDstRow[idx + 0] = kBgr ? b: r;
     pDstRow[idx + 1] = g;
-    pDstRow[idx + 2] = kBgr ? r : b;
+    pDstRow[idx + 2] = kBgr ? r: b;
     // AC4: NPP leaves the destination alpha untouched (measured).
   }
 }
@@ -497,9 +497,9 @@ __global__ void ycbcr_to_rgb_p3c3_kernel(const Npp8u *pSrcY, int nSrcStep, const
     ycbcr_to_rgb_pixel(pSrcRowY[x], pSrcRowCb[x], pSrcRowCr[x], r, g, b);
 
     int idx = x * 3;
-    pDstRow[idx + 0] = kBgr ? b : r;
+    pDstRow[idx + 0] = kBgr ? b: r;
     pDstRow[idx + 1] = g;
-    pDstRow[idx + 2] = kBgr ? r : b;
+    pDstRow[idx + 2] = kBgr ? r: b;
   }
 }
 
@@ -550,9 +550,9 @@ __global__ void ycbcr_to_rgb_p3c4_kernel(const Npp8u *pSrcY, int nSrcStep, const
     ycbcr_to_rgb_pixel(pSrcRowY[x], pSrcRowCb[x], pSrcRowCr[x], r, g, b);
 
     int idx = x * 4;
-    pDstRow[idx + 0] = kBgr ? b : r;
+    pDstRow[idx + 0] = kBgr ? b: r;
     pDstRow[idx + 1] = g;
-    pDstRow[idx + 2] = kBgr ? r : b;
+    pDstRow[idx + 2] = kBgr ? r: b;
     pDstRow[idx + 3] = alpha;
   }
 }
@@ -579,9 +579,9 @@ __global__ void yuv_to_rgb_p3c3_step3_kernel(const Npp8u *pSrcY, int nStepY, con
   yuv_to_rgb_pixel(pSrcRowY[x], pSrcRowU[x], pSrcRowV[x], r, g, b);
 
   int idx = x * 3;
-  pDstRow[idx + 0] = kBgr ? b : r;
+  pDstRow[idx + 0] = kBgr ? b: r;
   pDstRow[idx + 1] = g;
-  pDstRow[idx + 2] = kBgr ? r : b;
+  pDstRow[idx + 2] = kBgr ? r: b;
 }
 
 template <bool kBgr>
@@ -602,9 +602,9 @@ __global__ void ycbcr_to_rgb_p3c3_step3_kernel(const Npp8u *pSrcY, int nStepY, c
   ycbcr_to_rgb_pixel(pSrcRowY[x], pSrcRowCb[x], pSrcRowCr[x], r, g, b);
 
   int idx = x * 3;
-  pDstRow[idx + 0] = kBgr ? b : r;
+  pDstRow[idx + 0] = kBgr ? b: r;
   pDstRow[idx + 1] = g;
-  pDstRow[idx + 2] = kBgr ? r : b;
+  pDstRow[idx + 2] = kBgr ? r: b;
 }
 
 extern "C" {

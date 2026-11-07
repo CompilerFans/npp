@@ -13,18 +13,18 @@ namespace arithmetic {
 // ============================================================================
 // Type traits for complex number detection
 // ============================================================================
-template <typename T> struct is_complex : std::false_type {};
-template <> struct is_complex<Npp16sc> : std::true_type {};
-template <> struct is_complex<Npp32sc> : std::true_type {};
-template <> struct is_complex<Npp32fc> : std::true_type {};
+template <typename T> struct is_complex: std::false_type {};
+template <> struct is_complex<Npp16sc>: std::true_type {};
+template <> struct is_complex<Npp32sc>: std::true_type {};
+template <> struct is_complex<Npp32fc>: std::true_type {};
 
 template <typename T> inline constexpr bool is_complex_v = is_complex<T>::value;
 
 // ============================================================================
 // Type traits for 16f (half precision) type detection
 // ============================================================================
-template <typename T> struct is_16f : std::false_type {};
-template <> struct is_16f<Npp16f> : std::true_type {};
+template <typename T> struct is_16f: std::false_type {};
+template <> struct is_16f<Npp16f>: std::true_type {};
 
 template <typename T> inline constexpr bool is_16f_v = is_16f<T>::value;
 
@@ -55,21 +55,21 @@ template <typename T> using complex_component_t = typename complex_component<T>:
 
 // ============================================================================
 // Type-specific saturating cast utility
-// Uses rint() for round-to-nearest-even (banker's rounding) to match NVIDIA NPP behavior
+// Uses rint for round-to-nearest-even (banker's rounding) to match NVIDIA NPP behavior
 // ============================================================================
 template <typename T> __device__ __host__ inline T saturate_cast(double value) {
   if constexpr (std::is_same_v<T, Npp8u>) {
     double rounded = rint(value);
-    return static_cast<T>(rounded < 0.0 ? 0.0 : (rounded > 255.0 ? 255.0 : rounded));
+    return static_cast<T>(rounded < 0.0 ? 0.0: (rounded > 255.0 ? 255.0: rounded));
   } else if constexpr (std::is_same_v<T, Npp16u>) {
     double rounded = rint(value);
-    return static_cast<T>(rounded < 0.0 ? 0.0 : (rounded > 65535.0 ? 65535.0 : rounded));
+    return static_cast<T>(rounded < 0.0 ? 0.0: (rounded > 65535.0 ? 65535.0: rounded));
   } else if constexpr (std::is_same_v<T, Npp16s>) {
     double rounded = rint(value);
-    return static_cast<T>(rounded < -32768.0 ? -32768.0 : (rounded > 32767.0 ? 32767.0 : rounded));
+    return static_cast<T>(rounded < -32768.0 ? -32768.0: (rounded > 32767.0 ? 32767.0: rounded));
   } else if constexpr (std::is_same_v<T, Npp32s>) {
     // 32s uses truncation, not rounding (matches NVIDIA behavior)
-    return static_cast<T>(value < -2147483648.0 ? -2147483648.0 : (value > 2147483647.0 ? 2147483647.0 : value));
+    return static_cast<T>(value < -2147483648.0 ? -2147483648.0: (value > 2147483647.0 ? 2147483647.0: value));
   } else if constexpr (std::is_same_v<T, Npp32f>) {
     return static_cast<T>(value);
   }
@@ -85,7 +85,7 @@ template <typename T> __device__ __host__ inline T saturate_cast_complex(double 
   return result;
 }
 
-// NPP 13.4 scale-factor semantics (calibrated against the 5090 reference):
+// NPP 13.4 scale-factor semantics (calibrated against the reference):
 // the exact result is divided by 2^sf and then rounded half-to-even by the
 // saturating cast.  There is no pre-added half, so half-way values keep the
 // even neighbour: (0+1)/2 -> 0, (189+205)/2 -> 197, (-3+0)/2 -> -2.
@@ -148,8 +148,7 @@ __device__ __host__ inline T div_scale_complex(double re, double im, int scaleFa
   if constexpr (std::is_same_v<C, Npp32s>) {
     return scale_sfs_complex_trunc<T>(re, im, scaleFactor);
   } else if constexpr (std::is_integral_v<C>) {
-    return scaleFactor == 0 ? scale_sfs_complex_trunc<T>(re, im, scaleFactor)
-                            : scale_sfs_complex<T>(re, im, scaleFactor);
+    return scaleFactor == 0 ? scale_sfs_complex_trunc<T>(re, im, scaleFactor): scale_sfs_complex<T>(re, im, scaleFactor);
   } else {
     return scale_sfs_complex<T>(re, im, scaleFactor);
   }
@@ -277,7 +276,7 @@ template <typename T> struct DivOp {
         // 0/0 is 0; a non-zero numerator saturates with its sign (for signed
         // types) or to the maximum (unsigned).
         if (b == T(0)) return T(0);
-        if constexpr (std::is_signed_v<T>) return b < T(0) ? int_min_value<T>() : int_max_value<T>();
+        if constexpr (std::is_signed_v<T>) return b < T(0) ? int_min_value<T>(): int_max_value<T>();
         else return int_max_value<T>();
       }
       if constexpr (std::is_same_v<T, Npp32s>) {
@@ -361,19 +360,19 @@ template <typename T> struct MulScaleOp {
 };
 
 template <typename T> struct MaxOp {
-  __device__ __host__ T operator()(T a, T b, int = 0) const { return a > b ? a : b; }
+  __device__ __host__ T operator()(T a, T b, int = 0) const { return a > b ? a: b; }
 };
 
 template <typename T> struct MinOp {
-  __device__ __host__ T operator()(T a, T b, int = 0) const { return a < b ? a : b; }
+  __device__ __host__ T operator()(T a, T b, int = 0) const { return a < b ? a: b; }
 };
 
 template <typename T> struct MaxEveryOp {
-  __device__ __host__ T operator()(T a, T b, int = 0) const { return a > b ? a : b; }
+  __device__ __host__ T operator()(T a, T b, int = 0) const { return a > b ? a: b; }
 };
 
 template <typename T> struct MinEveryOp {
-  __device__ __host__ T operator()(T a, T b, int = 0) const { return a < b ? a : b; }
+  __device__ __host__ T operator()(T a, T b, int = 0) const { return a < b ? a: b; }
 };
 
 // ============================================================================
@@ -386,9 +385,9 @@ template <typename T> struct AbsOp {
       __half ha = npp16f_to_half(a);
       return half_to_npp16f(__habs(ha));
     } else if constexpr (std::is_integral_v<T> && std::is_signed_v<T>) {
-      // abs(type minimum) saturates to the maximum (probe: abs(-32768) -> 32767).
+      // abs(type minimum) saturates to the maximum (measurement: abs(-32768) -> 32767).
       if (a == int_min_value<T>()) return int_max_value<T>();
-      return a < T(0) ? static_cast<T>(-a) : a;
+      return a < T(0) ? static_cast<T>(-a): a;
     } else {
       return std::abs(a);
     }
@@ -401,16 +400,16 @@ template <typename T> struct SqrOp {
       __half ha = npp16f_to_half(a);
       return half_to_npp16f(__hmul(ha, ha));
     } else if constexpr (std::is_same_v<T, Npp8u>) {
-      // The 5090's 8u kernel multiplies in 16 bits for sf == 0 (inputs >= 182
+      // The reference's 8u kernel multiplies in 16 bits for sf == 0 (inputs >= 182
       // wrap negative and clamp to 0) and in a wider type for sf > 0.
       if (scaleFactor == 0) {
         const int product = static_cast<int>(a) * static_cast<int>(a);
         const int16_t wrapped = static_cast<int16_t>(static_cast<uint16_t>(product));
-        return wrapped < 0 ? T(0) : static_cast<T>(wrapped > 255 ? 255 : wrapped);
+        return wrapped < 0 ? T(0): static_cast<T>(wrapped > 255 ? 255: wrapped);
       }
       int product = static_cast<int>(a) * static_cast<int>(a);
       product >>= scaleFactor;
-      return static_cast<T>(product > 255 ? 255 : product);
+      return static_cast<T>(product > 255 ? 255: product);
     } else {
       double result = static_cast<double>(a) * static_cast<double>(a);
       if constexpr (std::is_integral_v<T>) {
@@ -429,7 +428,7 @@ template <typename T> struct SqrtOp {
     } else {
       if constexpr (std::is_integral_v<T>) {
         if (a < T(0)) return T(0);
-        // The 5090 rounds sqrt to nearest (half-even) before/after scaling.
+        // The reference rounds sqrt to nearest (half-even) before/after scaling.
         return scale_sfs<T>(std::sqrt(static_cast<double>(a)), scaleFactor);
       }
       return saturate_cast<T>(std::sqrt(static_cast<double>(a)));
@@ -447,7 +446,7 @@ template <typename T> struct ExpOp {
       const float lo = std::numeric_limits<float>::min();
       const float hi = std::numeric_limits<float>::max();
       if (result != result) return lo;  // NaN
-      const double clamped = result < (double)lo ? (double)lo : (result > (double)hi ? (double)hi : result);
+      const double clamped = result < (double)lo ? (double)lo: (result > (double)hi ? (double)hi: result);
       return static_cast<T>(clamped);
     }
     return saturate_cast<T>(result);
@@ -475,7 +474,7 @@ template <typename T> struct LnOp {
         else return T(0);
       }
       if (a < T(0)) {
-        if constexpr (std::is_signed_v<T>) return scaleFactor == 0 ? int_min_value<T>() : T(0);
+        if constexpr (std::is_signed_v<T>) return scaleFactor == 0 ? int_min_value<T>(): T(0);
         else return T(0);
       }
       return scale_sfs<T>(std::log(static_cast<double>(a)), scaleFactor);
@@ -501,7 +500,7 @@ private:
   int shiftCount;
 
 public:
-  __device__ __host__ LShiftConstOp(int shift) : shiftCount(shift) {}
+  __device__ __host__ LShiftConstOp(int shift): shiftCount(shift) {}
 
   __device__ __host__ T operator()(T a, T = T(0), int = 0) const {
     if constexpr (std::is_integral_v<T>) {
@@ -518,7 +517,7 @@ private:
   int shiftCount;
 
 public:
-  __device__ __host__ RShiftConstOp(int shift) : shiftCount(shift) {}
+  __device__ __host__ RShiftConstOp(int shift): shiftCount(shift) {}
 
   __device__ __host__ T operator()(T a, T = T(0), int = 0) const {
     if constexpr (std::is_integral_v<T>) {
@@ -540,11 +539,11 @@ public:
 template <typename T> struct LeftShiftStrategy {
   __device__ __host__ static T apply(T value, Npp32u shiftCount) {
     if constexpr (std::is_same_v<T, Npp8u> || std::is_same_v<T, Npp8s>) {
-      return (shiftCount < 8) ? (value << shiftCount) : 0;
+      return (shiftCount < 8) ? (value << shiftCount): 0;
     } else if constexpr (std::is_same_v<T, Npp16u> || std::is_same_v<T, Npp16s>) {
-      return (shiftCount < 16) ? (value << shiftCount) : 0;
+      return (shiftCount < 16) ? (value << shiftCount): 0;
     } else if constexpr (std::is_same_v<T, Npp32u> || std::is_same_v<T, Npp32s>) {
-      return (shiftCount < 32) ? (value << shiftCount) : 0;
+      return (shiftCount < 32) ? (value << shiftCount): 0;
     } else {
       return value;
     }
@@ -559,11 +558,11 @@ template <typename T> struct RightShiftStrategy {
       }
       return static_cast<T>(0);
     } else if constexpr (std::is_same_v<T, Npp8u>) {
-      return (shiftCount < 8) ? (value >> shiftCount) : 0;
+      return (shiftCount < 8) ? (value >> shiftCount): 0;
     } else if constexpr (std::is_same_v<T, Npp16u> || std::is_same_v<T, Npp16s>) {
-      return (shiftCount < 16) ? (value >> shiftCount) : 0;
+      return (shiftCount < 16) ? (value >> shiftCount): 0;
     } else if constexpr (std::is_same_v<T, Npp32u> || std::is_same_v<T, Npp32s>) {
-      return (shiftCount < 32) ? (value >> shiftCount) : 0;
+      return (shiftCount < 32) ? (value >> shiftCount): 0;
     } else {
       return value;
     }
@@ -608,7 +607,7 @@ private:
   T constant;
 
 public:
-  __device__ __host__ AddConstOp(T c) : constant(c) {}
+  __device__ __host__ AddConstOp(T c): constant(c) {}
 
   __device__ __host__ T operator()(T a, T = T{}, int scaleFactor = 0) const {
     if constexpr (is_complex_v<T>) {
@@ -630,7 +629,7 @@ private:
   T constant;
 
 public:
-  __device__ __host__ SubConstOp(T c) : constant(c) {}
+  __device__ __host__ SubConstOp(T c): constant(c) {}
 
   __device__ __host__ T operator()(T a, T = T{}, int scaleFactor = 0) const {
     if constexpr (is_complex_v<T>) {
@@ -652,7 +651,7 @@ private:
   T constant;
 
 public:
-  __device__ __host__ MulConstOp(T c) : constant(c) {}
+  __device__ __host__ MulConstOp(T c): constant(c) {}
 
   __device__ __host__ T operator()(T a, T = T{}, int scaleFactor = 0) const {
     if constexpr (is_complex_v<T>) {
@@ -678,7 +677,7 @@ private:
   T constant;
 
 public:
-  __device__ __host__ AndConstOp(T c) : constant(c) {}
+  __device__ __host__ AndConstOp(T c): constant(c) {}
 
   __device__ __host__ T operator()(T a, T = T(0), int = 0) const {
     if constexpr (std::is_integral_v<T>) {
@@ -693,7 +692,7 @@ private:
   T constant;
 
 public:
-  __device__ __host__ OrConstOp(T c) : constant(c) {}
+  __device__ __host__ OrConstOp(T c): constant(c) {}
 
   __device__ __host__ T operator()(T a, T = T(0), int = 0) const {
     if constexpr (std::is_integral_v<T>) {
@@ -708,7 +707,7 @@ private:
   T constant;
 
 public:
-  __device__ __host__ XorConstOp(T c) : constant(c) {}
+  __device__ __host__ XorConstOp(T c): constant(c) {}
 
   __device__ __host__ T operator()(T a, T = T(0), int = 0) const {
     if constexpr (std::is_integral_v<T>) {
@@ -723,7 +722,7 @@ private:
   T constant;
 
 public:
-  __device__ __host__ AbsDiffConstOp(T c) : constant(c) {}
+  __device__ __host__ AbsDiffConstOp(T c): constant(c) {}
 
   __device__ __host__ T operator()(T a, T = T(0), int scaleFactor = 0) const {
     double result = std::abs(static_cast<double>(a) - static_cast<double>(constant));
@@ -744,7 +743,7 @@ private:
   NppCmpOp operation;
 
 public:
-  __device__ __host__ CompareConstOp(T c, NppCmpOp op) : constant(c), operation(op) {}
+  __device__ __host__ CompareConstOp(T c, NppCmpOp op): constant(c), operation(op) {}
 
   __device__ __host__ Npp8u operator()(T a, T = T(0), int = 0) const {
     bool result = false;
@@ -772,7 +771,7 @@ public:
       result = false;
       break;
     }
-    return result ? Npp8u(255) : Npp8u(0);
+    return result ? Npp8u(255): Npp8u(0);
   }
 };
 
@@ -809,7 +808,7 @@ private:
   T alpha1, alpha2;
 
 public:
-  __device__ __host__ AddWeightedOp(T a1, T a2) : alpha1(a1), alpha2(a2) {}
+  __device__ __host__ AddWeightedOp(T a1, T a2): alpha1(a1), alpha2(a2) {}
 
   __device__ __host__ T operator()(T a, T b, int scaleFactor = 0) const {
     // Result = alpha1 * a + alpha2 * b
@@ -826,12 +825,12 @@ public:
 // Alpha Composition Operations
 // ============================================================================
 
-// Fixed-point alpha compositing model measured on the RTX 5090 (NPP 13.4).
+// Fixed-point alpha compositing model measured in the reference implementation (NPP 13.4).
 // Integer alphas live on a (max+1) scale: alpha == max means 1.0, the
 // complement of 0 is max+1 and the complement of max is 0.  Every alpha
 // application (source x alpha or alpha x alpha) is
 //     mul(x, e) = (x * e + max/2) >> log2(max+1),
-// which also reproduces NPP's 255/65535 "opaque" fast path through norm().
+// which also reproduces NPP's 255/65535 "opaque" fast path through norm.
 namespace alpha_ref {
 
 template <typename T> struct Fp;
@@ -848,7 +847,7 @@ template <> struct Fp<Npp16u> {
 // Signed and 32-bit integer layouts follow the same fixed-point contract with
 // the type's positive maximum.  NPP reproduces it exactly only for samples
 // and alphas in [0, max/4]; larger values hit its float/saturation path,
-// which is not representable by a stable formula (measured on the 5090).
+// which is not representable by a stable formula (measured on the reference).
 template <> struct Fp<Npp8s> {
   static constexpr int64_t kMax = 127;
   static constexpr int kShift = 7;
@@ -878,7 +877,7 @@ template <typename T> __device__ __host__ inline int64_t mul(int64_t x, int64_t 
 
 // Premultiplication uses a slightly different primitive for 16u: multipliers
 // at or above 0xFF80 round through /65535 instead of the 2^16 shift
-// (measured on the 5090).  The product fits in 32 bits except for the
+// (measured on the reference).  The product fits in 32 bits except for the
 // alpha == max operand.
 template <typename T> __device__ __host__ inline int64_t mul_premul(int64_t x, int64_t e) {
   if constexpr (std::is_same_v<T, Npp16u>) {
@@ -896,16 +895,16 @@ template <typename T> __device__ __host__ inline int64_t mul_premul(int64_t x, i
 
 // Alpha as a (max+1)-scale multiplier (255/65535 become 1.0).
 template <typename T> __device__ __host__ inline int64_t norm(int64_t a) {
-  return a == Fp<T>::kMax ? Fp<T>::kMax + 1 : a;
+  return a == Fp<T>::kMax ? Fp<T>::kMax + 1: a;
 }
 
 // (1 - alpha) on the same scale.
 template <typename T> __device__ __host__ inline int64_t comp(int64_t a) {
-  return a == 0 ? Fp<T>::kMax + 1 : (a == Fp<T>::kMax ? 0 : Fp<T>::kMax + 1 - a);
+  return a == 0 ? Fp<T>::kMax + 1: (a == Fp<T>::kMax ? 0: Fp<T>::kMax + 1 - a);
 }
 
 template <typename T> __device__ __host__ inline T sat(int64_t v) {
-  return v < 0 ? T(0) : (v > Fp<T>::kMax ? T(Fp<T>::kMax) : T(v));
+  return v < 0 ? T(0): (v > Fp<T>::kMax ? T(Fp<T>::kMax): T(v));
 }
 
 // Legacy double-precision path kept for the signed / 32-bit integer types
@@ -1067,7 +1066,7 @@ template <typename T> __device__ __host__ inline T alpha_out(NppiAlphaOp op, T a
     default: r = x1; break;
     }
     // NPP clamps the composed alpha to [0,1] for float images.
-    return static_cast<T>(r < 0.0 ? 0.0 : (r > 1.0 ? 1.0 : r));
+    return static_cast<T>(r < 0.0 ? 0.0: (r > 1.0 ? 1.0: r));
   } else {
     const int64_t A1 = norm<T>(a1);
     const int64_t A2 = norm<T>(a2);
@@ -1135,7 +1134,7 @@ private:
   T constant_alpha;
 
 public:
-  __device__ __host__ AlphaPremulConstOp(T alpha) : constant_alpha(alpha) {}
+  __device__ __host__ AlphaPremulConstOp(T alpha): constant_alpha(alpha) {}
 
   __device__ __host__ T operator()(T src, T = T(0), int = 0) const {
     if constexpr (std::is_same_v<T, Npp8u>) {
@@ -1155,7 +1154,7 @@ private:
   T constant;
 
 public:
-  __device__ __host__ MulCScaleOp(T c) : constant(c) {}
+  __device__ __host__ MulCScaleOp(T c): constant(c) {}
 
   __device__ __host__ T operator()(T a, T = T(0), int = 0) const {
     if constexpr (std::is_same_v<T, Npp8u>) {
@@ -1183,12 +1182,12 @@ template <typename T> struct DivRoundOp {
       // nearest rounding and 255 otherwise; the wider types return 0 for 0/0
       // and saturate for non-zero numerators.
       if constexpr (std::is_same_v<T, Npp8u>)
-        return (b == T(0) && rndMode == NPP_RND_NEAR) ? T(254) : T(255);
+        return (b == T(0) && rndMode == NPP_RND_NEAR) ? T(254): T(255);
       if (b == T(0)) return T(0);
       else if constexpr (std::is_same_v<T, Npp16u>)
         return T(65535);
       else if constexpr (std::is_same_v<T, Npp16s>)
-        return (b >= T(0)) ? T(32767) : T(-32768);
+        return (b >= T(0)) ? T(32767): T(-32768);
       else
         return T(0);
     }
@@ -1220,7 +1219,7 @@ template <typename T> struct DivRoundOp {
       } else {
         // Exactly 0.5 - round to nearest even
         int floor_int = static_cast<int>(floor_val);
-        result = (floor_int % 2 == 0) ? floor_val : floor_val + 1.0;
+        result = (floor_int % 2 == 0) ? floor_val: floor_val + 1.0;
       }
       break;
     }
@@ -1253,7 +1252,7 @@ private:
   T constant;
 
 public:
-  __device__ __host__ DivConstOp(T c) : constant(c) {}
+  __device__ __host__ DivConstOp(T c): constant(c) {}
 
   __device__ __host__ T operator()(T a, T = T{}, int scaleFactor = 0) const {
     if constexpr (is_complex_v<T>) {
@@ -1263,7 +1262,7 @@ public:
       double cim = static_cast<double>(constant.im);
       double denom = cre * cre + cim * cim;
       if (denom == 0.0) {
-        // The 5090's floating complex kernels follow IEEE here (0/0 -> NaN);
+        // The reference's floating complex kernels follow IEEE here (0/0 -> NaN);
         // integer complex types keep the neutral value.
         if constexpr (std::is_floating_point_v<complex_component_t<T>>) {
           using R = complex_component_t<T>;
@@ -1285,10 +1284,10 @@ public:
         // 0/0 -> 0; non-zero numerators saturate by sign (signed) or to max.
         if constexpr (std::is_integral_v<T>) {
           if (a == T(0)) return T(0);
-          if constexpr (std::is_signed_v<T>) return a < T(0) ? int_min_value<T>() : int_max_value<T>();
+          if constexpr (std::is_signed_v<T>) return a < T(0) ? int_min_value<T>(): int_max_value<T>();
           else return int_max_value<T>();
         } else {
-          return (a >= T(0)) ? std::numeric_limits<T>::infinity() : -std::numeric_limits<T>::infinity();
+          return (a >= T(0)) ? std::numeric_limits<T>::infinity(): -std::numeric_limits<T>::infinity();
         }
       }
 
@@ -1315,7 +1314,7 @@ private:
   Npp32f constant_f32; // Store as float, convert to half on device
 
 public:
-  __device__ __host__ AddConst16fOp(Npp32f c) : constant_f32(c) {}
+  __device__ __host__ AddConst16fOp(Npp32f c): constant_f32(c) {}
 
   __device__ Npp16f operator()(Npp16f a, Npp16f = Npp16f{}, int = 0) const {
     __half ha = npp16f_to_half(a);
@@ -1329,7 +1328,7 @@ private:
   Npp32f constant_f32;
 
 public:
-  __device__ __host__ SubConst16fOp(Npp32f c) : constant_f32(c) {}
+  __device__ __host__ SubConst16fOp(Npp32f c): constant_f32(c) {}
 
   __device__ Npp16f operator()(Npp16f a, Npp16f = Npp16f{}, int = 0) const {
     __half ha = npp16f_to_half(a);
@@ -1343,7 +1342,7 @@ private:
   Npp32f constant_f32;
 
 public:
-  __device__ __host__ MulConst16fOp(Npp32f c) : constant_f32(c) {}
+  __device__ __host__ MulConst16fOp(Npp32f c): constant_f32(c) {}
 
   __device__ Npp16f operator()(Npp16f a, Npp16f = Npp16f{}, int = 0) const {
     __half ha = npp16f_to_half(a);
@@ -1357,7 +1356,7 @@ private:
   Npp32f constant_f32;
 
 public:
-  __device__ __host__ DivConst16fOp(Npp32f c) : constant_f32(c) {}
+  __device__ __host__ DivConst16fOp(Npp32f c): constant_f32(c) {}
 
   __device__ Npp16f operator()(Npp16f a, Npp16f = Npp16f{}, int = 0) const {
     __half ha = npp16f_to_half(a);
@@ -1372,7 +1371,7 @@ private:
   const Npp32f *pConstant;
 
 public:
-  __device__ __host__ AddDeviceConst16fOp(const Npp32f *c) : pConstant(c) {}
+  __device__ __host__ AddDeviceConst16fOp(const Npp32f *c): pConstant(c) {}
 
   __device__ Npp16f operator()(Npp16f a, Npp16f = Npp16f{}, int = 0) const {
     __half ha = npp16f_to_half(a);
@@ -1386,7 +1385,7 @@ private:
   const Npp32f *pConstant;
 
 public:
-  __device__ __host__ SubDeviceConst16fOp(const Npp32f *c) : pConstant(c) {}
+  __device__ __host__ SubDeviceConst16fOp(const Npp32f *c): pConstant(c) {}
 
   __device__ Npp16f operator()(Npp16f a, Npp16f = Npp16f{}, int = 0) const {
     __half ha = npp16f_to_half(a);
@@ -1400,7 +1399,7 @@ private:
   const Npp32f *pConstant;
 
 public:
-  __device__ __host__ MulDeviceConst16fOp(const Npp32f *c) : pConstant(c) {}
+  __device__ __host__ MulDeviceConst16fOp(const Npp32f *c): pConstant(c) {}
 
   __device__ Npp16f operator()(Npp16f a, Npp16f = Npp16f{}, int = 0) const {
     __half ha = npp16f_to_half(a);
@@ -1414,7 +1413,7 @@ private:
   const Npp32f *pConstant;
 
 public:
-  __device__ __host__ DivDeviceConst16fOp(const Npp32f *c) : pConstant(c) {}
+  __device__ __host__ DivDeviceConst16fOp(const Npp32f *c): pConstant(c) {}
 
   __device__ Npp16f operator()(Npp16f a, Npp16f = Npp16f{}, int = 0) const {
     __half ha = npp16f_to_half(a);

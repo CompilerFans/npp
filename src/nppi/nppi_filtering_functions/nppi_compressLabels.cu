@@ -118,7 +118,7 @@ __global__ void blockPrefixSum_kernel(const Npp32u *input, Npp32u *output, Npp32
   int globalIdx = blockId * blockSize + tid;
 
   // Load data
-  sdata[tid] = (globalIdx < n) ? input[globalIdx] : 0;
+  sdata[tid] = (globalIdx < n) ? input[globalIdx]: 0;
   __syncthreads();
 
   // Reduce within block
@@ -221,7 +221,7 @@ NppStatus nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_impl(Npp32u *pMarkerLabels, in
   cudaStreamSynchronize(stream);
 
   // Compute exclusive prefix sum on CPU.  The compressed labels are 0-based
-  // (measured on the 5090 against NPP 13.4 with real nppiLabelMarkersUF output:
+  // (measured on the reference against NPP 13.4 with real nppiLabelMarkersUF output:
   // labels 0,3,6,... become 0,1,2,... and pNewNumber == the number of distinct
   // labels).
   Npp32u count = 0;

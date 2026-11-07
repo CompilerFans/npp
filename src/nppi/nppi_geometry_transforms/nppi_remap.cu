@@ -29,7 +29,7 @@ __global__ void nppiRemap_kernel(const T *pSrc, int nSrcStepEl, int srcW, int sr
     return;
 
   T *dstRow = (T *)((char *)pDst + (size_t)y * nDstStepEl * (int)sizeof(T));
-  const int writeCh = write_alpha ? channels : (channels > 1 ? channels - 1 : 1);
+  const int writeCh = write_alpha ? channels: (channels > 1 ? channels - 1: 1);
   for (int c = 0; c < writeCh; ++c) {
     dstRow[(size_t)x * channels + c] =
         nppi::warp::sampleChannel<T>(pSrc + c, nSrcStepEl, channels, srcW, srcH, u, v, interp);
@@ -57,7 +57,7 @@ static NppStatus nppiRemap_CnR_Ctx_impl(const T *pSrc, NppiSize oSrcSize, int nS
   nppiRemap_kernel<T, MapT><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep / (int)sizeof(T), oSrcSize.width, oSrcSize.height, oSrcROI, pXMap, nXMapStep, pYMap, nYMapStep,
       pDst, nDstStep / (int)sizeof(T), oDstSizeROI.width, oDstSizeROI.height, channels, write_alpha, eInterpolation);
-  return cudaGetLastError() == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 extern "C" {

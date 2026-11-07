@@ -1,10 +1,9 @@
 #pragma once
 
 // Common kernel-launch utilities shared by the nppi / npps executors
-// (introduced by package p0.1 as a pure refactoring; see
-// docs/agent_packages/p0.1.md).
+// (introduced.1 as a pure refactoring; see
 //
-// This header is host-visible: it is included from plain .cpp translation
+// This header is host-visible: it is included from plain.cpp translation
 // units (e.g. the generated npps wrappers). It therefore never declares
 // __global__ kernels. Device helper functions are marked
 // __device__ __forceinline__ with plain-C++ bodies (tolerated by the host
@@ -12,7 +11,7 @@
 // getThreadCoords references the CUDA block/thread index builtins and is
 // only declared when compiling with nvcc (__CUDACC__).
 //
-// Semantics are pinned by the differential tests against NVIDIA NPP 13.4;
+// Semantics are pinned by the reference comparisons against NVIDIA NPP 13.4;
 // every definition here is moved verbatim from
 // nppi/nppi_arithmetic_operations/nppi_arithmetic_executor.h.
 
@@ -66,7 +65,7 @@ __device__ __forceinline__ bool getThreadCoords(int &x, int &y, int width, int h
 
 // Check CUDA kernel execution result
 inline NppStatus checkCudaKernelError() {
-  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 // ============================================================================
@@ -77,7 +76,7 @@ inline NppStatus checkCudaKernelError() {
 template <typename T> inline NppStatus validateShiftConstants(const Npp32u *aConstants, int channels) {
   // constexpr Npp32u maxShift = sizeof(T) * 8 - 1;
   constexpr Npp32u typeBits = sizeof(T) * 8;
-  constexpr Npp32u maxShift = (typeBits >= 32) ? 31 : typeBits;
+  constexpr Npp32u maxShift = (typeBits >= 32) ? 31: typeBits;
   for (int i = 0; i < channels; i++) {
     if (aConstants[i] > maxShift)
       return NPP_BAD_ARGUMENT_ERROR;
@@ -130,7 +129,7 @@ inline NppStatus validateUnaryParameters(const T *pSrc, int nSrcStep, T *pDst, i
 // ROI is reported as NPP_SIZE_ERROR.
 template <typename... PtrTypes>
 inline NppStatus validateMaskedParameters(NppiSize oSizeROI, const PtrTypes *...pointers) {
-  if (((pointers == nullptr) || ...)) {
+  if (((pointers == nullptr) ||...)) {
     return NPP_NULL_POINTER_ERROR;
   }
   if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
@@ -140,7 +139,7 @@ inline NppStatus validateMaskedParameters(NppiSize oSizeROI, const PtrTypes *...
 }
 
 // ============================================================================
-// 128-bit Vectorized Access Support (package opt_elem)
+// 128-bit Vectorized Access Support
 // ============================================================================
 // Purely element-wise kernels (binary / unary / constant / compare) move data
 // in 16-byte packets when every base pointer is 16B-aligned and every row
@@ -183,8 +182,8 @@ inline bool vecAligned3(const void *p1, int step1, const void *p2, int step2, co
 
 // One 16-byte packet reinterpreted as E elements of T. Lives here so every
 // vectorized executor (nppi arithmetic / copy, npps element-wise) shares one
-// definition; the union is only ever type-punned between .raw loads/stores
-// and .elem[] functor application, never both at once.
+// definition; the union is only ever type-punned between.raw loads/stores
+// and.elem[] functor application, never both at once.
 namespace vec {
 template <typename T, int E> union Packet {
   uint4 raw;
@@ -221,7 +220,7 @@ template <typename T> inline bool vec1dIndexSafe(size_t n) {
 // (grid-stride loops absorb anything beyond the cap).
 inline unsigned vecGridSize(size_t totalWork) {
   const size_t grid = (totalWork + kVecBlock - 1) / kVecBlock;
-  return static_cast<unsigned>(grid < 65535u ? grid : 65535u);
+  return static_cast<unsigned>(grid < 65535u ? grid: 65535u);
 }
 
 } // namespace npp_kernel

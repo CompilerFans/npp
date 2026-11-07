@@ -1,20 +1,20 @@
-// CPU-golden coverage for the pointwise 8u YUV / YCbCr conversion families:
+// CPU-reference output coverage for the pointwise 8u YUV / YCbCr conversion families:
 // nppiRGBToYUV / nppiBGRToYUV / nppiYUVToRGB / nppiYUVToBGR /
 // nppiRGBToYCbCr / nppiBGRToYCbCr / nppiYCbCrToRGB / nppiYCbCrToBGR.
 //
 // Formulas follow the measured NPP 13.4 pipelines:
-//   YUV:  Y = .299 R + .587 G + .114 B
-//         U = -.147 R - .289 G + .436 B + 128
-//         V = .615 R - .515 G - .100 B + 128          (float, truncate)
+//   YUV:  Y =.299 R +.587 G +.114 B
+//         U = -.147 R -.289 G +.436 B + 128
+//         V =.615 R -.515 G -.100 B + 128          (float, truncate)
 //   YCbCr (studio range):
-//         Y = .257 R + .504 G + .098 B + 16
-//         Cb = -.148 R - .291 G + .439 B + 128
-//         Cr = .439 R - .368 G - .071 B + 128         (double, truncate)
-//   YUV->RGB: R = Y + 1.140 V', G = Y - .395 U' - .581 V', B = Y + 2.032 U'
+//         Y =.257 R +.504 G +.098 B + 16
+//         Cb = -.148 R -.291 G +.439 B + 128
+//         Cr =.439 R -.368 G -.071 B + 128         (double, truncate)
+//   YUV->RGB: R = Y + 1.140 V', G = Y -.395 U' -.581 V', B = Y + 2.032 U'
 //   YCbCr->RGB: R = 1.164(Y-16) + 1.596 Cr',
-//               G = 1.164(Y-16) - .392 Cb' - .813 Cr', B = 1.164(Y-16)+2.017 Cb'
+//               G = 1.164(Y-16) -.392 Cb' -.813 Cr', B = 1.164(Y-16)+2.017 Cb'
 //               (single-precision with explicit fma ordering)
-// Alpha rules (measured on the 5090): packed AC4 destinations keep their
+// Alpha rules (measured on the reference): packed AC4 destinations keep their
 // previous alpha, AC4->planar copies the source alpha into the fourth plane,
 // and P3C4R writes the caller's constant alpha.
 #pragma once
@@ -36,12 +36,12 @@ inline Npp8u q8(double v) {
 
 inline void pixel_conv(Conv k, bool bgr, Npp8u a0, Npp8u a1, Npp8u a2, Npp8u &o0, Npp8u &o1, Npp8u &o2) {
   if (k == Conv::RGB2YUV) {
-    const float r = bgr ? a2 : a0, g = a1, b = bgr ? a0 : a2;
+    const float r = bgr ? a2: a0, g = a1, b = bgr ? a0: a2;
     o0 = q8(0.299f * r + 0.587f * g + 0.114f * b);
     o1 = q8(-0.147f * r - 0.289f * g + 0.436f * b + 128.0f);
     o2 = q8(0.615f * r - 0.515f * g - 0.100f * b + 128.0f);
   } else if (k == Conv::RGB2YCbCr) {
-    const double r = bgr ? a2 : a0, g = a1, b = bgr ? a0 : a2;
+    const double r = bgr ? a2: a0, g = a1, b = bgr ? a0: a2;
     o0 = q8(0.257 * r + 0.504 * g + 0.098 * b + 16.0);
     o1 = q8(-0.148 * r - 0.291 * g + 0.439 * b + 128.0);
     o2 = q8(0.439 * r - 0.368 * g - 0.071 * b + 128.0);
@@ -50,18 +50,18 @@ inline void pixel_conv(Conv k, bool bgr, Npp8u a0, Npp8u a1, Npp8u a2, Npp8u &o0
     const float r = y + 1.140f * v;
     const float g = y - 0.395f * u - 0.581f * v;
     const float b = y + 2.032f * u;
-    o0 = q8(bgr ? b : r);
+    o0 = q8(bgr ? b: r);
     o1 = q8(g);
-    o2 = q8(bgr ? r : b);
+    o2 = q8(bgr ? r: b);
   } else {
     const float yv = 1.164f * ((float)a0 - 16.0f);
     const float cb = (float)a1 - 128.0f, cr = (float)a2 - 128.0f;
     const float r = std::fma(1.596f, cr, yv);
     const float g = std::fma(-0.813f, cr, std::fma(-0.392f, cb, yv));
     const float b = std::fma(2.017f, cb, yv);
-    o0 = q8(bgr ? b : r);
+    o0 = q8(bgr ? b: r);
     o1 = q8(g);
-    o2 = q8(bgr ? r : b);
+    o2 = q8(bgr ? r: b);
   }
 }
 
@@ -74,13 +74,13 @@ void run_yuv(const char *id, Call call) {
   }
   RunCounts cnt;
   std::string first;
-  constexpr int Sc = SrcL == SL::C3 ? 3 : 4;
+  constexpr int Sc = SrcL == SL::C3 ? 3: 4;
   constexpr bool SrcPlanar = SrcL == SL::P3;
   constexpr bool DstPlanar = DstL == DL::P3 || DstL == DL::P4;
-  constexpr int Dc = DstPlanar ? 1 : (DstL == DL::C3 ? 3 : 4);
+  constexpr int Dc = DstPlanar ? 1: (DstL == DL::C3 ? 3: 4);
   RunCounts dummy;
   (void)dummy;
-  for (const GenCase &c : make_gen_cases(0)) {
+  for (const GenCase &c: make_gen_cases(0)) {
     if (c.w < 2 || c.h < 2) continue;
     std::vector<Buf<Npp8u> *> srcs, dsts;
     std::vector<std::vector<uint8_t>> pre, orig;
@@ -93,9 +93,9 @@ void run_yuv(const char *id, Call call) {
       a->dev.copyFromHost(a->host);
       srcs.push_back(a);
     }
-    const int dn = DstPlanar ? (DstL == DL::P4 ? 4 : 3) : 1;
+    const int dn = DstPlanar ? (DstL == DL::P4 ? 4: 3): 1;
     for (int p = 0; p < dn; ++p) {
-      Buf<Npp8u> *d = new Buf<Npp8u>(c.w, c.h, DstPlanar ? 1 : Dc, 0, 0x5A);
+      Buf<Npp8u> *d = new Buf<Npp8u>(c.w, c.h, DstPlanar ? 1: Dc, 0, 0x5A);
       d->dev.copyFromHost(d->host);
       dsts.push_back(d);
       pre.push_back(d->host);
@@ -127,8 +127,8 @@ void run_yuv(const char *id, Call call) {
     if (st != NPP_NO_ERROR) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-      for (auto *p : srcs) delete p;
-      for (auto *p : dsts) delete p;
+      for (auto *p: srcs) delete p;
+      for (auto *p: dsts) delete p;
       continue;
     }
     const cudaError_t se = cudaDeviceSynchronize();
@@ -190,13 +190,13 @@ void run_yuv(const char *id, Call call) {
           if constexpr (DstL == DL::C4A) want[db + 3] = 200;
         }
       const GenCase dc{c.w, c.h, 0, 0, 0, kSmall, 0};
-      const int at = DstL == DL::AC4 ? 3 : Dc;
+      const int at = DstL == DL::AC4 ? 3: Dc;
       if (!rotate_check<Npp8u, Dc, at>(id, dc, NPPI_INTER_NN, pre[0], dsts[0]->host, want, dstep,
                                        std::vector<uint8_t>(), cnt, first))
         failed = true;
     }
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
     if (failed || cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);

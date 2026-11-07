@@ -1,11 +1,11 @@
-// CPU-golden coverage for the derivative NPP filters
+// CPU-reference output coverage for the derivative NPP filters
 // (nppi_filtering_functions.h):
 //   nppiFilter{PrewittHoriz,PrewittVert,RobertsDown,RobertsUp,
 //              SobelHoriz,SobelVert,ScharrHoriz,ScharrVert,
 //              SobelCross,SobelHorizSecond,SobelVertSecond}
 // plus the *Border and *Mask variants.
 //
-// Taps measured on NVIDIA NPP 13.4 (RTX 5090); note that PrewittHoriz /
+// Taps measured on NVIDIA NPP 13.4 (reference); note that PrewittHoriz /
 // SobelHoriz are negated w.r.t. the published documentation (top row -1):
 //   PrewittHoriz [[-1,-1,-1],[0,0,0],[1,1,1]]
 //   PrewittVert  [[-1,0,1],[-1,0,1],[-1,0,1]]
@@ -93,22 +93,22 @@ inline Coef coefOf(int op, int maskSize) {
     case kPrewittVert: return mk3(PrewittVert3);
     case kRobertsDown: return mk3(RobertsDown3);
     case kRobertsUp: return mk3(RobertsUp3);
-    case kSobelHoriz: return five ? mk5(SobelHoriz5) : mk3(SobelHoriz3);
-    case kSobelVert: return five ? mk5(SobelVert5) : mk3(SobelVert3);
+    case kSobelHoriz: return five ? mk5(SobelHoriz5): mk3(SobelHoriz3);
+    case kSobelVert: return five ? mk5(SobelVert5): mk3(SobelVert3);
     case kScharrHoriz: return mk3(ScharrHoriz3);
     case kScharrVert: return mk3(ScharrVert3);
-    case kSobelCross: return five ? mk5(Cross5) : mk3(Cross3);
-    case kSobelHorizSecond: return five ? mk5(HorizSecond5) : mk3(HorizSecond3);
-    case kSobelVertSecond: return five ? mk5(VertSecond5) : mk3(VertSecond3);
+    case kSobelCross: return five ? mk5(Cross5): mk3(Cross3);
+    case kSobelHorizSecond: return five ? mk5(HorizSecond5): mk3(HorizSecond3);
+    case kSobelVertSecond: return five ? mk5(VertSecond5): mk3(VertSecond3);
   }
   return mk3(SobelHoriz3);
 }
 
 template <typename Dst> inline Dst emitFloat(float v) {
   if constexpr (std::is_same_v<Dst, Npp8u>) {
-    return v <= 0.0f ? (Npp8u)0 : (v >= 255.0f ? (Npp8u)255 : (Npp8u)v);
+    return v <= 0.0f ? (Npp8u)0: (v >= 255.0f ? (Npp8u)255: (Npp8u)v);
   } else if constexpr (std::is_same_v<Dst, Npp16s>) {
-    return v <= -32768.0f ? (Npp16s)-32768 : (v >= 32767.0f ? (Npp16s)32767 : (Npp16s)v);
+    return v <= -32768.0f ? (Npp16s)-32768: (v >= 32767.0f ? (Npp16s)32767: (Npp16s)v);
   } else {
     return (Dst)v;
   }
@@ -130,16 +130,16 @@ void run_deriv(const char *id, Call call) {
   };
   static const Cfg cfgs[] = {{5, 4}, {8, 6}, {33, 25}, {96, 64}};
   const int masks[] = {(int)NPP_MASK_SIZE_3_X_3, (int)NPP_MASK_SIZE_5_X_5};
-  const int nMask = HasMask ? 2 : 1;
+  const int nMask = HasMask ? 2: 1;
   const int m = 2;
   bool failed = false;
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     for (int mi = 0; mi < nMask && !failed; ++mi) {
-      const int maskSize = masks[mi] == (int)NPP_MASK_SIZE_5_X_5 ? 5 : 3;
+      const int maskSize = masks[mi] == (int)NPP_MASK_SIZE_5_X_5 ? 5: 3;
       const Coef coef = coefOf(Op, maskSize);
       const int r = coef.size / 2;
       const int W = cf.w + 2 * m, H = cf.h + 2 * m;
-      const uint64_t seed = case_seed(id, cf.w, cf.h, maskSize, Border ? 1 : 0, 0, 0);
+      const uint64_t seed = case_seed(id, cf.w, cf.h, maskSize, Border ? 1: 0, 0, 0);
       Buf<Src> *s = new Buf<Src>(W, H, C, 0, 0);
       fill_regime(*s, C, seed, kWide, 0, false, false, false);
       s->dev.copyFromHost(s->host);
@@ -169,10 +169,10 @@ void run_deriv(const char *id, Call call) {
             float facc = 0.0f;
             for (int a = 0; a < coef.size; ++a) {
               int yy = m + y + a - r;
-              if constexpr (Border) yy = yy < 0 ? 0 : (yy > H - 1 ? H - 1 : yy);
+              if constexpr (Border) yy = yy < 0 ? 0: (yy > H - 1 ? H - 1: yy);
               for (int b = 0; b < coef.size; ++b) {
                 int xx = m + x + b - r;
-                if constexpr (Border) xx = xx < 0 ? 0 : (xx > W - 1 ? W - 1 : xx);
+                if constexpr (Border) xx = xx < 0 ? 0: (xx > W - 1 ? W - 1: xx);
                 const Src v = s->hptr()[(size_t)yy * srow + (size_t)xx * C + c];
                 const int kv = coef.k[a][b];
                 if constexpr (std::is_floating_point_v<Src>)
@@ -181,7 +181,7 @@ void run_deriv(const char *id, Call call) {
                   iacc += kv * (int)v;
               }
             }
-            const float fv = std::is_floating_point_v<Src> ? facc : (float)iacc;
+            const float fv = std::is_floating_point_v<Src> ? facc: (float)iacc;
             const Dst out = emitFloat<Dst>(fv);
             const size_t off = (size_t)y * d->step + ((size_t)x * C + (size_t)c) * sizeof(Dst);
             std::memcpy(want.data() + off, &out, sizeof(Dst));

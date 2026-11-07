@@ -210,7 +210,8 @@ def emit(row: dict) -> Optional[str]:
                     f"  num::run_nppi_buffer_size(\n      \"{fn}\",\n      {lam});\n}}\n")
         lam = (
             "[](NppiSize roi, int *sz, NppStreamContext c) {\n"
-            "#ifdef USE_NVIDIA_NPP_TESTS\n"
+            "#if defined(USE_NVIDIA_NPP_TESTS) || NPP_BUFFER_SIZE_IS_SIZE_T
+"
             "        size_t s = 0;\n"
             f"        NppStatus st = {fn}(roi, &s, c);\n"
             "        if (st == NPP_NO_ERROR) *sz = (int)(s > 2147483647u ? 2147483647u : s);\n"
@@ -229,7 +230,8 @@ def emit(row: dict) -> Optional[str]:
         nl_arg = "nl" if per_ch else "nl[0]"
         lam = (
             "[](NppiSize roi, int *nl, int *sz, NppStreamContext c) {\n"
-            "#ifdef USE_NVIDIA_NPP_TESTS\n"
+            "#if defined(USE_NVIDIA_NPP_TESTS) || NPP_BUFFER_SIZE_IS_SIZE_T
+"
             "        size_t s = 0;\n"
             f"        NppStatus st = {fn}(roi, {nl_arg}, &s, c);\n"
             "        if (st == NPP_NO_ERROR) *sz = (int)(s > 2147483647u ? 2147483647u : s);\n"

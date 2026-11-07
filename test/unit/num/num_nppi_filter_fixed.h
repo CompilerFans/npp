@@ -1,8 +1,8 @@
-// CPU-golden coverage for the fixed-kernel NPP filters
+// CPU-reference output coverage for the fixed-kernel NPP filters
 // (nppi_filtering_functions.h):
 //   nppiFilter{HighPass,LowPass,Sharpen,Laplace} and their *Border variants.
 //
-// Masks measured on NVIDIA NPP 13.4 (RTX 5090):
+// Masks measured on NVIDIA NPP 13.4 (reference):
 //   HighPass 3x3: 9*center - sum(3x3)   5x5: 25*center - sum(5x5)
 //   LowPass  3x3: sum(3x3)/9            5x5: sum(5x5)/25
 //   Sharpen  3x3: (16*center - sum(8 neighbours))/8
@@ -37,7 +37,7 @@ struct Coef {
 
 inline Coef coefOf(int op, int maskSize) {
   Coef c{};
-  const int size = op == kSharpen ? 3 : maskSize;
+  const int size = op == kSharpen ? 3: maskSize;
   c.size = size;
   c.bias = 0;
   c.denom = 1;
@@ -47,7 +47,7 @@ inline Coef coefOf(int op, int maskSize) {
   if (op == kHighPass) {
     c.k[r][r] = size * size - 1;
   } else if (op == kLowPass) {
-    c.bias = size == 5 ? 12 : 4;
+    c.bias = size == 5 ? 12: 4;
     c.denom = size * size;
     for (int a = 0; a < size; ++a)
       for (int b = 0; b < size; ++b) c.k[a][b] = 1;
@@ -72,11 +72,11 @@ inline Coef coefOf(int op, int maskSize) {
 
 template <typename Dst> inline Dst satInt(long long v) {
   if constexpr (std::is_same_v<Dst, Npp8u>) {
-    return (Npp8u)(v <= 0 ? 0 : (v >= 255 ? 255 : v));
+    return (Npp8u)(v <= 0 ? 0: (v >= 255 ? 255: v));
   } else if constexpr (std::is_same_v<Dst, Npp16u>) {
-    return (Npp16u)(v <= 0 ? 0 : (v >= 65535 ? 65535 : v));
+    return (Npp16u)(v <= 0 ? 0: (v >= 65535 ? 65535: v));
   } else {
-    return (Dst)(v <= -32768 ? -32768 : (v >= 32767 ? 32767 : v));
+    return (Dst)(v <= -32768 ? -32768: (v >= 32767 ? 32767: v));
   }
 }
 
@@ -96,16 +96,16 @@ void run_fixed(const char *id, Call call) {
   };
   static const Cfg cfgs[] = {{5, 4}, {8, 6}, {33, 25}, {96, 64}};
   const int masks[] = {(int)NPP_MASK_SIZE_3_X_3, (int)NPP_MASK_SIZE_5_X_5};
-  const int nMask = Op == kSharpen ? 1 : 2;
+  const int nMask = Op == kSharpen ? 1: 2;
   const int m = 2;  // margin large enough for the 5x5 taps
   bool failed = false;
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     for (int mi = 0; mi < nMask && !failed; ++mi) {
-      const int maskSize = masks[mi] == (int)NPP_MASK_SIZE_5_X_5 ? 5 : 3;
+      const int maskSize = masks[mi] == (int)NPP_MASK_SIZE_5_X_5 ? 5: 3;
       const Coef coef = coefOf(Op, maskSize);
       const int r = coef.size / 2;
       const int W = cf.w + 2 * m, H = cf.h + 2 * m;
-      const uint64_t seed = case_seed(id, cf.w, cf.h, maskSize, Border ? 1 : 0, 0, 0);
+      const uint64_t seed = case_seed(id, cf.w, cf.h, maskSize, Border ? 1: 0, 0, 0);
       Buf<Src> *s = new Buf<Src>(W, H, C, 0, 0);
       fill_regime(*s, C, seed, kWide, 0, false, false, false);
       s->dev.copyFromHost(s->host);
@@ -135,10 +135,10 @@ void run_fixed(const char *id, Call call) {
             float facc = 0.0f;
             for (int a = 0; a < coef.size; ++a) {
               int yy = m + y + a - r;
-              if constexpr (Border) yy = yy < 0 ? 0 : (yy > H - 1 ? H - 1 : yy);
+              if constexpr (Border) yy = yy < 0 ? 0: (yy > H - 1 ? H - 1: yy);
               for (int b = 0; b < coef.size; ++b) {
                 int xx = m + x + b - r;
-                if constexpr (Border) xx = xx < 0 ? 0 : (xx > W - 1 ? W - 1 : xx);
+                if constexpr (Border) xx = xx < 0 ? 0: (xx > W - 1 ? W - 1: xx);
                 const Src v = s->hptr()[(size_t)yy * srow + (size_t)xx * C + c];
                 const int kv = coef.k[a][b];
                 if constexpr (std::is_floating_point_v<Dst>)

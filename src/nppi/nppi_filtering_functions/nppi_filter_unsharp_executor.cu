@@ -1,6 +1,6 @@
 // Unsharp-mask filter executor (nppiFilterUnsharpBorder* /
 // nppiFilterUnsharpGetBufferSize*).  See nppi_filter_unsharp_executor.h for the
-// family contract and the 5090 probe references.
+// family contract and the reference measurement references.
 #include "npp.h"
 #include "nppi_filter_unsharp_executor.h"
 
@@ -38,7 +38,7 @@ inline DtypeTraits traits(UnsharpDtype dtype) {
 
 // Smallest radius r >= 1 whose normalised 2-D Gaussian tail is below eps.
 // The measured NPP 13.4 auto-radius behaviour follows this criterion for
-// 16u / 16s / 32f and for 8u up to sigma ~ 2 (probe_j part3, probe_p part3).
+// 16u / 16s / 32f and for 8u up to sigma ~ 2.
 inline int autoRadius(float sigma, double eps) {
   const double s2 = 2.0 * static_cast<double>(sigma) * static_cast<double>(sigma);
   // 1-D weights g_i = exp(-i^2 / (2 sigma^2)); the 2-D normalisation factor is
@@ -62,7 +62,7 @@ inline int autoRadius(float sigma, double eps) {
 
 inline int kernelRadius(float radius, float sigma, UnsharpDtype dtype) {
   if (radius > 0.0f) {
-    // k = 2*ceil(radius)+1 (probe_j part2: 0.5/1.0 -> 3, 1.5/2 -> 5, 3 -> 7).
+    // k = 2*ceil(radius)+1.
     const double c = std::ceil(static_cast<double>(radius));
     if (c > 4096.0) return 4096;
     return static_cast<int>(c);
@@ -85,7 +85,7 @@ inline void buildTaps(std::vector<float> &taps, int r, float sigma) {
     }
   }
   const double inv = 1.0 / sum;
-  for (auto &t : taps) t = static_cast<float>(static_cast<double>(t) * inv);
+  for (auto &t: taps) t = static_cast<float>(static_cast<double>(t) * inv);
 }
 
 // Saturating integer emission: C truncation toward zero, then clamping.
@@ -93,11 +93,11 @@ template <typename Dst>
 __host__ __device__ __forceinline__ Dst unsharp_emit(double v) {
   if (v != v) return Dst(0);  // NaN -> 0 (not reachable with finite inputs)
   if constexpr (std::is_same_v<Dst, Npp8u>) {
-    return v <= 0.0 ? (Npp8u)0 : (v >= 255.0 ? (Npp8u)255 : (Npp8u)(int)v);
+    return v <= 0.0 ? (Npp8u)0: (v >= 255.0 ? (Npp8u)255: (Npp8u)(int)v);
   } else if constexpr (std::is_same_v<Dst, Npp16u>) {
-    return v <= 0.0 ? (Npp16u)0 : (v >= 65535.0 ? (Npp16u)65535 : (Npp16u)(int)v);
+    return v <= 0.0 ? (Npp16u)0: (v >= 65535.0 ? (Npp16u)65535: (Npp16u)(int)v);
   } else if constexpr (std::is_same_v<Dst, Npp16s>) {
-    return v <= -32768.0 ? (Npp16s)-32768 : (v >= 32767.0 ? (Npp16s)32767 : (Npp16s)(int)v);
+    return v <= -32768.0 ? (Npp16s)-32768: (v >= 32767.0 ? (Npp16s)32767: (Npp16s)(int)v);
   } else {
     static_assert(sizeof(Dst) == 0, "unexpected integer destination type");
   }
@@ -111,8 +111,8 @@ template <typename T> __device__ __forceinline__ T load_unaligned(const char *p)
 }
 
 // Unsharp kernel.
-//   taps      : k x k normalised Gaussian in device memory (pDeviceBuffer)
-//   clamp box : [loX, hiX] x [loY, hiY] in pSrc-relative coordinates, with
+//   taps: k x k normalised Gaussian in device memory (pDeviceBuffer)
+//   clamp box: [loX, hiX] x [loY, hiY] in pSrc-relative coordinates, with
 //               lo = -oSrcOffset and hi = ROI-1-oSrcOffset.
 template <typename Src, typename Dst, int Channels, bool AlphaPr>
 __global__ void unsharp_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__restrict__ pDst, int nDstStep,
@@ -122,10 +122,10 @@ __global__ void unsharp_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *
   const int y = blockIdx.y * blockDim.y + threadIdx.y;
   if (x >= width || y >= height) return;
   const int r = k >> 1;
-  const int nch = AlphaPr ? 3 : Channels;
+  const int nch = AlphaPr ? 3: Channels;
   const char *const srcBase = reinterpret_cast<const char *>(pSrc);
-  const int cx = x < loX ? loX : (x > hiX ? hiX : x);
-  const int cy = y < loY ? loY : (y > hiY ? hiY : y);
+  const int cx = x < loX ? loX: (x > hiX ? hiX: x);
+  const int cy = y < loY ? loY: (y > hiY ? hiY: y);
   // Source steps are not required to be element-aligned (NPP accepts an odd
   // source step), so every sample is read byte-wise through memcpy; the MACA
   // device faults on unaligned 16/32-bit loads.
@@ -135,11 +135,11 @@ __global__ void unsharp_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *
   double acc[4] = {0.0, 0.0, 0.0, 0.0};
   for (int a = 0; a < k; ++a) {
     int ry = y + a - r;
-    ry = ry < loY ? loY : (ry > hiY ? hiY : ry);
+    ry = ry < loY ? loY: (ry > hiY ? hiY: ry);
     const char *row = srcBase + static_cast<std::ptrdiff_t>(ry) * nSrcStep;
     for (int b = 0; b < k; ++b) {
       int rx = x + b - r;
-      rx = rx < loX ? loX : (rx > hiX ? hiX : rx);
+      rx = rx < loX ? loX: (rx > hiX ? hiX: rx);
       const float t = taps[a * k + b];
       if (t == 0.0f) continue;
       const char *pix = row + (static_cast<std::ptrdiff_t>(rx) * Channels) * sizeof(Src);
@@ -172,7 +172,7 @@ __global__ void unsharp_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *
 
 inline NppStatus finish_launch(cudaStream_t stream) {
   cudaStreamSynchronize(stream);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 // Dst step validation (unsigned comparison, mirroring the fixed-filter family:
@@ -181,7 +181,7 @@ inline NppStatus finish_launch(cudaStream_t stream) {
 template <typename Dst, int Channels>
 NppStatus check_dst_step(int nDstStep, int roiWidth) {
   const int pix = static_cast<int>(sizeof(Dst)) * Channels;
-  const int align = Channels == 4 ? pix : static_cast<int>(sizeof(Dst));
+  const int align = Channels == 4 ? pix: static_cast<int>(sizeof(Dst));
   const unsigned uStep = static_cast<unsigned>(nDstStep);
   if (uStep < static_cast<unsigned>(roiWidth * pix)) return NPP_STEP_ERROR;
   if (uStep % static_cast<unsigned>(align) != 0) return NPP_NOT_EVEN_STEP_ERROR;
@@ -203,7 +203,7 @@ int unsharpBufferSize(float radius, float sigma, UnsharpDtype dtype) {
 NppStatus unsharpGetBufferSize(float radius, float sigma, UnsharpDtype dtype, int *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (radius < 0.0f) return NPP_SIZE_ERROR;
-  // Measured (5090, NPP 13.4): an explicit positive radius pins the window, so
+  // Measured (reference, NPP 13.4): an explicit positive radius pins the window, so
   // sigma == 0 is accepted here even though the filter itself rejects it.  A
   // sigma <= 0 with an auto radius is an error; NPP 13.4 never returns from
   // sigma == 0 (it hangs), so that case is reported as NPP_SIZE_ERROR.
@@ -277,7 +277,7 @@ NppStatus filterUnsharpBorder(const Src *pSrc, int nSrcStep, NppiPoint oSrcOffse
 }  // namespace nppi
 
 // ---------------------------------------------------------------------------
-// Explicit instantiations (f11 package: nppiFilterUnsharpBorder family).
+// Explicit instantiations.
 // ---------------------------------------------------------------------------
 #define NPPI_UNSHARP_INSTANTIATE(Src, Dst, Ch, Ac)                                                            \
   template NppStatus nppi::filter::filterUnsharpBorder<Src, Dst, Ch, Ac>(                                     \

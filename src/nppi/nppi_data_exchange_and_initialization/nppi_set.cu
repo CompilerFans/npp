@@ -45,7 +45,7 @@ NppStatus launchSetScalar(T nValue, T *pDst, int nDstStep, NppiSize oSizeROI, Np
   nppiSet_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(nValue, pDst, nDstStep, oSizeROI.width,
                                                                         oSizeROI.height);
 
-  return cudaGetLastError() == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 template <typename T, int CHANNELS>
@@ -63,7 +63,7 @@ NppStatus launchSetVector(const T *aValue, T *pDst, int nDstStep, NppiSize oSize
   nppiSet_CxR_kernel<T, CHANNELS><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(value, pDst, nDstStep,
                                                                                       oSizeROI.width, oSizeROI.height);
 
-  return cudaGetLastError() == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 extern "C" {

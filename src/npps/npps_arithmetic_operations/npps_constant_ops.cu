@@ -18,9 +18,8 @@ namespace ek = npps::elementwise::detail;
 
 namespace {
 
-// Kernel-launch error check moved to the shared header npp_kernel_utils.h
-// (package p0.1); re-exported here so the executors below keep using the
-// unqualified name.
+// Kernel-launch error check moved to the shared header npp_kernel_utils.h;
+// re-exported here so the executors below keep using the unqualified name.
 using npp_kernel::checkCudaKernelError;
 
 // Integer division with NPP's npps round-half-away-from-zero.  A zero
@@ -31,7 +30,7 @@ __device__ __host__ D div_round_even(long long num, long long den) {
     if (num == 0) return (D)0;
     if constexpr (std::is_signed_v<D>) {
       using L = std::numeric_limits<D>;
-      return num < 0 ? (D)L::lowest() : (D)L::max();
+      return num < 0 ? (D)L::lowest(): (D)L::max();
     } else {
       return (D)std::numeric_limits<D>::max();
     }
@@ -39,9 +38,9 @@ __device__ __host__ D div_round_even(long long num, long long den) {
   long long q = num / den;
   long long r = num % den;
   if (r != 0) {
-    long long ar = r < 0 ? -r : r;
-    long long ad = den < 0 ? -den : den;
-    int sign = ((num < 0) ^ (den < 0)) ? -1 : 1;
+    long long ar = r < 0 ? -r: r;
+    long long ad = den < 0 ? -den: den;
+    int sign = ((num < 0) ^ (den < 0)) ? -1: 1;
     if ((ar << 1) >= ad) q += sign;
   }
   return ek::sat_ll<D>(q);
@@ -206,7 +205,7 @@ struct DivCOp {
 };
 
 struct DivCRevOp {
-  // pDst = nValue / pSrc  (real signal forms only: _16u / _32f in this package)
+  // pDst = nValue / pSrc  (real signal forms only: _16u / _32f here)
   template <typename A, typename V, typename D>
   __device__ __host__ D apply(const A& a, const V& b, int sf) const {
     if constexpr (std::is_floating_point_v<D>) return (A)(ek::re_l(b) / ek::re_l(a));
@@ -236,24 +235,24 @@ struct XorCOp {
 struct MulCF2I16Op {
   template <typename A, typename V, typename D>
   __device__ __host__ D apply(const A& a, const V& b, int sf) const {
-    // NPP 13.4 (5090) computes the product in float32, rounds it half away
+    // NPP 13.4 (reference) computes the product in float32, rounds it half away
     // from zero to an integer, then scales half-to-even and saturates to
     // int16.  NaN maps to 0; infinities saturate by sign.
     const float v = (float)ek::re_l(a) * (float)ek::re_l(b);
     if (std::isnan(v)) return (D)0;
     if (std::isinf(v)) {
       using L = std::numeric_limits<D>;
-      return v > 0 ? (D)L::max() : (D)L::lowest();
+      return v > 0 ? (D)L::max(): (D)L::lowest();
     }
     if (v > 1.0e18f) return (D)std::numeric_limits<D>::max();
     if (v < -1.0e18f) return (D)std::numeric_limits<D>::lowest();
-    const long long i = (long long)(v >= 0.0f ? v + 0.5f : v - 0.5f);
+    const long long i = (long long)(v >= 0.0f ? v + 0.5f: v - 0.5f);
     return ek::scale_sat<D>(i, sf);
   }
 };
 
 struct MulCF2I64Op {
-  // NPP 13.4 algorithm (validated with a 204-point probe on the 5090):
+  // NPP 13.4 algorithm (validated with a 204-point measurement on the reference):
   //   1. round half away from zero to int64 (the in-place buffer holds int64),
   //   2. if sf > 0, bias by sign and arithmetic-shift: (i +/- 1) >> sf.
   template <typename A, typename V, typename D>
@@ -261,8 +260,8 @@ struct MulCF2I64Op {
     double p = (double)ek::re_ll(a) * (double)b;
     if (p > 9.0e18) p = 9.0e18;
     if (p < -9.0e18) p = -9.0e18;
-    long long i = static_cast<long long>(p >= 0.0 ? p + 0.5 : p - 0.5);
-    if (sf > 0) i = (i + (i >= 0 ? 1 : -1)) >> sf;
+    long long i = static_cast<long long>(p >= 0.0 ? p + 0.5: p - 0.5);
+    if (sf > 0) i = (i + (i >= 0 ? 1: -1)) >> sf;
     return ek::sat_ll<D>(i);
   }
 };
@@ -276,10 +275,10 @@ struct MulCLowOp {
     const float v = (float)ek::re_l(a) * (float)ek::re_l(b);
     if (std::isnan(v)) return (D)0;
     if (std::isinf(v))
-      return v > 0 ? (D)std::numeric_limits<D>::max() : (D)std::numeric_limits<D>::lowest();
+      return v > 0 ? (D)std::numeric_limits<D>::max(): (D)std::numeric_limits<D>::lowest();
     if (v > 1.0e18f) return (D)std::numeric_limits<D>::max();
     if (v < -1.0e18f) return (D)std::numeric_limits<D>::lowest();
-    const long long i = (long long)(v >= 0.0f ? v + 0.5f : v - 0.5f);
+    const long long i = (long long)(v >= 0.0f ? v + 0.5f: v - 0.5f);
     return ek::sat_ll<D>(i);
   }
 };

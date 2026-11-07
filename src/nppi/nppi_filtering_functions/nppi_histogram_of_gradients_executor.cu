@@ -1,6 +1,6 @@
 // HOG (HistogramOfGradientsBorder) executor.
 //
-// Semantics measured on NVIDIA NPP 13.4 / RTX 5090 (probes hog1..hog5):
+// Semantics measured on NVIDIA NPP 13.4 / reference (measurements hog1..hog5):
 //   * gradients are the centered [-1,0,+1] differences with REPLICATE
 //     clamping at the SOURCE IMAGE bounds (not at the ROI);
 //   * the unsigned gradient orientation is atan2(gy,gx) in degrees, negative
@@ -16,7 +16,7 @@
 //     magnitude (ties are resolved by the first channel).
 //
 // The exact inlined atan approximation NPP uses is not reproduced bit-for-bit;
-// for axis-aligned and 45-degree gradients (the differential test images) the
+// for axis-aligned and 45-degree gradients (the reference comparison images) the
 // results agree to float rounding.
 #include "npp.h"
 
@@ -30,8 +30,8 @@ namespace {
 template <typename Src, int Channels>
 __device__ __forceinline__ float sampleChannel(const Src *pSrc, int nSrcStep, int x, int y, int channel,
                                                int loX, int hiX, int loY, int hiY) {
-  x = x < loX ? loX : (x > hiX ? hiX : x);
-  y = y < loY ? loY : (y > hiY ? hiY : y);
+  x = x < loX ? loX: (x > hiX ? hiX: x);
+  y = y < loY ? loY: (y > hiY ? hiY: y);
   const Src *row = reinterpret_cast<const Src *>(reinterpret_cast<const char *>(pSrc) +
                                                  static_cast<long long>(y) * nSrcStep);
   return static_cast<float>(row[static_cast<long long>(x) * Channels + channel]);
@@ -133,7 +133,7 @@ __global__ void hogKernel(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, Nppi
         }
       }
     }
-    blockMax[b] = maximum > 0.0f ? maximum : 1.0f;
+    blockMax[b] = maximum > 0.0f ? maximum: 1.0f;
   }
   __syncthreads();
 
@@ -242,7 +242,7 @@ NppStatus hogLaunch(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint 
       pSrc, nSrcStep, oSrcSize, oSrcOffset, dLocations, pDstWindowDescriptorBuffer, oHOGConfig);
   const cudaError_t error = cudaGetLastError();
   cudaFree(dLocations);
-  return error == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return error == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 }  // namespace
@@ -312,4 +312,3 @@ NppStatus nppiHistogramOfGradientsBorder_32f_C1R_Ctx_impl(const Npp32f * pSrc, i
 NppStatus nppiHistogramOfGradientsBorder_32f_C3R_Ctx_impl(const Npp32f * pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset, const NppiPoint * hpLocations, int nLocations, Npp32f * pDstWindowDescriptorBuffer, NppiSize oSizeROI, const NppiHOGConfig oHOGConfig, Npp8u * pScratchBuffer, NppiBorderType eBorderType, NppStreamContext nppStreamCtx) {
   return nppiHistogramOfGradientsBorder_32f_C3R_Ctx(pSrc, nSrcStep, oSrcSize, oSrcOffset, hpLocations, nLocations, pDstWindowDescriptorBuffer, oSizeROI, oHOGConfig, pScratchBuffer, eBorderType, nppStreamCtx);
 }
-

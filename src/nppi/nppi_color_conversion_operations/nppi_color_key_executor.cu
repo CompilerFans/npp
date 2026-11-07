@@ -23,10 +23,10 @@ __device__ __forceinline__ int rhdDiv(int n, int d) {
 }
 
 __device__ __forceinline__ int clamp255(int v) {
-  return v < 0 ? 0 : (v > 255 ? 255 : v);
+  return v < 0 ? 0: (v > 255 ? 255: v);
 }
 
-// dst = (src1 == key on every channel) ? src2 : src1
+// dst = (src1 == key on every channel) ? src2: src1
 template <typename T, int Channels>
 __global__ void compColorKeyKernel(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, T *pDst,
                                    int nDstStep, NppiSize oSizeROI, ColorKeyVec<T, Channels> key) {
@@ -43,7 +43,7 @@ __global__ void compColorKeyKernel(const T *pSrc1, int nSrc1Step, const T *pSrc2
   for (int c = 0; c < Channels; ++c) {
     match = match && (src1[c] == key.v[c]);
   }
-  const T *from = match ? src2 : src1;
+  const T *from = match ? src2: src1;
 #pragma unroll
   for (int c = 0; c < Channels; ++c) {
     dst[c] = from[c];
@@ -51,7 +51,7 @@ __global__ void compColorKeyKernel(const T *pSrc1, int nSrc1Step, const T *pSrc2
 }
 
 
-// Blend coefficients, measured on the RTX 5090 for
+// Blend coefficients, measured in the reference implementation for
 // nppiAlphaCompColorKey_8u_AC4R_Ctx: the per-image opacities are fixed-point
 // values in [0, 256/256] where a raw alpha of 255 is promoted to 256 (i.e.
 // exactly 1.0), and the products are rounded half-down to a coefficient in
@@ -71,13 +71,13 @@ struct AlphaCoeffs {
 
 __device__ __forceinline__ AlphaCoeffs alphaCoeffs(int nAlpha1, int nAlpha2) {
   AlphaCoeffs k;
-  k.a1 = nAlpha1 == 255 ? 256 : nAlpha1;
-  k.a2 = nAlpha2 == 255 ? 256 : nAlpha2;
+  k.a1 = nAlpha1 == 255 ? 256: nAlpha1;
+  k.a2 = nAlpha2 == 255 ? 256: nAlpha2;
   k.c2 = rhdDiv((256 - k.a1) * k.a2, 256);
   k.c1 = rhdDiv(k.a1 * k.a2, 256);
   k.c0 = rhdDiv(k.a1 * (256 - k.a2), 256);
-  k.c0x = k.c0 > 255 ? 255 : k.c0;
-  k.c2x = k.c2 > 255 ? 255 : k.c2;
+  k.c0x = k.c0 > 255 ? 255: k.c0;
+  k.c2x = k.c2 > 255 ? 255: k.c2;
   return k;
 }
 
@@ -108,7 +108,7 @@ __device__ __forceinline__ int alphaBlendChannel(int op, const AlphaCoeffs &k, i
   return clamp255(r);
 }
 
-// dst.rgb = (src1 == key) ? src2.rgb : blend(src1, src2); dst.alpha is only
+// dst.rgb = (src1 == key) ? src2.rgb: blend(src1, src2); dst.alpha is only
 // written for key matches (copied from src2), otherwise left untouched.
 template <typename T, int Channels>
 __global__ void alphaCompColorKeyKernel(const T *pSrc1, int nSrc1Step, int nAlpha1, const T *pSrc2, int nSrc2Step,
@@ -142,7 +142,7 @@ __global__ void alphaCompColorKeyKernel(const T *pSrc1, int nSrc1Step, int nAlph
   }
 }
 
-// Shared step validation, measured on the 5090 for both families:
+// Shared step validation, measured on the reference for both families:
 //   * step == 0 -> NPP_STEP_ERROR (an empty ROI returns before this);
 //   * the comparison against the ROI row length is UNSIGNED, so a negative
 //     step passes; 4-byte pixel layouts then require step % 4 == 0
@@ -174,7 +174,7 @@ NppStatus validateSteps(int nSrc1Step, int nSrc2Step, int nDstStep, int minStep,
 // Step alignment requirement of a pixel layout: 4-byte pixels must land on a
 // 4-byte row boundary, 3-byte (8u C3) pixels are unrestricted.
 constexpr int stepAlignment(int channels, int typeSize) {
-  return (channels * typeSize) % 4 == 0 ? 4 : 1;
+  return (channels * typeSize) % 4 == 0 ? 4: 1;
 }
 
 }  // namespace

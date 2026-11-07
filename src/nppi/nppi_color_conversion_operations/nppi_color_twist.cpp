@@ -2,8 +2,7 @@
 //
 // These were originally hand-written kernels with divergent semantics; they
 // now delegate to the shared colortwist executor, whose behaviour is pinned
-// by the recorded NVIDIA NPP 13.4 (RTX 5090) goldens
-// (test/unit/diff/test_nppi_color_twist32f_generated.cpp):
+// by the reference outputs of NVIDIA NPP 13.4:
 //   * missing input channels read as 0 (no replication)
 //   * C4 alpha copied, AC4 alpha untouched
 //   * integer outputs: truncate toward zero, then saturate to the dtype range;

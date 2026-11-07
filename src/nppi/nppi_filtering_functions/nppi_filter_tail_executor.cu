@@ -15,7 +15,7 @@ constexpr int kBlockX = 16;
 constexpr int kBlockY = 16;
 
 __host__ __device__ __forceinline__ int clampi(int v, int lo, int hi) {
-  return v < lo ? lo : (v > hi ? hi : v);
+  return v < lo ? lo: (v > hi ? hi: v);
 }
 
 __host__ __device__ __forceinline__ int mirror_index(int i, int dim) {
@@ -31,7 +31,7 @@ __host__ __device__ __forceinline__ int mirror_index(int i, int dim) {
 __host__ __device__ __forceinline__ int border_index(int i, int lo, int hi, bool mirror) {
   if (lo > hi) return lo;
   if (mirror) return mirror_index(i - lo, hi - lo + 1) + lo;
-  return i < lo ? lo : (i > hi ? hi : i);
+  return i < lo ? lo: (i > hi ? hi: i);
 }
 
 template <typename T>
@@ -105,7 +105,7 @@ __global__ void bilateralKernel(const Src *pSrc, int nSrcStep, int srcW, int src
     // NPP 13.4 snaps only the horizontal coordinate to the
     // nStepBetweenSrcPixels grid (measured with step 2: the vertical coordinate
     // stays untouched), so the sampler reproduces that quirk.
-    const int cx = (step > 1) ? border_index((x + step / 2) / step * step, loX, hiX, mirror) : x;
+    const int cx = (step > 1) ? border_index((x + step / 2) / step * step, loX, hiX, mirror): x;
     const float s00 = fetch(cx, y);
     float num = 0.0f, den = 0.0f;
     for (int h = -radius; h <= radius; ++h) {
@@ -121,7 +121,7 @@ __global__ void bilateralKernel(const Src *pSrc, int nSrcStep, int srcW, int src
         den += ww;
       }
     }
-    const float value = den != 0.0f ? num / den : s00;
+    const float value = den != 0.0f ? num / den: s00;
     Dst *row = reinterpret_cast<Dst *>(reinterpret_cast<char *>(pDst) + (long long)y * nDstStep);
     row[(long long)x * CH + ch] = emit<Dst>(value);
   }
@@ -153,7 +153,7 @@ __global__ void thresholdAdaptiveBoxKernel(const Npp8u *pSrc, int nSrcStep, int 
   }
   const float avg = sum / (float)(maskW * maskH);
   Npp8u *out = reinterpret_cast<Npp8u *>(reinterpret_cast<char *>(pDst) + (long long)y * nDstStep);
-  out[x] = (srcVal > avg - delta) ? gt : le;
+  out[x] = (srcVal > avg - delta) ? gt: le;
 }
 
 // -------------------------------------------------------------- Harris corners
@@ -222,7 +222,7 @@ __global__ void harrisKernel(const Npp8u *pSrc, int nSrcStep, int srcW, int srcH
   for (int j = -ar; j <= ar; ++j) {
     for (int i = -ar; i <= ar; ++i) {
       // The averaging window clamps the *sample position* to the image first
-      // and then computes the gradient there (probe-verified: clamping only
+      // and then computes the gradient there (measured: clamping only
       // the individual gradient taps gives different border responses).
       const int px = border_index(x + i, loX, hiX, false);
       const int py = border_index(y + j, loY, hiY, false);
@@ -276,7 +276,7 @@ NppStatus bilateralGaussBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize,
       pSrc, nSrcStep, oSrcSize.width, oSrcSize.height, oSrcOffset.x, oSrcOffset.y, pDst, nDstStep,
       oSizeROI.width, oSizeROI.height, nRadius, nStepBetweenSrcPixels, nValSquareSigma,
       nPosSquareSigma, (int)eBorderType);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus thresholdAdaptiveBoxBorder(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize,
@@ -306,7 +306,7 @@ NppStatus thresholdAdaptiveBoxBorder(const Npp8u *pSrc, int nSrcStep, NppiSize o
       pSrc, nSrcStep, oSrcSize.width, oSrcSize.height, oSrcOffset.x, oSrcOffset.y, pDst, nDstStep,
       oSizeROI.width, oSizeROI.height, oMaskSize.width, oMaskSize.height, nDelta, nValGT, nValLE,
       (int)eBorderType);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus harrisCornersBorder(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize,
@@ -319,12 +319,8 @@ NppStatus harrisCornersBorder(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize
   if (eFilterType != NPP_FILTER_SOBEL && eFilterType != NPP_FILTER_SCHARR) {
     return NPP_BAD_ARGUMENT_ERROR;
   }
-  const int maskSize = (eMaskSize == NPP_MASK_SIZE_3_X_3)   ? 3
-                       : (eMaskSize == NPP_MASK_SIZE_5_X_5) ? 5
-                                                            : 0;
-  const int avgSize = (eAvgWindowSize == NPP_MASK_SIZE_3_X_3)   ? 3
-                      : (eAvgWindowSize == NPP_MASK_SIZE_5_X_5) ? 5
-                                                                : 0;
+  const int maskSize = (eMaskSize == NPP_MASK_SIZE_3_X_3)   ? 3: (eMaskSize == NPP_MASK_SIZE_5_X_5) ? 5: 0;
+  const int avgSize = (eAvgWindowSize == NPP_MASK_SIZE_3_X_3)   ? 3: (eAvgWindowSize == NPP_MASK_SIZE_5_X_5) ? 5: 0;
   if (maskSize == 0 || avgSize == 0) return NPP_MASK_SIZE_ERROR;
   if (eFilterType == NPP_FILTER_SCHARR && maskSize != 3) return NPP_MASK_SIZE_ERROR;
   if (oSrcSize.width <= 0 || oSrcSize.height <= 0) return NPP_SIZE_ERROR;
@@ -345,7 +341,7 @@ NppStatus harrisCornersBorder(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize
       pSrc, nSrcStep, oSrcSize.width, oSrcSize.height, oSrcOffset.x, oSrcOffset.y, pDst, nDstStep,
       oSizeROI.width, oSizeROI.height, maskSize, eFilterType == NPP_FILTER_SCHARR, avgSize, nK,
       nScale);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 template NppStatus bilateralGaussBorder<Npp8u, Npp8u, 1>(const Npp8u *, int, NppiSize, NppiPoint,

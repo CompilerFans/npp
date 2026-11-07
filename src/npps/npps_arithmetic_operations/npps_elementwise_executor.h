@@ -3,19 +3,19 @@
 // Shared 1D element-wise executor for the npps arithmetic families
 // (nppsAdd / nppsSub / nppsMul / nppsDiv / nppsAddProduct / nppsDiv_Round).
 //
-// Host-visible surface (safe for plain .cpp translation units):
+// Host-visible surface (safe for plain.cpp translation units):
 //   * type traits (is_complex_v, component_t_ty)
 //   * executor entry-point templates (declared here, defined in
 //     npps_binary_ops.cu and explicitly instantiated there).
 //
 // GPU-only kernels / functors live under #if defined(__CUDACC__).
 //
-// Semantics (validated against NVIDIA NPP 13.4 by differential tests):
-//   * out-of-place binary : pDst = op(pSrc1, pSrc2)
+// Semantics (validated against NVIDIA NPP 13.4 by reference comparisons):
+//   * out-of-place binary: pDst = op(pSrc1, pSrc2)
 //   * in-place  (_I/_ISfs): pSrcDst = op(pSrcDst, pSrc)
-//   * nppsAddProduct      : pDst   = pDst + pSrc1 * pSrc2     (accumulate)
-//   * nppsDiv             : pDst   = pSrc2 / pSrc1  (pSrc1 is the divisor)
-//   * nppsDiv_Round       : pDst   = round(pSrc2 / pSrc1, nRndMode) then scale
+//   * nppsAddProduct: pDst   = pDst + pSrc1 * pSrc2     (accumulate)
+//   * nppsDiv: pDst   = pSrc2 / pSrc1  (pSrc1 is the divisor)
+//   * nppsDiv_Round: pDst   = round(pSrc2 / pSrc1, nRndMode) then scale
 //
 // Integer results are computed in a 64-bit accumulator and saturated to the
 // destination type. nScaleFactor is a right shift ("integer result scaling").
@@ -36,15 +36,15 @@ namespace elementwise {
 // ---------------------------------------------------------------------------
 // Host-safe type traits
 // ---------------------------------------------------------------------------
-template <typename T> struct is_complex_t : std::false_type {};
-template <> struct is_complex_t<Npp8uc> : std::true_type {};
-template <> struct is_complex_t<Npp16uc> : std::true_type {};
-template <> struct is_complex_t<Npp16sc> : std::true_type {};
-template <> struct is_complex_t<Npp32uc> : std::true_type {};
-template <> struct is_complex_t<Npp32sc> : std::true_type {};
-template <> struct is_complex_t<Npp32fc> : std::true_type {};
-template <> struct is_complex_t<Npp64sc> : std::true_type {};
-template <> struct is_complex_t<Npp64fc> : std::true_type {};
+template <typename T> struct is_complex_t: std::false_type {};
+template <> struct is_complex_t<Npp8uc>: std::true_type {};
+template <> struct is_complex_t<Npp16uc>: std::true_type {};
+template <> struct is_complex_t<Npp16sc>: std::true_type {};
+template <> struct is_complex_t<Npp32uc>: std::true_type {};
+template <> struct is_complex_t<Npp32sc>: std::true_type {};
+template <> struct is_complex_t<Npp32fc>: std::true_type {};
+template <> struct is_complex_t<Npp64sc>: std::true_type {};
+template <> struct is_complex_t<Npp64fc>: std::true_type {};
 template <typename T> constexpr bool is_complex_v = is_complex_t<T>::value;
 
 template <typename T> struct component_t { using type = T; };
@@ -60,11 +60,11 @@ template <typename T> using component_t_ty = typename component_t<T>::type;
 
 // ---------------------------------------------------------------------------
 // Executor entry points
-//   binary             : out-of-place d[i] = F::apply(a[i], b[i], scale)
-//   binaryInplace      : in-place      d[i] = F::apply(d[i], a[i], scale)
-//   binaryAccum        : accumulate    d[i] += F::null(a[i] * b[i], scale)
-//   binaryRound        : out-of-place  d[i] = F::apply_div(dividend, divisor, mode, scale)
-//   binaryRoundAccum   : in-place      d[i] = F::apply_div(d[i], a[i], mode, scale)
+//   binary: out-of-place d[i] = F::apply(a[i], b[i], scale)
+//   binaryInplace: in-place      d[i] = F::apply(d[i], a[i], scale)
+//   binaryAccum: accumulate    d[i] += F::null(a[i] * b[i], scale)
+//   binaryRound: out-of-place  d[i] = F::apply_div(dividend, divisor, mode, scale)
+//   binaryRoundAccum: in-place      d[i] = F::apply_div(d[i], a[i], mode, scale)
 // ---------------------------------------------------------------------------
 
 template <typename F, typename A, typename B, typename D>
@@ -91,7 +91,7 @@ namespace detail {
 constexpr int kBlock = 256;
 
 // Kernel-launch error check (clear any stale error, launch, then re-check)
-// moved to the shared header npp_kernel_utils.h (package p0.1); re-exported
+// moved to the shared header npp_kernel_utils.h; re-exported
 // here so this family's call sites keep using the unqualified name.
 using npp_kernel::checkCudaKernelError;
 
@@ -155,13 +155,13 @@ __device__ __forceinline__ long double im_l(const Npp32f& v) { (void)v; return 0
 __device__ __forceinline__ long double im_l(const Npp64f& v) { (void)v; return 0; }
 
 template <typename T> __device__ __host__ __forceinline__ T sat_ll(long long v) {
-  if constexpr (std::is_same_v<T, Npp8u>)  { return static_cast<T>(v < 0 ? 0 : (v > 255 ? 255 : v)); }
-  else if constexpr (std::is_same_v<T, Npp8s>)     { return static_cast<T>(v < -128 ? -128 : (v > 127 ? 127 : v)); }
-  else if constexpr (std::is_same_v<T, Npp16u>)    { return static_cast<T>(v < 0 ? 0 : (v > 65535 ? 65535 : v)); }
-  else if constexpr (std::is_same_v<T, Npp16s>)    { return static_cast<T>(v < -32768 ? -32768 : (v > 32767 ? 32767 : v)); }
-  else if constexpr (std::is_same_v<T, Npp32u>)    { return static_cast<T>(v < 0 ? 0 : (v > 4294967295LL ? 4294967295LL : v)); }
-  else if constexpr (std::is_same_v<T, Npp32s>)    { return static_cast<T>(v < -2147483648LL ? -2147483648LL : (v > 2147483647LL ? 2147483647LL : v)); }
-  else if constexpr (std::is_same_v<T, Npp64u>)    { return static_cast<T>(v < 0 ? 0 : v); }
+  if constexpr (std::is_same_v<T, Npp8u>)  { return static_cast<T>(v < 0 ? 0: (v > 255 ? 255: v)); }
+  else if constexpr (std::is_same_v<T, Npp8s>)     { return static_cast<T>(v < -128 ? -128: (v > 127 ? 127: v)); }
+  else if constexpr (std::is_same_v<T, Npp16u>)    { return static_cast<T>(v < 0 ? 0: (v > 65535 ? 65535: v)); }
+  else if constexpr (std::is_same_v<T, Npp16s>)    { return static_cast<T>(v < -32768 ? -32768: (v > 32767 ? 32767: v)); }
+  else if constexpr (std::is_same_v<T, Npp32u>)    { return static_cast<T>(v < 0 ? 0: (v > 4294967295LL ? 4294967295LL: v)); }
+  else if constexpr (std::is_same_v<T, Npp32s>)    { return static_cast<T>(v < -2147483648LL ? -2147483648LL: (v > 2147483647LL ? 2147483647LL: v)); }
+  else if constexpr (std::is_same_v<T, Npp64u>)    { return static_cast<T>(v < 0 ? 0: v); }
   else if constexpr (std::is_same_v<T, Npp64s>)    { return static_cast<T>(v); }
   else if constexpr (is_complex_t<T>::value)       { return T{static_cast<component_t_ty<T>>(v), 0}; }
   else { return static_cast<T>(v); }
@@ -178,7 +178,7 @@ __device__ __host__ __forceinline__ long long round_even(double v) {
 }
 
 // Default Sfs scaling: divide by 2^sf with round-half-to-even, then saturate.
-// (Validated against NVIDIA NPP 13.4: NPP rounds the .5 boundary to the
+// (Validated against NVIDIA NPP 13.4: NPP rounds the.5 boundary to the
 // nearest even integer, i.e. banker's rounding.)
 template <typename D> __device__ __host__ __forceinline__ D scale_sat(long long v, int sf) {
   if (sf > 0) {
@@ -186,8 +186,8 @@ template <typename D> __device__ __host__ __forceinline__ D scale_sat(long long 
     long long q = v / d;
     const long long rem = v % d;
     if (rem != 0) {
-      const long long ar = rem < 0 ? -rem : rem;
-      const int sign = v < 0 ? -1 : 1;
+      const long long ar = rem < 0 ? -rem: rem;
+      const int sign = v < 0 ? -1: 1;
       if ((ar << 1) > d) q += sign;
       else if ((ar << 1) == d && (q & 1LL)) q += sign;
     }
@@ -197,7 +197,7 @@ template <typename D> __device__ __host__ __forceinline__ D scale_sat(long long 
 }
 
 // nppsDiv / nppsDivC integer semantics (validated against NPP 13.4 on the
-// 5090).  The first API operand is the divisor.  At sf == 0 the 8u and 32s
+// reference).  The first API operand is the divisor.  At sf == 0 the 8u and 32s
 // paths truncate toward zero while the 16-bit paths round half away from
 // zero; at sf > 0 all paths round half to even.  Zero divisors have
 // type-specific saturation quirks (notably 32s at sf == 1).
@@ -208,13 +208,13 @@ __device__ __host__ __forceinline__ D div_sfs(long long num, long long den, int 
     if constexpr (std::is_same_v<D, Npp32s>) {
       if (sf == 0) {
         if (num == 0) return (D)0;
-        return num < 0 ? (D)L::lowest() : (D)L::max();
+        return num < 0 ? (D)L::lowest(): (D)L::max();
       }
-      if (sf == 1) return (num == 0 || num == 1) ? (D)1 : (D)0;
+      if (sf == 1) return (num == 0 || num == 1) ? (D)1: (D)0;
       return (D)0;
     } else {
       if (num == 0) return (D)0;
-      if constexpr (std::is_signed_v<D>) return num < 0 ? (D)L::lowest() : (D)L::max();
+      if constexpr (std::is_signed_v<D>) return num < 0 ? (D)L::lowest(): (D)L::max();
       else return (D)L::max();
     }
   }
@@ -226,9 +226,9 @@ __device__ __host__ __forceinline__ D div_sfs(long long num, long long den, int 
     q = num / den;
     const long long r = num % den;
     if (r != 0) {
-      const long long ar = r < 0 ? -r : r;
-      const long long ad = den < 0 ? -den : den;
-      const int sign = ((num < 0) ^ (den < 0)) ? -1 : 1;
+      const long long ar = r < 0 ? -r: r;
+      const long long ad = den < 0 ? -den: den;
+      const int sign = ((num < 0) ^ (den < 0)) ? -1: 1;
       if ((ar << 1) >= ad) q += sign;
     }
     return sat_ll<D>(q);
@@ -237,14 +237,14 @@ __device__ __host__ __forceinline__ D div_sfs(long long num, long long den, int 
     if (sf == 2) {
       // NPP's 32s sf=2 path biases positive quotients by 2*den, then does an
       // exact half-to-even division by 4*den.
-      const long long adj = (num != 0 && ((num > 0) == (den > 0))) ? num - 2 * den : num;
+      const long long adj = (num != 0 && ((num > 0) == (den > 0))) ? num - 2 * den: num;
       const long long d2 = den * 4;
       long long q2 = adj / d2;
       const long long r2 = adj % d2;
       if (r2 != 0) {
-        const long long ar = r2 < 0 ? -r2 : r2;
-        const long long ad = d2 < 0 ? -d2 : d2;
-        const int sign = ((adj < 0) ^ (d2 < 0)) ? -1 : 1;
+        const long long ar = r2 < 0 ? -r2: r2;
+        const long long ad = d2 < 0 ? -d2: d2;
+        const int sign = ((adj < 0) ^ (d2 < 0)) ? -1: 1;
         if ((ar << 1) > ad || ((ar << 1) == ad && (q2 & 1LL))) q2 += sign;
       }
       return sat_ll<D>(q2);
@@ -254,9 +254,9 @@ __device__ __host__ __forceinline__ D div_sfs(long long num, long long den, int 
   q = num / d;
   const long long r = num % d;
   if (r != 0) {
-    const long long ar = r < 0 ? -r : r;
-    const long long ad = d < 0 ? -d : d;
-    const int sign = ((num < 0) ^ (d < 0)) ? -1 : 1;
+    const long long ar = r < 0 ? -r: r;
+    const long long ad = d < 0 ? -d: d;
+    const int sign = ((num < 0) ^ (d < 0)) ? -1: 1;
     if ((ar << 1) > ad || ((ar << 1) == ad && (q & 1LL))) q += sign;
   }
   return sat_ll<D>(q);
@@ -273,18 +273,18 @@ template <typename D> __device__ __host__ __forceinline__ D scale_sat_r(long lon
   long long r;
   switch (mode) {
     case NPP_RND_FINANCIAL:
-      r = static_cast<long long>(scaled >= 0.0 ? scaled + 0.5 : scaled - 0.5);
+      r = static_cast<long long>(scaled >= 0.0 ? scaled + 0.5: scaled - 0.5);
       break;
     case NPP_RND_ZERO:
       r = static_cast<long long>(scaled);
       break;
-    default: { // NPP_RND_NEAR : nearest, ties to even
+    default: { // NPP_RND_NEAR: nearest, ties to even
       const double av = fabs(scaled);
       const double lo = floor(av);
       const double frac = av - lo;
       long long m = static_cast<long long>(lo);
       const bool up = (frac > 0.5) || (frac == 0.5 && (m & 1LL));
-      r = (scaled < 0.0) ? -(m + (up ? 1 : 0)) : (m + (up ? 1 : 0));
+      r = (scaled < 0.0) ? -(m + (up ? 1: 0)): (m + (up ? 1: 0));
       break;
     }
   }
@@ -327,7 +327,7 @@ __global__ void binary_inplace_round_kernel(const A* a, D* d, NppSignalLength n,
   if (i < (size_t)n) d[i] = op.template apply_div<D, A, D>(d[i], a[i], m, sf);
 }
 
-// -- 128-bit packet kernels (package opt_elem) -------------------------------
+// -- 128-bit packet kernels -------------------------------
 // Flat 1D grid-stride versions of the kernels above. The launch helpers below
 // dispatch to them only when every element type has the same size (so one
 // packet layout serves all pointers), every base pointer is 16B-aligned and
@@ -445,8 +445,7 @@ __global__ void binary_inplace_round_vec_kernel(const A* a, D* d, unsigned packe
 
 namespace detail {
 
-// Host-side dispatch helpers for the 128-bit packet kernels above (package
-// opt_elem). Each returns true when the vectorized kernel was launched; the
+// Host-side dispatch helpers for the 128-bit packet kernels above. Each returns true when the vectorized kernel was launched; the
 // caller then skips the original scalar launch. Guards: same-size element
 // types (compile time; mixed-width combos such as 16s16s32f keep the scalar
 // kernels), 16B-aligned base pointers, at least one full packet, and 32-bit
@@ -707,8 +706,7 @@ struct DivRoundOp {
       if (bv == 0) {
         if (num == 0) return (D)0;
         if constexpr (std::is_signed_v<D>)
-          return num < 0 ? (D)std::numeric_limits<D>::lowest()
-                         : (D)std::numeric_limits<D>::max();
+          return num < 0 ? (D)std::numeric_limits<D>::lowest(): (D)std::numeric_limits<D>::max();
         else
           return (D)std::numeric_limits<D>::max();
       }
@@ -718,12 +716,11 @@ struct DivRoundOp {
       long long q = num / den;
       const long long r = num % den;
       if (r != 0 && mode != NPP_RND_ZERO) {
-        const long long ar = r < 0 ? -r : r;
-        const long long ad = den < 0 ? -den : den;
-        const int sign = ((num < 0) ^ (den < 0)) ? -1 : 1;
+        const long long ar = r < 0 ? -r: r;
+        const long long ad = den < 0 ? -den: den;
+        const int sign = ((num < 0) ^ (den < 0)) ? -1: 1;
         const bool up = mode == NPP_RND_FINANCIAL
-                            ? ((ar << 1) >= ad)
-                            : ((ar << 1) > ad || ((ar << 1) == ad && (q & 1LL)));
+                            ? ((ar << 1) >= ad): ((ar << 1) > ad || ((ar << 1) == ad && (q & 1LL)));
         if (up) q += sign;
       }
       return detail::sat_ll<D>(q);

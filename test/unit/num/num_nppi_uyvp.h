@@ -1,4 +1,4 @@
-// CPU-golden coverage for the NPP 13.4 UYVP_10u conversions.
+// CPU-reference output coverage for the NPP 13.4 UYVP_10u conversions.
 //
 // Packed UYVP holds one 4:2:2 group in 5 bytes as four little-endian 10-bit
 // fields U, Y0, V, Y1.  Planar UYVP stores luma per pixel and chroma per
@@ -52,7 +52,7 @@ inline float add32(float a, float b) { return std::fma(a, 1.0f, b); }
 inline float q10f(float v) {
   if (v != v) return 0;
   float t = add32(v, 0.5f);
-  t = t < 0.0f ? 0.0f : (t > 1023.0f ? 1023.0f : t);
+  t = t < 0.0f ? 0.0f: (t > 1023.0f ? 1023.0f: t);
   return (float)(unsigned int)t;
 }
 
@@ -62,8 +62,8 @@ inline T qout(float v) {
   else {
     if (v != v) return 0;
     float t = add32(v, 0.5f);
-    const float mx = std::is_same_v<T, Npp8u> ? 255.0f : 65535.0f;
-    t = t < 0.0f ? 0.0f : (t > mx ? mx : t);
+    const float mx = std::is_same_v<T, Npp8u> ? 255.0f: 65535.0f;
+    t = t < 0.0f ? 0.0f: (t > mx ? mx: t);
     return (T)(unsigned int)t;
   }
 }
@@ -87,7 +87,7 @@ inline float to10(float v) {
   if constexpr (std::is_same_v<T, Npp8u>) return mul32(v, 4.0f);
   else if constexpr (std::is_same_v<T, Npp16u>) return mul32(v, 0.015609979629516601562f);
   else {
-    v = v < 0.0f ? 0.0f : (v > 1.0f ? 1.0f : v);
+    v = v < 0.0f ? 0.0f: (v > 1.0f ? 1.0f: v);
     return mul32(v, 1023.0f);
   }
 }
@@ -140,8 +140,8 @@ void run_uyvp_decode(const char *id, int cs, T alpha, Call call) {
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {32, 24}, {64, 48}, {16, 12}, {128, 96}};
   const Coefs cf = coefs(cs);
-  const int C = Mode == 1 ? 4 : 3;
-  for (const Cfg &c : cfgs) {
+  const int C = Mode == 1 ? 4: 3;
+  for (const Cfg &c: cfgs) {
     const int sstep = align16((size_t)(c.w / 2) * 5);
     const int dstep = align16((size_t)c.w * C * sizeof(T));
     Buf<Npp8u> src(c.w / 2, c.h, 5, 0, 0);
@@ -149,7 +149,7 @@ void run_uyvp_decode(const char *id, int cs, T alpha, Call call) {
     src.dev.copyFromHost(src.host);
     Buf<T> d(c.w, c.h, C, 0, 0x5A);
     d.dev.copyFromHost(d.host);
-    const int pad = Mode == 2 ? dstep - align16((size_t)c.w * sizeof(T)) : 0;
+    const int pad = Mode == 2 ? dstep - align16((size_t)c.w * sizeof(T)): 0;
     Buf<T> d1(c.w, c.h, 1, pad, 0x33), d2(c.w, c.h, 1, pad, 0x33);
     d1.dev.copyFromHost(d1.host);
     d2.dev.copyFromHost(d2.host);
@@ -183,7 +183,7 @@ void run_uyvp_decode(const char *id, int cs, T alpha, Call call) {
         uint64_t g = 0;
         for (int i = 0; i < 5; ++i) g |= (uint64_t)p[i] << (8 * i);
         const float u = (float)(g & 0x3FF);
-        const float yv = (float)((g >> ((x & 1) ? 30 : 10)) & 0x3FF);
+        const float yv = (float)((g >> ((x & 1) ? 30: 10)) & 0x3FF);
         const float v = (float)((g >> 20) & 0x3FF);
         float r, gg, b;
         decode10(cf, yv, u, v, r, gg, b);
@@ -241,13 +241,13 @@ void run_uyvp_encode(const char *id, int cs, Call call) {
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {32, 24}, {64, 48}, {16, 12}, {128, 96}};
   const Coefs cf = coefs(cs);
-  const int SC = Mode == 2 ? 4 : 3;
+  const int SC = Mode == 2 ? 4: 3;
   const bool fp = std::is_same_v<T, Npp16f>;
-  for (const Cfg &c : cfgs) {
+  for (const Cfg &c: cfgs) {
     const int sstep = align16((size_t)c.w * SC * sizeof(T));
     const int dstep = align16((size_t)(c.w / 2) * 5);
     Buf<T> src(c.w, c.h, SC, 0, 0);
-    const int pad = Mode == 1 ? sstep - align16((size_t)c.w * sizeof(T)) : 0;
+    const int pad = Mode == 1 ? sstep - align16((size_t)c.w * sizeof(T)): 0;
     Buf<T> s1(c.w, c.h, 1, pad, 0), s2(c.w, c.h, 1, pad, 0);
     fill_regime(src, SC, case_seed(id, c.w, c.h, 0, 0, 0, 0), kWide, 0, false, false, fp);
     if constexpr (Mode == 1) {
@@ -283,7 +283,7 @@ void run_uyvp_encode(const char *id, int cs, Call call) {
     std::vector<uint8_t> want = d.host;
     auto px = [&](int ch, int x, int y) -> float {
       if constexpr (Mode == 1) {
-        const Buf<T> *b = ch == 0 ? &src : (ch == 1 ? &s1 : &s2);
+        const Buf<T> *b = ch == 0 ? &src: (ch == 1 ? &s1: &s2);
         return to10<T>((float)as_double(b->hptr()[(size_t)y * (b->step / (int)sizeof(T)) + (size_t)x]));
       }
       return to10<T>((float)as_double(src.hptr()[(size_t)y * (src.step / (int)sizeof(T)) + (size_t)x * SC + ch]));
@@ -333,7 +333,7 @@ void run_uyvp_encode_planar(const char *id, int cs, Call call) {
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {32, 24}, {64, 48}, {16, 12}, {128, 96}};
   const Coefs cf = coefs(cs);
-  for (const Cfg &c : cfgs) {
+  for (const Cfg &c: cfgs) {
     const int sstep = align16((size_t)c.w * 3);
     const int dstep = align16((size_t)c.w * 2);
     Buf<Npp8u> src(c.w, c.h, 3, 0, 0);
@@ -366,7 +366,7 @@ void run_uyvp_encode_planar(const char *id, int cs, Call call) {
         const uint16_t Y = (uint16_t)(unsigned int)q10f(ly);
         std::memcpy(w0.data() + (size_t)y * dstep + (size_t)x * 2, &Y, 2);
         if ((x & 1) == 0) {
-          auto clamp10 = [](float w) { return w < 0.0f ? 0.0f : (w > 1023.0f ? 1023.0f : w); };
+          auto clamp10 = [](float w) { return w < 0.0f ? 0.0f: (w > 1023.0f ? 1023.0f: w); };
           const float u0 = clamp10(fma32(px(0, x, y), cf.ur, fma32(px(1, x, y), cf.ug, fma32(px(2, x, y), cf.ub, 512.0f))));
           const float u1 = clamp10(fma32(px(0, x + 1, y), cf.ur, fma32(px(1, x + 1, y), cf.ug, fma32(px(2, x + 1, y), cf.ub, 512.0f))));
           const float v0 = clamp10(fma32(px(0, x, y), cf.vr, fma32(px(1, x, y), cf.vg, fma32(px(2, x, y), cf.vb, 512.0f))));

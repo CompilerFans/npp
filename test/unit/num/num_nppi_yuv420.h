@@ -1,14 +1,14 @@
-// CPU-golden coverage for the YUV420/YUV422 conversion families (8u).
+// CPU-reference output coverage for the YUV420/YUV422 conversion families (8u).
 //
-// Measured NPP 13.4 semantics on the 5090:
+// Measured NPP 13.4 semantics on the reference:
 //   inverse (YUV -> RGB/BGR): R = Y + 1.13983*dV; G = Y - 0.39465*dU -
 //         0.58060*dV; B = Y + 2.03211*dU (all products rounded to float),
 //         truncated to u8; verified over all 2^24 (Y,U,V) triples;
 //         4:2:0 reads chroma at (x/2,y/2), 4:2:2 at (x/2,y).  The converted
 //         extent is the full width but only height & ~1 rows, and an odd
 //         height returns NPP_DOUBLE_SIZE_WARNING.
-//   forward (RGB -> YUV): Y = fma(.114,B, fma(.299,R, .587*G));
-//         U = .492*(B-Y)+128, V = .877*(R-Y)+128 (float Y); chroma cells are
+//   forward (RGB -> YUV): Y = fma(.114,B, fma(.299,R,.587*G));
+//         U =.492*(B-Y)+128, V =.877*(R-Y)+128 (float Y); chroma cells are
 //         the integer average of the truncated per-pixel U/V.  The 4:2:0
 //         luma extent is (w&~1)x(h&~1) with (w/2)x(h/2) chroma; 4:2:2 is
 //         (w&~1)xh with (w/2)xh chroma.  Odd widths (and odd heights for
@@ -32,7 +32,7 @@ enum class In { P3, C2 };        // C2 = interleaved Y0 U Y1 V source
 
 inline Npp8u q8(double v) {
   int t = (int)v;
-  return (Npp8u)(t < 0 ? 0 : (t > 255 ? 255 : t));
+  return (Npp8u)(t < 0 ? 0: (t > 255 ? 255: t));
 }
 
 inline void jfif_inv(int y, int u, int v, int &r, int &g, int &b) {
@@ -53,7 +53,7 @@ inline void yuv_fwd(int r, int g, int b, int &y, int &u, int &v) {
 }
 
 template <Sub S> inline int chromaW(int w) { return w / 2; }
-template <Sub S> inline int chromaH(int h) { return S == Sub::S420 ? h / 2 : h; }
+template <Sub S> inline int chromaH(int h) { return S == Sub::S420 ? h / 2: h; }
 
 // SrcPacked: packed C3 source (else three planes); DstC2: interleaved
 // Y0 U Y1 V destination (else three planes).
@@ -69,7 +69,7 @@ void run_yuv_fwd(const char *id, Call call) {
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4},   {8, 6},   {16, 12}, {32, 24},  {64, 48},
                              {128, 96}, {5, 4},   {4, 3},   {6, 8},    {33, 17}};
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     if (DstC2 && (cf.w & 1)) continue;  // interleaved pairs need even width
     const uint64_t seed = case_seed(id, cf.w, cf.h, 0, 0, 0, 0);
     std::vector<Buf<Npp8u> *> srcs;
@@ -91,8 +91,8 @@ void run_yuv_fwd(const char *id, Call call) {
       pre.push_back(d->host);
     } else {
       for (int p = 0; p < 3; ++p) {
-        const int dw = (p == 0) ? cf.w : cw;
-        const int dh = (p == 0) ? cf.h : ch;
+        const int dw = (p == 0) ? cf.w: cw;
+        const int dh = (p == 0) ? cf.h: ch;
         Buf<Npp8u> *d = new Buf<Npp8u>(std::max(1, dw), std::max(1, dh), 1, 0, 0x5A);
         d->dev.copyFromHost(d->host);
         dsts.push_back(d);
@@ -128,8 +128,8 @@ void run_yuv_fwd(const char *id, Call call) {
     if (st != NPP_NO_ERROR && st != NPP_DOUBLE_SIZE_WARNING) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-      for (auto *p : srcs) delete p;
-      for (auto *p : dsts) delete p;
+      for (auto *p: srcs) delete p;
+      for (auto *p: dsts) delete p;
       continue;
     }
     const cudaError_t se = cudaDeviceSynchronize();
@@ -137,9 +137,9 @@ void run_yuv_fwd(const char *id, Call call) {
     ++cnt.executed;
 
     const int ew = cf.w & ~1;
-    const int eh = (S == Sub::S420) ? (cf.h & ~1) : cf.h;
+    const int eh = (S == Sub::S420) ? (cf.h & ~1): cf.h;
     auto srcAt = [&](int c, int x, int y) -> int {
-      const int p = Bgr ? 2 - c : c;
+      const int p = Bgr ? 2 - c: c;
       if constexpr (SrcPacked) return srcs[0]->hptr()[(size_t)y * srcs[0]->step + (size_t)x * SrcPp + (size_t)p];
       else return srcs[(size_t)p]->hptr()[(size_t)y * srcs[(size_t)p]->step + (size_t)x];
     };
@@ -166,7 +166,7 @@ void run_yuv_fwd(const char *id, Call call) {
       for (int cy = 0; cy < ch; ++cy)
         for (int cx = 0; cx < cw; ++cx) {
           int sumU = 0, sumV = 0, n = 0;
-          const int spanX = 2, spanY = (S == Sub::S420) ? 2 : 1;
+          const int spanX = 2, spanY = (S == Sub::S420) ? 2: 1;
           for (int dy = 0; dy < spanY; ++dy)
             for (int dx = 0; dx < spanX; ++dx) {
               int Y, U, V;
@@ -186,13 +186,12 @@ void run_yuv_fwd(const char *id, Call call) {
       const GenCase dc{(int)dsts[p]->bw, (int)dsts[p]->bh, 0, 0, 0, kSmall, 0};
       const bool ok = DstC2
                           ? rotate_check<Npp8u, 2, 2>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p],
-                                                      dsts[p]->step, std::vector<uint8_t>(), cnt, first)
-                          : rotate_check<Npp8u, 1, 1>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p],
+                                                      dsts[p]->step, std::vector<uint8_t>(), cnt, first): rotate_check<Npp8u, 1, 1>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p],
                                                       dsts[p]->step, std::vector<uint8_t>(), cnt, first);
       if (!ok) failed = true;
     }
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
     if (failed || cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);
@@ -212,7 +211,7 @@ void run_yuv_inv(const char *id, Call call) {
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4},   {8, 6},   {16, 12}, {32, 24}, {64, 48},
                              {128, 96}, {5, 4},   {4, 3},   {6, 8},   {33, 17}};
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     if (Src == In::C2 && (cf.w & 1)) continue;
     const int cw = chromaW<S>(cf.w), ch = chromaH<S>(cf.h);
     std::vector<Buf<Npp8u> *> srcs;
@@ -237,7 +236,7 @@ void run_yuv_inv(const char *id, Call call) {
         pre.push_back(d->host);
       }
     } else {
-      const int c = (O == Out::AC4) ? 4 : 3;
+      const int c = (O == Out::AC4) ? 4: 3;
       Buf<Npp8u> *d = new Buf<Npp8u>(cf.w, cf.h, c, 0, 0x5A);
       d->dev.copyFromHost(d->host);
       dsts.push_back(d);
@@ -272,8 +271,8 @@ void run_yuv_inv(const char *id, Call call) {
     if (st != NPP_NO_ERROR && st != NPP_DOUBLE_SIZE_WARNING) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-      for (auto *p : srcs) delete p;
-      for (auto *p : dsts) delete p;
+      for (auto *p: srcs) delete p;
+      for (auto *p: dsts) delete p;
       continue;
     }
     const cudaError_t se = cudaDeviceSynchronize();
@@ -282,7 +281,7 @@ void run_yuv_inv(const char *id, Call call) {
 
     // Measured: the planar-source inverse converts the full width but only
     // height & ~1 rows; the interleaved C2 variant converts every row.
-    const int eh = (Src == In::C2) ? cf.h : (cf.h & ~1);
+    const int eh = (Src == In::C2) ? cf.h: (cf.h & ~1);
     auto srcAt = [&](int c, int x, int y) -> int {
       if constexpr (Src == In::C2) {
         const size_t base = (size_t)y * srcs[0]->step + (size_t)(x & ~1) * 2;
@@ -292,11 +291,11 @@ void run_yuv_inv(const char *id, Call call) {
         return srcs[(size_t)c]->hptr()[(size_t)y * srcs[(size_t)c]->step + (size_t)x];
       }
     };
-    auto planeOf = [&](int c) -> int { return Bgr ? 2 - c : c; };
+    auto planeOf = [&](int c) -> int { return Bgr ? 2 - c: c; };
     std::vector<std::vector<uint8_t>> want = pre;
     for (int y = 0; y < eh; ++y)
       for (int x = 0; x < cf.w; ++x) {
-        const int cx = x >> 1, cy = (S == Sub::S420) ? (y >> 1) : y;
+        const int cx = x >> 1, cy = (S == Sub::S420) ? (y >> 1): y;
         int Y, U, V;
         if constexpr (Src == In::C2) {
           const size_t base = (size_t)y * srcs[0]->step + (size_t)(x & ~1) * 2;
@@ -315,7 +314,7 @@ void run_yuv_inv(const char *id, Call call) {
           want[planeOf(1)][(size_t)y * dsts[(size_t)planeOf(1)]->step + (size_t)x] = (uint8_t)g;
           want[planeOf(2)][(size_t)y * dsts[(size_t)planeOf(2)]->step + (size_t)x] = (uint8_t)b;
         } else {
-          const size_t p = (size_t)y * dsts[0]->step + (size_t)x * (O == Out::AC4 ? 4 : 3);
+          const size_t p = (size_t)y * dsts[0]->step + (size_t)x * (O == Out::AC4 ? 4: 3);
           want[0][p + (size_t)planeOf(0)] = (uint8_t)r;
           want[0][p + (size_t)planeOf(1)] = (uint8_t)g;
           want[0][p + (size_t)planeOf(2)] = (uint8_t)b;
@@ -329,15 +328,13 @@ void run_yuv_inv(const char *id, Call call) {
       const bool ok =
           (O == Out::P3)
               ? rotate_check<Npp8u, 1, 1>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p], dsts[p]->step,
-                                          std::vector<uint8_t>(), cnt, first)
-              : (O == Out::AC4 ? rotate_check<Npp8u, 4, 4>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p],
-                                                            dsts[p]->step, std::vector<uint8_t>(), cnt, first)
-                               : rotate_check<Npp8u, 3, 3>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p],
+                                          std::vector<uint8_t>(), cnt, first): (O == Out::AC4 ? rotate_check<Npp8u, 4, 4>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p],
+                                                            dsts[p]->step, std::vector<uint8_t>(), cnt, first): rotate_check<Npp8u, 3, 3>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p],
                                                            dsts[p]->step, std::vector<uint8_t>(), cnt, first));
       if (!ok) failed = true;
     }
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
     if (failed || cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);
@@ -358,7 +355,7 @@ void run_yuv_c4_alpha(const char *id, Call call) {
   std::string first;
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {16, 12}, {32, 24}, {64, 48}, {128, 96}, {5, 4}, {4, 3}};
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     const int cw = chromaW<S>(cf.w), ch = chromaH<S>(cf.h);
     std::vector<Buf<Npp8u> *> srcs;
     const uint64_t seed = case_seed(id, cf.w, cf.h, 0, 0, 0, 0);
@@ -373,7 +370,7 @@ void run_yuv_c4_alpha(const char *id, Call call) {
     if (st != NPP_NO_ERROR && st != NPP_DOUBLE_SIZE_WARNING) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-      for (auto *p : srcs) delete p;
+      for (auto *p: srcs) delete p;
       delete d;
       continue;
     }
@@ -381,7 +378,7 @@ void run_yuv_c4_alpha(const char *id, Call call) {
     ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << cf.w << "x" << cf.h << " sync: " << cudaGetErrorString(se);
     ++cnt.executed;
     d->dev.copyToHost(d->host);
-    const int alpha_off = Bgr ? 3 : 0;
+    const int alpha_off = Bgr ? 3: 0;
     int bad = 0;
     for (int y = 0; y < cf.h; ++y)
       for (int x = 0; x < cf.w; ++x) {
@@ -402,7 +399,7 @@ void run_yuv_c4_alpha(const char *id, Call call) {
     }
     (void)cw;
     (void)ch;
-    for (auto *p : srcs) delete p;
+    for (auto *p: srcs) delete p;
     delete d;
     if (bad) break;
   }

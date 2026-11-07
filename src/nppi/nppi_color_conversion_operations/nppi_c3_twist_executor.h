@@ -1,5 +1,4 @@
-// c3 package executor: ColorTwist sampling-format conversions
-// (nppi_color_conversion.h, docs/agent_packages/c3.md).
+// c3 executor: ColorTwist sampling-format conversions
 //
 // NVIDIA NPP applies the user supplied 3x4 matrix to every pixel and rounds
 // the result to nearest (floor(x + 0.5)) with saturation:

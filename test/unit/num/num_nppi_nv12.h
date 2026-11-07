@@ -1,4 +1,4 @@
-// CPU-golden coverage for the plain (non-ColorTwist) NV12 / NV21 families:
+// CPU-reference output coverage for the plain (non-ColorTwist) NV12 / NV21 families:
 //   nppiNV12ToRGB / NV12ToBGR (BT.601), the 709CSC/709HDTV variants
 //   (BT.709), nppiNV21ToRGB / NV21ToBGR (fixed point, 0xFF alpha) and
 //   nppiNV12ToYUV420 (plane split).
@@ -20,7 +20,7 @@ enum class Var { NV12_601, NV12_709, NV12_709_CSC, NV21_FIXED };
 enum class OutOrder { RGB, BGR };
 
 inline Npp8u q(float v) {
-  v = v < 0.0f ? 0.0f : (v > 255.0f ? 255.0f : v);
+  v = v < 0.0f ? 0.0f: (v > 255.0f ? 255.0f: v);
   return (Npp8u)(v + 0.5f);
 }
 
@@ -36,9 +36,9 @@ inline void conv(Var var, int y, int u, int v, bool bgr, Npp8u &o0, Npp8u &o1, N
     const int r = std::min(255, std::max(0, y + rnd256(452 * vd)));
     const int g = std::min(255, std::max(0, y + rnd256(183 * ud - 88 * vd)));
     const int b = std::min(255, std::max(0, y + rnd256(360 * ud)));
-    o0 = (Npp8u)(bgr ? b : r);
+    o0 = (Npp8u)(bgr ? b: r);
     o1 = (Npp8u)g;
-    o2 = (Npp8u)(bgr ? r : b);
+    o2 = (Npp8u)(bgr ? r: b);
     return;
   }
   // The NV12 kernels use the FULL-RANGE YUV matrix (no 16/128 studio offset)
@@ -62,9 +62,9 @@ inline void conv(Var var, int y, int u, int v, bool bgr, Npp8u &o0, Npp8u &o1, N
     fg = 1.164f * yc - 0.213f * fu - 0.533f * fv;
     fb = 1.164f * yc + 2.112f * fu;
   }
-  o0 = q(bgr ? fb : fr);
+  o0 = q(bgr ? fb: fr);
   o1 = q(fg);
-  o2 = q(bgr ? fr : fb);
+  o2 = q(bgr ? fr: fb);
 }
 
 // dstC = 3 or 4 (4 only for the NV21 P2C4R forms).
@@ -79,7 +79,7 @@ void run_nv12_to_rgb(const char *id, Call call) {
   std::string first;
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {32, 24}, {64, 48}, {16, 12}, {128, 96}};
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     const int uw = (cf.w + 1) / 2, uh = (cf.h + 1) / 2;
     // The P2 forms use one source step for the Y and UV planes.
     const int sstep = align16((size_t)std::max(cf.w, uw * 2));
@@ -108,8 +108,8 @@ void run_nv12_to_rgb(const char *id, Call call) {
         const int yv = y.host[(size_t)yy * sstep + (size_t)xx];
         const int uvi = (yy / 2) * sstep + (xx / 2) * 2;
         // NV21 stores the chroma pair as V,U; NV12 stores U,V.
-        const int u = uv.host[(size_t)uvi + (V == Var::NV21_FIXED ? 1 : 0)];
-        const int v = uv.host[(size_t)uvi + (V == Var::NV21_FIXED ? 0 : 1)];
+        const int u = uv.host[(size_t)uvi + (V == Var::NV21_FIXED ? 1: 0)];
+        const int v = uv.host[(size_t)uvi + (V == Var::NV21_FIXED ? 0: 1)];
         Npp8u o0, o1, o2, alpha;
         conv(V, yv, u, v, O == OutOrder::BGR, o0, o1, o2, alpha);
         // Measured NPP quirk: the NV21 BGR variant zeroes the R slot unless
@@ -144,7 +144,7 @@ void run_nv12_to_yuv420(const char *id, Call call) {
   std::string first;
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {32, 24}, {64, 48}, {16, 12}, {128, 96}};
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     const int uw = (cf.w + 1) / 2, uh = (cf.h + 1) / 2;
     const int sstep = align16((size_t)std::max(cf.w, uw * 2));
     Buf<Npp8u> y(cf.w, cf.h, 1, sstep - align16((size_t)cf.w), 0);
@@ -216,7 +216,7 @@ inline void nv12_twist_apply(const float m[12], float c0, float c1, float c2, fl
 template <typename T>
 inline T twist_round_clamp(float v) {
   float r = std::floor(v + 0.5f);
-  const float mx = sizeof(T) == 1 ? 255.0f : 65535.0f;
+  const float mx = sizeof(T) == 1 ? 255.0f: 65535.0f;
   if (r < 0.0f) r = 0.0f;
   else if (r > mx) r = mx;
   return (T)r;
@@ -246,7 +246,7 @@ void run_nv12_twist_to_rgb(const char *id, Call call) {
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {32, 24}, {64, 48}, {16, 12}, {128, 96}};
   float mats[4][12];
   twist_matrices(mats);
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     const int uw = cf.w / 2, uh = cf.h / 2;
     Buf<T> y(cf.w, cf.h, 1, 0, 0);
     Buf<T> uv(uw, uh, 2, 0, 0);
@@ -312,7 +312,7 @@ void run_rgb_twist_to_nv12(const char *id, Call call) {
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {32, 24}, {64, 48}, {16, 12}, {128, 96}};
   float mats[4][12];
   twist_matrices(mats);
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     std::vector<Buf<T> *> srcs;
     const uint64_t seed = case_seed(id, cf.w, cf.h, 0, 0, 0, 0);
     if constexpr (Planar) {
@@ -400,7 +400,7 @@ void run_rgb_twist_to_nv12(const char *id, Call call) {
         break;
       }
     }
-    for (auto *p : srcs) delete p;
+    for (auto *p: srcs) delete p;
     if (cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);
@@ -411,14 +411,14 @@ void run_rgb_twist_to_nv12(const char *id, Call call) {
 //
 // The NVIDIA kernels evaluate float32 FMA chains with these exact literals
 // (read from the NPP 13.4 SASS; verified bit-exact over 0.5M random colors):
-//   NV12->RGB 601 symbol : R = fma(dV, 1.402,   Y)
+//   NV12->RGB 601 symbol: R = fma(dV, 1.402,   Y)
 //                          G = fma(dV,-0.71414, fma(dU,-0.34414, Y))
 //                          B = fma(dU, 1.772,   Y)
 //   NV12->RGB color-space kernels (C4 / BT2020):
 //                          R = fma(dV, rv, Y)
 //                          G = fma(dU, gu, fma(dV, gv, Y))
 //                          B = fma(dU, bu, Y)
-//   RGB->NV12            : Y = fma(R, kr, fma(G, kg, B*kb)),
+//   RGB->NV12: Y = fma(R, kr, fma(G, kg, B*kb)),
 //                          U/V = fma(R, ur, fma(G, ug, fma(B, ub, 128)))
 // Chroma for RGB->NV12 is the horizontal pixel-pair average of the EVEN source
 // row of each 2x2 block.  All results are rounded with a +0.5f bias, clamped to
@@ -431,7 +431,7 @@ inline float fma32(float a, float b, float c) { return std::fma(a, b, c); }
 inline Npp8u qn(float v) {
   if (v != v) return 0;
   float t = v + 0.5f;
-  t = t < 0.0f ? 0.0f : (t > 255.0f ? 255.0f : t);
+  t = t < 0.0f ? 0.0f: (t > 255.0f ? 255.0f: t);
   return (Npp8u)(unsigned int)t;
 }
 
@@ -459,12 +459,12 @@ inline void nv12_ext_pixel(const ExtCoefs &c, int yv, int u, int v, bool bgr, Np
   const float du = (float)u - 128.0f;
   const float dv = (float)v - 128.0f;
   const Npp8u r = qn(fma32(dv, c.rv, fy));
-  float fg = c.guFirst ? fma32(dv, c.gv, fma32(du, c.gu, fy)) : fma32(du, c.gu, fma32(dv, c.gv, fy));
+  float fg = c.guFirst ? fma32(dv, c.gv, fma32(du, c.gu, fy)): fma32(du, c.gu, fma32(dv, c.gv, fy));
   const Npp8u g = qn(fg);
   const Npp8u b = qn(fma32(du, c.bu, fy));
-  o0 = bgr ? b : r;
+  o0 = bgr ? b: r;
   o1 = g;
-  o2 = bgr ? r : b;
+  o2 = bgr ? r: b;
 }
 
 struct Rgb2YuvCoefs {
@@ -551,7 +551,7 @@ void run_nv12_ext_c3(const char *id, Call call) {
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {32, 24}, {64, 48}, {16, 12}, {128, 96}};
   const ExtCoefs cf = ext_coefs(CoefSet);
-  for (const Cfg &c : cfgs) {
+  for (const Cfg &c: cfgs) {
     const int uw = (c.w + 1) / 2, uh = (c.h + 1) / 2;
     const int sstep = align16((size_t)std::max(c.w, uw * 2));
     Buf<Npp8u> y(c.w, c.h, 1, sstep - align16((size_t)c.w), 0);
@@ -620,9 +620,9 @@ void run_nv12_ext_c4(const char *id, NppiColorSpace cs, Npp8u alpha, Call call) 
   std::string first;
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {32, 24}, {64, 48}, {16, 12}, {128, 96}};
-  const int which = cs == NPP_BT601JPEG ? 3 : (cs == NPP_BT709HDTV ? 1 : 2);
+  const int which = cs == NPP_BT601JPEG ? 3: (cs == NPP_BT709HDTV ? 1: 2);
   const ExtCoefs cf = ext_coefs(which);
-  for (const Cfg &c : cfgs) {
+  for (const Cfg &c: cfgs) {
     const int uw = (c.w + 1) / 2, uh = (c.h + 1) / 2;
     const int sstep = align16((size_t)std::max(c.w, uw * 2));
     Buf<Npp8u> y(c.w, c.h, 1, sstep - align16((size_t)c.w), 0);
@@ -681,7 +681,7 @@ void run_rgb_to_nv12_ext(const char *id, NppiColorSpace cs, Call call) {
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {32, 24}, {64, 48}, {16, 12}, {128, 96}};
   const Rgb2YuvCoefs cf = rgb2yuv_coefs((int)cs);
-  for (const Cfg &c : cfgs) {
+  for (const Cfg &c: cfgs) {
     std::vector<Buf<Npp8u> *> srcs;
     const uint64_t seed = case_seed(id, c.w, c.h, 0, 0, 0, 0);
     if constexpr (Planar) {
@@ -702,7 +702,7 @@ void run_rgb_to_nv12_ext(const char *id, NppiColorSpace cs, Call call) {
       if (st != NPP_NO_ERROR) {
         ++cnt.skipped;
         if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-        for (auto *p : srcs) delete p;
+        for (auto *p: srcs) delete p;
         continue;
       }
       cudaDeviceSynchronize();
@@ -738,7 +738,7 @@ void run_rgb_to_nv12_ext(const char *id, NppiColorSpace cs, Call call) {
         if (first.empty()) first = std::string("[") + id + "] RGBToNV12 plane mismatch";
         EXPECT_TRUE(false) << first;
       }
-      for (auto *p : srcs) delete p;
+      for (auto *p: srcs) delete p;
       if (bad) break;
     } else {
       auto *b = new Buf<Npp8u>(c.w, c.h, 3, 0, 0);
@@ -814,7 +814,7 @@ void run_yuv420_to_nv12(const char *id, Call call) {
   std::string first;
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {32, 24}, {64, 48}, {16, 12}, {128, 96}};
-  for (const Cfg &c : cfgs) {
+  for (const Cfg &c: cfgs) {
     const int uw = c.w / 2, uh = c.h / 2;
     Buf<Npp8u> y(c.w, c.h, 1, 0, 0), u(uw, uh, 1, 0, 0), v(uw, uh, 1, 0, 0);
     fill_regime(y, 1, case_seed(id, c.w, c.h, 0, 0, 0, 0), kWide, 0, false, false, false);

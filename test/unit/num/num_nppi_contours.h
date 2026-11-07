@@ -4,7 +4,7 @@
 //   nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R,
 //   nppiContoursImageMarchingSquaresInterpolation_{32f,64f}_C1R.
 //
-// Measured NPP 13.4 conventions (RTX 5090):
+// Measured NPP 13.4 conventions (reference):
 //   * a pixel is a contour pixel of its label when any of its eight
 //     neighbours carries a different label; every label (including label 0)
 //     is traced, and the per-label contour counts are returned in
@@ -17,9 +17,10 @@
 // The information structs use layouts that differ between the installed
 // reference ABI and the unified public header, so the struct arrays are only
 // exercised for status and bounds; the plain integer lists, the contours
-// image and the totals are compared against the CPU golden.
+// image and the totals are compared against the CPU reference output.
 #pragma once
 
+#if NPP_HEADER_MAJOR >= 12 || NPP_HEADER_UNIFIED
 #include "num_nppi_geom.h"
 
 #include <cmath>
@@ -55,7 +56,7 @@ inline void buildSetup(Setup &s, int w, int h, int variant) {
     // single-pixel-wide diagonal island (exercises touching corners)
     for (int t = 8; t < 20; ++t) s.labels[(size_t)(30 + t - 8) * w + (50 + (t - 8))] = 4;
   }
-  const Npp32u maxLabel = variant == 0 ? 3 : 4;
+  const Npp32u maxLabel = variant == 0 ? 3: 4;
   s.counts.assign(maxLabel + 1, 0);
   s.contourImage.assign((size_t)w * h, 255);
   for (int y = 0; y < h; ++y)
@@ -115,7 +116,7 @@ inline bool check_info(const char *id, const GenCase &c, const Setup &s, const s
       const size_t i = (size_t)y * s.w + x;
       ++cnt.compared;
       if (contours[i] != s.contourImage[i]) fail("contoursImage", i, contours[i], s.contourImage[i]);
-      zeroPixels += contours[i] == 0 ? 1 : 0;
+      zeroPixels += contours[i] == 0 ? 1: 0;
     }
   ++cnt.compared;
   if ((Npp32u)zeroPixels != s.total) fail("zeroPixels", 0, (double)zeroPixels, (double)s.total);
@@ -133,19 +134,19 @@ void run_info(const char *id, Call call) {
   std::string first;
   bool failed = false;
   static const int cfgs[][3] = {{64, 64, 0}, {96, 64, 0}, {48, 48, 1}};
-  for (const auto &cf : cfgs) {
+  for (const auto &cf: cfgs) {
     if (failed) break;
     const int W = cf[0], H = cf[1], variant = cf[2];
     Setup s;
     buildSetup(s, W, H, variant);
-    const unsigned maxId = variant == 0 ? 3 : 4;
+    const unsigned maxId = variant == 0 ? 3: 4;
     const unsigned maxLabel = maxId + 1;  // label count passed to the API
     const size_t count = s.labels.size();
     npp_functional_test::DeviceMemory<Npp32u> dLabels(count);
     dLabels.copyFromHost(s.labels);
     unsigned isize = 0;
     nppiCompressedMarkerLabelsUFGetInfoListSize_32u_C1R(maxLabel, &isize);
-    npp_functional_test::DeviceMemory<Npp8u> info((size_t)(isize > 0 ? isize : 1));
+    npp_functional_test::DeviceMemory<Npp8u> info((size_t)(isize > 0 ? isize: 1));
     npp_functional_test::DeviceMemory<Npp8u> contourImg(count);
     const size_t dirBytes = count * sizeof(NppiContourPixelDirectionInfo);
     npp_functional_test::DeviceMemory<Npp8u> dir(dirBytes);
@@ -188,18 +189,18 @@ inline void run_geometry(const char *id) {
   RunCounts cnt;
   std::string first;
   static const int cfgs[][3] = {{64, 64, 0}, {96, 64, 0}, {48, 48, 1}};
-  for (const auto &cf : cfgs) {
+  for (const auto &cf: cfgs) {
     const int W = cf[0], H = cf[1], variant = cf[2];
     Setup s;
     buildSetup(s, W, H, variant);
-    const unsigned maxId = variant == 0 ? 3 : 4;
+    const unsigned maxId = variant == 0 ? 3: 4;
     const unsigned maxLabel = maxId + 1;  // label count passed to the API
     const size_t count = s.labels.size();
     npp_functional_test::DeviceMemory<Npp32u> dLabels(count);
     dLabels.copyFromHost(s.labels);
     unsigned isize = 0;
     nppiCompressedMarkerLabelsUFGetInfoListSize_32u_C1R(maxLabel, &isize);
-    npp_functional_test::DeviceMemory<Npp8u> info((size_t)(isize > 0 ? isize : 1));
+    npp_functional_test::DeviceMemory<Npp8u> info((size_t)(isize > 0 ? isize: 1));
     npp_functional_test::DeviceMemory<Npp8u> contourImg(count);
     const size_t dirBytes = count * sizeof(NppiContourPixelDirectionInfo);
     npp_functional_test::DeviceMemory<Npp8u> dir(dirBytes);
@@ -221,22 +222,22 @@ inline void run_geometry(const char *id) {
       continue;
     }
     ASSERT_EQ(cudaDeviceSynchronize(), cudaSuccess) << "[" << id << "] info sync";
-    std::vector<Npp8u> infoHost((size_t)(isize > 0 ? isize : 1), 0);
+    std::vector<Npp8u> infoHost((size_t)(isize > 0 ? isize: 1), 0);
     cudaMemcpy(infoHost.data(), info.get(), infoHost.size(), cudaMemcpyDeviceToHost);
     // Geometry lists sized from the total contour count.
     const Npp32u total = totals.nTotalImagePixelContourCount;
     unsigned gsize = 0;
     nppiCompressedMarkerLabelsUFGetGeometryListsSize_C1R(total, &gsize);
-    npp_functional_test::DeviceMemory<Npp8u> geomDev((size_t)(gsize > 0 ? gsize : 1));
-    std::vector<Npp8u> geomHost((size_t)(gsize > 0 ? gsize : 1), 0);
+    npp_functional_test::DeviceMemory<Npp8u> geomDev((size_t)(gsize > 0 ? gsize: 1));
+    std::vector<Npp8u> geomHost((size_t)(gsize > 0 ? gsize: 1), 0);
     npp_functional_test::DeviceMemory<Npp32u> foundDev(maxLabel + 2);
     std::vector<Npp32u> foundHost(maxLabel + 2, 0), geomOffsHost(maxLabel + 2, 0);
     npp_functional_test::DeviceMemory<Npp32u> geomOffsDev(maxLabel + 2);
     unsigned bsize = 0;
     nppiCompressedMarkerLabelsUFGetContoursBlockSegmentListSize_C1R(countsHost.data(), total, maxLabel, 0,
                                                                      maxLabel, &bsize);
-    npp_functional_test::DeviceMemory<Npp8u> segDev((size_t)(bsize > 0 ? bsize : 1));
-    std::vector<Npp8u> segHost((size_t)(bsize > 0 ? bsize : 1), 0);
+    npp_functional_test::DeviceMemory<Npp8u> segDev((size_t)(bsize > 0 ? bsize: 1));
+    std::vector<Npp8u> segHost((size_t)(bsize > 0 ? bsize: 1), 0);
     npp_diff::clear_cuda_error();
     st = nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx(
         (NppiCompressedMarkerLabelsInfo *)info.get(), (NppiCompressedMarkerLabelsInfo *)infoHost.data(),
@@ -284,18 +285,18 @@ inline void run_marching_pair(const char *id) {
   RunCounts cnt;
   std::string first;
   static const int cfgs[][3] = {{64, 64, 0}, {96, 64, 0}};
-  for (const auto &cf : cfgs) {
+  for (const auto &cf: cfgs) {
     const int W = cf[0], H = cf[1], variant = cf[2];
     Setup s;
     buildSetup(s, W, H, variant);
-    const unsigned maxId = variant == 0 ? 3 : 4;
+    const unsigned maxId = variant == 0 ? 3: 4;
     const unsigned maxLabel = maxId + 1;  // label count passed to the API
     const size_t count = s.labels.size();
     npp_functional_test::DeviceMemory<Npp32u> dLabels(count);
     dLabels.copyFromHost(s.labels);
     unsigned isize = 0;
     nppiCompressedMarkerLabelsUFGetInfoListSize_32u_C1R(maxLabel, &isize);
-    npp_functional_test::DeviceMemory<Npp8u> info((size_t)(isize > 0 ? isize : 1));
+    npp_functional_test::DeviceMemory<Npp8u> info((size_t)(isize > 0 ? isize: 1));
     npp_functional_test::DeviceMemory<Npp8u> contourImg(count);
     const size_t dirBytes = count * sizeof(NppiContourPixelDirectionInfo);
     npp_functional_test::DeviceMemory<Npp8u> dir(dirBytes);
@@ -316,25 +317,25 @@ inline void run_marching_pair(const char *id) {
       continue;
     }
     ASSERT_EQ(cudaDeviceSynchronize(), cudaSuccess) << "[" << id << "] info sync";
-    std::vector<Npp8u> infoHost((size_t)(isize > 0 ? isize : 1), 0);
+    std::vector<Npp8u> infoHost((size_t)(isize > 0 ? isize: 1), 0);
     cudaMemcpy(infoHost.data(), info.get(), infoHost.size(), cudaMemcpyDeviceToHost);
     const Npp32u total = totals.nTotalImagePixelContourCount;
     unsigned gsize = 0;
     nppiCompressedMarkerLabelsUFGetGeometryListsSize_C1R(total, &gsize);
-    npp_functional_test::DeviceMemory<Npp8u> geomDev((size_t)(gsize > 0 ? gsize : 1));
-    std::vector<Npp8u> geomHost((size_t)(gsize > 0 ? gsize : 1), 0);
+    npp_functional_test::DeviceMemory<Npp8u> geomDev((size_t)(gsize > 0 ? gsize: 1));
+    std::vector<Npp8u> geomHost((size_t)(gsize > 0 ? gsize: 1), 0);
     npp_functional_test::DeviceMemory<Npp32u> foundDev(maxLabel + 2);
     std::vector<Npp32u> foundHost(maxLabel + 2, 0), geomOffsHost(maxLabel + 2, 0);
     npp_functional_test::DeviceMemory<Npp32u> geomOffsDev(maxLabel + 2);
     unsigned bsize = 0;
     nppiCompressedMarkerLabelsUFGetContoursBlockSegmentListSize_C1R(countsHost.data(), total, maxLabel, 0,
                                                                      maxLabel, &bsize);
-    npp_functional_test::DeviceMemory<Npp8u> segDev((size_t)(bsize > 0 ? bsize : 1));
-    std::vector<Npp8u> segHost((size_t)(bsize > 0 ? bsize : 1), 0);
+    npp_functional_test::DeviceMemory<Npp8u> segDev((size_t)(bsize > 0 ? bsize: 1));
+    std::vector<Npp8u> segHost((size_t)(bsize > 0 ? bsize: 1), 0);
     std::vector<P> ip((size_t)count);
     npp_functional_test::DeviceMemory<P> ipDev((size_t)count);
-    npp_functional_test::DeviceMemory<P> igDev((size_t)(total ? total : 1));
-    std::vector<P> ig((size_t)(total ? total : 1));
+    npp_functional_test::DeviceMemory<P> igDev((size_t)(total ? total: 1));
+    std::vector<P> ig((size_t)(total ? total: 1));
     npp_diff::clear_cuda_error();
     if constexpr (Is64) {
       st = nppiContoursImageMarchingSquaresInterpolation_64f_C1R_Ctx(
@@ -379,8 +380,8 @@ inline void run_marching_pair(const char *id) {
       }
       return true;
     };
-    finiteIn(ip, -1.0, (double)(W > H ? W : H) + 1.0);
-    finiteIn(ig, -1.0, (double)(W > H ? W : H) + 1.0);
+    finiteIn(ip, -1.0, (double)(W > H ? W: H) + 1.0);
+    finiteIn(ig, -1.0, (double)(W > H ? W: H) + 1.0);
   }
   finish(id, cnt, first);
 }
@@ -390,4 +391,4 @@ inline void run_marching64(const char *id) { run_marching_pair<NppiPoint64f, tru
 
 }  // namespace contours
 }  // namespace num
-
+#endif

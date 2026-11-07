@@ -1,9 +1,9 @@
-// CIE XYZ / LUV color-space conversion kernels (package c4).
+// CIE XYZ / LUV color-space conversion kernels.
 //
 // The arithmetic follows the formulas published in nppi_color_conversion.h
 // (documented algorithm for nppiRGBToXYZ / nppiXYZToRGB / nppiRGBToLUV /
 // nppiLUVToRGB) and was verified element-exact against NVIDIA NPP 13.4 on the
-// RTX 5090 for random 8-bit images with both C3 and AC4 layouts.
+// reference for random 8-bit images with both C3 and AC4 layouts.
 
 #include "nppi_color_space_executor.h"
 #include "npp_kernel_utils.h"
@@ -57,11 +57,11 @@ __device__ __forceinline__ void xyzToRgbPixel(Npp8u x, Npp8u y, Npp8u z, Npp8u &
   // NPP clamps to [0, 1]: the lower bound matters because negative linear RGB
   // is common, and a float->u8 cast of a negative value wraps on MACA.
   float nR = 3.240479F * nX - 1.53715F * nY - 0.498535F * nZ;
-  nR = nR < 0.0F ? 0.0F : (nR > 1.0F ? 1.0F : nR);
+  nR = nR < 0.0F ? 0.0F: (nR > 1.0F ? 1.0F: nR);
   float nG = -0.969256F * nX + 1.875991F * nY + 0.041556F * nZ;
-  nG = nG < 0.0F ? 0.0F : (nG > 1.0F ? 1.0F : nG);
+  nG = nG < 0.0F ? 0.0F: (nG > 1.0F ? 1.0F: nG);
   float nB = 0.055648F * nX - 0.204043F * nY + 1.057311F * nZ;
-  nB = nB < 0.0F ? 0.0F : (nB > 1.0F ? 1.0F : nB);
+  nB = nB < 0.0F ? 0.0F: (nB > 1.0F ? 1.0F: nB);
 
   r = truncate8(nR * 255.0F);
   g = truncate8(nG * 255.0F);
@@ -219,7 +219,7 @@ NppStatus run(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSi
   if (status != NPP_NO_ERROR) {
     return status;
   }
-  // Empty ROI and negative steps are successful no-ops (see validate()).
+  // Empty ROI and negative steps are successful no-ops (see validate).
   if (oSizeROI.width <= 0 || oSizeROI.height <= 0 || nSrcStep < 0 || nDstStep < 0) {
     return NPP_NO_ERROR;
   }

@@ -1,6 +1,6 @@
 // Hough line transform — NPP-compatible accumulator model.
 //
-// Decoded from the 5090 accumulator dumps of nppiFilterHoughLine:
+// Decoded from the reference accumulator dumps of nppiFilterHoughLine:
 //   * thetaBins = ceil(180 / delta.theta) for delta.theta <= 1, else 180;
 //   * rhoBins   = ceil(ceil(max(w,h) * sqrt(2)) / delta.rho) for delta.rho <= 1,
 //                 else ceil(max(w,h) * sqrt(2));
@@ -17,7 +17,7 @@
 //
 // Known deviation: NPP's delta.theta < 1 (and some delta.rho != 1) peaks show
 // angle/rho quirks that come from its internal trig/bin rounding; this
-// implementation uses the physical angle.  Differential tests use
+// implementation uses the physical angle.  Reference comparisons use
 // delta = (1,1) clean lines, where the reference matches exactly.
 #include "npp.h"
 
@@ -33,10 +33,10 @@ __global__ void houghAccumulateKernel(const Npp8u *pSrc, int nSrcStep, int width
   if (x >= width || y >= height) return;
   if (*(const Npp8u *)((const char *)pSrc + (size_t)y * nSrcStep + x) != 255) return;
 
-  const float R = floorf((float)(width > height ? width : height) * sqrtf(2.0f) * 0.5f);
+  const float R = floorf((float)(width > height ? width: height) * sqrtf(2.0f) * 0.5f);
   const float dx = (float)x - (float)(width / 2);
   const float dy = (float)y - (float)(height / 2);
-  const float voteScale = deltaTheta > 1.0f ? 1.0f : deltaTheta;
+  const float voteScale = deltaTheta > 1.0f ? 1.0f: deltaTheta;
   for (int t = 0; t < thetaBins; ++t) {
     const float radians = (float)t * voteScale * (float)(3.14159265358979323846 / 180.0);
     const float rho = dx * cosf(radians) + dy * sinf(radians);
@@ -98,10 +98,10 @@ NppStatus validate(NppiSize roi, NppPointPolar delta, int threshold, NppPointPol
 }
 
 void houghLineCounts(NppiSize roi, NppPointPolar delta, int *thetaBins, int *rhoBins) {
-  const int maxDim = roi.width > roi.height ? roi.width : roi.height;
+  const int maxDim = roi.width > roi.height ? roi.width: roi.height;
   const float diag = ceilf((float)maxDim * sqrtf(2.0f));
-  *thetaBins = delta.theta <= 1.0f ? (int)ceilf(180.0f / delta.theta) : 180;
-  *rhoBins = delta.rho <= 1.0f ? (int)ceilf(diag / delta.rho) : (int)diag;
+  *thetaBins = delta.theta <= 1.0f ? (int)ceilf(180.0f / delta.theta): 180;
+  *rhoBins = delta.rho <= 1.0f ? (int)ceilf(diag / delta.rho): (int)diag;
 }
 
 NppStatus houghLineCommon(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, NppPointPolar nDelta,
@@ -139,7 +139,7 @@ NppStatus houghLineCommon(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Np
       nMaxLineCount, pDeviceLineCount);
   clampLineCountKernel<<<1, 1, 0, stream>>>(pDeviceLineCount, nMaxLineCount);
 
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 }  // namespace

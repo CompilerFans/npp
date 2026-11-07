@@ -46,31 +46,31 @@ __device__ __host__ inline CsCoefs cs_coefs(int cs) {
 __device__ __forceinline__ float q10(float v) {
   if (v != v) return 0.0f;
   float t = __fadd_rn(v, 0.5f);
-  t = t < 0.0f ? 0.0f : t;
-  t = t > 1023.0f ? 1023.0f : t;
+  t = t < 0.0f ? 0.0f: t;
+  t = t > 1023.0f ? 1023.0f: t;
   return (float)(unsigned int)t;
 }
 
 __device__ __forceinline__ float q8(float v) {
   if (v != v) return 0.0f;
   float t = __fadd_rn(v, 0.5f);
-  t = t < 0.0f ? 0.0f : t;
-  t = t > 255.0f ? 255.0f : t;
+  t = t < 0.0f ? 0.0f: t;
+  t = t > 255.0f ? 255.0f: t;
   return (float)(unsigned int)t;
 }
 
 __device__ __forceinline__ float q16(float v) {
   if (v != v) return 0.0f;
   float t = __fadd_rn(v, 0.5f);
-  t = t < 0.0f ? 0.0f : t;
-  t = t > 65535.0f ? 65535.0f : t;
+  t = t < 0.0f ? 0.0f: t;
+  t = t > 65535.0f ? 65535.0f: t;
   return (float)(unsigned int)t;
 }
 
 __device__ __forceinline__ float to10_8u(float v) { return __fmul_rn(v, 4.0f); }
 __device__ __forceinline__ float to10_16u(float v) { return __fmul_rn(v, 0.015609979629516601562f); }
 __device__ __forceinline__ float to10_16f(float v) {
-  v = v < 0.0f ? 0.0f : (v > 1.0f ? 1.0f : v);
+  v = v < 0.0f ? 0.0f: (v > 1.0f ? 1.0f: v);
   return __fmul_rn(v, 1023.0f);
 }
 
@@ -89,7 +89,7 @@ __global__ void uyvp_to_rgb_kernel(const uint8_t *__restrict__ src, int nSrcStep
   unsigned long long g = 0;
   for (int i = 0; i < 5; ++i) g |= (unsigned long long)p[i] << (8 * i);
   const float u = (float)(g & 0x3FF);
-  const float yv = (float)((g >> ((x & 1) ? 30 : 10)) & 0x3FF);
+  const float yv = (float)((g >> ((x & 1) ? 30: 10)) & 0x3FF);
   const float v = (float)((g >> 20) & 0x3FF);
   const float du = __fadd_rn(u, -512.0f);
   const float dv = __fadd_rn(v, -512.0f);
@@ -106,7 +106,7 @@ __global__ void uyvp_to_rgb_kernel(const uint8_t *__restrict__ src, int nSrcStep
       d1[(size_t)y * nDstStep + x] = G;
       d2[(size_t)y * nDstStep + x] = B;
     } else {
-      const int C = Mode == 1 ? 4 : 3;
+      const int C = Mode == 1 ? 4: 3;
       uint8_t *o = (uint8_t *)dst + (size_t)y * nDstStep + (size_t)x * C;
       o[0] = R;
       o[1] = G;
@@ -124,7 +124,7 @@ __global__ void uyvp_to_rgb_kernel(const uint8_t *__restrict__ src, int nSrcStep
       d1[(size_t)y * es + x] = G;
       d2[(size_t)y * es + x] = B;
     } else {
-      const int C = Mode == 1 ? 4 : 3;
+      const int C = Mode == 1 ? 4: 3;
       uint16_t *o = (uint16_t *)dst + (size_t)y * es + (size_t)x * C;
       o[0] = R;
       o[1] = G;
@@ -143,7 +143,7 @@ __global__ void uyvp_to_rgb_kernel(const uint8_t *__restrict__ src, int nSrcStep
       d1[(size_t)y * es + x] = G;
       d2[(size_t)y * es + x] = B;
     } else {
-      const int C = Mode == 1 ? 4 : 3;
+      const int C = Mode == 1 ? 4: 3;
       __half *o = (__half *)dst + (size_t)y * es + (size_t)x * C;
       o[0] = R;
       o[1] = G;
@@ -161,13 +161,13 @@ template <int InKind, int Mode>
 __device__ __forceinline__ float load10(const void *src, const void *s1, const void *s2, int nSrcStep, int ch, int x,
                                         int y) {
   if constexpr (Mode == 1) {
-    const void *p = ch == 0 ? src : (ch == 1 ? s1 : s2);
+    const void *p = ch == 0 ? src: (ch == 1 ? s1: s2);
     if constexpr (InKind == 0) return to10_8u((float)((const uint8_t *)p)[(size_t)y * nSrcStep + x]);
     if constexpr (InKind == 1)
       return to10_16u((float)((const uint16_t *)p)[(size_t)y * (nSrcStep / 2) + x]);
     return to10_16f(__half2float(((const __half *)p)[(size_t)y * (nSrcStep / 2) + x]));
   } else {
-    const int C = Mode == 2 ? 4 : 3;
+    const int C = Mode == 2 ? 4: 3;
     if constexpr (InKind == 0)
       return to10_8u((float)((const uint8_t *)src)[(size_t)y * nSrcStep + (size_t)x * C + ch]);
     if constexpr (InKind == 1)
@@ -198,7 +198,7 @@ __global__ void rgb_to_uyvp_kernel(const void *__restrict__ src, const void *__r
       const float b1 = load10<InKind, Mode>(src, s1, s2, nSrcStep, 2, x + 1, y);
       // Planar UYVP: per-pixel chroma floats are clamped to [0,1023] and then
       // averaged (measured NPP behaviour; distinct from the packed encoder).
-      auto clamp10 = [](float w) { return w < 0.0f ? 0.0f : (w > 1023.0f ? 1023.0f : w); };
+      auto clamp10 = [](float w) { return w < 0.0f ? 0.0f: (w > 1023.0f ? 1023.0f: w); };
       const float u0 = clamp10(__fmaf_rn(r, cf.ur, __fmaf_rn(g, cf.ug, __fmaf_rn(b, cf.ub, 512.0f))));
       const float u1 = clamp10(__fmaf_rn(r1, cf.ur, __fmaf_rn(g1, cf.ug, __fmaf_rn(b1, cf.ub, 512.0f))));
       const float v0 = clamp10(__fmaf_rn(r, cf.vr, __fmaf_rn(g, cf.vg, __fmaf_rn(b, cf.vb, 512.0f))));

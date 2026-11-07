@@ -1,4 +1,4 @@
-// c3 package color-space conversion kernels (see nppi_c3_color_executor.h).
+// c3 color-space conversion kernels (see nppi_c3_color_executor.h).
 //
 // Coefficients come from channel-ramp fits against the NVIDIA NPP 13.4
 // reference and are applied in single precision in the recorded order.
@@ -24,12 +24,12 @@ inline bool step_ok(int nStep, int nMinRowBytes) {
 }
 inline bool roi_valid(NppiSize roi) { return roi.width >= 0 && roi.height >= 0; }
 inline NppStatus launch_ok() {
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 __device__ __forceinline__ int sat_u8(float v) {
   int t = static_cast<int>(v);
-  return t < 0 ? 0 : (t > 255 ? 255 : t);
+  return t < 0 ? 0: (t > 255 ? 255: t);
 }
 
 struct Mat {
@@ -51,9 +51,9 @@ __host__ __device__ __forceinline__ Mat matrix(int id) {
 }
 
 __device__ __forceinline__ void rgb_of(const Npp8u *s, int pp, int bgr, float &r, float &g, float &b) {
-  r = static_cast<float>(bgr ? s[2] : s[0]);
+  r = static_cast<float>(bgr ? s[2]: s[0]);
   g = static_cast<float>(s[1]);
-  b = static_cast<float>(bgr ? s[0] : s[2]);
+  b = static_cast<float>(bgr ? s[0]: s[2]);
   (void)pp;
 }
 
@@ -178,10 +178,8 @@ __global__ void k_inv420(const Npp8u *__restrict__ pY, int nYStep, const Npp8u *
   if (x >= w || y >= h) {
     return;
   }
-  const int cb = srcSwap ? pC1[(size_t)(y >> 1) * nC1Step + (x >> 1)]
-                         : pC0[(size_t)(y >> 1) * nC0Step + (x >> 1)];
-  const int cr = srcSwap ? pC0[(size_t)(y >> 1) * nC0Step + (x >> 1)]
-                         : pC1[(size_t)(y >> 1) * nC1Step + (x >> 1)];
+  const int cb = srcSwap ? pC1[(size_t)(y >> 1) * nC1Step + (x >> 1)]: pC0[(size_t)(y >> 1) * nC0Step + (x >> 1)];
+  const int cr = srcSwap ? pC0[(size_t)(y >> 1) * nC0Step + (x >> 1)]: pC1[(size_t)(y >> 1) * nC1Step + (x >> 1)];
   int r, g, b;
   yuv_to_rgb(pY[(size_t)y * nYStep + x], cb, cr, matrixId, r, g, b);
   Npp8u *d = pDst + (size_t)y * nDstStep + (size_t)x * pp;
@@ -237,7 +235,7 @@ __global__ void k_invC2(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u *__r
   }
   const Npp8u *s = pSrc + (size_t)y * nSrcStep + (size_t)p * 4;
   int r, g, b;
-  yuv_to_rgb(s[(px & 1) ? 3 : 1], s[0], s[2], 2, r, g, b);
+  yuv_to_rgb(s[(px & 1) ? 3: 1], s[0], s[2], 2, r, g, b);
   Npp8u *d = pDst + (size_t)y * nDstStep + (size_t)px * pp;
   d[0] = (Npp8u)b;
   d[1] = (Npp8u)g;
@@ -256,7 +254,7 @@ __device__ __forceinline__ void ycrcb422_pixel(const Npp8u *__restrict__ pSrc, i
     p = lastPair;
   }
   const Npp8u *s = pSrc + (size_t)y * nSrcStep + (size_t)p * 4;
-  yuv_to_rgb(s[(x & 1) ? 2 : 0], s[3], s[1], 0, r, g, b);
+  yuv_to_rgb(s[(x & 1) ? 2: 0], s[3], s[1], 0, r, g, b);
 }
 
 __global__ void k_ycrcb422_to_rgb_c2(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u *__restrict__ pDst,
@@ -298,9 +296,9 @@ __global__ void k_rgb_to_ycc(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u
     return;
   }
   const Npp8u *s = pSrc + (size_t)y * nSrcStep + (size_t)x * PP;
-  const float nr = static_cast<float>(BGR ? s[2] : s[0]) * 0.003921569f;
+  const float nr = static_cast<float>(BGR ? s[2]: s[0]) * 0.003921569f;
   const float ng = static_cast<float>(s[1]) * 0.003921569f;
-  const float nb = static_cast<float>(BGR ? s[0] : s[2]) * 0.003921569f;
+  const float nb = static_cast<float>(BGR ? s[0]: s[2]) * 0.003921569f;
   const float ny = 0.299f * nr + 0.587f * ng + 0.114f * nb;
   float c1 = nb - ny;
   c1 = 111.4f * 0.003921569f * c1 + 156.0f * 0.003921569f;
@@ -439,7 +437,7 @@ __global__ void k_ycck_to_cmyk(const Npp8u *__restrict__ p0, const Npp8u *__rest
 
 } // namespace
 
-// 5090: a packed 4-channel source step must be a multiple of the pixel size
+// reference: a packed 4-channel source step must be a multiple of the pixel size
 // (4 bytes for 8u); a misaligned step is NOT_EVEN_STEP_ERROR, checked after
 // the too-short-step test.
 inline bool ac4_src_step_bad(int nSrcStep, int srcPp) {
@@ -467,10 +465,10 @@ NppStatus fwd420(const Npp8u *pSrc, int nSrcStep, int srcPp, int bgr, Npp8u *pDs
   const Mat m = matrix(matrixId);
   k_fwd420_y<<<gridFor(w, h), dim3(kBlockX, kBlockY), 0, stream>>>(pSrc, nSrcStep, srcPp, bgr, pDst[0], aDstStep[0], w,
                                                                   h, m);
-  Npp8u *c0 = swapPlanes ? pDst[2] : pDst[1];
-  Npp8u *c1 = swapPlanes ? pDst[1] : pDst[2];
-  const int s0 = swapPlanes ? aDstStep[2] : aDstStep[1];
-  const int s1 = swapPlanes ? aDstStep[1] : aDstStep[2];
+  Npp8u *c0 = swapPlanes ? pDst[2]: pDst[1];
+  Npp8u *c1 = swapPlanes ? pDst[1]: pDst[2];
+  const int s0 = swapPlanes ? aDstStep[2]: aDstStep[1];
+  const int s1 = swapPlanes ? aDstStep[1]: aDstStep[2];
   if ((w >> 1) > 0 && (h >> 1) > 0) {
     k_fwd420_c<<<gridFor(w >> 1, h >> 1), dim3(kBlockX, kBlockY), 0, stream>>>(pSrc, nSrcStep, srcPp, bgr, c0, s0, c1,
                                                                                s1, w, h, m);
@@ -553,7 +551,7 @@ NppStatus inv420(const Npp8u *const pSrc[3], const int aSrcStep[3], Npp8u *pDst,
   // The BT.709 video-range (CSC) inverse only converts whole 2-row blocks and
   // warns for odd heights; the other 4:2:0 inverses convert every pixel.
   const int ew = w;
-  const int eh = (matrix == 1) ? (h & ~1) : h;
+  const int eh = (matrix == 1) ? (h & ~1): h;
   if (bgr) {
     k_inv420<1><<<gridFor(ew, eh), dim3(kBlockX, kBlockY), 0, stream>>>(pSrc[0], aSrcStep[0], pSrc[1], aSrcStep[1],
                                                                       pSrc[2], aSrcStep[2], pDst, nDstStep, dstPp, ew,
@@ -752,9 +750,9 @@ NppStatus cmykToRgbPlanar(const Npp8u *const pSrc[4], int nSrcStep, Npp8u *pDst[
   if (w == 0 || h == 0) {
     return NPP_NO_ERROR;
   }
-  Npp8u *pR = bgr ? pDst[2] : pDst[0];
+  Npp8u *pR = bgr ? pDst[2]: pDst[0];
   Npp8u *pG = pDst[1];
-  Npp8u *pB = bgr ? pDst[0] : pDst[2];
+  Npp8u *pB = bgr ? pDst[0]: pDst[2];
   k_cmyk_to_planar<<<gridFor(w, h), dim3(kBlockX, kBlockY), 0, stream>>>(pSrc[0], pSrc[1], pSrc[2], pSrc[3], nSrcStep,
                                                                         pR, pG, pB, nDstStep, w, h);
   return launch_ok();

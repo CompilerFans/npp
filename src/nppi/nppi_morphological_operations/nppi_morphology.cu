@@ -37,7 +37,7 @@
 //    below (identical to erodeGeneral / dilateGeneral).
 //=============================================================================
 
-__device__ __forceinline__ int morphVecClamp(int v, int hi) { return v < 0 ? 0 : (v > hi ? hi : v); }
+__device__ __forceinline__ int morphVecClamp(int v, int hi) { return v < 0 ? 0: (v > hi ? hi: v); }
 
 // Reference per-pixel morphology (borders clamped, mask taps honoured).
 // pMask == nullptr means "all taps active" (used by the dedicated 3x3 APIs).
@@ -45,11 +45,11 @@ template <bool DILATE>
 __device__ __forceinline__ Npp8u morphVecRef8u(const Npp8u *__restrict__ pSrc, int nSrcStep, int x, int y, int width,
                                                int height, const Npp8u *__restrict__ pMask, int maskW, int maskH,
                                                int ax, int ay) {
-  Npp8u val = DILATE ? (Npp8u)0 : (Npp8u)255;
+  Npp8u val = DILATE ? (Npp8u)0: (Npp8u)255;
   for (int my = 0; my < maskH; ++my) {
     const Npp8u *__restrict__ row =
         (const Npp8u *)((const char *)pSrc + (size_t)morphVecClamp(y + my - ay, height - 1) * nSrcStep);
-    const Npp8u *__restrict__ mrow = pMask ? pMask + (size_t)my * maskW : nullptr;
+    const Npp8u *__restrict__ mrow = pMask ? pMask + (size_t)my * maskW: nullptr;
     for (int mx = 0; mx < maskW; ++mx) {
       if (mrow && !mrow[mx])
         continue;
@@ -69,7 +69,7 @@ __device__ __forceinline__ Npp8u morphVecRef8u(const Npp8u *__restrict__ pSrc, i
 // SWAR byte-parallel min / max for 8u data (four pixels per 32-bit word).
 //
 // On the MXC600-U every per-lane compare / select instruction (plain 32-bit
-// ternary min-max, __vminu4, __vsetltu4 ...) costs an order of magnitude more
+// ternary min-max, __vminu4, __vsetltu4...) costs an order of magnitude more
 // than a plain integer ALU op, so reducing four bytes with ~15 ALU ops is far
 // cheaper than four per-byte compares.  The identity below never borrows
 // across byte lanes ((a|H) - (b&L) stays within [0x01,0xFF] per lane), and
@@ -81,13 +81,13 @@ __device__ __forceinline__ unsigned int morphSwMin8(unsigned int a, unsigned int
   const unsigned int x = a ^ b;
   const unsigned int lt = ((~a) & b & H) | ((~x & H) & ~d); // lane-wise a < b
   const unsigned int m = (lt >> 7) * 0xFFu;                 // full-lane select mask
-  return b ^ (x & m);                                       // m == 0xFF ? a : b
+  return b ^ (x & m);                                       // m == 0xFF ? a: b
 }
 __device__ __forceinline__ unsigned int morphSwMax8(unsigned int a, unsigned int b) {
   return ~morphSwMin8(~a, ~b);
 }
 
-// sw[j] := the 32-bit word covering window bytes 4j..4j+3, extracted from the
+// sw[j]:= the 32-bit word covering window bytes 4j..4j+3, extracted from the
 // aligned load span w[0..7] where the window starts at byte (K * 4 + r8 / 8).
 // K is a compile-time case, r8 a launch constant (both stay uniform).
 template <int K, int NW>
@@ -166,8 +166,8 @@ __global__ void nppiMorph8u_C1R_kernel(const Npp8u *__restrict__ pSrc, int nSrcS
 
   if (x0 < 0 || x0 + 4 > width || lo < 0 || lo + 32 > width) {
     // Border / tail thread: per-pixel reference path (clamped borders).
-    const int xs = x0 > 0 ? x0 : 0;
-    const int xe = x0 + 4 < width ? x0 + 4 : width;
+    const int xs = x0 > 0 ? x0: 0;
+    const int xe = x0 + 4 < width ? x0 + 4: width;
     for (int x = xs; x < xe; ++x)
       dstRow[x] = morphVecRef8u<DILATE>(pSrc, nSrcStep, x, y, width, height, pMask, MW, maskH, ax, ay);
     return;
@@ -223,7 +223,7 @@ __global__ void nppiMorph8u_C1R_kernel(const Npp8u *__restrict__ pSrc, int nSrcS
       }
 #pragma unroll
       for (int j = 0; j < SW_WORDS; ++j)
-        v[j] = DILATE ? morphSwMax8(v[j], sw[j]) : morphSwMin8(v[j], sw[j]);
+        v[j] = DILATE ? morphSwMax8(v[j], sw[j]): morphSwMin8(v[j], sw[j]);
     }
     // ---- horizontal fold of the MW-1 neighbours ----
     unsigned int out = v[0];
@@ -231,13 +231,13 @@ __global__ void nppiMorph8u_C1R_kernel(const Npp8u *__restrict__ pSrc, int nSrcS
     for (int mx = 1; mx < MW; ++mx) {
       const int wi = mx >> 2;
       const int sh = (mx & 3) * 8;
-      const unsigned int s = sh == 0 ? v[wi] : ((v[wi] >> sh) | (v[wi + 1] << (32 - sh)));
-      out = DILATE ? morphSwMax8(out, s) : morphSwMin8(out, s);
+      const unsigned int s = sh == 0 ? v[wi]: ((v[wi] >> sh) | (v[wi + 1] << (32 - sh)));
+      out = DILATE ? morphSwMax8(out, s): morphSwMin8(out, s);
     }
     *(unsigned int *)(dstRow + x0) = out;
   } else {
     // ---- per-tap reduction, each tap gated by its mask byte ----
-    unsigned int out = DILATE ? 0u : 0xFFFFFFFFu;
+    unsigned int out = DILATE ? 0u: 0xFFFFFFFFu;
     for (int my = 0; my < maskH; ++my) {
       const Npp8u *__restrict__ row =
           (const Npp8u *)((const char *)pSrc + (size_t)morphVecClamp(y + my - ay, height - 1) * nSrcStep) + lo;
@@ -266,8 +266,8 @@ __global__ void nppiMorph8u_C1R_kernel(const Npp8u *__restrict__ pSrc, int nSrcS
           continue;
         const int wi = mx >> 2;
         const int sh = (mx & 3) * 8;
-        const unsigned int s = sh == 0 ? sw[wi] : ((sw[wi] >> sh) | (sw[wi + 1] << (32 - sh)));
-        out = DILATE ? morphSwMax8(out, s) : morphSwMin8(out, s);
+        const unsigned int s = sh == 0 ? sw[wi]: ((sw[wi] >> sh) | (sw[wi + 1] << (32 - sh)));
+        out = DILATE ? morphSwMax8(out, s): morphSwMin8(out, s);
       }
     }
     *(unsigned int *)(dstRow + x0) = out;
@@ -376,7 +376,7 @@ __device__ __forceinline__ void morphVecPickWords(W *__restrict__ sw, const W *_
     sw[j] = w[K + j];
 }
 
-// sw := the SW window words, extracted from the aligned load span w starting
+// sw:= the SW window words, extracted from the aligned load span w starting
 // at word q (q is a launch constant, so the switch stays warp-uniform).
 template <int NW, typename W>
 __device__ __forceinline__ void morphVecPickWindow(W *__restrict__ sw, const W *__restrict__ w, int q) {
@@ -401,20 +401,20 @@ __device__ __forceinline__ void morphVecPickWindow(W *__restrict__ sw, const W *
 // (bit-identical to the reference "if (v < minVal) minVal = v"
 // accumulation, NaN and signed-zero behaviour included).
 template <bool DILATE> __device__ __forceinline__ unsigned int morphWordReduce(unsigned int a, unsigned int b) {
-  return DILATE ? morphSwMax8(a, b) : morphSwMin8(a, b);
+  return DILATE ? morphSwMax8(a, b): morphSwMin8(a, b);
 }
 template <bool DILATE> __device__ __forceinline__ float morphWordReduce(float a, float b) {
-  return DILATE ? (a > b ? a : b) : (a < b ? a : b);
+  return DILATE ? (a > b ? a: b): (a < b ? a: b);
 }
 
 // Identity element of the reduction (255 / 0 per 8u channel, 1e10 / -1e10
 // for 32f, matching erodeGeneral / dilateGeneral).  The dummy argument only
 // selects the overload.
 template <bool DILATE> __device__ __forceinline__ unsigned int morphWordInit(unsigned int) {
-  return DILATE ? 0u : 0xFFFFFFFFu;
+  return DILATE ? 0u: 0xFFFFFFFFu;
 }
 template <bool DILATE> __device__ __forceinline__ float morphWordInit(float) {
-  return DILATE ? -1e10f : 1e10f;
+  return DILATE ? -1e10f: 1e10f;
 }
 
 // Reference per-pixel morphology for the word-per-pixel kernels (borders
@@ -430,7 +430,7 @@ __device__ __forceinline__ unsigned int morphVecRefWordPix(const unsigned int *_
   for (int my = 0; my < maskH; ++my) {
     const Npp8u *__restrict__ row =
         (const Npp8u *)((const char *)src + (size_t)morphVecClamp(y + my - ay, height - 1) * nSrcStep);
-    const Npp8u *__restrict__ mrow = pMask ? pMask + (size_t)my * maskW : nullptr;
+    const Npp8u *__restrict__ mrow = pMask ? pMask + (size_t)my * maskW: nullptr;
     for (int mx = 0; mx < maskW; ++mx) {
       if (mrow && !mrow[mx])
         continue;
@@ -449,7 +449,7 @@ __device__ __forceinline__ float morphVecRefWordPix(const float *__restrict__ pS
   for (int my = 0; my < maskH; ++my) {
     const float *__restrict__ row =
         (const float *)((const char *)pSrc + (size_t)morphVecClamp(y + my - ay, height - 1) * nSrcStep);
-    const Npp8u *__restrict__ mrow = pMask ? pMask + (size_t)my * maskW : nullptr;
+    const Npp8u *__restrict__ mrow = pMask ? pMask + (size_t)my * maskW: nullptr;
     for (int mx = 0; mx < maskW; ++mx) {
       if (mrow && !mrow[mx])
         continue;
@@ -498,8 +498,8 @@ __global__ void nppiMorphWordPix_kernel(const W *__restrict__ pSrc, int nSrcStep
 
   if (x0 < 0 || x0 + 4 > width || lo < 0 || lo + W_WORDS > width) {
     // Border / tail thread: per-pixel reference path (clamped borders).
-    const int xs = x0 > 0 ? x0 : 0;
-    const int xe = x0 + 4 < width ? x0 + 4 : width;
+    const int xs = x0 > 0 ? x0: 0;
+    const int xe = x0 + 4 < width ? x0 + 4: width;
     for (int x = xs; x < xe; ++x)
       dstRow[x] = morphVecRefWordPix<DILATE>(pSrc, nSrcStep, x, y, width, height, pMask, MW, maskH, ax, ay);
     return;
@@ -2192,7 +2192,7 @@ NppStatus nppiErode_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst
     nppiErode_8u_C1R_3x3_kernel<32, 8><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
         pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask);
     cudaError_t cudaStatus = cudaGetLastError();
-    return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    return (cudaStatus == cudaSuccess) ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
   // general opt
@@ -2213,7 +2213,7 @@ NppStatus nppiErode_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst
       oAnchor.x, oAnchor.y, tileH, tilePitch);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiErode_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
@@ -2249,7 +2249,7 @@ NppStatus nppiErode_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst
         oAnchor.x, oAnchor.y);
   }
   cudaError_t cudaStatus = cudaGetLastError();
-  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiErode_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
@@ -2282,7 +2282,7 @@ NppStatus nppiErode_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *p
       oAnchor.x, oAnchor.y, tileH, tilePitch);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiErode_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
@@ -2302,7 +2302,7 @@ NppStatus nppiErode_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *p
       oAnchor.x, oAnchor.y);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiDilate_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
@@ -2324,7 +2324,7 @@ NppStatus nppiDilate_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDs
     nppiDilate_8u_C1R_3x3_kernel<32, 8><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
         pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask);
     cudaError_t cudaStatus = cudaGetLastError();
-    return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    return (cudaStatus == cudaSuccess) ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
   dim3 gridSize((oSizeROI.width + blockSize.x * 4 - 1) / (blockSize.x * 4),
@@ -2343,7 +2343,7 @@ NppStatus nppiDilate_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDs
       oAnchor.x, oAnchor.y, tileH, tilePitch);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiDilate_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
@@ -2380,7 +2380,7 @@ NppStatus nppiDilate_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDs
         oAnchor.x, oAnchor.y);
   }
   cudaError_t cudaStatus = cudaGetLastError();
-  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiDilate_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
@@ -2412,7 +2412,7 @@ NppStatus nppiDilate_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *
       oAnchor.x, oAnchor.y, tileH, tilePitch);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiDilate_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
@@ -2432,6 +2432,6 @@ NppStatus nppiDilate_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *
       oAnchor.x, oAnchor.y);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 }

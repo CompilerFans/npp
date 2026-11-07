@@ -1,12 +1,12 @@
-// CPU-golden coverage for the general filter families
+// CPU-reference output coverage for the general filter families
 // (nppi_filtering_functions.h):
 //   nppiFilter / nppiFilterBorder                 (32-bit integer kernel)
 //   nppiFilter32f / nppiFilterBorder32f           (32f kernel)
-//   nppiFilter{Row,Column} / ...Border            (1D integer kernel)
-//   nppiFilter{Row,Column}32f / ...Border32f      (1D 32f kernel)
+//   nppiFilter{Row,Column} /...Border            (1D integer kernel)
+//   nppiFilter{Row,Column}32f /...Border32f      (1D 32f kernel)
 //   nppiFilter_64f_C1R, Row/Column_64f_C1R        (double kernel)
 //
-// Measured NPP 13.4 semantics (RTX 5090):
+// Measured NPP 13.4 semantics (reference):
 //   dst(x,y)[c] = sum_{j,i} src(x + ax - i, y + ay - j)[c] * k[j*kw + i]
 //   (row: src(x + ax - i, y); column: src(x, y + ay - i)).  Tap coordinates
 //   are clamped to the source image by the border variants (REPLICATE only)
@@ -28,17 +28,17 @@
 namespace num {
 namespace filtgen {
 
-inline int clampi(int v, int lo, int hi) { return v < lo ? lo : (v > hi ? hi : v); }
+inline int clampi(int v, int lo, int hi) { return v < lo ? lo: (v > hi ? hi: v); }
 
 template <typename Dst> inline Dst satI32(int v) {
   if constexpr (std::is_same_v<Dst, Npp8u>) {
-    return (Npp8u)(v <= 0 ? 0 : (v >= 255 ? 255 : v));
+    return (Npp8u)(v <= 0 ? 0: (v >= 255 ? 255: v));
   } else if constexpr (std::is_same_v<Dst, Npp16u>) {
-    return (Npp16u)(v <= 0 ? 0 : (v >= 65535 ? 65535 : v));
+    return (Npp16u)(v <= 0 ? 0: (v >= 65535 ? 65535: v));
   } else if constexpr (std::is_same_v<Dst, Npp16s>) {
-    return (Npp16s)(v <= -32768 ? -32768 : (v >= 32767 ? 32767 : v));
+    return (Npp16s)(v <= -32768 ? -32768: (v >= 32767 ? 32767: v));
   } else if constexpr (std::is_same_v<Dst, Npp8s>) {
-    return (Npp8s)(v <= -128 ? -128 : (v >= 127 ? 127 : v));
+    return (Npp8s)(v <= -128 ? -128: (v >= 127 ? 127: v));
   } else if constexpr (std::is_same_v<Dst, Npp32s>) {
     return (Npp32s)v;
   } else {
@@ -60,13 +60,13 @@ template <typename Dst> inline Dst emitFloat(float acc) {
       if (t <= -2147483648.0f) return -2147483647 - 1;
       return (Npp32s)t;
     } else if constexpr (std::is_same_v<Dst, Npp16s>) {
-      return (Npp16s)(t < -32768.0f ? -32768 : (t > 32767.0f ? 32767 : t));
+      return (Npp16s)(t < -32768.0f ? -32768: (t > 32767.0f ? 32767: t));
     } else if constexpr (std::is_same_v<Dst, Npp16u>) {
-      return (Npp16u)(t < 0.0f ? 0 : (t > 65535.0f ? 65535 : t));
+      return (Npp16u)(t < 0.0f ? 0: (t > 65535.0f ? 65535: t));
     } else if constexpr (std::is_same_v<Dst, Npp8s>) {
-      return (Npp8s)(t < -128.0f ? -128 : (t > 127.0f ? 127 : t));
+      return (Npp8s)(t < -128.0f ? -128: (t > 127.0f ? 127: t));
     } else {  // Npp8u
-      return (Npp8u)(t < 0.0f ? 0 : (t > 255.0f ? 255 : t));
+      return (Npp8u)(t < 0.0f ? 0: (t > 255.0f ? 255: t));
     }
   }
 }
@@ -90,28 +90,28 @@ void run_generic(const char *id, Call call) {
   static const Cfg cfgs[] = {{6, 6}, {8, 6}, {33, 25}, {96, 64}};
   static const int masks2d[][2] = {{3, 3}, {5, 3}, {3, 5}, {1, 1}};
   static const int masks1d[] = {3, 5, 7};
-  const int m = G == 0 ? 4 : 8;
+  const int m = G == 0 ? 4: 8;
   bool failed = false;
-  for (const Cfg &cf : cfgs) {
-    const int nGeo = G == 0 ? 4 : 3;
+  for (const Cfg &cf: cfgs) {
+    const int nGeo = G == 0 ? 4: 3;
     for (int gi = 0; gi < nGeo && !failed; ++gi) {
-      const int kw = G == 0 ? masks2d[gi][0] : masks1d[gi];
-      const int kh = G == 0 ? masks2d[gi][1] : 1;
-      const int maskSize = G == 0 ? 0 : masks1d[gi];
-      const int nTaps = G == 0 ? kw * kh : maskSize;
-      const int centerA[2] = {G == 2 ? 0 : (G == 0 ? (kw - 1) / 2 : maskSize / 2),
-                              G == 1 ? 0 : (G == 0 ? (kh - 1) / 2 : maskSize / 2)};
+      const int kw = G == 0 ? masks2d[gi][0]: masks1d[gi];
+      const int kh = G == 0 ? masks2d[gi][1]: 1;
+      const int maskSize = G == 0 ? 0: masks1d[gi];
+      const int nTaps = G == 0 ? kw * kh: maskSize;
+      const int centerA[2] = {G == 2 ? 0: (G == 0 ? (kw - 1) / 2: maskSize / 2),
+                              G == 1 ? 0: (G == 0 ? (kh - 1) / 2: maskSize / 2)};
       // Measured: NPP's 1D kernels mishandle non-centred anchors for some
       // layouts (the 8u C3 row kernel maps anchor 0 to shifted taps and even
       // duplicate responses), so 1D value cases use the centred anchor only -
-      // the same geometry as the differential value records.  2D kernels
+      // the same geometry as the reference comparison value records.  2D kernels
       // agree for both centred and zero anchors.
-      const int nAnchor = (G != 0) ? 1 : ((kw == 1 && kh == 1) ? 1 : 2);
+      const int nAnchor = (G != 0) ? 1: ((kw == 1 && kh == 1) ? 1: 2);
       const int divisors[2] = {1, 3};
-      const int nDiv = K == 0 ? 2 : 1;
+      const int nDiv = K == 0 ? 2: 1;
       for (int ai = 0; ai < nAnchor && !failed; ++ai) {
-        const int ax = ai == 0 ? centerA[0] : 0;
-        const int ay = ai == 0 ? centerA[1] : 0;
+        const int ax = ai == 0 ? centerA[0]: 0;
+        const int ay = ai == 0 ? centerA[1]: 0;
         for (int di = 0; di < nDiv && !failed; ++di) {
           const int divisor = divisors[di];
           std::vector<KT> khost((size_t)nTaps);
@@ -125,7 +125,7 @@ void run_generic(const char *id, Call call) {
           kdev.copyFromHost(khost);
           const int W = cf.w + 2 * m, H = cf.h + 2 * m;
           const uint64_t seed = case_seed(id, cf.w, cf.h, kw * 16 + kh, ai * 8 + gi + 32 * di,
-                                          Border ? 1 : 0, 0);
+                                          Border ? 1: 0, 0);
           Buf<Src> *s = new Buf<Src>(W, H, C, 0, 0);
           fill_regime(*s, C, seed, kWide, 0, false, false, false);
           s->dev.copyFromHost(s->host);
@@ -139,7 +139,7 @@ void run_generic(const char *id, Call call) {
           const NppStatus st = call(sp, s->step, reinterpret_cast<Dst *>(d->dptr()), d->step,
                                     NppiSize{cf.w, cf.h}, NppiSize{W, H}, NppiPoint{m, m},
                                     kdev.get(), NppiSize{kw, kh}, NppiPoint{ax, ay}, maskSize,
-                                    divisor, Border ? (int)NPP_BORDER_REPLICATE : 0, ctx);
+                                    divisor, Border ? (int)NPP_BORDER_REPLICATE: 0, ctx);
           if (st != NPP_NO_ERROR) {
             ++cnt.skipped;
             if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
@@ -169,8 +169,7 @@ void run_generic(const char *id, Call call) {
                   }
                   int px, py;
                   const bool useClamp =
-                      Clamp && ((G == 0) ? (kw == kh && kw >= 3 && (kw & 1) != 0)
-                                         : (maskSize >= 3 && (maskSize & 1) != 0));
+                      Clamp && ((G == 0) ? (kw == kh && kw >= 3 && (kw & 1) != 0): (maskSize >= 3 && (maskSize & 1) != 0));
                   if (useClamp) {
                     // NPP's plain 32f C1R path clamps every tap into the ROI
                     // for odd square kernels / odd masks of size >= 3.
@@ -192,7 +191,7 @@ void run_generic(const char *id, Call call) {
                     const long long prod = (long long)khost[(size_t)t] * (long long)(int)v;
                     iacc += prod;
                     const unsigned pu = (unsigned)(unsigned long long)prod;
-                    uacc = pu > 0xFFFFFFFFu - uacc ? 0xFFFFFFFFu : uacc + pu;
+                    uacc = pu > 0xFFFFFFFFu - uacc ? 0xFFFFFFFFu: uacc + pu;
                   } else if constexpr (K == 1) {
                     facc += (float)v * (float)khost[(size_t)t];
                   } else {
@@ -210,10 +209,10 @@ void run_generic(const char *id, Call call) {
                     // taps of 2^29 divided by 2^31-1 emit 2, and a mixed-sign
                     // window whose wrapped sum is 100 still emits 255.
                     const unsigned q = uacc / (unsigned)divisor;
-                    out = (Npp8u)(q > 255u ? 255u : q);
+                    out = (Npp8u)(q > 255u ? 255u: q);
                   } else {
                     const int wrapped = (int)(unsigned)iacc;
-                    const int q = (wrapped == INT32_MIN && divisor == -1) ? INT32_MIN : wrapped / divisor;
+                    const int q = (wrapped == INT32_MIN && divisor == -1) ? INT32_MIN: wrapped / divisor;
                     out = satI32<Dst>(q);
                   }
                 } else if constexpr (K == 1) {

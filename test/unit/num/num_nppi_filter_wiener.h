@@ -1,7 +1,7 @@
-// CPU-golden coverage for nppiFilterWienerBorder
+// CPU-reference output coverage for nppiFilterWienerBorder
 // (nppi_filtering_functions.h).
 //
-// Measured NPP 13.4 semantics (RTX 5090; SASS-derived, probe-verified):
+// Measured NPP 13.4 semantics (reference; SASS-derived, measured):
 //   mean = (sum over NPP's statistics window) * 1/N, N = mw*mh;
 //   var  = (sum of fma(v, v, -mean*mean) over the variance window) * 1/N,
 //   where the window is the quirky loop measured on the reference:
@@ -22,14 +22,14 @@
 namespace num {
 namespace filtwien {
 
-inline int clampi(int v, int lo, int hi) { return v < lo ? lo : (v > hi ? hi : v); }
+inline int clampi(int v, int lo, int hi) { return v < lo ? lo: (v > hi ? hi: v); }
 
 template <typename T> inline T wienerEmit(float v) {
   if constexpr (std::is_floating_point_v<T>) {
     return (T)v;
   } else {
-    const float hi = std::is_same_v<T, Npp8u> ? 255.0f : 32767.0f;
-    const float lo = std::is_same_v<T, Npp8u> ? 0.0f : -32768.0f;
+    const float hi = std::is_same_v<T, Npp8u> ? 255.0f: 32767.0f;
+    const float lo = std::is_same_v<T, Npp8u> ? 0.0f: -32768.0f;
     if (v > hi) v = hi;
     if (v < lo) v = lo;
     return (T)v;
@@ -51,13 +51,11 @@ void run_wiener(const char *id, Call call) {
   static const Cfg cfgs[] = {{6, 6}, {33, 25}, {96, 64}};
   static const int masks[] = {3, 5};
   const bool rectangle = (C == 4 && A == 3);  // AC4 layout only
-  const float noiseScale = std::is_same_v<T, Npp8u> ? 255.0f * 255.0f
-                           : std::is_same_v<T, Npp16s> ? 32767.0f * 32767.0f
-                                                       : 1.0f;
+  const float noiseScale = std::is_same_v<T, Npp8u> ? 255.0f * 255.0f: std::is_same_v<T, Npp16s> ? 32767.0f * 32767.0f: 1.0f;
   static const float noiseSets[2][4] = {{0.0f, 0.0f, 0.0f, 0.0f}, {0.001f, 0.002f, 0.003f, 0.0005f}};
   const int m = 2;
   bool failed = false;
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     for (int mi = 0; mi < 2 && !failed; ++mi) {
       for (int ni = 0; ni < 2 && !failed; ++ni) {
         const int mask = masks[mi];
@@ -108,7 +106,7 @@ void run_wiener(const char *id, Call call) {
           }
           const int rows = mask - 1;
           for (int r = 0; r < rows; ++r) {
-            const int x0 = ax - (mask - 1) + (r == 0 ? 0 : 1);
+            const int x0 = ax - (mask - 1) + (r == 0 ? 0: 1);
             for (int dx = x0; dx <= ax; ++dx) sum += load(x + dx, y + ay - r, c);
           }
           return sum;
@@ -130,7 +128,7 @@ void run_wiener(const char *id, Call call) {
           }
           const int rows = mask - 1;
           for (int r = 0; r < rows; ++r) {
-            const int x0 = ax - (mask - 1) + (r == 0 ? 0 : 1);
+            const int x0 = ax - (mask - 1) + (r == 0 ? 0: 1);
             for (int dx = x0; dx <= ax; ++dx) add(x + dx, y + ay - r);
           }
           return acc;

@@ -1,4 +1,4 @@
-// CPU-golden coverage for the color-key helpers of the color conversion
+// CPU-reference output coverage for the color-key helpers of the color conversion
 // module: nppiCompColorKey_{C1,C3,C4} and nppiAlphaCompColorKey_AC4.
 //
 // Measured NPP 13.4 semantics:
@@ -18,20 +18,20 @@ namespace num {
 namespace colorkey {
 
 inline int rhd(int n, int d) { return (2 * n + d - 1) / (2 * d); }
-inline int clamp255(int v) { return v < 0 ? 0 : (v > 255 ? 255 : v); }
+inline int clamp255(int v) { return v < 0 ? 0: (v > 255 ? 255: v); }
 
 struct Coeffs {
   int a1, a2, c0, c1, c2, c0x, c2x;
 };
 inline Coeffs coeffs(int alpha1, int alpha2) {
   Coeffs k;
-  k.a1 = alpha1 == 255 ? 256 : alpha1;
-  k.a2 = alpha2 == 255 ? 256 : alpha2;
+  k.a1 = alpha1 == 255 ? 256: alpha1;
+  k.a2 = alpha2 == 255 ? 256: alpha2;
   k.c2 = rhd((256 - k.a1) * k.a2, 256);
   k.c1 = rhd(k.a1 * k.a2, 256);
   k.c0 = rhd(k.a1 * (256 - k.a2), 256);
-  k.c0x = k.c0 > 255 ? 255 : k.c0;
-  k.c2x = k.c2 > 255 ? 255 : k.c2;
+  k.c0x = k.c0 > 255 ? 255: k.c0;
+  k.c2x = k.c2 > 255 ? 255: k.c2;
   return k;
 }
 
@@ -60,7 +60,7 @@ void run_comp_key(const char *id, const Npp8u *key, Call call) {
   std::string first;
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {16, 12}, {32, 24}, {64, 48}, {5, 4}, {17, 13}};
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     const int w = cf.w, h = cf.h;
     const uint64_t seed = case_seed(id, w, h, 0, 0, 0, 0);
     Buf<Npp8u> *s1 = new Buf<Npp8u>(w, h, C, 0, 0);
@@ -92,7 +92,7 @@ void run_comp_key(const char *id, const Npp8u *key, Call call) {
       for (int x = 0; x < w; ++x) {
         bool match = true;
         for (int c = 0; c < C; ++c) match = match && s1->hptr()[(size_t)y * s1->step + (size_t)x * C + c] == key[c];
-        const Buf<Npp8u> *from = match ? s2 : s1;
+        const Buf<Npp8u> *from = match ? s2: s1;
         for (int c = 0; c < C; ++c)
           want[(size_t)y * d->step + (size_t)x * C + c] =
               from->hptr()[(size_t)y * from->step + (size_t)x * C + c];
@@ -129,7 +129,7 @@ void run_alpha_comp_key(const char *id, const Npp8u *key, Call call) {
   static const int ops[] = {NPPI_OP_ALPHA_OVER, NPPI_OP_ALPHA_IN, NPPI_OP_ALPHA_OUT,
                             NPPI_OP_ALPHA_ATOP, NPPI_OP_ALPHA_XOR, NPPI_OP_ALPHA_PLUS};
   static const int alphas[][2] = {{255, 255}, {128, 64}, {0, 200}, {77, 255}};
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     const int w = cf.w, h = cf.h;
     const uint64_t seed = case_seed(id, w, h, 0, 0, 0, 0);
     Buf<Npp8u> *s1 = new Buf<Npp8u>(w, h, 4, 0, 0);
@@ -141,8 +141,8 @@ void run_alpha_comp_key(const char *id, const Npp8u *key, Call call) {
     s1->dev.copyFromHost(s1->host);
     s2->dev.copyFromHost(s2->host);
     bool failed = false;
-    for (int op : ops) {
-      for (const auto &al : alphas) {
+    for (int op: ops) {
+      for (const auto &al: alphas) {
         Buf<Npp8u> *d = new Buf<Npp8u>(w, h, 4, 0, 0x5A);
         d->dev.copyFromHost(d->host);
         npp_diff::clear_cuda_error();

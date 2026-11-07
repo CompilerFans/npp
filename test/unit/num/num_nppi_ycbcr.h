@@ -1,10 +1,10 @@
-// CPU-golden coverage for the JPEG YCbCr conversion families
+// CPU-reference output coverage for the JPEG YCbCr conversion families
 // (nppiRGBToYCbCr{444,420,422,411}_JPEG / BGR variants and the inverse
 // nppiYCbCr*_JPEG -> RGB/BGR), packed C3 and planar P3 layouts.
 //
-// Measured NPP 13.4 semantics (single-precision pipeline, fitted on the 5090):
-//   forward: Y = fma(.114,B, fma(.299,R, .587*G)) and Cb/Cr stepwise
-//            -.168736R-.331264G+.5B+128 / .5R-.418688G-.081312B+128 (every
+// Measured NPP 13.4 semantics (single-precision pipeline, fitted on the reference):
+//   forward: Y = fma(.114,B, fma(.299,R,.587*G)) and Cb/Cr stepwise
+//            -.168736R-.331264G+.5B+128 /.5R-.418688G-.081312B+128 (every
 //            product/add rounded to float), truncated to u8; verified
 //            exhaustively over all 2^24 RGB triples;
 //   inverse: R = fma(1.402,dCr,Y); G = fma(-.714136,dCr, fma(-.344136,dCb,Y));
@@ -31,7 +31,7 @@ enum class Sub { S444, S420, S422, S411 };
 
 inline Npp8u q8(double v) {
   int t = (int)v;
-  return (Npp8u)(t < 0 ? 0 : (t > 255 ? 255 : t));
+  return (Npp8u)(t < 0 ? 0: (t > 255 ? 255: t));
 }
 
 inline void fwd_pixel(int r, int g, int b, int &y, int &cb, int &cr) {
@@ -69,7 +69,7 @@ void run_ycbcr_jpeg(const char *id, Call call) {
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{4, 4},   {8, 6},   {16, 12}, {32, 24}, {64, 48},
                              {128, 96}, {17, 13}, {16, 13}, {17, 12}, {48, 32}};
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     if (S == Sub::S411 && (cf.w % 4) != 0) continue;
     std::vector<Buf<Npp8u> *> srcs;
     const uint64_t seed = case_seed(id, cf.w, cf.h, 0, 0, 0, 0);
@@ -82,7 +82,7 @@ void run_ycbcr_jpeg(const char *id, Call call) {
       planar_fill_src(srcs, 3, cf.w, cf.h, 0, 0, 0, seed, kWide);
     }
     // Only forward destinations are subsampled; inverse destinations are RGB.
-    const int cw = (Fwd && S == Sub::S411) ? (cf.w / 4) : cf.w;
+    const int cw = (Fwd && S == Sub::S411) ? (cf.w / 4): cf.w;
     std::vector<Buf<Npp8u> *> dsts;
     std::vector<std::vector<uint8_t>> pre;
     if constexpr (DstPacked) {
@@ -92,7 +92,7 @@ void run_ycbcr_jpeg(const char *id, Call call) {
       pre.push_back(d->host);
     } else {
       for (int p = 0; p < 3; ++p) {
-        const int dw = (p == 0) ? cf.w : cw;
+        const int dw = (p == 0) ? cf.w: cw;
         Buf<Npp8u> *d = new Buf<Npp8u>(dw, cf.h, 1, 0, 0x5A);
         d->dev.copyFromHost(d->host);
         dsts.push_back(d);
@@ -128,8 +128,8 @@ void run_ycbcr_jpeg(const char *id, Call call) {
     if (st != NPP_NO_ERROR && st != NPP_DOUBLE_SIZE_WARNING) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-      for (auto *p : srcs) delete p;
-      for (auto *p : dsts) delete p;
+      for (auto *p: srcs) delete p;
+      for (auto *p: dsts) delete p;
       continue;
     }
     const cudaError_t se = cudaDeviceSynchronize();
@@ -149,10 +149,10 @@ void run_ycbcr_jpeg(const char *id, Call call) {
       if constexpr (S == Sub::S420 || S == Sub::S422) eh = cf.h & ~1;
     }
     const bool planarSrcNoop = (!SrcPacked) && Fwd && (S == Sub::S420 || S == Sub::S422);
-    auto planeOf = [&](int c) -> int { return Bgr ? 2 - c : c; };
+    auto planeOf = [&](int c) -> int { return Bgr ? 2 - c: c; };
     // Forward sources are RGB/BGR images; inverse sources are always Y,Cb,Cr.
     auto srcAt = [&](int c, int x, int y) -> int {
-      const int p = Fwd ? planeOf(c) : c;
+      const int p = Fwd ? planeOf(c): c;
       if constexpr (SrcPacked) return srcs[0]->hptr()[(size_t)y * srcs[0]->step + (size_t)x * 3 + (size_t)p];
       else return srcs[(size_t)p]->hptr()[(size_t)y * srcs[(size_t)p]->step + (size_t)x];
     };
@@ -179,8 +179,8 @@ void run_ycbcr_jpeg(const char *id, Call call) {
           }
         }
       if constexpr (!DstPacked && (S == Sub::S420 || S == Sub::S422 || S == Sub::S411)) {
-        const int cw2 = (S == Sub::S411) ? (cf.w / 4) : (cf.w / 2);
-        const int ch2 = (S == Sub::S420) ? (cf.h / 2) : cf.h;
+        const int cw2 = (S == Sub::S411) ? (cf.w / 4): (cf.w / 2);
+        const int ch2 = (S == Sub::S420) ? (cf.h / 2): cf.h;
         // Measured: the JPEG 4:1:1 planar-source forward takes the first
         // sample of each 4-column group; the packed-source forward averages.
         const bool firstSampleOnly = (!SrcPacked) && (S == Sub::S411);
@@ -194,8 +194,8 @@ void run_ycbcr_jpeg(const char *id, Call call) {
               continue;
             }
             int sumCb = 0, sumCr = 0, n = 0;
-            const int spanX = (S == Sub::S411) ? 4 : 2;
-            const int spanY = (S == Sub::S420) ? 2 : 1;
+            const int spanX = (S == Sub::S411) ? 4: 2;
+            const int spanY = (S == Sub::S420) ? 2: 1;
             for (int dy = 0; dy < spanY; ++dy)
               for (int dx = 0; dx < spanX; ++dx) {
                 int Yv, cb, cr;
@@ -237,13 +237,12 @@ void run_ycbcr_jpeg(const char *id, Call call) {
       const GenCase dc{(int)dsts[p]->bw, (int)dsts[p]->bh, 0, 0, 0, kSmall, 0};
       const bool ok = DstPacked
                           ? rotate_check<Npp8u, 3, 3>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p],
-                                                      dsts[p]->step, std::vector<uint8_t>(), cnt, first)
-                          : rotate_check<Npp8u, 1, 1>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p],
+                                                      dsts[p]->step, std::vector<uint8_t>(), cnt, first): rotate_check<Npp8u, 1, 1>(id, dc, NPPI_INTER_NN, pre[p], dsts[p]->host, want[p],
                                                       dsts[p]->step, std::vector<uint8_t>(), cnt, first);
       if (!ok) failed = true;
     }
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
     if (failed || cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);

@@ -1,9 +1,9 @@
-// CPU-golden coverage for the signed PBA distance transforms
+// CPU-reference output coverage for the signed PBA distance transforms
 // (nppi_filtering_functions.h):
 //   nppiSignedDistanceTransformPBA_{32f,32f64f,64f}_C1R and the matching
 //   nppiSignedDistanceTransformAbsPBA entry points.
 //
-// Measured NPP 13.4 semantics (RTX 5090; decoded from libnppif):
+// Measured NPP 13.4 semantics (reference; decoded from libnppif):
 //   * inside pixels are those with src >= 1; outside sites are src <= 0 or
 //     src < nCutoffValue;
 //   * with the nearest opposite-class site (or the nearest inside pixel for
@@ -61,9 +61,9 @@ void run_signed_dt(const char *id, Call call) {
   // The reference's antialiased Abs 32f64f interior values are not a distance
   // field once the sub-pixel shifts are non-zero (measured: they collapse to
   // the one-pixel band value), so that flavour is exercised with zero shifts.
-  const int nShift = Model == kAaAbs ? 1 : 2;
+  const int nShift = Model == kAaAbs ? 1: 2;
   bool failed = false;
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     for (int pat = 0; pat < nPat && !failed; ++pat) {
       for (int si = 0; si < nShift && !failed; ++si) {
         const int W = cf.w, H = cf.h;
@@ -72,9 +72,9 @@ void run_signed_dt(const char *id, Call call) {
           for (int x = 0; x < W; ++x) {
             Src v = (Src)0;
             if (pat == 0)
-              v = (y >= H / 3 && y < 2 * H / 3 && x >= W / 3 && x < 2 * W / 3) ? (Src)1 : (Src)0;
+              v = (y >= H / 3 && y < 2 * H / 3 && x >= W / 3 && x < 2 * W / 3) ? (Src)1: (Src)0;
             else
-              v = (x >= W / 2 - 8 && x < W / 2 + 8 && y >= H / 2 - 8 && y < H / 2 + 8) ? (Src)1 : (Src)0;
+              v = (x >= W / 2 - 8 && x < W / 2 + 8 && y >= H / 2 - 8 && y < H / 2 + 8) ? (Src)1: (Src)0;
             s->hptr()[(size_t)y * (s->step / (int)sizeof(Src)) + (size_t)x] = v;
           }
         s->dev.copyFromHost(s->host);
@@ -89,8 +89,8 @@ void run_signed_dt(const char *id, Call call) {
         nppiSignedDistanceTransformPBAGetAntialiasingBufferSize(NppiSize{W, H}, &aneed);
         nppiDistanceTransformPBAGetAntialiasingBufferSize(NppiSize{W, H}, &aneed2);
         if (aneed2 > aneed) aneed = aneed2;
-        npp_functional_test::DeviceMemory<Npp8u> buf(need > need64 ? need : need64);
-        npp_functional_test::DeviceMemory<Npp8u> abuf(aneed ? aneed : 1);
+        npp_functional_test::DeviceMemory<Npp8u> buf(need > need64 ? need: need64);
+        npp_functional_test::DeviceMemory<Npp8u> abuf(aneed ? aneed: 1);
         // NPP's signed kernels write every output unconditionally, so the
         // three Voronoi buffers must be real device memory even though their
         // contents are not compared.
@@ -102,7 +102,7 @@ void run_signed_dt(const char *id, Call call) {
         // The antialiasing workspace is mandatory only for the Abs 32f64f
         // entry point; the other flavours are exercised in their non-AA mode
         // (passing the workspace to them has no effect on the reference).
-        Npp8u *aa = Model == kAaAbs ? abuf.get() : nullptr;
+        Npp8u *aa = Model == kAaAbs ? abuf.get(): nullptr;
         npp_diff::clear_cuda_error();
         const NppStatus st = call(reinterpret_cast<Src *>(s->dptr()), s->step, cutoff, sx, sy,
                                   vor.get(), vstep, idx.get(), vstep, man.get(), vstep,
@@ -141,7 +141,7 @@ void run_signed_dt(const char *id, Call call) {
           long long best = -1;
           bx = -1;
           by = 0;
-          for (int idx : list) {
+          for (int idx: list) {
             const int sx2 = idx % W, sy2 = idx / W;
             const long long dx = x - sx2, dy = y - sy2;
             const long long d2 = dx * dx + dy * dy;
@@ -156,8 +156,8 @@ void run_signed_dt(const char *id, Call call) {
         auto folded = [&](int x, int y, int sx2, int sy2) -> double {
           const double a = std::fabs((double)(x - sx2)) + (double)sx;
           const double b = std::fabs((double)(y - sy2)) + (double)sy;
-          const double major = a >= b ? a : b;
-          const double minor = a >= b ? b : a;
+          const double major = a >= b ? a: b;
+          const double minor = a >= b ? b: a;
           const double C = 30.0 + (double)cutoff;
           const double dd = major - C;
           return std::sqrt(dd * dd + minor * minor);
@@ -215,7 +215,7 @@ void run_signed_dt(const char *id, Call call) {
               // kAaAbs: horizontal distance to the inside column span, used
               // for both axes.
               int d = 0;
-              if (!noInside) d = x < minCol ? minCol - x : (x > maxCol ? x - maxCol : 0);
+              if (!noInside) d = x < minCol ? minCol - x: (x > maxCol ? x - maxCol: 0);
               const double a = (double)d + (double)sx;
               const double b = (double)d + (double)sy;
               value = std::sqrt(a * a + b * b);

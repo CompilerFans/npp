@@ -1,8 +1,8 @@
-// CPU-golden coverage for the window/order-statistics filter families
+// CPU-reference output coverage for the window/order-statistics filter families
 // (nppi_filtering_functions.h):
 //   nppiFilterBox{,_Border,_BorderAdvanced} and later Min/Max/Median.
 //
-// Measured NPP 13.4 semantics (RTX 5090):
+// Measured NPP 13.4 semantics (reference):
 //   * window geometry: dst(x,y)[c] reads src(x + i - ax, y + j - ay)[c] for
 //     i in [0,mw), j in [0,mh);
 //   * box: sum of the taps divided by mw*mh, integer destinations truncate
@@ -34,28 +34,28 @@ struct MaskSize {
 
 inline int mapBorder(int v, int n, int mode) {
   if (n <= 0) return 0;
-  if (mode == NPP_BORDER_REPLICATE) return v < 0 ? 0 : (v >= n ? n - 1 : v);
+  if (mode == NPP_BORDER_REPLICATE) return v < 0 ? 0: (v >= n ? n - 1: v);
   if (n == 1) return 0;
   if (mode == NPP_BORDER_MIRROR) {  // reflect without repeating the edge
     const int p = 2 * (n - 1);
     v %= p;
     if (v < 0) v += p;
-    return v < n ? v : p - v;
+    return v < n ? v: p - v;
   }
   // value 5: reflect repeating the edge
   const int p = 2 * n;
   v %= p;
   if (v < 0) v += p;
-  return v < n ? v : p - 1 - v;
+  return v < n ? v: p - 1 - v;
 }
 
 template <typename T> inline T clampInt(long long v) {
   if constexpr (std::is_same_v<T, Npp8u>) {
-    return (Npp8u)(v <= 0 ? 0 : (v >= 255 ? 255 : v));
+    return (Npp8u)(v <= 0 ? 0: (v >= 255 ? 255: v));
   } else if constexpr (std::is_same_v<T, Npp16u>) {
-    return (Npp16u)(v <= 0 ? 0 : (v >= 65535 ? 65535 : v));
+    return (Npp16u)(v <= 0 ? 0: (v >= 65535 ? 65535: v));
   } else {
-    return (T)(v <= -32768 ? -32768 : (v >= 32767 ? 32767 : v));
+    return (T)(v <= -32768 ? -32768: (v >= 32767 ? 32767: v));
   }
 }
 
@@ -77,7 +77,7 @@ void run_window(const char *id, Call call) {
   // Advanced geometry needs a full-width destination whose row size is also
   // the natural (16-byte aligned) pitch for every layout.
   static const Cfg cfgsAdv[] = {{16, 12}, {32, 24}, {64, 48}, {128, 96}};
-  const Cfg *cfgs = Advanced ? cfgsAdv : cfgsPlain;
+  const Cfg *cfgs = Advanced ? cfgsAdv: cfgsPlain;
   const int nCfg = 4;
   static const MaskSize masks[] = {{3, 3}, {5, 5}, {3, 5}, {5, 2}, {1, 1}};
   const int nMasks = 5;
@@ -93,13 +93,12 @@ void run_window(const char *id, Call call) {
       if (ms.w > cf.w || ms.h > cf.h) continue;
       // Measured: NPP 13.4's 5x5 MedianBorder kernels do not follow the
       // image-clamped window model at all (the produced median is not even an
-      // order statistic of the documented 5x5 window); the differential suite
+      // order statistic of the documented 5x5 window); the reference comparisons
       // also restricts median-border value records to the smaller masks.
       if (Op == kMedian && Border && ms.w * ms.h > 15) continue;
       // Even sample counts: the reference's small-mask median kernels pick
       // shape-dependent tie conventions (truncate vs floor vs away-from-zero
       // for the same operand pair), so even windows are not a reproducible
-      // value contract (see scratch/f9_semantics.md section 8).
       if (Op == kMedian && (ms.w * ms.h) % 2 == 0) continue;
       // Measured: for larger ROIs NPP's median-border kernels only reproduce
       // the documented window for square masks; non-square masks are covered
@@ -124,7 +123,7 @@ void run_window(const char *id, Call call) {
         modes[nMode++] = -1;  // no border argument
       }
       const int anchors[2][2] = {{(ms.w - 1) / 2, (ms.h - 1) / 2}, {0, 0}};
-      const int nOff = Advanced ? 2 : 1;
+      const int nOff = Advanced ? 2: 1;
       for (int ai = 0; ai < 2 && !failed; ++ai) {
         for (int bi = 0; bi < nMode && !failed; ++bi) {
           for (int oi = 0; oi < nOff && !failed; ++oi) {
@@ -134,13 +133,13 @@ void run_window(const char *id, Call call) {
           // verified geometry puts the image at an allocation offset and runs
           // the ROI over the full image with an oSrcOffset.y of 0..2.
           const int W = cf.w + 2 * m, H = cf.h + 2 * m;  // allocation
-          const int srcW = Advanced ? cf.w : W;
-          const int srcH = Advanced ? cf.h : H;
-          const int offX = Advanced ? 0 : m;
-          const int offY = Advanced ? oi * 2 : m;
-          const int base = Advanced ? m : 0;  // allocation offset of image (0,0)
+          const int srcW = Advanced ? cf.w: W;
+          const int srcH = Advanced ? cf.h: H;
+          const int offX = Advanced ? 0: m;
+          const int offY = Advanced ? oi * 2: m;
+          const int base = Advanced ? m: 0;  // allocation offset of image (0,0)
           const uint64_t seed = case_seed(id, cf.w, cf.h, ms.w * 16 + ms.h,
-                                          ai * 8 + (mode < 0 ? 0 : mode) + 32 * oi, Advanced ? 1 : 0, 0);
+                                          ai * 8 + (mode < 0 ? 0: mode) + 32 * oi, Advanced ? 1: 0, 0);
           Buf<T> *s = new Buf<T>(W, H, C, 0, 0);
           fill_regime(*s, C, seed, kWide, 0, false, false, false);
           s->dev.copyFromHost(s->host);
@@ -186,20 +185,20 @@ void run_window(const char *id, Call call) {
                 if (Op == kBox) {
                   if constexpr (std::is_same_v<T, Npp64f>) {
                     double sum = 0.0;
-                    for (double v : smp) sum += v;
+                    for (double v: smp) sum += v;
                     out = (T)(sum / (double)area);
                   } else if constexpr (std::is_floating_point_v<T>) {
                     float sum = 0.0f;
-                    for (double v : smp) sum += (float)v;
+                    for (double v: smp) sum += (float)v;
                     out = (T)(sum / (float)area);
                   } else {
                     long long sum = 0;
-                    for (double v : smp) sum += (long long)v;
+                    for (double v: smp) sum += (long long)v;
                     out = clampInt<T>(sum / area);
                   }
                 } else if (Op == kMin || Op == kMax) {
                   double best = smp[0];
-                  for (double v : smp) best = Op == kMin ? (v < best ? v : best) : (v > best ? v : best);
+                  for (double v: smp) best = Op == kMin ? (v < best ? v: best): (v > best ? v: best);
                   out = (T)best;
                 } else {
                   std::sort(smp.begin(), smp.end());

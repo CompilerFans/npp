@@ -17,10 +17,10 @@ public:
   void setLevel(LogLevel level);
   LogLevel getLevel() const { return level_; }
 
-  void debug(const char *format, ...);
-  void info(const char *format, ...);
-  void warning(const char *format, ...);
-  void error(const char *format, ...);
+  void debug(const char *format,...);
+  void info(const char *format,...);
+  void warning(const char *format,...);
+  void error(const char *format,...);
 
   // Enable/disable logging
   void enable() { enabled_ = true; }

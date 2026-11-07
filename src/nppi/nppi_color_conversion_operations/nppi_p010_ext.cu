@@ -31,8 +31,8 @@ template <typename T>
 __device__ __forceinline__ float finish(float v) {
   if (v != v) return 0.0f;
   float t = __fadd_rn(v, 0.5f);
-  const float mx = sizeof(T) == 1 ? 255.0f : 65535.0f;
-  t = t < 0.0f ? 0.0f : (t > mx ? mx : t);
+  const float mx = sizeof(T) == 1 ? 255.0f: 65535.0f;
+  t = t < 0.0f ? 0.0f: (t > mx ? mx: t);
   return (float)(unsigned int)t;
 }
 
@@ -45,7 +45,7 @@ __global__ void p010_to_rgb_kernel(const uint16_t *__restrict__ srcY, int nSrcSt
   if (x >= width || y >= height) return;
   const int syStep = nSrcStep / 2;
   const float S = 0.015609979629516601562f;
-  const float O = sizeof(T) == 1 ? 0.25f : 64.06158447265625f;
+  const float O = sizeof(T) == 1 ? 0.25f: 64.06158447265625f;
   const float yv = __fmul_rn((float)srcY[(size_t)y * syStep + x], S);
   const uint16_t *uv = srcUV + (size_t)(y >> 1) * syStep + (size_t)((x >> 1) << 1);
   const float du = __fmaf_rn((float)uv[0], S, -512.0f);
@@ -56,7 +56,7 @@ __global__ void p010_to_rgb_kernel(const uint16_t *__restrict__ srcY, int nSrcSt
   const T R = (T)(unsigned int)finish<T>(fr);
   const T G = (T)(unsigned int)finish<T>(fg);
   const T B = (T)(unsigned int)finish<T>(fb);
-  const int C = C4 ? 4 : 3;
+  const int C = C4 ? 4: 3;
   const size_t dstep = (size_t)(nDstStep / (int)sizeof(T));
   T *o = dst + (size_t)y * dstep + (size_t)x * C;
   o[0] = R;

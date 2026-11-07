@@ -2,11 +2,11 @@
 
 // Differential test harness for NVIDIA NPP vs mcMPP.
 //
-// Record mode (NVIDIA NPP reference, normally on the RTX 5090):
-//   NPP_RECORD_DIR=/path ./unit_tests --gtest_filter='*Generated*'
+// Record mode (NVIDIA NPP reference, normally in the reference implementation):
+//   NPP_RECORD_DIR=/path./unit_tests --gtest_filter='*Generated*'
 //
 // Verify mode (mcMPP build):
-//   NPP_VERIFY_DIR=/path ./unit_tests --gtest_filter='*Generated*'
+//   NPP_VERIFY_DIR=/path./unit_tests --gtest_filter='*Generated*'
 //
 // The harness stores the semantic NppStatus name (enum numeric values differ
 // between NVIDIA NPP 13 and the mcMPP headers) plus the raw output buffers.
@@ -17,7 +17,7 @@
 // NPP 13 removed the non-Ctx entry points.  Generated tests therefore call
 // `_Ctx` when `USE_NVIDIA_NPP_TESTS` is defined (reference build) and exercise
 // both `_Ctx` and the plain entry point in the mcMPP build against the same
-// golden case.
+// reference output case.
 
 #include "npp.h"
 #include "npp_version_compat.h"
@@ -226,7 +226,7 @@ inline std::string status_name(NppStatus status) {
 }
 
 // Some runtimes leave a benign stale error behind (for example after a tiny
-// cudaMalloc).  NPP kernels that call cudaGetLastError() after launch would
+// cudaMalloc).  NPP kernels that call cudaGetLastError after launch would
 // report it as their own failure, so generated tests clear the slot right
 // before invoking the API under test.
 inline void clear_cuda_error() { (void)cudaGetLastError(); }
@@ -628,7 +628,7 @@ public:
     return *this;
   }
 
-  // Capture a host pointer (buffer-size helpers, affine coefficients, ...).
+  // Capture a host pointer (buffer-size helpers, affine coefficients,...).
   template <typename T>
   Case &host_output(const T *ptr, size_t count, ValueKind kind, double rtol = 1e-5, double atol = 1e-5) {
     OutputRecord rec;

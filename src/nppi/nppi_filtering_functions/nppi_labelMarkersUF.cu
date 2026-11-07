@@ -437,7 +437,7 @@ NppStatus labelMarkersBatchImpl(const NppiImageDescriptor *pSrcBatchList,
   int maxWidth = oMaxSizeROI.width;
   int maxHeight = oMaxSizeROI.height;
 
-  // NPP documents the batch lists as device memory, but the differential
+  // NPP documents the batch lists as device memory, but the reference comparison
   // harness (and plenty of caller code) passes host arrays.  Stage them so the
   // kernels always see device memory.
   NppiImageDescriptor *dSrc = nullptr;

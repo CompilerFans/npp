@@ -77,8 +77,8 @@ NppStatus contourInterpolate(Npp8u *pContoursImageDev, Npp32s nContoursImageStep
   if (err != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
   // Initialise the per-label bookkeeping for the requested range.
-  const Npp32u first = nFirstID < nMaxMarkerLabelID ? nFirstID : nMaxMarkerLabelID;
-  const Npp32u last = nLastID < nMaxMarkerLabelID ? nLastID : nMaxMarkerLabelID;
+  const Npp32u first = nFirstID < nMaxMarkerLabelID ? nFirstID: nMaxMarkerLabelID;
+  const Npp32u last = nLastID < nMaxMarkerLabelID ? nLastID: nMaxMarkerLabelID;
   for (Npp32u id = first; id <= last; ++id) {
     pPixelsFoundHost[id] = 0;
     pStartOffsetHost[id] = 0;
@@ -91,7 +91,7 @@ NppStatus contourInterpolate(Npp8u *pContoursImageDev, Npp32s nContoursImageStep
                       cudaMemcpyHostToDevice, stream) != cudaSuccess) {
     return NPP_MEMCPY_ERROR;
   }
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 }  // namespace

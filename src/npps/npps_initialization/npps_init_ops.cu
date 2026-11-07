@@ -29,16 +29,15 @@ __global__ void copy_kernel(const T *src, T *dst, size_t n) {
   if (i < n) dst[i] = src[i];
 }
 
-// Kernel-launch error check moved to the shared header npp_kernel_utils.h
-// (package p0.1); re-exported here so the executors below keep using the
-// unqualified name.
+// Kernel-launch error check moved to the shared header npp_kernel_utils.h;
+// re-exported here so the executors below keep using the unqualified name.
 using npp_kernel::checkCudaKernelError;
 
 // Shared validation for all three families.  nLength is a signed length on the
 // MPP side (NppSignalLength == int) and size_t on the reference NPP 13; the
 // negative guard below is a compile-time no-op for the size_t case.
 // A zero / negative length returns an error; this is re-validated against the
-// 5090 golden records.
+// reference output records.
 inline NppStatus validate(const void *ptr, NppSignalLength nLength) {
   if (ptr == nullptr) return NPP_NULL_POINTER_ERROR;
   if (static_cast<long long>(nLength) <= 0) return NPP_SIZE_ERROR;
@@ -75,7 +74,7 @@ NppStatus zero(T *pDst, NppSignalLength nLength, cudaStream_t stream) {
   if (st != NPP_NO_ERROR) return st;
   const size_t n = static_cast<size_t>(nLength);
   cudaError_t e = cudaMemsetAsync(pDst, 0, n * sizeof(T), stream);
-  return (e == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (e == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 // nppsSet dtypes: 16s 16sc 16u 32s 32sc 32u 64f 64fc 64s 64sc 8s

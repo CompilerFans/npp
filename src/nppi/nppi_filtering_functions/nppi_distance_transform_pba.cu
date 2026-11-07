@@ -1,6 +1,6 @@
 // Exact unsigned PBA (distance transform + Voronoi) executor.
 //
-// Semantics measured on NVIDIA NPP 13.4 / RTX 5090 (probes pba1..pba4):
+// Semantics measured on NVIDIA NPP 13.4 / reference (measurements pba1..pba4):
 //   * sites are pixels with nMinSiteValue <= value <= nMaxSiteValue;
 //   * every pixel reports the nearest site by squared Euclidean distance;
 //     ties prefer the smaller x, then the larger y;
@@ -67,8 +67,7 @@ __global__ void pbaBruteKernel(const Src *pSrc, int nSrcStep, Src minSiteValue, 
     // (-1,-1) for integer destinations but (-1,0) for floating-point ones.
     const long long dx = static_cast<long long>(x) + 1;
     const long long dy = std::is_same_v<Dst, Npp64f> || std::is_same_v<Dst, Npp32f>
-                             ? static_cast<long long>(y)
-                             : static_cast<long long>(y) + 1;
+                             ? static_cast<long long>(y): static_cast<long long>(y) + 1;
     bestDistance = dx * dx + dy * dy;
   }
 
@@ -90,8 +89,8 @@ __global__ void pbaBruteKernel(const Src *pSrc, int nSrcStep, Src minSiteValue, 
     if (Absolute) {
       Npp16u *row = reinterpret_cast<Npp16u *>(reinterpret_cast<char *>(pManhattan) +
                                                static_cast<long long>(y) * nManhattanStep);
-      row[2 * x] = static_cast<Npp16u>(dx < 0 ? -dx : dx);
-      row[2 * x + 1] = static_cast<Npp16u>(dy < 0 ? -dy : dy);
+      row[2 * x] = static_cast<Npp16u>(dx < 0 ? -dx: dx);
+      row[2 * x + 1] = static_cast<Npp16u>(dy < 0 ? -dy: dy);
     } else {
       Npp16s *row = reinterpret_cast<Npp16s *>(reinterpret_cast<char *>(pManhattan) +
                                                static_cast<long long>(y) * nManhattanStep);
@@ -170,7 +169,7 @@ NppStatus pbaLaunch(const Src *pSrc, int nSrcStep, Src nMinSiteValue, Src nMaxSi
       pSrc, nSrcStep, nMinSiteValue, nMaxSiteValue, pDstVoronoi, nDstVoronoiStep, pDstVoronoiIndices,
       nDstVoronoiIndicesStep, pManhattan, nManhattanStep, pDstTransform, nDstTransformStep,
       oSizeROI.width, oSizeROI.height);
-  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 }  // namespace
@@ -556,4 +555,3 @@ NppStatus nppiDistanceTransformPBA_64f_C1R_Ctx_impl(Npp64f * pSrc, int nSrcStep,
 NppStatus nppiDistanceTransformAbsPBA_64f_C1R_Ctx_impl(Npp64f * pSrc, int nSrcStep, Npp64f nMinSiteValue, Npp64f nMaxSiteValue, Npp16s * pDstVoronoi, int nDstVoronoiStep, Npp16s * pDstVoronoiIndices, int nDstVoronoiIndicesStep, Npp16u * pDstVoronoiAbsoluteManhattanDistances, int nDstVoronoiAbsoluteManhattanDistancesStep, Npp64f * pDstTransform, int nDstTransformStep, NppiSize oSizeROI, Npp8u * pDeviceBuffer, Npp8u * pAntialiasingDeviceBuffer, NppStreamContext nppStreamCtx) {
   return nppiDistanceTransformAbsPBA_64f_C1R_Ctx(pSrc, nSrcStep, nMinSiteValue, nMaxSiteValue, pDstVoronoi, nDstVoronoiStep, pDstVoronoiIndices, nDstVoronoiIndicesStep, pDstVoronoiAbsoluteManhattanDistances, nDstVoronoiAbsoluteManhattanDistancesStep, pDstTransform, nDstTransformStep, oSizeROI, pDeviceBuffer, pAntialiasingDeviceBuffer, nppStreamCtx);
 }
-

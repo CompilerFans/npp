@@ -1,4 +1,4 @@
-// CPU-golden coverage for the video-range YCbCr 4:2:0 / 4:1:1 colour
+// CPU-reference output coverage for the video-range YCbCr 4:2:0 / 4:1:1 colour
 // conversions (packed C3/AC4 or planar sources, packed C3/C4 or planar
 // destinations, including the YCrCb chroma-swapped variants).
 //
@@ -25,7 +25,7 @@ namespace ycbcr420 {
 
 inline Npp8u sat(double v) {
   const int t = (int)v;
-  return (Npp8u)(t < 0 ? 0 : (t > 255 ? 255 : t));
+  return (Npp8u)(t < 0 ? 0: (t > 255 ? 255: t));
 }
 
 inline void fwd_601(int r, int g, int b, int &y, int &cb, int &cr) {
@@ -49,7 +49,6 @@ inline void fwd_m(int m, int r, int g, int b, int &y, int &cb, int &cr) {
     cr = sat(0.511 * R - 0.464 * G - 0.047 * B + 128.0);
   }
 }
-
 
 
 inline void inv_601(int y, int cb, int cr, int &r, int &g, int &b) {
@@ -95,7 +94,7 @@ void run_ycbcr420(const char *id, Kind kind, int srcPp, int dstPp, int bgr, int 
   std::string first;
   struct Cfg { int w, h; };
   static const Cfg cfgs[] = {{8, 6}, {16, 12}, {32, 24}, {64, 48}, {128, 96}, {6, 4}, {10, 6}, {33, 17}, {48, 32}};
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     const int w = cf.w, h = cf.h;
     const bool fwd = kind == Kind::Fwd420 || kind == Kind::Fwd411;
     const uint64_t seed = case_seed(id, w, h, 0, 0, 0, 0);
@@ -147,8 +146,8 @@ void run_ycbcr420(const char *id, Kind kind, int srcPp, int dstPp, int bgr, int 
     if (st != NPP_NO_ERROR && st != NPP_DOUBLE_SIZE_WARNING) {
       ++cnt.skipped;
       if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
-      for (auto *p : srcs) delete p;
-      for (auto *p : dsts) delete p;
+      for (auto *p: srcs) delete p;
+      for (auto *p: dsts) delete p;
       continue;
     }
     const cudaError_t se = cudaDeviceSynchronize();
@@ -157,10 +156,10 @@ void run_ycbcr420(const char *id, Kind kind, int srcPp, int dstPp, int bgr, int 
 
     std::vector<std::vector<uint8_t>> want = pre;
     if (kind == Kind::Fwd420 || kind == Kind::Fwd411) {
-      const int spanX = (kind == Kind::Fwd411) ? 4 : 2;
-      const int spanY = (kind == Kind::Fwd420) ? 2 : 1;
+      const int spanX = (kind == Kind::Fwd411) ? 4: 2;
+      const int spanY = (kind == Kind::Fwd420) ? 2: 1;
       const int ew = w & ~(spanX - 1);
-      const int eh = (kind == Kind::Fwd420) ? (h & ~1) : h;
+      const int eh = (kind == Kind::Fwd420) ? (h & ~1): h;
       auto px = [&](int x, int y, int &r, int &g, int &b) {
         const Npp8u *s = srcs[0]->hptr() + (size_t)y * srcs[0]->step + (size_t)x * srcPp;
         if (bgr) {
@@ -189,8 +188,8 @@ void run_ycbcr420(const char *id, Kind kind, int srcPp, int dstPp, int bgr, int 
               int r, g, b, Y, Cb, Cr;
               px(cx * spanX + dx, cy * spanY + dy, r, g, b);
               fwd_m(matId, r, g, b, Y, Cb, Cr);
-              sum0 += swap ? Cr : Cb;
-              sum1 += swap ? Cb : Cr;
+              sum0 += swap ? Cr: Cb;
+              sum1 += swap ? Cb: Cr;
             }
           want[1][(size_t)cy * dsts[1]->step + (size_t)cx] = (uint8_t)(sum0 / (spanX * spanY));
           want[2][(size_t)cy * dsts[2]->step + (size_t)cx] = (uint8_t)(sum1 / (spanX * spanY));
@@ -198,24 +197,24 @@ void run_ycbcr420(const char *id, Kind kind, int srcPp, int dstPp, int bgr, int 
     } else {
       // Measured: the 4:2:0 C3 inverse clips to height & ~1; every C4
       // destination and the whole 4:1:1 family convert the full extent.
-      const int eh = (kind == Kind::Inv420 && dstPp == 3) ? (h & ~1) : h;
-      const int ew = (kind == Kind::Inv411 && dstPp == 3) ? (w & ~3) : w;
-      const int spanX = (kind == Kind::Inv411) ? 4 : (kind == Kind::Inv444 ? 1 : 2);
+      const int eh = (kind == Kind::Inv420 && dstPp == 3) ? (h & ~1): h;
+      const int ew = (kind == Kind::Inv411 && dstPp == 3) ? (w & ~3): w;
+      const int spanX = (kind == Kind::Inv411) ? 4: (kind == Kind::Inv444 ? 1: 2);
       for (int y = 0; y < eh; ++y)
         for (int x = 0; x < ew; ++x) {
           const int cx = x / spanX;
-          const int cy = (kind == Kind::Inv420) ? (y >> 1) : y;
+          const int cy = (kind == Kind::Inv420) ? (y >> 1): y;
           const int Y = srcs[0]->hptr()[(size_t)y * srcs[0]->step + (size_t)x];
           const int c0 = srcs[1]->hptr()[(size_t)cy * srcs[1]->step + (size_t)cx];
           const int c1 = srcs[2]->hptr()[(size_t)cy * srcs[2]->step + (size_t)cx];
-          const int cb = swap ? c1 : c0;
-          const int cr = swap ? c0 : c1;
+          const int cb = swap ? c1: c0;
+          const int cr = swap ? c0: c1;
           int r, g, b;
           inv_m(matId, Y, cb, cr, r, g, b);
           const size_t base = (size_t)y * dsts[0]->step + (size_t)x * dstPp;
-          want[0][base + 0] = (uint8_t)(bgr ? b : r);
+          want[0][base + 0] = (uint8_t)(bgr ? b: r);
           want[0][base + 1] = (uint8_t)g;
-          want[0][base + 2] = (uint8_t)(bgr ? r : b);
+          want[0][base + 2] = (uint8_t)(bgr ? r: b);
           if (dstPp == 4) want[0][base + 3] = (uint8_t)aval;
         }
     }
@@ -235,8 +234,8 @@ void run_ycbcr420(const char *id, Kind kind, int srcPp, int dstPp, int bgr, int 
                                         std::vector<uint8_t>(), cnt, first);
       if (!ok) failed = true;
     }
-    for (auto *p : srcs) delete p;
-    for (auto *p : dsts) delete p;
+    for (auto *p: srcs) delete p;
+    for (auto *p: dsts) delete p;
     if (failed || cnt.mismatched >= 8) break;
   }
   finish(id, cnt, first);

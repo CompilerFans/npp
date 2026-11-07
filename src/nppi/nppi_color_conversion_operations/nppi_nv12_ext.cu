@@ -29,8 +29,8 @@ __device__ __forceinline__ float finish_pixel(float v) {
   // NPP: t = v + 0.5f; clamp to [0, 255]; truncate.  NaN collapses to 0.
   if (v != v) return 0.0f;
   float t = __fadd_rn(v, 0.5f);
-  t = t < 0.0f ? 0.0f : t;
-  t = t > 255.0f ? 255.0f : t;
+  t = t < 0.0f ? 0.0f: t;
+  t = t > 255.0f ? 255.0f: t;
   return (float)(unsigned int)t;
 }
 
@@ -57,10 +57,10 @@ __global__ void nv12_to_rgb_ext_kernel(const uint8_t *__restrict__ srcY, int nSr
   fg = finish_pixel(fg);
   const float fb = finish_pixel(__fmaf_rn(du, cf.bu, fy));
 
-  const uint8_t c0 = (uint8_t)(BGR ? fb : fr);
+  const uint8_t c0 = (uint8_t)(BGR ? fb: fr);
   const uint8_t c1 = (uint8_t)fg;
-  const uint8_t c2 = (uint8_t)(BGR ? fr : fb);
-  uint8_t *out = dst + (size_t)y * nDstStep + (size_t)x * (C4 ? 4 : 3);
+  const uint8_t c2 = (uint8_t)(BGR ? fr: fb);
+  uint8_t *out = dst + (size_t)y * nDstStep + (size_t)x * (C4 ? 4: 3);
   out[0] = c0;
   out[1] = c1;
   out[2] = c2;
@@ -85,8 +85,8 @@ __global__ void nv12_to_rgb_601_kernel(const uint8_t *__restrict__ srcY, int nSr
   fg = finish_pixel(__fadd_rn(fg, 0.5f));
   const float fb = finish_pixel(__fadd_rn(__fmaf_rn(du, 1.7719999551773071289f, fy), 0.5f));
 
-  const uint8_t c0 = (uint8_t)(bgr ? fb : fr);
-  const uint8_t c2 = (uint8_t)(bgr ? fr : fb);
+  const uint8_t c0 = (uint8_t)(bgr ? fb: fr);
+  const uint8_t c2 = (uint8_t)(bgr ? fr: fb);
   uint8_t *out = dst + (size_t)y * nDstStep + (size_t)x * 3;
   out[0] = c0;
   out[1] = (uint8_t)fg;
@@ -96,8 +96,8 @@ __global__ void nv12_to_rgb_601_kernel(const uint8_t *__restrict__ srcY, int nSr
 __device__ __forceinline__ float finish_chroma(float v) {
   if (v != v) return 0.0f;
   float t = __fadd_rn(v, 0.5f);
-  t = t < 0.0f ? 0.0f : t;
-  t = t > 255.0f ? 255.0f : t;
+  t = t < 0.0f ? 0.0f: t;
+  t = t > 255.0f ? 255.0f: t;
   return (float)(unsigned int)t;
 }
 
@@ -118,7 +118,7 @@ __global__ void rgb_to_nv12_ext_kernel(const uint8_t *__restrict__ srcPacked, co
 
   auto load = [&](int ch, int xx, int yy) -> float {
     if (PLANAR) {
-      const uint8_t *p = ch == 0 ? srcR : (ch == 1 ? srcG : srcB);
+      const uint8_t *p = ch == 0 ? srcR: (ch == 1 ? srcG: srcB);
       return (float)p[(size_t)yy * nSrcStep + xx];
     }
     return (float)srcPacked[(size_t)yy * nSrcStep + (size_t)xx * 3 + ch];

@@ -18,27 +18,27 @@ namespace arithmetic {
 // ============================================================================
 
 // Whether an operation uses scale factor
-template <typename Op> struct HasScaleFactor : std::false_type {};
+template <typename Op> struct HasScaleFactor: std::false_type {};
 
 // Integer types typically use scale factor
-template <> struct HasScaleFactor<AddOp<Npp8u>> : std::true_type {};
-template <> struct HasScaleFactor<AddOp<Npp16u>> : std::true_type {};
-template <> struct HasScaleFactor<AddOp<Npp16s>> : std::true_type {};
-template <> struct HasScaleFactor<SubOp<Npp8u>> : std::true_type {};
-template <> struct HasScaleFactor<SubOp<Npp16u>> : std::true_type {};
-template <> struct HasScaleFactor<SubOp<Npp16s>> : std::true_type {};
-template <> struct HasScaleFactor<MulOp<Npp8u>> : std::true_type {};
-template <> struct HasScaleFactor<MulOp<Npp16u>> : std::true_type {};
-template <> struct HasScaleFactor<MulOp<Npp16s>> : std::true_type {};
-template <> struct HasScaleFactor<DivOp<Npp8u>> : std::true_type {};
-template <> struct HasScaleFactor<DivOp<Npp16u>> : std::true_type {};
-template <> struct HasScaleFactor<DivOp<Npp16s>> : std::true_type {};
-template <> struct HasScaleFactor<SqrOp<Npp8u>> : std::true_type {};
-template <> struct HasScaleFactor<SqrOp<Npp16u>> : std::true_type {};
-template <> struct HasScaleFactor<SqrOp<Npp16s>> : std::true_type {};
-template <> struct HasScaleFactor<SqrtOp<Npp8u>> : std::true_type {};
-template <> struct HasScaleFactor<SqrtOp<Npp16u>> : std::true_type {};
-template <> struct HasScaleFactor<SqrtOp<Npp16s>> : std::true_type {};
+template <> struct HasScaleFactor<AddOp<Npp8u>>: std::true_type {};
+template <> struct HasScaleFactor<AddOp<Npp16u>>: std::true_type {};
+template <> struct HasScaleFactor<AddOp<Npp16s>>: std::true_type {};
+template <> struct HasScaleFactor<SubOp<Npp8u>>: std::true_type {};
+template <> struct HasScaleFactor<SubOp<Npp16u>>: std::true_type {};
+template <> struct HasScaleFactor<SubOp<Npp16s>>: std::true_type {};
+template <> struct HasScaleFactor<MulOp<Npp8u>>: std::true_type {};
+template <> struct HasScaleFactor<MulOp<Npp16u>>: std::true_type {};
+template <> struct HasScaleFactor<MulOp<Npp16s>>: std::true_type {};
+template <> struct HasScaleFactor<DivOp<Npp8u>>: std::true_type {};
+template <> struct HasScaleFactor<DivOp<Npp16u>>: std::true_type {};
+template <> struct HasScaleFactor<DivOp<Npp16s>>: std::true_type {};
+template <> struct HasScaleFactor<SqrOp<Npp8u>>: std::true_type {};
+template <> struct HasScaleFactor<SqrOp<Npp16u>>: std::true_type {};
+template <> struct HasScaleFactor<SqrOp<Npp16s>>: std::true_type {};
+template <> struct HasScaleFactor<SqrtOp<Npp8u>>: std::true_type {};
+template <> struct HasScaleFactor<SqrtOp<Npp16u>>: std::true_type {};
+template <> struct HasScaleFactor<SqrtOp<Npp16s>>: std::true_type {};
 
 // ============================================================================
 // Binary Operation API Generator

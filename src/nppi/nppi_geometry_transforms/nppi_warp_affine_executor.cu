@@ -1,4 +1,4 @@
-// WarpAffine family executor: kernels + explicit instantiations (package g1).
+// WarpAffine family executor: kernels + explicit instantiations.
 // See nppi_warp_affine_executor.h for the semantic contract.
 
 #include "nppi_warp_affine_executor.h"
@@ -34,12 +34,12 @@ __device__ __forceinline__ Npp16f floatAsHalf(float v) {
 
 // Device -> pixel conversion. Integer destinations saturate to the type
 // range first and then round half away from zero; float destinations cast
-// directly.  The 5090 SASS implements the rounding as FADD.RZ of a
+// directly.  The reference SASS implements the rounding as FADD.RZ of a
 // sign-copied 0.5 followed by F2I.RZ (__float2int_rz(__fadd_rz(v, +/-0.5))).
 // That differs from floorf(v + 0.5f) twice: the RZ addition never crosses an
 // integer boundary upwards (RN can, on values just below x.0 - 0.5), and
 // negative halves round away from zero (floor(0.5 + -0.5) = 0 but
-// trunc(-0.5 - 0.5) = -1, which the 32s goldens require).
+// trunc(-0.5 - 0.5) = -1, which the 32s reference outputs require).
 template <typename T> __device__ __forceinline__ T castSample(work_t<T> v);
 
 __device__ __forceinline__ int roundHalfAwayFromZero(float v) {
@@ -70,7 +70,7 @@ __device__ __forceinline__ float pixelAsFloat(Npp16f v) { return halfAsFloat(v);
 __device__ __forceinline__ double pixelAsFloat(Npp64f v) { return v; }
 
 // Catmull-Rom cubic interpolation weight (a = -0.5); used for the double
-// working type (no 64f cubic goldens exist, the polynomial form is kept).
+// working type (no 64f cubic reference outputs exist, the polynomial form is kept).
 template <typename F> __device__ __forceinline__ F cubicWeight(F x) {
   x = fabs(x);
   if (x <= F(1)) {
@@ -82,10 +82,10 @@ template <typename F> __device__ __forceinline__ F cubicWeight(F x) {
   return F(0);
 }
 
-// ---- Exact single-precision cubic weights (5090 NPP replay) ----
+// ---- Exact single-precision cubic weights (reference NPP replay) ----
 // The float path evaluates the four Catmull-Rom/Lagrange weights as products
 // of first-degree factors rounded at every step, with x/3 computed by a
-// corrective division.  This reproduces the 8u/32f cubic goldens bit for
+// corrective division.  This reproduces the 8u/32f cubic reference outputs bit for
 // bit; the plain polynomial form is off by 1 ulp on many taps.
 
 // x/3 in f32: two-rounding corrective division as emitted by the compiler
@@ -120,13 +120,12 @@ template <typename T> struct WarpPlanes {
 };
 
 // Source sampling: coordinates outside the source image are edge-replicated
-// (clamped to the image bounds).  The 5090 SASS implements the linear and
+// (clamped to the image bounds).  The reference SASS implements the linear and
 // cubic tap clamps as FMNMX min(tap, N-1) / max(tap, 0), which is exactly
 // this rule, so the accessor performs it once for all interpolators.
 template <typename T, int Channels, bool Planar> class SrcAccessor {
 public:
-  __device__ __forceinline__ SrcAccessor(const WarpPlanes<T> &planes, int nSrcStep, NppiSize oSrcSize)
-      : planes_(planes), nSrcStep_(nSrcStep), oSrcSize_(oSrcSize) {}
+  __device__ __forceinline__ SrcAccessor(const WarpPlanes<T> &planes, int nSrcStep, NppiSize oSrcSize): planes_(planes), nSrcStep_(nSrcStep), oSrcSize_(oSrcSize) {}
 
   __device__ __forceinline__ work_t<T> at(int c, int x, int y) const {
     if (x < 0) {
@@ -139,8 +138,8 @@ public:
     } else if (y >= oSrcSize_.height) {
       y = oSrcSize_.height - 1;
     }
-    const T *base = Planar ? planes_.src[c] : planes_.src[0];
-    const size_t idx = Planar ? static_cast<size_t>(x) : (static_cast<size_t>(x) * Channels + c);
+    const T *base = Planar ? planes_.src[c]: planes_.src[0];
+    const size_t idx = Planar ? static_cast<size_t>(x): (static_cast<size_t>(x) * Channels + c);
     const T *row = reinterpret_cast<const T *>(reinterpret_cast<const char *>(base) +
                                               static_cast<size_t>(y) * nSrcStep_);
     return pixelAsFloat(row[idx]);
@@ -155,12 +154,11 @@ private:
 // Destination write, addressed in absolute image coordinates.
 template <typename T, int Channels, bool Planar> class DstAccessor {
 public:
-  __device__ __forceinline__ DstAccessor(const WarpPlanes<T> &planes, int nDstStep)
-      : planes_(planes), nDstStep_(nDstStep) {}
+  __device__ __forceinline__ DstAccessor(const WarpPlanes<T> &planes, int nDstStep): planes_(planes), nDstStep_(nDstStep) {}
 
   __device__ __forceinline__ void write(int x, int y, int c, T v) const {
-    T *base = Planar ? planes_.dst[c] : planes_.dst[0];
-    const size_t idx = Planar ? static_cast<size_t>(x) : (static_cast<size_t>(x) * Channels + c);
+    T *base = Planar ? planes_.dst[c]: planes_.dst[0];
+    const size_t idx = Planar ? static_cast<size_t>(x): (static_cast<size_t>(x) * Channels + c);
     T *row = reinterpret_cast<T *>(reinterpret_cast<char *>(base) + static_cast<size_t>(y) * nDstStep_);
     row[idx] = v;
   }
@@ -182,8 +180,8 @@ __device__ __forceinline__ auto sampleNN(const Acc &acc, int c, float fx, float 
 }
 
 // Non-fused round-to-nearest arithmetic.  nvcc would otherwise contract
-// a*b+c into an FMA and change the last bits, which flips the exact .5
-// rounding ties in the 8u/16u goldens.
+// a*b+c into an FMA and change the last bits, which flips the exact.5
+// rounding ties in the 8u/16u reference outputs.
 __device__ __forceinline__ float mul_rn(float a, float b) { return a * b; }
 __device__ __forceinline__ float add_rn(float a, float b) { return a + b; }
 __device__ __forceinline__ float sub_rn(float a, float b) { return a - b; }
@@ -196,11 +194,11 @@ __device__ __forceinline__ double sub_rn(double a, double b) { return a - b; }
 template <typename Acc>
 __device__ __forceinline__ auto sampleLinear(const Acc &acc, int c, float fx, float fy,
                                              float fxX) -> decltype(acc.at(c, 0, 0)) {
-  // 5090 SASS: negative coordinates are clamped to 0 (FSEL) before the
+  // reference SASS: negative coordinates are clamped to 0 (FSEL) before the
   // floor.  Dead under the in-ROI guard but kept for faithfulness.
-  fx = fx < 0.0f ? 0.0f : fx;
-  fy = fy < 0.0f ? 0.0f : fy;
-  fxX = fxX < 0.0f ? 0.0f : fxX;
+  fx = fx < 0.0f ? 0.0f: fx;
+  fy = fy < 0.0f ? 0.0f: fy;
+  fxX = fxX < 0.0f ? 0.0f: fxX;
   const int x0 = static_cast<int>(floorf(fxX));
   const int y0 = static_cast<int>(floorf(fy));
   const float dx = sub_rn(fxX, static_cast<float>(x0));
@@ -213,7 +211,7 @@ __device__ __forceinline__ auto sampleLinear(const Acc &acc, int c, float fx, fl
   const VT dxv = static_cast<VT>(dx);
   const VT dyv = static_cast<VT>(dy);
   // Weight form (matches NPP bit for bit; the lerp form differs by 1 ulp on
-  // exact .5 ties): v0 = (1-dx)v00 + dx v10, v1 likewise, v = (1-dy)v0 + dy v1.
+  // exact.5 ties): v0 = (1-dx)v00 + dx v10, v1 likewise, v = (1-dy)v0 + dy v1.
   const VT one = static_cast<VT>(1);
   const VT ux = sub_rn(one, dxv);
   const VT uy = sub_rn(one, dyv);
@@ -230,7 +228,7 @@ __device__ __forceinline__ auto sampleCubic(const Acc &acc, int c, float fx, flo
   const float fxC = fxX;
   using VT = decltype(acc.at(c, 0, 0));
   if constexpr (std::is_same_v<VT, float>) {
-    // Exact 5090 sequence: t = fx - (tx-1) in [1,2), Lagrange-product
+    // Exact reference sequence: t = fx - (tx-1) in [1,2), Lagrange-product
     // weights, row sums accumulated in tap order 1,0,2,3 starting from a
     // plain multiply, then the column pass in tap order 0,1,2,3.  Taps are
     // edge-replicated by the accessor.
@@ -279,13 +277,13 @@ __device__ __forceinline__ auto sampleCubic(const Acc &acc, int c, float fx, flo
 // Host-side validation and matrix helpers
 // ============================================================================
 
-inline int clipMin(int a, int b) { return a < b ? a : b; }
-inline int clipMax(int a, int b) { return a > b ? a : b; }
+inline int clipMin(int a, int b) { return a < b ? a: b; }
+inline int clipMax(int a, int b) { return a > b ? a: b; }
 
 // Intersection of the source ROI with the source image must be non-empty and
 // at least 2x2 pixels (NPP affine transform error codes).
 inline NppStatus validateSrcRoi(NppiSize oSrcSize, NppiRect oSrcROI) {
-  // 5090: a negative source ROI origin is a SIZE_ERROR (an ROI that is merely
+  // reference: a negative source ROI origin is a SIZE_ERROR (an ROI that is merely
   // outside the image but non-negative is WRONG_INTERSECTION_ROI_ERROR).
   if (oSrcROI.x < 0 || oSrcROI.y < 0 || oSrcROI.width < 0 || oSrcROI.height < 0) {
     return NPP_SIZE_ERROR;
@@ -304,7 +302,7 @@ inline NppStatus validateSrcRoi(NppiSize oSrcSize, NppiRect oSrcROI) {
 }
 
 inline NppStatus validateDstRoi(NppiRect oDstROI) {
-  // 5090: a negative destination extent is a SIZE_ERROR; a zero extent is the
+  // reference: a negative destination extent is a SIZE_ERROR; a zero extent is the
   // empty-output no-op (NO_ERROR), even at a non-zero ROI offset.
   if (oDstROI.width < 0 || oDstROI.height < 0) {
     return NPP_SIZE_ERROR;
@@ -369,9 +367,9 @@ inline bool affineFromQuads(const double aSrcQuad[4][2], const double aDstQuad[4
   return true;
 }
 
-// 5090 sampling gate shared by the single-image and batch kernels: the mapped
+// reference sampling gate shared by the single-image and batch kernels: the mapped
 // point must lie inside the clipped source ROI with an inclusive upper bound of
-// the last pixel coordinate (x1-1, y1-1).  Probed on both entry points: a
+// the last pixel coordinate (x1-1, y1-1).  Measured on both entry points: a
 // coordinate of 6.4 on a 7-wide ROI is rejected for NN, linear and cubic even
 // though it would round to pixel 6, while exactly 6.0 is accepted.
 __device__ __forceinline__ bool inSourceRoi(float fx, float fy, NppiRect roi) {
@@ -381,7 +379,7 @@ __device__ __forceinline__ bool inSourceRoi(float fx, float fy, NppiRect roi) {
 
 // nppiWarpAffineQuad gates on the double map with a measured asymmetric rule:
 // the x bounds and the y lower bound are exact, while the y upper bound
-// accepts an overshoot of up to ~4.4e-7 (5090 probe window: 4.023e-7 accepted,
+// accepts an overshoot of up to ~4.4e-7 (reference measurement window: 4.023e-7 accepted,
 // 4.768e-7 rejected).  This rejects the roi_offset first row (2.99999994) and
 // the rect/inner right/bottom edges (14.00000036, 16.00000072), but keeps the
 // para quad's bottom edge (12.0000004).
@@ -407,9 +405,9 @@ __global__ void warpAffineKernel(WarpPlanes<T> planes, NppiSize oSrcSize, NppiRe
   }
   // NPP applies the affine map in single precision: the double coefficients
   // are rounded to float and the linear part is fused into one FMA
-  // (fx = fma(dx, c00, dy * c01) + c02, 5090 SASS FFMA + FADD).  The
+  // (fx = fma(dx, c00, dy * c01) + c02, reference SASS FFMA + FADD).  The
   // non-fused form differs in the last bit whenever c01 != 0 (shear/rotate)
-  // and those bits flip exact .5 rounding ties downstream.
+  // and those bits flip exact.5 rounding ties downstream.
   const float dx = static_cast<float>(oDstROI.x + x);
   const float dy = static_cast<float>(oDstROI.y + y);
   const float fx = __fadd_rn(__fmaf_rn(dx, static_cast<float>(c00), __fmul_rn(static_cast<float>(c01), dy)),
@@ -417,7 +415,7 @@ __global__ void warpAffineKernel(WarpPlanes<T> planes, NppiSize oSrcSize, NppiRe
   const float fy = __fadd_rn(__fmaf_rn(dx, static_cast<float>(c10), __fmul_rn(static_cast<float>(c11), dy)),
                              static_cast<float>(c12));
   // NPP leaves the destination pixel untouched when the mapped source point
-  // falls outside the (clipped) source ROI (5090: the dst buffer keeps its
+  // falls outside the (clipped) source ROI (reference: the dst buffer keeps its
   // previous value for those pixels, it is not zero-filled).  Samples inside
   // the ROI whose bilinear/cubic neighbourhood crosses the image edge
   // edge-replicate the missing neighbours (see SrcAccessor).
@@ -436,7 +434,7 @@ __global__ void warpAffineKernel(WarpPlanes<T> planes, NppiSize oSrcSize, NppiRe
 
   const SrcAccessor<T, Channels, Planar> src(planes, nSrcStep, oSrcSize);
   const DstAccessor<T, Channels, Planar> dst(planes, nDstStep);
-  constexpr int kActive = AlphaPreserve ? Channels - 1 : Channels;
+  constexpr int kActive = AlphaPreserve ? Channels - 1: Channels;
 #pragma unroll
   for (int c = 0; c < kActive; ++c) {
     work_t<T> v(0);
@@ -454,9 +452,9 @@ __global__ void warpAffineKernel(WarpPlanes<T> planes, NppiSize oSrcSize, NppiRe
       v = work_t<T>(0);
       break;
     }
-    // 5090: writes land at absolute image coordinates (dstROI.x + x,
+    // reference: writes land at absolute image coordinates (dstROI.x + x,
     // dstROI.y + y), not ROI-relative ones -- a non-zero dstROI offset
-    // reproduces the golden only with absolute addressing.
+    // reproduces the reference output only with absolute addressing.
     dst.write(oDstROI.x + x, oDstROI.y + y, c, castSample<T>(v));
   }
 }
@@ -521,7 +519,7 @@ NppStatus warpAffineImpl(const T *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRec
   if (oDstROI.width == 0 || oDstROI.height == 0) {
     return NPP_NO_ERROR;  // empty destination: nothing written, steps unchecked
   }
-  // Step validation (5090): the size check comes first, then the channel
+  // Step validation (reference): the size check comes first, then the channel
   // alignment modulus sizeof(element) * 2^v2(Channels); source before dest.
   constexpr int chAlign = Channels & -Channels;
   constexpr int align = static_cast<int>(sizeof(T)) * chAlign;
@@ -633,7 +631,7 @@ NppStatus warpAffineQuad(const T *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRec
   if (!affineFromQuads(aSrcQuad, aDstQuad, fwd, &quadWarning)) {
     return NPP_COEFFICIENT_ERROR;
   }
-  // 5090: the quad kernel is fed float-rounded map coefficients.
+  // reference: the quad kernel is fed float-rounded map coefficients.
   for (int r = 0; r < 2; ++r) {
     for (int k = 0; k < 3; ++k) {
       fwd[r][k] = static_cast<double>(static_cast<float>(fwd[r][k]));
@@ -652,7 +650,7 @@ NppStatus warpAffineQuad(const T *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRec
   if (warpStatus != NPP_NO_ERROR) {
     return warpStatus;
   }
-  return quadWarning ? NPP_AFFINE_QUAD_INCORRECT_WARNING : NPP_NO_ERROR;
+  return quadWarning ? NPP_AFFINE_QUAD_INCORRECT_WARNING: NPP_NO_ERROR;
 }
 
 template <typename T, int Channels>
@@ -686,20 +684,20 @@ NppStatus warpAffineQuadPlanar(const T *const *pSrc, NppiSize oSrcSize, int nSrc
   if (warpStatus != NPP_NO_ERROR) {
     return warpStatus;
   }
-  return quadWarning ? NPP_AFFINE_QUAD_INCORRECT_WARNING : NPP_NO_ERROR;
+  return quadWarning ? NPP_AFFINE_QUAD_INCORRECT_WARNING: NPP_NO_ERROR;
 }
 
 // ---- nppiWarpAffineBatch / nppiWarpAffineBatchInit ----
 
 namespace {
 
-// nppiWarpAffineBatchInit, replayed from the 5090 kernel SASS
+// nppiWarpAffineBatchInit, replayed from the reference kernel SASS
 // (warpAffineBatchInit):
 //   det = fma(a00, a11, -(a01*a10))
-//   d   = (det != 0) ? det : a00          <- singular maps use a00 as the
+//   d   = (det != 0) ? det: a00          <- singular maps use a00 as the
 //                                            divisor and 1.0 for the [0][0]
 //                                            cofactor (recorded singular
-//                                            goldens: {1,2,0,2,4,0} maps to
+//                                            reference outputs: {1,2,0,2,4,0} maps to
 //                                            {1,-2,0, 0,1,0})
 //   the four cofactors are divided in double and rounded to float, then the
 //   translation is recomputed from the *float* cofactors and also rounded to
@@ -707,10 +705,10 @@ namespace {
 __device__ __forceinline__ void invertAffineBatch(const double in[6], double out[6]) {
   const double det = __fma_rn(in[0], in[4], -__dmul_rn(in[1], in[3]));
   const bool invertible = det != 0.0;
-  const double inv = 1.0 / (invertible ? det : in[0]);
-  const float m00 = static_cast<float>((invertible ? in[4] : 1.0) * inv);
+  const double inv = 1.0 / (invertible ? det: in[0]);
+  const float m00 = static_cast<float>((invertible ? in[4]: 1.0) * inv);
   const float m01 = static_cast<float>((-in[1]) * inv);
-  const float m10 = static_cast<float>((invertible ? -in[3] : 0.0) * inv);
+  const float m10 = static_cast<float>((invertible ? -in[3]: 0.0) * inv);
   const float m11 = static_cast<float>(in[0] * inv);
   out[0] = m00;
   out[1] = m01;
@@ -749,8 +747,8 @@ __device__ __forceinline__ void batchMap(const double c[2][3], int x, int y, flo
 }
 
 // The batch kernel reuses the single-image interpolators and gate, but maps the
-// destination ROI-relative index and writes at absolute coordinates.  The 5090
-// SASS (warpAffineNaiveBatchBy2Rows<float, ...>) evaluates the map in double
+// destination ROI-relative index and writes at absolute coordinates.  The reference
+// SASS (warpAffineNaiveBatchBy2Rows<float,...>) evaluates the map in double
 // and rounds the result to float for the gate and the sampling -- DMUL + DFMA +
 // DADD for a00*x + a01*y + a02, then F2F.F32.F64.
 template <typename T, int Channels, bool AlphaPreserve>
@@ -772,8 +770,8 @@ __global__ void warpAffineBatchKernel(const NppiWarpAffineBatchCXR *pBatchList, 
     // safer and matches the documented "no work for an empty entry".
     return;
   }
-  // 5090: the batch kernel maps the *ROI-relative* destination index (not the
-  // absolute image position; probed with non-zero oDstRectROI offsets) while
+  // reference: the batch kernel maps the *ROI-relative* destination index (not the
+  // absolute image position; measured with non-zero oDstRectROI offsets) while
   // the write still lands at the absolute pixel.  The map is evaluated with
   // the (float-rounded) transformed coefficients in double and rounded to
   // float: DMUL a00*x, DFMA a01*y + that, DADD + a02, F2F.F32.F64.
@@ -788,7 +786,7 @@ __global__ void warpAffineBatchKernel(const NppiWarpAffineBatchCXR *pBatchList, 
   // The NPP batch kernel resamples two rows per iteration and only advances
   // the row coordinate when the even row's mapped point is inside the gate;
   // an odd destination row is therefore dropped whenever the even row of the
-  // same pair is outside the source ROI (observed on the 5090 with a
+  // same pair is outside the source ROI (observed on the reference with a
   // half-pixel vertical translation: rows 0 and 1 stay untouched).
   float fxX = fx;
   if ((y & 1) != 0) {
@@ -802,7 +800,7 @@ __global__ void warpAffineBatchKernel(const NppiWarpAffineBatchCXR *pBatchList, 
     // the same base row the odd row therefore reuses the even row's x tap base
     // and x fraction (its own y weights are still used).  The 16f instantiation
     // (SampleLinearImageBatchBy2Rows_16f) does not show this reuse in the
-    // recorded goldens.
+    // reference outputs.
     if constexpr (!std::is_same_v<T, Npp16f>) {
       if (static_cast<int>(floorf(ey)) == static_cast<int>(floorf(fy))) {
         fxX = ex;
@@ -815,7 +813,7 @@ __global__ void warpAffineBatchKernel(const NppiWarpAffineBatchCXR *pBatchList, 
   planes.dst[0] = static_cast<T *>(item.pDst);
   const SrcAccessor<T, Channels, false> src(planes, item.nSrcStep, oSmallestSrcSize);
   const DstAccessor<T, Channels, false> dst(planes, item.nDstStep);
-  constexpr int kActive = AlphaPreserve ? Channels - 1 : Channels;
+  constexpr int kActive = AlphaPreserve ? Channels - 1: Channels;
   for (int c = 0; c < kActive; ++c) {
     work_t<T> v(0);
     switch (eInterpolation) {
@@ -844,7 +842,7 @@ NppStatus warpAffineBatchInit(NppiWarpAffineBatchCXR *pBatchList, unsigned int n
     return NPP_NULL_POINTER_ERROR;
   }
   if (nBatchSize == 0) {
-    // 5090: the reference implementation launches a zero-block kernel and
+    // reference: the reference implementation launches a zero-block kernel and
     // reports NPP_CUDA_KERNEL_EXECUTION_ERROR (recorded
     // nppiWarpAffineBatchInit/err/batchsize0).  Reproduced for status
     // compatibility; the list is left untouched.
@@ -862,18 +860,18 @@ NppStatus warpAffineBatch(NppiSize oSmallestSrcSize, NppiRect oSrcRectROI, NppiR
   if (pBatchList == nullptr) {
     return NPP_NULL_POINTER_ERROR;
   }
-  // 5090: the documented "must be > 1" is enforced -- 0 and 1 both return
+  // reference: the documented "must be > 1" is enforced -- 0 and 1 both return
   // NPP_BAD_ARGUMENT_ERROR (recorded nppiWarpAffineBatch/err/batchsize0).
   if (nBatchSize < 2) {
     return NPP_BAD_ARGUMENT_ERROR;
   }
-  // 5090 batch validation differs from the single-image one.  A negative ROI
+  // reference batch validation differs from the single-image one.  A negative ROI
   // origin is still NPP_SIZE_ERROR, but every degenerate ROI -- including a
   // source ROI that does not intersect the image at all, a 1-pixel wide clipped
   // ROI and a destination ROI with a zero extent -- is NPP_RECTANGLE_ERROR
   // (recorded srcsize_1 / srcroi_outside / dstroi_zero / dstroi_neg).  The
   // per-image steps are not validated: NVIDIA 13.4 accepts short/misaligned
-  // steps here (probed), and reading the device-side list on the host is not
+  // steps here (measured), and reading the device-side list on the host is not
   // possible.
   if (oSrcRectROI.x < 0 || oSrcRectROI.y < 0 || oSrcRectROI.width < 0 || oSrcRectROI.height < 0) {
     return NPP_SIZE_ERROR;

@@ -1,8 +1,8 @@
-// Bayer CFA demosaic kernels (package c4).
+// Bayer CFA demosaic kernels.
 //
 // Integer bilinear interpolation with chroma correlation, reverse-engineered
-// from NVIDIA NPP 13.4 on the RTX 5090 and verified element-exact by
-// test/unit/diff/test_nppi_cfa_generated.cpp.  See nppi_cfa_executor.h for the
+// from NVIDIA NPP 13.4 in the reference implementation and verified element-exact by
+// reference comparisons  See nppi_cfa_executor.h for the
 // measured semantics and the deliberate validation deviations.
 
 #include "nppi_cfa_executor.h"
@@ -25,10 +25,10 @@ namespace {
 __device__ __forceinline__ int colorAt(int grid, int x, int y) {
   const int p = ((y & 1) << 1) | (x & 1);
   switch (grid) {
-  case 0: return (p == 0) ? 2 : ((p == 3) ? 0 : 1);  // NPPI_BAYER_BGGR
-  case 1: return (p == 0) ? 0 : ((p == 3) ? 2 : 1);  // NPPI_BAYER_RGGB
-  case 2: return (p == 0 || p == 3) ? 1 : ((p == 1) ? 2 : 0);  // NPPI_BAYER_GBRG
-  default: return (p == 0 || p == 3) ? 1 : ((p == 1) ? 0 : 2);  // NPPI_BAYER_GRBG
+  case 0: return (p == 0) ? 2: ((p == 3) ? 0: 1);  // NPPI_BAYER_BGGR
+  case 1: return (p == 0) ? 0: ((p == 3) ? 2: 1);  // NPPI_BAYER_RGGB
+  case 2: return (p == 0 || p == 3) ? 1: ((p == 1) ? 2: 0);  // NPPI_BAYER_GBRG
+  default: return (p == 0 || p == 3) ? 1: ((p == 1) ? 0: 2);  // NPPI_BAYER_GRBG
   }
 }
 
@@ -87,19 +87,17 @@ __global__ void cfaKernel(const T *pSrc, int nSrcStep, NppiSize srcSize, NppiRec
     // Green base pixel: R and B come from the horizontal or vertical pair.
     g = base;
     const bool rHorizontal = (colorAt(grid, ox - 1, oy) == 0) || (colorAt(grid, ox + 1, oy) == 0);
-    r = rHorizontal ? avg2<T>(src.at(ax - 1, ay), src.at(ax + 1, ay))
-                    : avg2<T>(src.at(ax, ay - 1), src.at(ax, ay + 1));
+    r = rHorizontal ? avg2<T>(src.at(ax - 1, ay), src.at(ax + 1, ay)): avg2<T>(src.at(ax, ay - 1), src.at(ax, ay + 1));
     const bool bHorizontal = (colorAt(grid, ox - 1, oy) == 2) || (colorAt(grid, ox + 1, oy) == 2);
-    b = bHorizontal ? avg2<T>(src.at(ax - 1, ay), src.at(ax + 1, ay))
-                    : avg2<T>(src.at(ax, ay - 1), src.at(ax, ay + 1));
+    b = bHorizontal ? avg2<T>(src.at(ax - 1, ay), src.at(ax + 1, ay)): avg2<T>(src.at(ax, ay - 1), src.at(ax, ay + 1));
   } else {
     // Red or blue base pixel: chroma-correlated green plus the diagonal
     // average of the other colour.
     const long long c2 = 2LL * (long long)base;
     const long long diffH = c2 - ((long long)src.at(ax - 2, ay) + (long long)src.at(ax + 2, ay));
     const long long diffV = c2 - ((long long)src.at(ax, ay - 2) + (long long)src.at(ax, ay + 2));
-    const long long dH = diffH < 0 ? -diffH : diffH;
-    const long long dV = diffV < 0 ? -diffV : diffV;
+    const long long dH = diffH < 0 ? -diffH: diffH;
+    const long long dV = diffV < 0 ? -diffV: diffV;
     const T gl = src.at(ax - 1, ay);
     const T gr = src.at(ax + 1, ay);
     const T gu = src.at(ax, ay - 1);
@@ -172,7 +170,7 @@ NppStatus run(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI, 
   }
   // The destination step must be a whole number of elements (RGBA also
   // requires whole 4-element pixels).
-  const int stepAlign = (OutChannels == 4 ? 4 : 1) * (int)sizeof(T);
+  const int stepAlign = (OutChannels == 4 ? 4: 1) * (int)sizeof(T);
   if ((nDstStep % stepAlign) != 0) {
     return NPP_NOT_EVEN_STEP_ERROR;
   }

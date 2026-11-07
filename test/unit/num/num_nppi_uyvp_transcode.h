@@ -1,4 +1,4 @@
-// CPU-golden coverage for the NPP 13.4 UYVP_10u transcoders.
+// CPU-reference output coverage for the NPP 13.4 UYVP_10u transcoders.
 //
 // These entry points are declared by the 13.4 headers but are not exported by
 // the reference NPP 13.2.0.58 library, so every test resolves the symbol with
@@ -22,7 +22,7 @@ namespace tc {
 inline float q8f(float v) {
   if (v != v) return 0;
   const float t = v + 0.5f;
-  return (float)(unsigned int)(t < 0.0f ? 0.0f : (t > 255.0f ? 255.0f : t));
+  return (float)(unsigned int)(t < 0.0f ? 0.0f: (t > 255.0f ? 255.0f: t));
 }
 inline float to10(float v) { return v * 4.0f; }
 inline float from10(float v) { return q8f(v * 0.25f); }
@@ -80,17 +80,17 @@ void run_semiplanar_to_uyvp(const char *id, const char *name) {
   }
   RunCounts cnt;
   std::string first;
-  for (const Cfg &c : kCfgs) {
+  for (const Cfg &c: kCfgs) {
     const int sstep = align16((size_t)c.w * sizeof(T));
     const int dstep = align16((size_t)(c.w / 2) * 5);
-    Buf<T> y(c.w, Vert ? c.h + c.h / 2 : c.h * 2, 1, 0, 0);
+    Buf<T> y(c.w, Vert ? c.h + c.h / 2: c.h * 2, 1, 0, 0);
     fill_regime(y, 1, case_seed(id, c.w, c.h, 0, 0, 0, 0), kWide, 0, false, false, false);
     y.dev.copyFromHost(y.host);
     Buf<Npp8u> d(c.w / 2, c.h, 5, 0, 0x5A);
     d.dev.copyFromHost(d.host);
     const int se = y.step / (int)sizeof(T);
     const T *py = reinterpret_cast<const T *>(y.dptr());
-    const T *puv = py + (size_t)(Vert ? c.h : c.h) * se;
+    const T *puv = py + (size_t)(Vert ? c.h: c.h) * se;
     const T *planes[2] = {py, puv};
     const int steps[2] = {sstep, sstep};
     const NppStatus st = fn(planes, steps, NppiPoint{0, 0}, d.dptr(), dstep, NppiSize{c.w, c.h}, ctx);
@@ -108,7 +108,7 @@ void run_semiplanar_to_uyvp(const char *id, const char *name) {
     };
     for (int yy = 0; yy < c.h; ++yy)
       for (int x = 0; x < c.w; x += 2) {
-        const int cy = Vert ? (yy >> 1) : yy;
+        const int cy = Vert ? (yy >> 1): yy;
         const T *uv = y.hptr() + (size_t)(c.h + cy) * se + (size_t)x;
         const uint64_t g = pack(cvt(uv[0]), cvt(y.hptr()[(size_t)yy * se + x]), cvt(uv[1]),
                                 cvt(y.hptr()[(size_t)yy * se + x + 1]));
@@ -140,7 +140,7 @@ inline void run_p010_p3_to_uyvp(const char *id, const char *name) {
   }
   RunCounts cnt;
   std::string first;
-  for (const Cfg &c : kCfgs) {
+  for (const Cfg &c: kCfgs) {
     const int sstep = align16((size_t)c.w * 2);
     const int dstep = align16((size_t)(c.w / 2) * 5);
     Buf<Npp16u> yp(c.w, c.h, 1, 0, 0);
@@ -200,7 +200,7 @@ inline void run_p208_to_uyvp(const char *id, const char *name) {
     return;
   }
   RunCounts cnt;
-  for (const Cfg &c : kCfgs) {
+  for (const Cfg &c: kCfgs) {
     const int sstep = align16((size_t)c.w * 2);
     const int dstep = align16((size_t)(c.w / 2) * 5);
     Buf<Npp8u> src(c.w / 2, c.h, 4, 0, 0);
@@ -247,7 +247,7 @@ inline void run_i444_to_uyvp(const char *id, const char *name) {
     return;
   }
   RunCounts cnt;
-  for (const Cfg &c : kCfgs) {
+  for (const Cfg &c: kCfgs) {
     const int sstep = align16((size_t)c.w);
     const int dstep = align16((size_t)(c.w / 2) * 5);
     Buf<Npp8u> py(c.w, c.h, 1, 0, 0), pu(c.w, c.h, 1, 0, 0), pv(c.w, c.h, 1, 0, 0);
@@ -302,7 +302,7 @@ inline void run_yuv444_to_uyvp(const char *id, const char *name) {
     return;
   }
   RunCounts cnt;
-  for (const Cfg &c : kCfgs) {
+  for (const Cfg &c: kCfgs) {
     const int sstep = align16((size_t)c.w * 3);
     const int dstep = align16((size_t)(c.w / 2) * 5);
     Buf<Npp8u> src(c.w, c.h, 3, 0, 0);
@@ -352,7 +352,7 @@ inline void run_v210_to_uyvp(const char *id, const char *name) {
     return;
   }
   RunCounts cnt;
-  for (const Cfg &c : kV210Cfgs) {
+  for (const Cfg &c: kV210Cfgs) {
     const int sstep = align16((size_t)(c.w / 6) * 16);
     const int dstep = align16((size_t)(c.w / 2) * 5);
     Buf<Npp8u> src(c.w / 6, c.h, 16, 0, 0);
@@ -406,7 +406,7 @@ inline void run_uyvp_to_v210(const char *id, const char *name) {
     return;
   }
   RunCounts cnt;
-  for (const Cfg &c : kV210Cfgs) {
+  for (const Cfg &c: kV210Cfgs) {
     const int sstep = align16((size_t)(c.w / 2) * 5);
     const int dstep = align16((size_t)(c.w / 6) * 16);
     Buf<Npp8u> src(c.w / 2, c.h, 5, 0, 0);
@@ -459,7 +459,7 @@ inline void run_y410_to_uyvp(const char *id, const char *name) {
     return;
   }
   RunCounts cnt;
-  for (const Cfg &c : kCfgs) {
+  for (const Cfg &c: kCfgs) {
     const int sstep = align16((size_t)c.w * 4);
     const int dstep = align16((size_t)(c.w / 2) * 5);
     Buf<Npp16u> src(c.w * 2, c.h, 1, 0, 0);
@@ -508,7 +508,7 @@ inline void run_uyvp_to_y410(const char *id, const char *name) {
     return;
   }
   RunCounts cnt;
-  for (const Cfg &c : kCfgs) {
+  for (const Cfg &c: kCfgs) {
     const int sstep = align16((size_t)(c.w / 2) * 5);
     const int dstep = align16((size_t)c.w * 4);
     Buf<Npp8u> src(c.w / 2, c.h, 5, 0, 0);
@@ -529,7 +529,7 @@ inline void run_uyvp_to_y410(const char *id, const char *name) {
       for (int x = 0; x < c.w; ++x) {
         float u, y0, v, y1;
         unpack(src.hptr() + (size_t)yy * sstep + (size_t)(x >> 1) * 5, u, y0, v, y1);
-        const float yv = (x & 1) ? y1 : y0;
+        const float yv = (x & 1) ? y1: y0;
         uint32_t *w = reinterpret_cast<uint32_t *>(want.data() + (size_t)yy * dstep);
         w[x] = ((uint32_t)u & 0x3FF) | (((uint32_t)yv & 0x3FF) << 10) | (((uint32_t)v & 0x3FF) << 20) | (3u << 30);
       }
@@ -556,7 +556,7 @@ inline void run_uyvp_to_i444(const char *id, const char *name) {
     return;
   }
   RunCounts cnt;
-  for (const Cfg &c : kCfgs) {
+  for (const Cfg &c: kCfgs) {
     const int sstep = align16((size_t)(c.w / 2) * 5);
     const int dstep = align16((size_t)c.w);
     Buf<Npp8u> src(c.w / 2, c.h, 5, 0, 0);
@@ -582,7 +582,7 @@ inline void run_uyvp_to_i444(const char *id, const char *name) {
       for (int x = 0; x < c.w; ++x) {
         float u, y0, v, y1;
         unpack(src.hptr() + (size_t)yy * sstep + (size_t)(x >> 1) * 5, u, y0, v, y1);
-        const float yv = (x & 1) ? y1 : y0;
+        const float yv = (x & 1) ? y1: y0;
         wy[(size_t)yy * dstep + x] = (uint8_t)(unsigned int)from10(yv);
         wu[(size_t)yy * dstep + x] = (uint8_t)(unsigned int)from10(u);
         wv[(size_t)yy * dstep + x] = (uint8_t)(unsigned int)from10(v);
@@ -611,7 +611,7 @@ inline void run_uyvp_to_nv16(const char *id, const char *name) {
     return;
   }
   RunCounts cnt;
-  for (const Cfg &c : kCfgs) {
+  for (const Cfg &c: kCfgs) {
     const int sstep = align16((size_t)(c.w / 2) * 5);
     const int dstep = align16((size_t)c.w);
     Buf<Npp8u> src(c.w / 2, c.h, 5, 0, 0);
@@ -636,7 +636,7 @@ inline void run_uyvp_to_nv16(const char *id, const char *name) {
       for (int x = 0; x < c.w; ++x) {
         float u, y0, v, y1;
         unpack(src.hptr() + (size_t)yy * sstep + (size_t)(x >> 1) * 5, u, y0, v, y1);
-        const float yv = (x & 1) ? y1 : y0;
+        const float yv = (x & 1) ? y1: y0;
         wy[(size_t)yy * dstep + x] = (uint8_t)(unsigned int)from10(yv);
         if ((x & 1) == 0) {
           wuv[(size_t)yy * dstep + x] = (uint8_t)(unsigned int)from10(u);
@@ -665,7 +665,7 @@ inline void run_uyvp_to_p208(const char *id, const char *name) {
     return;
   }
   RunCounts cnt;
-  for (const Cfg &c : kCfgs) {
+  for (const Cfg &c: kCfgs) {
     const int sstep = align16((size_t)(c.w / 2) * 5);
     const int dstep = align16((size_t)c.w * 2);
     Buf<Npp8u> src(c.w / 2, c.h, 5, 0, 0);
@@ -714,7 +714,7 @@ inline void run_uyvp_to_yuv444(const char *id, const char *name) {
     return;
   }
   RunCounts cnt;
-  for (const Cfg &c : kCfgs) {
+  for (const Cfg &c: kCfgs) {
     const int sstep = align16((size_t)(c.w / 2) * 5);
     const int dstep = align16((size_t)c.w * 3);
     Buf<Npp8u> src(c.w / 2, c.h, 5, 0, 0);
@@ -735,7 +735,7 @@ inline void run_uyvp_to_yuv444(const char *id, const char *name) {
       for (int x = 0; x < c.w; ++x) {
         float u, y0, v, y1;
         unpack(src.hptr() + (size_t)yy * sstep + (size_t)(x >> 1) * 5, u, y0, v, y1);
-        const float yv = (x & 1) ? y1 : y0;
+        const float yv = (x & 1) ? y1: y0;
         uint8_t *o = want.data() + (size_t)yy * dstep + (size_t)x * 3;
         o[0] = (uint8_t)(unsigned int)from10(yv);
         o[1] = (uint8_t)(unsigned int)from10(u);

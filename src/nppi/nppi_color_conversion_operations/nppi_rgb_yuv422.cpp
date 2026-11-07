@@ -52,7 +52,7 @@ static NppStatus validateYUV422PlanarSrc(const Npp8u *const pSrc[3], int nSrcSte
 static inline NppiSize yuv422FwdRoi(NppiSize roi) { roi.width &= ~1; return roi; }
 static inline NppStatus yuv422FwdStatus(cudaError_t s, NppiSize roi) {
   if (s != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  return (roi.width & 1) ? NPP_DOUBLE_SIZE_WARNING : NPP_NO_ERROR;
+  return (roi.width & 1) ? NPP_DOUBLE_SIZE_WARNING: NPP_NO_ERROR;
 }
 
 NppStatus nppiRGBToYUV422_8u_C3P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],

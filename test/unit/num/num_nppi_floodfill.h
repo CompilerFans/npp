@@ -1,9 +1,9 @@
-// CPU-golden coverage for the flood-fill families
+// CPU-reference output coverage for the flood-fill families
 // (nppi_filtering_functions.h):
 //   nppiFloodFill{,_Boundary,_Range,_RangeBoundary,_Gradient,_GradientBoundary}
 // for 8u/16u/32u C1/C3.
 //
-// Measured NPP 13.4 semantics (RTX 5090):
+// Measured NPP 13.4 semantics (reference):
 //   * the filled region is the connected component of the seed pixel:
 //     plain/boundary compare every channel with the seed value, range forms
 //     use [nMin,nMax], gradient forms use [seed-nMin (clamped at 0),
@@ -42,7 +42,7 @@ void run_flood(const char *id, Call call) {
   static const int norms[] = {(int)nppiNormL1, (int)nppiNormInf};
   const NppiPoint seed{1, 1};
   bool failed = false;
-  for (const Cfg &cf : cfgs) {
+  for (const Cfg &cf: cfgs) {
     for (int pat = 0; pat < 3 && !failed; ++pat) {
     for (int ni = 0; ni < 2 && !failed; ++ni) {
       const int W = cf.w, H = cf.h;
@@ -77,8 +77,8 @@ void run_flood(const char *id, Call call) {
       for (int c = 0; c < C; ++c) {
         nv[c] = (T)(70 + c);
         bv[c] = (T)(90 + c);
-        mn[c] = V == kRange || V == kRangeBoundary ? (T)0 : (T)1;
-        mx[c] = V == kRange || V == kRangeBoundary ? (T)2 : (T)1;
+        mn[c] = V == kRange || V == kRangeBoundary ? (T)0: (T)1;
+        mx[c] = V == kRange || V == kRangeBoundary ? (T)2: (T)1;
       }
       int need = 0;
       const NppStatus gst = nppiFloodFillGetBufferSize(NppiSize{W, H}, &need);
@@ -87,7 +87,7 @@ void run_flood(const char *id, Call call) {
         delete s;
         continue;
       }
-      npp_functional_test::DeviceMemory<Npp8u> buf((size_t)(need > 0 ? need : 1));
+      npp_functional_test::DeviceMemory<Npp8u> buf((size_t)(need > 0 ? need: 1));
       NppiConnectedRegion reg;
       std::memset(&reg, 0x5A, sizeof(reg));
       npp_diff::clear_cuda_error();
@@ -118,8 +118,8 @@ void run_flood(const char *id, Call call) {
           return true;
         }
         for (int c = 0; c < C; ++c) {
-          const T lo = mn[c] >= sv[c] ? (T)0 : (T)(sv[c] - mn[c]);
-          const T hi = mx[c] >= (T)(hiLimit - sv[c]) ? hiLimit : (T)(sv[c] + mx[c]);
+          const T lo = mn[c] >= sv[c] ? (T)0: (T)(sv[c] - mn[c]);
+          const T hi = mx[c] >= (T)(hiLimit - sv[c]) ? hiLimit: (T)(sv[c] + mx[c]);
           const int v = val(x, y, c);
           if (v < (int)lo || v > (int)hi) return false;
         }
@@ -173,7 +173,7 @@ void run_flood(const char *id, Call call) {
             }
           }
           for (int c = 0; c < C; ++c) {
-            const T out = onBorder ? bv[c] : nv[c];
+            const T out = onBorder ? bv[c]: nv[c];
             const size_t off = (size_t)y * s->step + ((size_t)x * C + (size_t)c) * sizeof(T);
             std::memcpy(want.data() + off, &out, sizeof(T));
           }

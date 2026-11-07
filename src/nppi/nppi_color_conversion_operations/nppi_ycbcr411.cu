@@ -19,8 +19,8 @@ __device__ inline void rgb_to_ycbcr_pixel(Npp8u r, Npp8u g, Npp8u b, Npp8u &y, N
   double Cb;
   double Cr;
   if (fullRange) {
-    // JPEG / JFIF full range.  Measured on the 5090: the luma sum is
-    // contracted as fma(.114,B, fma(.299,R, .587*G)) while both chroma sums
+    // JPEG / JFIF full range.  Measured on the reference: the luma sum is
+    // contracted as fma(.114,B, fma(.299,R,.587*G)) while both chroma sums
     // round each product separately (exhaustively verified over 2^24 RGB).
     y = clamp_u8_double((double)__fmaf_rn(0.114f, (float)B, __fmaf_rn(0.299f, (float)R, __fmul_rn(0.587f, (float)G))));
     cb = clamp_u8_double((double)__fadd_rn(__fadd_rn(__fsub_rn(__fmul_rn(-0.168736f, (float)R), __fmul_rn(0.331264f, (float)G)),
@@ -47,7 +47,7 @@ __device__ inline void ycbcr_to_rgb_pixel(Npp8u y, Npp8u cb, Npp8u cr, Npp8u &r,
   double G;
   double B;
   if (fullRange) {
-    // JPEG / JFIF full range, FMA-contracted as measured on the 5090.
+    // JPEG / JFIF full range, FMA-contracted as measured on the reference.
     const float fy = (float)y, fcb = (float)Cb, fcr = (float)Cr;
     r = clamp_u8_double((double)__fmaf_rn(1.402f, fcr, fy));
     g = clamp_u8_double((double)__fmaf_rn(-0.714136f, fcr, __fmaf_rn(-0.344136f, fcb, fy)));
@@ -347,7 +347,7 @@ __global__ void rgb_to_ycbcr411_cbcr_p3_kernel(const Npp8u *pSrcR, const Npp8u *
   Npp8u *dstRowCb = (Npp8u *)((char *)pDstCb + y * nDstCbStep);
   Npp8u *dstRowCr = (Npp8u *)((char *)pDstCr + y * nDstCrStep);
   if (fullRange) {
-    // Measured on the 5090: the JPEG planar-source 4:1:1 chroma is the first
+    // Measured on the reference: the JPEG planar-source 4:1:1 chroma is the first
     // sample of each 4-column group (no averaging), unlike the packed-source
     // forward which averages the four truncated chroma values.
     Npp8u yv, cbv, crv;
@@ -389,7 +389,7 @@ __global__ void bgr_to_ycbcr411_cbcr_p3_kernel(const Npp8u *pSrcB, const Npp8u *
   Npp8u *dstRowCb = (Npp8u *)((char *)pDstCb + y * nDstCbStep);
   Npp8u *dstRowCr = (Npp8u *)((char *)pDstCr + y * nDstCrStep);
   if (fullRange) {
-    // Measured on the 5090: the JPEG planar-source 4:1:1 chroma is the first
+    // Measured on the reference: the JPEG planar-source 4:1:1 chroma is the first
     // sample of each 4-column group (no averaging), unlike the packed-source
     // forward which averages the four truncated chroma values.
     Npp8u yv, cbv, crv;

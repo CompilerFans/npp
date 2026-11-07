@@ -1,4 +1,4 @@
-// CPU-golden coverage for the NPP 13.4 P010 / P016 to RGB entry points.
+// CPU-reference output coverage for the NPP 13.4 P010 / P016 to RGB entry points.
 //
 // Both layouts parse as 16-bit semi-planar (Y plane, interleaved U/V pairs at
 // half resolution).  NPP normalises each sample into its 10-bit conversion
@@ -35,14 +35,14 @@ template <typename T>
 inline T qv(float v) {
   if (v != v) return 0;
   float t = add32(v, 0.5f);
-  const float mx = std::is_same_v<T, Npp8u> ? 255.0f : 65535.0f;
-  t = t < 0.0f ? 0.0f : (t > mx ? mx : t);
+  const float mx = std::is_same_v<T, Npp8u> ? 255.0f: 65535.0f;
+  t = t < 0.0f ? 0.0f: (t > mx ? mx: t);
   return (T)(unsigned int)t;
 }
 
 inline void decode(const Coefs &c, float y16, float u16, float v16, bool wide, float &r, float &g, float &b) {
   const float S = 0.015609979629516601562f;
-  const float O = wide ? 64.06158447265625f : 0.25f;
+  const float O = wide ? 64.06158447265625f: 0.25f;
   const float yy = mul32(y16, S);
   const float du = fma32(u16, S, -512.0f);
   const float dv = fma32(v16, S, -512.0f);
@@ -95,7 +95,7 @@ void run_p010(const char *id, int cs, T alpha, Call call) {
     return;
   }
 #ifdef USE_NVIDIA_NPP_TESTS
-  if (!reference_sane(C4 ? 4 : 3, [&](const Npp16u *const *sp, int ss, void *d, int ds, NppiSize r,
+  if (!reference_sane(C4 ? 4: 3, [&](const Npp16u *const *sp, int ss, void *d, int ds, NppiSize r,
                                       NppStreamContext c) {
         if constexpr (C4)
           return call(sp, ss, (T *)d, ds, r, (NppiColorSpace)cs, alpha, c);
@@ -113,8 +113,8 @@ void run_p010(const char *id, int cs, T alpha, Call call) {
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {32, 24}, {64, 48}, {16, 12}, {128, 96}};
   const Coefs cf = coefs(cs);
   const bool wide = std::is_same_v<T, Npp16u>;
-  const int C = C4 ? 4 : 3;
-  for (const Cfg &c : cfgs) {
+  const int C = C4 ? 4: 3;
+  for (const Cfg &c: cfgs) {
     const int sstep = align16((size_t)c.w * 2);
     const int dstep = align16((size_t)c.w * C * sizeof(T));
     // Semi-planar source: H luma rows followed by H/2 interleaved UV rows.

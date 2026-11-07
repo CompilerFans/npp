@@ -1,8 +1,8 @@
-// CPU-golden coverage for the Hough line detectors
+// CPU-reference output coverage for the Hough line detectors
 // (nppi_filtering_functions.h):
 //   nppiFilterHoughLine_8u32f_C1R and nppiFilterHoughLineRegion_8u32f_C1R.
 //
-// Measured NPP 13.4 semantics (RTX 5090), decoded from accumulator probes:
+// Measured NPP 13.4 semantics (reference), decoded from accumulator measurements:
 //   * only source pixels equal to 255 vote;
 //   * theta is sampled at one degree per bin over [0,180) (the nDelta.theta
 //     step only scales the reported value), rho bins are one unit apart with
@@ -28,7 +28,7 @@ namespace hough {
 
 struct HLine {
   int rho, theta;
-  bool operator<(const HLine &o) const { return theta != o.theta ? theta < o.theta : rho < o.rho; }
+  bool operator<(const HLine &o) const { return theta != o.theta ? theta < o.theta: rho < o.rho; }
   bool operator==(const HLine &o) const { return rho == o.rho && theta == o.theta; }
 };
 
@@ -36,7 +36,7 @@ struct HLine {
 inline std::vector<HLine> golden(const std::vector<Npp8u> &img, int w, int h, int threshold, int rhoLo,
                                  int rhoHi, int thetaLo, int thetaHi) {
   const int thetaBins = 180;
-  const int maxDim = w > h ? w : h;
+  const int maxDim = w > h ? w: h;
   const int rhoBins = (int)std::ceil((double)maxDim * std::sqrt(2.0));
   const int R = (int)std::floor((double)maxDim * std::sqrt(2.0) * 0.5);
   std::vector<int> acc((size_t)thetaBins * rhoBins, 0);
@@ -116,7 +116,7 @@ inline std::vector<Npp8u> make_pattern(int w, int h, int pat) {
   auto set = [&](int x, int y) {
     if (x >= 0 && x < w && y >= 0 && y < h) img[(size_t)y * w + x] = 255;
   };
-  const int m = w < h ? w : h;
+  const int m = w < h ? w: h;
   if (pat == 0) {
     for (int x = 4; x < w - 4; ++x) set(x, h / 2);           // horizontal
   } else if (pat == 1) {
@@ -154,7 +154,7 @@ void run_hough(const char *id, Call call) {
   RunCounts cnt;
   std::string first;
   bool failed = false;
-  for (const HCase &c : cases()) {
+  for (const HCase &c: cases()) {
     if (failed) break;
     const int W = c.w, H = c.h;
     const std::vector<Npp8u> img = make_pattern(W, H, c.pat);
@@ -168,7 +168,7 @@ void run_hough(const char *id, Call call) {
     npp_functional_test::DeviceMemory<Npp8u> buf(1);
     int need = 0;
     nppiFilterHoughLineGetBufferSize(NppiSize{W, H}, NppPointPolar{1.0f, 1.0f}, maxLines, &need);
-    buf.allocate((size_t)(need > 0 ? need : 1));
+    buf.allocate((size_t)(need > 0 ? need: 1));
     std::vector<NppPointPolar> zero(maxLines);
     lines.copyFromHost(zero);
     std::vector<int> zc(1, 0);
@@ -218,7 +218,7 @@ void run_hough_region(const char *id, Call call) {
                              {64, 64, 3, 50, 40, 50, 0, 0},
                              {64, 64, 3, 50, 100, 120, 0, 200}};
   bool failed = false;
-  for (const RCase &c : rc) {
+  for (const RCase &c: rc) {
     if (failed) break;
     const int W = c.w, H = c.h;
     const std::vector<Npp8u> img = make_pattern(W, H, c.pat);
@@ -232,7 +232,7 @@ void run_hough_region(const char *id, Call call) {
     npp_functional_test::DeviceMemory<Npp8u> buf(1);
     int need = 0;
     nppiFilterHoughLineGetBufferSize(NppiSize{W, H}, NppPointPolar{1.0f, 1.0f}, maxLines, &need);
-    buf.allocate((size_t)(need > 0 ? need : 1));
+    buf.allocate((size_t)(need > 0 ? need: 1));
     std::vector<NppPointPolar> zero(maxLines);
     lines.copyFromHost(zero);
     std::vector<int> zc(1, 0);

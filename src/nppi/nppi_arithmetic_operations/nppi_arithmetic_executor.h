@@ -11,7 +11,7 @@ namespace arithmetic {
 // Kernel Utility Re-exports
 // ============================================================================
 // Block/thread helpers, the kernel error check and the parameter validation
-// templates moved to the shared header npp_kernel_utils.h (package p0.1).
+// templates moved to the shared header npp_kernel_utils.h.
 // Re-exported here so call sites inside this family stay unchanged.
 
 using BlockConfig = npp_kernel::BlockConfig<>;
@@ -151,7 +151,7 @@ __device__ __forceinline__ T pickChannelConst(const KernelConstantPack<T, Count>
 }
 
 // ============================================================================
-// 128-bit Vectorized Element-wise Kernels (package opt_elem)
+// 128-bit Vectorized Element-wise Kernels
 // ============================================================================
 // The binary / unary / constant / compare kernels above are purely
 // element-wise: destination row element g depends only on source row element
@@ -159,7 +159,7 @@ __device__ __forceinline__ T pickChannelConst(const KernelConstantPack<T, Count>
 // the functor depends on g % Channels). When the base pointers are 16B
 // aligned and all row steps are multiples of 16 bytes -- checked by the
 // executors before launch -- each row is moved in uint4 packets of
-// vecElemsPerPacket<T>() elements. A partial trailing packet is processed
+// vecElemsPerPacket<T> elements. A partial trailing packet is processed
 // element-wise by its owning thread. The op functors are invoked exactly as
 // in the scalar kernels, so results are bit-identical; misaligned inputs
 // keep using the scalar kernels above.
@@ -167,7 +167,7 @@ __device__ __forceinline__ T pickChannelConst(const KernelConstantPack<T, Count>
 namespace vec {
 
 // One 16-byte packet reinterpreted as E elements of T. Moved to the shared
-// npp_kernel_utils.h header (package opt_elem) so the npps element-wise and
+// npp_kernel_utils.h header so the npps element-wise and
 // nppi copy executors reuse the same definition.
 using npp_kernel::vec::Packet;
 
@@ -360,7 +360,7 @@ public:
       return NPP_NO_ERROR;
 
     // Launch kernel: 128-bit vectorized path when the layout allows it,
-    // scalar fallback otherwise (package opt_elem). The vectorized kernels
+    // scalar fallback otherwise. The vectorized kernels
     // use 32-bit index arithmetic, so only take the path when the packet
     // count fits in 31 bits.
     OpType op;
@@ -394,7 +394,7 @@ public:
       return NPP_NO_ERROR;
 
     // Launch kernel: 128-bit vectorized path when the layout allows it,
-    // scalar fallback otherwise (package opt_elem). The vectorized kernels
+    // scalar fallback otherwise. The vectorized kernels
     // use 32-bit index arithmetic, so only take the path when the packet
     // count fits in 31 bits.
     OpType op;
@@ -475,7 +475,7 @@ public:
       return NPP_NO_ERROR;
 
     // Launch kernel: 128-bit vectorized path when the layout allows it,
-    // scalar fallback otherwise (package opt_elem). The vectorized kernels
+    // scalar fallback otherwise. The vectorized kernels
     // use 32-bit index arithmetic, so only take the path when the packet
     // count fits in 31 bits.
     constexpr int E = npp_kernel::vecElemsPerPacket<T>();
@@ -579,7 +579,7 @@ public:
     const auto packedConstants = makeKernelConstantPack<T, Channels>(constants);
 
     // Launch kernel: 128-bit vectorized path when the layout allows it,
-    // scalar fallback otherwise (package opt_elem). The vectorized kernels
+    // scalar fallback otherwise. The vectorized kernels
     // use 32-bit index arithmetic, so only take the path when the packet
     // count fits in 31 bits.
     constexpr int E = npp_kernel::vecElemsPerPacket<T>();
@@ -648,7 +648,7 @@ public:
     }
 
     // Launch kernel: 128-bit vectorized path when the layout allows it,
-    // scalar fallback otherwise (package opt_elem). The vectorized kernels
+    // scalar fallback otherwise. The vectorized kernels
     // use 32-bit index arithmetic, so only take the path when the packet
     // count fits in 31 bits.
     constexpr int E = npp_kernel::vecElemsPerPacket<T>();
@@ -1114,7 +1114,7 @@ public:
     cudaError_t kernelResult = cudaGetLastError();
     cudaFree(d_constants);
 
-    return (kernelResult == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    return (kernelResult == cudaSuccess) ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 };
 
@@ -1134,7 +1134,7 @@ __global__ void multiDeviceConst16fKernel(const Npp16f *pSrc, int nSrcStep, Npp1
 
   int idx = x * Channels;
   for (int c = 0; c < Channels; c++) {
-    DeviceOp16fFactory op(&pConstants[Channels == 1 ? 0 : c]);
+    DeviceOp16fFactory op(&pConstants[Channels == 1 ? 0: c]);
     dstRow[idx + c] = op(srcRow[idx + c]);
   }
 }

@@ -46,7 +46,7 @@ __global__ void nppsIntegral_32s_pass1(const Npp32s *pSrc, Npp32s *pDst, size_t 
   size_t globalIdx = blockIdx.x * BLOCK_SIZE + tid;
 
   // Load data into shared memory
-  Npp32s val = (globalIdx < nLength) ? pSrc[globalIdx] : 0;
+  Npp32s val = (globalIdx < nLength) ? pSrc[globalIdx]: 0;
   sdata[tid] = val;
   __syncthreads();
 
@@ -89,7 +89,7 @@ __global__ void nppsIntegral_32s_scanBlockSums(Npp32s *pBlockSums, size_t numBlo
   int tid = threadIdx.x;
 
   // Load block sums
-  sdata[tid] = (static_cast<size_t>(tid) < numBlocks) ? pBlockSums[tid] : 0;
+  sdata[tid] = (static_cast<size_t>(tid) < numBlocks) ? pBlockSums[tid]: 0;
   __syncthreads();
 
   // Perform exclusive scan

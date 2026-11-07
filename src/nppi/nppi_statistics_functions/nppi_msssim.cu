@@ -66,7 +66,7 @@ NppStatus msssimCommon(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, in
   const bool flat2 = hostFlags[2] == 0;
   if (!equal && flat1 && flat2) {
     setZeroKernel<<<1, 1, 0, stream>>>(pMSSSIM);
-    return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
   return nppi::statistics::runWMSSSIM(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, 1, pMSSSIM, pDeviceBuffer,
                                       stream);

@@ -1,4 +1,4 @@
-// CPU-golden coverage for the NPP 13.4 UYVY families:
+// CPU-reference output coverage for the NPP 13.4 UYVY families:
 //   nppiUYVY[16]_<T>_ToRGB_<T>_{C3C3R,C3AC4R,C3P3R}
 //   nppiRGB[16]_<T>_ToUYVY[16]_<T>_{C3C3R,P3C3R} and the RGBA AC4C3R forms.
 //
@@ -85,8 +85,8 @@ template <typename T>
 inline T qv(float v) {
   if (v != v) return 0;
   float t = v + 0.5f;
-  const float mx = std::is_same_v<T, Npp8u> ? 255.0f : 65535.0f;
-  t = t < 0.0f ? 0.0f : (t > mx ? mx : t);
+  const float mx = std::is_same_v<T, Npp8u> ? 255.0f: 65535.0f;
+  t = t < 0.0f ? 0.0f: (t > mx ? mx: t);
   return (T)(unsigned int)t;
 }
 
@@ -136,16 +136,16 @@ void run_uyvy_dec(const char *id, int cs, T alpha, Call call) {
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {32, 24}, {64, 48}, {16, 12}, {128, 96}};
   const Coefs cf = coefs(cs);
   const bool wide = std::is_same_v<T, Npp16u>;
-  const int C = Mode == 1 ? 4 : 3;
-  for (const Cfg &c : cfgs) {
+  const int C = Mode == 1 ? 4: 3;
+  for (const Cfg &c: cfgs) {
     const int sstep = align16((size_t)c.w * 2 * sizeof(T));
     const int dstep = align16((size_t)c.w * C * sizeof(T));
     Buf<T> src(c.w, c.h, 2, 0, 0);
     fill_regime(src, 2, case_seed(id, c.w, c.h, 0, 0, 0, 0), kWide, 0, false, false, wide);
     src.dev.copyFromHost(src.host);
     Buf<T> d(c.w, c.h, C, 0, 0x5A);
-    Buf<T> d1(c.w, c.h, 1, Mode == 2 ? dstep - align16((size_t)c.w * sizeof(T)) : 0, 0x33);
-    Buf<T> d2(c.w, c.h, 1, Mode == 2 ? dstep - align16((size_t)c.w * sizeof(T)) : 0, 0x33);
+    Buf<T> d1(c.w, c.h, 1, Mode == 2 ? dstep - align16((size_t)c.w * sizeof(T)): 0, 0x33);
+    Buf<T> d2(c.w, c.h, 1, Mode == 2 ? dstep - align16((size_t)c.w * sizeof(T)): 0, 0x33);
     d.dev.copyFromHost(d.host);
     d1.dev.copyFromHost(d1.host);
     d2.dev.copyFromHost(d2.host);
@@ -177,7 +177,7 @@ void run_uyvy_dec(const char *id, int cs, T alpha, Call call) {
         const int si = (y * sstep / (int)sizeof(T)) + ((x >> 1) << 2);
         const T *hp = src.hptr() + si;
         const float u = (float)hp[0];
-        const float yv = (float)hp[(x & 1) ? 3 : 1];
+        const float yv = (float)hp[(x & 1) ? 3: 1];
         const float v = (float)hp[2];
         float r, g, b;
         decode(cf, yv, u, v, wide, r, g, b);
@@ -231,14 +231,14 @@ void run_rgb_enc(const char *id, int cs, Call call) {
   static const Cfg cfgs[] = {{4, 4}, {8, 6}, {32, 24}, {64, 48}, {16, 12}, {128, 96}};
   const Coefs cf = coefs(cs);
   const bool wide = std::is_same_v<T, Npp16u>;
-  const int SC = Mode == 2 ? 4 : 3;
-  for (const Cfg &c : cfgs) {
+  const int SC = Mode == 2 ? 4: 3;
+  for (const Cfg &c: cfgs) {
     const int sstep = align16((size_t)c.w * SC * sizeof(T));
     const int dstep = align16((size_t)c.w * 2 * sizeof(T));
     auto at = [](const Buf<T> &b, int ch, int x, int y, int C) -> float {
       return (float)b.hptr()[(size_t)y * (b.step / (int)sizeof(T)) + (size_t)x * C + ch];
     };
-    const int ppad = Mode == 1 ? sstep - align16((size_t)c.w * sizeof(T)) : 0;
+    const int ppad = Mode == 1 ? sstep - align16((size_t)c.w * sizeof(T)): 0;
     Buf<T> src(c.w, c.h, SC, 0, 0);
     Buf<T> s1(c.w, c.h, 1, ppad, 0), s2(c.w, c.h, 1, ppad, 0);
     fill_regime(src, SC, case_seed(id, c.w, c.h, 0, 0, 0, 0), kWide, 0, false, false, wide);
@@ -278,7 +278,7 @@ void run_rgb_enc(const char *id, int cs, Call call) {
       for (int x = 0; x < c.w; ++x) {
         auto px = [&](int ch, int xx) -> float {
           if constexpr (Mode == 1) {
-            const Buf<T> *b = ch == 0 ? &src : (ch == 1 ? &s1 : &s2);
+            const Buf<T> *b = ch == 0 ? &src: (ch == 1 ? &s1: &s2);
             return (float)b->hptr()[(size_t)y * (b->step / (int)sizeof(T)) + (size_t)xx];
           }
           return at(src, ch, xx, y, SC);
@@ -323,7 +323,7 @@ void run_rgb_enc(const char *id, int cs, Call call) {
           for (int ch = 0; ch < 3; ++ch) {
             float v;
             if constexpr (Mode == 1) {
-              const Buf<T> *b = ch == 0 ? &src : (ch == 1 ? &s1 : &s2);
+              const Buf<T> *b = ch == 0 ? &src: (ch == 1 ? &s1: &s2);
               v = (float)b->hptr()[(size_t)row * (b->step / (int)sizeof(T)) + (size_t)sx0];
             } else {
               v = (float)src.hptr()[(size_t)row * (src.step / (int)sizeof(T)) + (size_t)sx0 * SC + ch];
@@ -334,7 +334,7 @@ void run_rgb_enc(const char *id, int cs, Call call) {
           for (int ch = 0; ch < 3; ++ch) {
             float v;
             if constexpr (Mode == 1) {
-              const Buf<T> *b = ch == 0 ? &src : (ch == 1 ? &s1 : &s2);
+              const Buf<T> *b = ch == 0 ? &src: (ch == 1 ? &s1: &s2);
               v = (float)b->hptr()[(size_t)row * (b->step / (int)sizeof(T)) + (size_t)sx1];
             } else {
               v = (float)src.hptr()[(size_t)row * (src.step / (int)sizeof(T)) + (size_t)sx1 * SC + ch];

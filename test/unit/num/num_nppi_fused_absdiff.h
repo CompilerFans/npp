@@ -1,8 +1,8 @@
-// CPU-golden coverage for the runtime-typed fused absdiff threshold functions
+// CPU-reference output coverage for the runtime-typed fused absdiff threshold functions
 // (nppi_threshold_and_compare_operations.h):
 //   nppiFusedAbsDiff_Threshold_GTVal_Ctx and the in-place variant.
 //
-// Measured NPP 13.4 semantics (RTX 5090):
+// Measured NPP 13.4 semantics (reference):
 //   * supported source types are 8u, 16u, 16s and 32f (8s/32s/64f are
 //     rejected by the reference);
 //   * NPP_CH_1 uses one threshold/value; NPP_CH_3 and NPP_CH_A4 use three
@@ -30,10 +30,10 @@ inline bool check_case(const char *id, const GenCase &gc, const uint8_t *s1, int
         const size_t offD = (size_t)y * sd + (size_t)(x * PHY + c) * sizeof(T);
         const T a = *(const T *)(s1 + offA);
         const T b = *(const T *)(s2 + offB);
-        const T ad = (T)(a >= b ? a - b : b - a);
-        const T th = ((const T *)thr)[c < ARR ? c : 0];
-        const T vv = ((const T *)val)[c < ARR ? c : 0];
-        const T out = (ad > th) ? vv : ad;
+        const T ad = (T)(a >= b ? a - b: b - a);
+        const T th = ((const T *)thr)[c < ARR ? c: 0];
+        const T vv = ((const T *)val)[c < ARR ? c: 0];
+        const T out = (ad > th) ? vv: ad;
         std::memcpy(want.data() + offD, &out, sizeof(T));
       }
   const size_t rowBytes = (size_t)w * PHY * sizeof(T);
@@ -73,7 +73,7 @@ void run_fused(const char *id, Call call) {
   static const int kDt[4] = {NPP_8U, NPP_16U, NPP_16S, NPP_32F};
   // NppiChannels values for CH_1, CH_3 and CH_A4 (the enum skips CH_2 in use).
   static const int kCh[3] = {NPP_CH_1, NPP_CH_3, NPP_CH_A4};
-  for (const auto &cf : cfgs) {
+  for (const auto &cf: cfgs) {
     for (int ci = 0; ci < 3 && !failed; ++ci) {
       for (int di = 0; di < 4 && !failed; ++di) {
         uint8_t thr[16], val[16];
@@ -100,7 +100,7 @@ void run_fused(const char *id, Call call) {
         bool ok = false;
         auto invoke = [&](auto typeTag) {
           using T = decltype(typeTag);
-          const int PHY = ci == 0 ? 1 : (ci == 1 ? 3 : 4);
+          const int PHY = ci == 0 ? 1: (ci == 1 ? 3: 4);
           const int rowBytes = cf.w * PHY * (int)sizeof(T);
           Buf<uint8_t> src1(rowBytes, cf.h, 1, 0, 0x5A);
           Buf<uint8_t> src2(rowBytes, cf.h, 1, 0, 0xA5);
@@ -133,9 +133,9 @@ void run_fused(const char *id, Call call) {
           }
           ASSERT_EQ(cudaDeviceSynchronize(), cudaSuccess) << "[" << id << "] sync";
           ++cnt.executed;
-          Buf<uint8_t> &res = Inplace ? src1 : dst;
+          Buf<uint8_t> &res = Inplace ? src1: dst;
           res.dev.copyToHost(res.host);
-          const std::vector<uint8_t> &pre = Inplace ? pre1 : preD;
+          const std::vector<uint8_t> &pre = Inplace ? pre1: preD;
           if (ci == 0)
             ok = check_case<T, 1, 1>(id, gc, pre1.data(), src1.step, src2.host.data(), src2.step, res.host.data(),
                                      res.step, thr, val, cf.w, cf.h, pre, cnt, first);

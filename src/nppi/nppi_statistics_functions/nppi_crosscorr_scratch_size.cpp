@@ -1,11 +1,11 @@
-// nppiCrossCorr{Full,Same,Valid}_NormLevel_GetAdvancedScratchBufferSize
-// (package p1.8).  Hand-written (no gen_family spec): the API-unified header
+// nppiCrossCorr{Full,Same,Valid}_NormLevel_GetAdvancedScratchBufferSize.
+// Hand-written: the API-unified header
 // declares an extern "C" int* entry point plus a C++ size_t* overload per
-// mode; NVIDIA NPP 13.4 only exports the size_t* form, so the differential
+// mode; NVIDIA NPP 13.4 only exports the size_t* form, so the reference comparison
 // tests exercise the size_t* overloads and the int* forms forward to the same
 // core.
 //
-// 5090-measured contract (NVIDIA NPP 13.4):
+// reference-measured contract (NVIDIA NPP 13.4):
 //   * size = 16 + 2 * dstArea * nSizeofDstData * nSrcChannels where dstArea is
 //     (Ws + tw - 1) * (Hs + th - 1) for Full and Ws * Hs for Same AND Valid
 //     (Same/Valid ignore the template ROI completely, even negative dims).
@@ -14,7 +14,7 @@
 //     NPP_SIZE_ERROR, while src 6x5 + tpl 2x-2 -> dstH 2 -> NO_ERROR).
 //     Zero-sized src dims are allowed when the Full dst extents stay positive
 //     (src 0x0, tpl 2x2 -> 24; src 4x3, tpl 0x0 -> 64).
-//   * Same/Valid reject zero or negative src dims (probed: src 0x0 -> -6) and
+//   * Same/Valid reject zero or negative src dims (measured: src 0x0 -> -6) and
 //     never look at the template.
 //   * Validation order: null hpBufferSize -> NPP_NULL_POINTER_ERROR (first);
 //     src negative -> NPP_SIZE_ERROR; [Full] non-positive dst extents ->
@@ -55,7 +55,7 @@ extern "C" {
 
 NppStatus nppiCrossCorrFull_NormLevel_GetAdvancedScratchBufferSize(NppiSize oSrcRoiSize, NppiSize oTplRoiSize,
                                                                    int nSizeofDstData, int nSrcChannels,
-                                                                   int *hpBufferSize) {
+                                                                   NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (hpBufferSize == nullptr) return NPP_NULL_POINTER_ERROR;
   long long value = 0;
   const NppStatus st = crossCorrAdvancedScratchBufferSize(nppi::statistics::CrossCorrMode::Full, oSrcRoiSize,
@@ -66,7 +66,7 @@ NppStatus nppiCrossCorrFull_NormLevel_GetAdvancedScratchBufferSize(NppiSize oSrc
 
 NppStatus nppiCrossCorrSame_NormLevel_GetAdvancedScratchBufferSize(NppiSize oSrcRoiSize, NppiSize oTplRoiSize,
                                                                    int nSizeofDstData, int nSrcChannels,
-                                                                   int *hpBufferSize) {
+                                                                   NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (hpBufferSize == nullptr) return NPP_NULL_POINTER_ERROR;
   long long value = 0;
   const NppStatus st = crossCorrAdvancedScratchBufferSize(nppi::statistics::CrossCorrMode::Same, oSrcRoiSize,
@@ -77,7 +77,7 @@ NppStatus nppiCrossCorrSame_NormLevel_GetAdvancedScratchBufferSize(NppiSize oSrc
 
 NppStatus nppiCrossCorrValid_NormLevel_GetAdvancedScratchBufferSize(NppiSize oSrcRoiSize, NppiSize oTplRoiSize,
                                                                     int nSizeofDstData, int nSrcChannels,
-                                                                    int *hpBufferSize) {
+                                                                    NPP_BUFFER_SIZE_TYPE *hpBufferSize) {
   if (hpBufferSize == nullptr) return NPP_NULL_POINTER_ERROR;
   long long value = 0;
   const NppStatus st = crossCorrAdvancedScratchBufferSize(nppi::statistics::CrossCorrMode::Valid, oSrcRoiSize,
@@ -88,6 +88,7 @@ NppStatus nppiCrossCorrValid_NormLevel_GetAdvancedScratchBufferSize(NppiSize oSr
 
 }  // extern "C"
 
+#if !NPP_BUFFER_SIZE_IS_SIZE_T
 NppStatus nppiCrossCorrFull_NormLevel_GetAdvancedScratchBufferSize(NppiSize oSrcRoiSize, NppiSize oTplRoiSize,
                                                                    int nSizeofDstData, int nSrcChannels,
                                                                    size_t *hpBufferSize) {
@@ -98,7 +99,9 @@ NppStatus nppiCrossCorrFull_NormLevel_GetAdvancedScratchBufferSize(NppiSize oSrc
   if (st == NPP_NO_ERROR && hpBufferSize != nullptr) *hpBufferSize = (size_t)value;
   return st;
 }
+#endif
 
+#if !NPP_BUFFER_SIZE_IS_SIZE_T
 NppStatus nppiCrossCorrSame_NormLevel_GetAdvancedScratchBufferSize(NppiSize oSrcRoiSize, NppiSize oTplRoiSize,
                                                                    int nSizeofDstData, int nSrcChannels,
                                                                    size_t *hpBufferSize) {
@@ -109,7 +112,9 @@ NppStatus nppiCrossCorrSame_NormLevel_GetAdvancedScratchBufferSize(NppiSize oSrc
   if (st == NPP_NO_ERROR && hpBufferSize != nullptr) *hpBufferSize = (size_t)value;
   return st;
 }
+#endif
 
+#if !NPP_BUFFER_SIZE_IS_SIZE_T
 NppStatus nppiCrossCorrValid_NormLevel_GetAdvancedScratchBufferSize(NppiSize oSrcRoiSize, NppiSize oTplRoiSize,
                                                                     int nSizeofDstData, int nSrcChannels,
                                                                     size_t *hpBufferSize) {
@@ -120,3 +125,4 @@ NppStatus nppiCrossCorrValid_NormLevel_GetAdvancedScratchBufferSize(NppiSize oSr
   if (st == NPP_NO_ERROR && hpBufferSize != nullptr) *hpBufferSize = (size_t)value;
   return st;
 }
+#endif

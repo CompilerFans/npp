@@ -1,6 +1,6 @@
-// CPU-golden coverage for nppsDiv_32s16s_Sfs (npps_arithmetic header).
+// CPU-reference output coverage for nppsDiv_32s16s_Sfs (npps_arithmetic header).
 //
-// Measured NPP 13.4 semantics (RTX 5090): pSrc1 (16-bit) is the DIVISOR and
+// Measured NPP 13.4 semantics (reference): pSrc1 (16-bit) is the DIVISOR and
 // pSrc2 (32-bit) the dividend, dst = round_half_even(pSrc2 / (pSrc1 * 2^sf))
 // saturated to Npp16s.  The reference's sf >= 2 scaling shows additional
 // rounding quirks that are not modelled; this driver exercises sf 0 and 1 with
@@ -57,8 +57,8 @@ void run_div32s16s(const char *id, Call call) {
   static const int sfs[] = {0, 1};
   static const int divisors[] = {3, 5, 7, -3, -5};
   bool failed = false;
-  for (int len : lengths) {
-    for (int sf : sfs) {
+  for (int len: lengths) {
+    for (int sf: sfs) {
       if (failed) break;
       std::vector<Npp16s> a((size_t)len);
       std::vector<Npp32s> b((size_t)len);
@@ -68,7 +68,7 @@ void run_div32s16s(const char *id, Call call) {
         // tie values are b == odd multiples of divisor << (sf - 1).
         Npp32s v = (Npp32s)(((i * 2654435761u) % 20001) - 10000);
         const long long den = (long long)a[(size_t)i] << sf;
-        const long long ad = den < 0 ? -den : den;
+        const long long ad = den < 0 ? -den: den;
         if (sf > 0 && ((v % ad) == ad / 2 || (v % ad) == -(ad / 2))) v += 1;
         b[(size_t)i] = v;
       }

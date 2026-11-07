@@ -3,7 +3,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Kernel declarations (implemented in .cu file)
+// Kernel declarations (implemented in.cu file)
 
 extern "C" {
 cudaError_t nppsAdd_32f_kernel(const Npp32f *pSrc1, const Npp32f *pSrc2, Npp32f *pDst, size_t nLength,
@@ -34,7 +34,7 @@ NppStatus nppsAddImpl<Npp32f>(const Npp32f *pSrc1, const Npp32f *pSrc2, Npp32f *
   }
 
   cudaError_t cudaStatus = nppsAdd_32f_kernel(pSrc1, pSrc2, pDst, nLength, stream);
-  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 template <>
@@ -48,7 +48,7 @@ NppStatus nppsAddImpl<Npp16s>(const Npp16s *pSrc1, const Npp16s *pSrc2, Npp16s *
   }
 
   cudaError_t cudaStatus = nppsAdd_16s_kernel(pSrc1, pSrc2, pDst, nLength, stream);
-  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 template <>
@@ -62,7 +62,7 @@ NppStatus nppsAddImpl<Npp32fc>(const Npp32fc *pSrc1, const Npp32fc *pSrc2, Npp32
   }
 
   cudaError_t cudaStatus = nppsAdd_32fc_kernel(pSrc1, pSrc2, pDst, nLength, stream);
-  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 } // namespace

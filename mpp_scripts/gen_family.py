@@ -353,17 +353,26 @@ def generate(spec: dict, funcs: Dict[str, Func], force: bool) -> Tuple[str, List
         f"// spec:   {spec.get('_spec_path', '<inline>')}",
         "",
         '#include "npp.h"',
+        '#include "npp_api_compat.h"',
     ]
     for inc in spec.get("includes", []):
         header.append(f"#include {inc}" if inc.startswith("<") else f'#include "{inc}"')
     header.append("")
     if spec.get("size_t_overloads"):
+        extras = []
         for f in selected:
             twin = ctx_twin_of(f, funcs)
             extra = render_size_t_overload(f, twin)
             if extra is not None:
-                chunks.append(extra)
+                extras.append(extra)
+        if extras:
+            chunks.append("#if !NPP_BUFFER_SIZE_IS_SIZE_T")
+            chunks.extend(extras)
+            chunks.append("#endif")
     body = "\n".join(chunks)
+    body = re.sub(r"\bint(\s*)\*(\s*)(hpBufferSize|hpDeviceMemoryBufferSize)\b",
+                  r"NPP_BUFFER_SIZE_TYPE\1*\2\3", body)
+    body = re.sub(r"\bint(\s+)nLength\b", r"NppSignalLength\1nLength", body)
     return "\n".join(header) + "\n" + body, emitted, skipped, stubs
 
 

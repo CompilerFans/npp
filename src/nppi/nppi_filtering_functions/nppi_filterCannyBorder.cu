@@ -1,6 +1,6 @@
 // Canny edge detector (nppiFilterCannyBorder_8u_C1R), decoded from NPP 13.4.
 //
-// The reference pipeline (measured on an RTX 5090; see
+// The reference pipeline (measured in the reference implementation; see
 // test/unit/num/num_nppi_canny.h) is:
 //   1. gradient: the GradientVectorBorder filter (Sobel or Scharr, mask 3x3 or
 //      5x5) over the ROI, taps clamped to the oSrcSize image in pSrc-relative
@@ -50,15 +50,15 @@ void cannyTaps(NppiDifferentialKernel type, NppiMaskSize maskSize, CannyCoef &cx
     cx = coefOf(SobelVert5, 5);
     cy = coefOf(SobelHoriz5, 5);
   } else {
-    cx = coefOf(scharr ? ScharrVert3 : SobelVert3, 3);
-    cy = coefOf(scharr ? ScharrHoriz3 : SobelHoriz3, 3);
+    cx = coefOf(scharr ? ScharrVert3: SobelVert3, 3);
+    cy = coefOf(scharr ? ScharrHoriz3: SobelHoriz3, 3);
   }
   if (!scharr)
     for (int a = 0; a < cx.size; ++a)
       for (int b = 0; b < cx.size; ++b) cx.k[a][b] = -cx.k[a][b];
 }
 
-__device__ __forceinline__ int clampi(int v, int lo, int hi) { return v < lo ? lo : (v > hi ? hi : v); }
+__device__ __forceinline__ int clampi(int v, int lo, int hi) { return v < lo ? lo: (v > hi ? hi: v); }
 
 struct CannyDirs {
   int dx1, dy1, dx2, dy2;
@@ -93,9 +93,8 @@ __global__ void cannyGradientKernel(const Npp8u *pSrc, int nSrcStep, Npp16s *pMa
       ay += cy.k[a][b] * v;
     }
   }
-  const double mag = normL1 ? (std::fabs((double)ax) + std::fabs((double)ay))
-                            : std::sqrt((double)ax * ax + (double)ay * ay);
-  const Npp16s m16 = mag >= 32767.0 ? (Npp16s)32767 : (Npp16s)(float)mag;
+  const double mag = normL1 ? (std::fabs((double)ax) + std::fabs((double)ay)): std::sqrt((double)ax * ax + (double)ay * ay);
+  const Npp16s m16 = mag >= 32767.0 ? (Npp16s)32767: (Npp16s)(float)mag;
   ((Npp16s *)((char *)pMag + (size_t)y * nMagStep))[x] = m16;
   ((Npp32f *)((char *)pAngle + (size_t)y * nAngleStep))[x] = (Npp32f)std::atan2((double)ay, (double)ax);
 }
@@ -130,11 +129,11 @@ __global__ void cannyGradientKernelC3(const Npp8u *pSrc, int nSrcStep, Npp16s *p
     const double sq = (double)ax * ax + (double)ay * ay;
     if (sq > bestSq) {
       bestSq = sq;
-      bestMag = normL1 ? (std::fabs((double)ax) + std::fabs((double)ay)) : std::sqrt(sq);
+      bestMag = normL1 ? (std::fabs((double)ax) + std::fabs((double)ay)): std::sqrt(sq);
       bestAngle = std::atan2((double)ay, (double)ax);
     }
   }
-  const Npp16s m16 = bestMag >= 32767.0 ? (Npp16s)32767 : (Npp16s)(float)bestMag;
+  const Npp16s m16 = bestMag >= 32767.0 ? (Npp16s)32767: (Npp16s)(float)bestMag;
   ((Npp16s *)((char *)pMag + (size_t)y * nMagStep))[x] = m16;
   ((Npp32f *)((char *)pAngle + (size_t)y * nAngleStep))[x] = (Npp32f)bestAngle;
 }
@@ -153,7 +152,7 @@ __global__ void cannyNmsKernel(const Npp16s *pMag, int nMagStep, const Npp32f *p
   const int m = cannyMagAt(pMag, nMagStep, x, y, width, height);
   const int m1 = cannyMagAt(pMag, nMagStep, x + d.dx1, y + d.dy1, width, height);
   const int m2 = cannyMagAt(pMag, nMagStep, x + d.dx2, y + d.dy2, width, height);
-  const Npp16s out = (m > 0 && m >= m1 && m >= m2) ? (Npp16s)m : (Npp16s)0;
+  const Npp16s out = (m > 0 && m >= m1 && m >= m2) ? (Npp16s)m: (Npp16s)0;
   ((Npp16s *)((char *)pNms + (size_t)y * nNmsStep))[x] = out;
 }
 
@@ -168,7 +167,7 @@ __global__ void cannyHysteresisKernel(const Npp16s *pMag, int nMagStep, const Np
     for (int dx = -1; dx <= 1; ++dx)
       if (dx != 0 || dy != 0) rmax = max(rmax, cannyMagAt(pMag, nMagStep, x + dx, y + dy, width, height));
   const bool accept = (m >= hi) || (m >= lo && rmax >= lo);
-  ((Npp8u *)((char *)pDst + (size_t)y * nDstStep))[x] = accept ? (Npp8u)0xFF : (Npp8u)0x00;
+  ((Npp8u *)((char *)pDst + (size_t)y * nDstStep))[x] = accept ? (Npp8u)0xFF: (Npp8u)0x00;
 }
 
 
@@ -203,7 +202,7 @@ NppStatus nppiFilterCannyBorder_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep,
 
   CannyCoef cx, cy;
   cannyTaps(eFilterType, eMaskSize, cx, cy);
-  const int normL1 = eNorm == nppiNormL1 ? 1 : 0;
+  const int normL1 = eNorm == nppiNormL1 ? 1: 0;
   cudaStream_t stream = nppStreamCtx.hStream;
 
   dim3 block(16, 16);
@@ -243,7 +242,7 @@ NppStatus nppiFilterCannyBorder_8u_C3C1R_Ctx_impl(const Npp8u *pSrc, int nSrcSte
 
   CannyCoef cx, cy;
   cannyTaps(eFilterType, eMaskSize, cx, cy);
-  const int normL1 = eNorm == nppiNormL1 ? 1 : 0;
+  const int normL1 = eNorm == nppiNormL1 ? 1: 0;
   cudaStream_t stream = nppStreamCtx.hStream;
 
   dim3 block(16, 16);

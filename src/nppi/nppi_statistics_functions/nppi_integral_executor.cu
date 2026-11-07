@@ -95,7 +95,7 @@ NppStatus runIntegral(const SrcT *pSrc, int nSrcStep, DstT *pDst, int nDstStep, 
   }
   if (oROI.width == 0 || oROI.height == 0) {
     // Degenerate ROI: the (W+1) x (H+1) destination collapses to a single row
-    // or column of nVal (5090-measured: still NPP_NO_ERROR).
+    // or column of nVal (reference-measured: still NPP_NO_ERROR).
     return NPP_NO_ERROR;
   }
   if (nSrcStep < rowBytes<SrcT>(oROI.width) || nDstStep < rowBytes<DstT>(oROI.width + 1)) {
@@ -108,7 +108,7 @@ NppStatus runIntegral(const SrcT *pSrc, int nSrcStep, DstT *pDst, int nDstStep, 
       pSrc, nSrcStep, pDst, nDstStep, pDst, nDstStep, width, height);
   integralColScanKernel<DstT, false, DstT><<<(width + 127) / 128 + 1, 128, 0, stream>>>(pDst, nDstStep, nVal, pDst,
                                                                                         nDstStep, nVal, width, height);
-  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 template <typename SrcT, typename DstT, typename SqrT>
@@ -135,7 +135,7 @@ NppStatus runSqrIntegral(const SrcT *pSrc, int nSrcStep, DstT *pDst, int nDstSte
   integralColScanKernel<DstT, true, SqrT><<<(width + 127) / 128 + 1, 128, 0, stream>>>(pDst, nDstStep, nVal, pSqr,
                                                                                         nSqrStep, nValSqr, width,
                                                                                         height);
-  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 // Explicit instantiation for the nppiIntegral / nppiSqrIntegral variants.

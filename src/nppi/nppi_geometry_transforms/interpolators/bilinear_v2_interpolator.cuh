@@ -15,7 +15,7 @@
 //
 // Reference: ref_code/linear_resize_cpu_reference/linear_resize_refactored.h
 template <typename T, int CHANNELS> struct BilinearV2Interpolator {
-  enum Mode : int { UPSCALE = 0, FRACTIONAL_DOWN = 1, LARGE_DOWN = 2 };
+  enum Mode: int { UPSCALE = 0, FRACTIONAL_DOWN = 1, LARGE_DOWN = 2 };
 
   __host__ __device__ static __forceinline__ Mode getMode(float scale) {
     if (scale < 1.0f) {
@@ -125,7 +125,7 @@ template <typename T, int CHANNELS> struct BilinearV2Interpolator {
 
 // Specialized version for float (no rounding)
 template <int CHANNELS> struct BilinearV2Interpolator<float, CHANNELS> {
-  enum Mode : int { UPSCALE = 0, FRACTIONAL_DOWN = 1, LARGE_DOWN = 2 };
+  enum Mode: int { UPSCALE = 0, FRACTIONAL_DOWN = 1, LARGE_DOWN = 2 };
 
   __host__ __device__ static __forceinline__ Mode getMode(float scale) {
     if (scale < 1.0f) {

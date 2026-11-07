@@ -3,10 +3,10 @@
 // Numerical conformance test framework (independent of the existing diff and
 // reference suites).
 //
-// Expected values are computed on the CPU in-process; there are no golden
+// Expected values are computed on the CPU in-process; there are no reference output
 // records and no status/error-code assertions.  A DUT call that returns
 // non-success marks that subcase as skipped (it is not a failure).  The same
-// sources build against the in-tree MPP library and, on the RTX 5090, against
+// sources build against the in-tree MPP library and, in the reference implementation, against
 // the closed-source NVIDIA NPP 13.4 library (USE_NVIDIA_NPP), so a green run
 // there validates the CPU references and tolerances themselves.
 //
@@ -171,7 +171,7 @@ inline std::string Case::id() const {
   return buf;
 }
 
-// Number of parameters is family-specific (scale factor, mask, ...).  The
+// Number of parameters is family-specific (scale factor, mask,...).  The
 // driver is invoked once per parameter value by the caller.
 inline std::vector<Case> make_cases(int param, int size_filter = 0) {
   static const Regime regimes[] = {kSmall, kWide, kExtremes};
@@ -180,8 +180,8 @@ inline std::vector<Case> make_cases(int param, int size_filter = 0) {
   std::vector<Case> v;
   for (int si = 0; si < (int)(sizeof(sizes) / sizeof(sizes[0])); ++si) {
     if (size_filter >= 0 && si != size_filter) continue;
-    for (int pad : pads) {
-      for (Regime r : regimes) {
+    for (int pad: pads) {
+      for (Regime r: regimes) {
         Case c{};
         c.w = sizes[si][0];
         c.h = sizes[si][1];
@@ -307,8 +307,8 @@ void run_binary(const char *op_id, Call call, Ref ref, double rtol, double atol,
   uint64_t executed = 0, skipped = 0, skipped_ni = 0, mismatched = 0, compared = 0;
   std::string first_failure;
 
-  for (int param : params) {
-    for (const Case &c : make_cases(param)) {
+  for (int param: params) {
+    for (const Case &c: make_cases(param)) {
       const int ss = (int)align16((size_t)c.w * C * sizeof(S)) + c.src_pad;
       const int ds = (int)align16((size_t)c.w * C * sizeof(D)) + c.dst_pad;
       const size_t sbytes = (size_t)ss * c.h;
@@ -356,7 +356,7 @@ void run_binary(const char *op_id, Call call, Ref ref, double rtol, double atol,
         for (int x = 0; x < c.w; ++x) {
           for (int ch = 0; ch < C; ++ch) {
             const size_t idx = (size_t)y * (ds / sizeof(D)) + (size_t)x * C + ch;
-            // Inactive channels (AC4 alpha): the 5090 arithmetic kernels write
+            // Inactive channels (AC4 alpha): the reference arithmetic kernels write
             // 0 rather than preserving the destination alpha.
             if (ch >= A) {
               pd[idx] = D(0);
