@@ -2,9 +2,9 @@
 
 - Total API Functions: 12604
 - Function Families (plain + _Ctx share one implementation): 6566
-- Families with at least one tested variant: 6526 (99.4%)
-- Implemented: 12564 (99.7%)
-- Tested: 8631 (68.5%)
+- Families with at least one tested variant: 6566 (100.0%)
+- Implemented: 12604 (100.0%)
+- Tested: 8671 (68.8%)
 - Implemented but not tested: 3933
 
 ## By Module
@@ -15,7 +15,7 @@
 - Total: 2137, Impl: 2137 (100.0%), Test: 2135 (99.9%)
 
 **nppi_color_conversion.h**
-- Total: 1135, Impl: 1095 (96.5%), Test: 808 (71.2%)
+- Total: 1135, Impl: 1135 (100.0%), Test: 848 (74.7%)
 
 **nppi_data_exchange_and_initialization.h**
 - Total: 966, Impl: 966 (100.0%), Test: 675 (69.9%)

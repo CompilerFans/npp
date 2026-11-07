@@ -48,84 +48,8 @@
   "skipped": []
  },
  "nppi_color_conversion.h": {
-  "emitted": 600,
-  "skipped": [
-   {
-    "function": "nppiI444_8u_ToUYVP_10u_P3C3R_Ctx",
-    "family": "nppiI444",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiNV12_8u_ToUYVP_10u_P2C3R_Ctx",
-    "family": "nppiNV12",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiNV16_8u_ToUYVP_10u_P2C3R_Ctx",
-    "family": "nppiNV16",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiP010_16u_ToUYVP_10u_P3C3R_Ctx",
-    "family": "nppiP010",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiP208_8u_ToUYVP_10u_C3C3R_Ctx",
-    "family": "nppiP208",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiP210_16u_ToUYVP_10u_P2C3R_Ctx",
-    "family": "nppiP210",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiUYVP_10u_ToI444_8u_C3P3R_Ctx",
-    "family": "nppiUYVP_10u_ToI444",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiUYVP_10u_ToNV16_8u_C3P2R_Ctx",
-    "family": "nppiUYVP_10u_ToNV16",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiUYVP_10u_ToP208_8u_C3C3R_Ctx",
-    "family": "nppiUYVP_10u_ToP208",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiUYVP_10u_ToV210_10u_C3C3R_Ctx",
-    "family": "nppiUYVP_10u_ToV210_10u_C3C3R",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiUYVP_10u_ToY410_10u_C3C3R_Ctx",
-    "family": "nppiUYVP_10u_ToY410_10u_C3C3R",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiUYVP_10u_ToYUV444_8u_C3C3R_Ctx",
-    "family": "nppiUYVP_10u_ToYUV444",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiV210_10u_ToUYVP_10u_C3C3R_Ctx",
-    "family": "nppiV210_10u_ToUYVP_10u_C3C3R",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiY410_10u_ToUYVP_10u_C3C3R_Ctx",
-    "family": "nppiY410_10u_ToUYVP_10u_C3C3R",
-    "reason": "later color batch / unsupported"
-   },
-   {
-    "function": "nppiYUV444_8u_ToUYVP_10u_C3C3R_Ctx",
-    "family": "nppiYUV444",
-    "reason": "later color batch / unsupported"
-   }
-  ]
+  "emitted": 615,
+  "skipped": []
  },
  "nppi_filtering_functions.h": {
   "emitted": 971,

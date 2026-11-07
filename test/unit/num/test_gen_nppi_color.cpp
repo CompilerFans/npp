@@ -21,6 +21,7 @@
 #include "num_nppi_uyvy.h"
 #include "num_nppi_p010.h"
 #include "num_nppi_uyvp.h"
+#include "num_nppi_uyvp_transcode.h"
 #include "num_nppi_color_batch.h"
 
 static const float kTwist[12] = {0.5f, 0.3f, 0.2f, 10.0f, -0.2f, 0.7f, 0.1f, 20.0f, 0.1f, -0.3f, 0.9f, 5.0f};
@@ -1250,6 +1251,10 @@ TEST(NumGen, nppiHSVToRGB_8u_C3R_Ctx) {
       [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)c; return nppiHSVToRGB_8u_C3R_Ctx(a, sa, d, ds, r, c); });
 }
 
+TEST(NumGen, nppiI444_8u_ToUYVP_10u_P3C3R_Ctx) {
+  num::tc::run_i444_to_uyvp("nppiI444_8u_ToUYVP_10u_P3C3R_Ctx", "nppiI444_8u_ToUYVP_10u_P3C3R_Ctx");
+}
+
 TEST(NumGen, nppiLUTPaletteSwap_16u_C3A0C4R_Ctx) {
   num::lut::run_lut_palette_swap<Npp16u>(
       "nppiLUTPaletteSwap_16u_C3A0C4R_Ctx",
@@ -2068,6 +2073,14 @@ TEST(NumGen, nppiNV12ToYUV420_8u_P2P3R_Ctx) {
       [](const Npp8u *const *sp, int ss, Npp8u *const *dp, int *dss, NppiSize r, NppStreamContext c) { (void)ss; (void)dss; (void)r; (void)c; return nppiNV12ToYUV420_8u_P2P3R_Ctx(sp, ss, const_cast<Npp8u **>(dp), dss, r, c); });
 }
 
+TEST(NumGen, nppiNV12_8u_ToUYVP_10u_P2C3R_Ctx) {
+  num::tc::run_semiplanar_to_uyvp<Npp8u, false, true>("nppiNV12_8u_ToUYVP_10u_P2C3R_Ctx", "nppiNV12_8u_ToUYVP_10u_P2C3R_Ctx");
+}
+
+TEST(NumGen, nppiNV16_8u_ToUYVP_10u_P2C3R_Ctx) {
+  num::tc::run_semiplanar_to_uyvp<Npp8u, false, false>("nppiNV16_8u_ToUYVP_10u_P2C3R_Ctx", "nppiNV16_8u_ToUYVP_10u_P2C3R_Ctx");
+}
+
 TEST(NumGen, nppiNV21ToBGR_8u_P2C4R_Ctx) {
   num::nv12::run_nv12_to_rgb<num::nv12::Var::NV21_FIXED, num::nv12::OutOrder::BGR, 4>(
       "nppiNV21ToBGR_8u_P2C4R_Ctx",
@@ -2120,6 +2133,10 @@ TEST(NumGen, nppiP010ToRGB_8u_P2C4R_Ctx_2020HDTV) {
   num::p010::run_p010<Npp8u, true>("nppiP010ToRGB_8u_P2C4R_Ctx", NPP_BT2020HDTV, (Npp8u)0x5A, [](const Npp16u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, Npp8u a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiP010ToRGB_8u_P2C4R_Ctx(sp, ss, d, ds, r, cs, a, c); });
 }
 
+TEST(NumGen, nppiP010_16u_ToUYVP_10u_P3C3R_Ctx) {
+  num::tc::run_p010_p3_to_uyvp("nppiP010_16u_ToUYVP_10u_P3C3R_Ctx", "nppiP010_16u_ToUYVP_10u_P3C3R_Ctx");
+}
+
 TEST(NumGen, nppiP016ToRGB_16u_P2C3R_Ctx_601JPEG) {
   num::p010::run_p010<Npp16u, false>("nppiP016ToRGB_16u_P2C3R_Ctx", NPP_BT601JPEG, (Npp16u)0, [](const Npp16u *const *sp, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiP016ToRGB_16u_P2C3R_Ctx(sp, ss, d, ds, r, cs, c); });
 }
@@ -2138,6 +2155,14 @@ TEST(NumGen, nppiP016ToRGB_16u_P2C4R_Ctx_709HDTV) {
 }
 TEST(NumGen, nppiP016ToRGB_16u_P2C4R_Ctx_2020HDTV) {
   num::p010::run_p010<Npp16u, true>("nppiP016ToRGB_16u_P2C4R_Ctx", NPP_BT2020HDTV, (Npp16u)12345, [](const Npp16u *const *sp, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, Npp16u a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiP016ToRGB_16u_P2C4R_Ctx(sp, ss, d, ds, r, cs, a, c); });
+}
+
+TEST(NumGen, nppiP208_8u_ToUYVP_10u_C3C3R_Ctx) {
+  num::tc::run_p208_to_uyvp("nppiP208_8u_ToUYVP_10u_C3C3R_Ctx", "nppiP208_8u_ToUYVP_10u_C3C3R_Ctx");
+}
+
+TEST(NumGen, nppiP210_16u_ToUYVP_10u_P2C3R_Ctx) {
+  num::tc::run_semiplanar_to_uyvp<Npp16u, true, false>("nppiP210_16u_ToUYVP_10u_P2C3R_Ctx", "nppiP210_16u_ToUYVP_10u_P2C3R_Ctx");
 }
 
 TEST(NumGen, nppiRGBA_16f_ToUYVP_10u_AC4C3R_Ctx_601JPEG) {
@@ -2741,6 +2766,18 @@ TEST(NumGen, nppiRGB_8u_ToUYVY_8u_P3C3R_Ctx_2020HDTV) {
   num::uyvy::run_rgb_enc<Npp8u, 1>("nppiRGB_8u_ToUYVY_8u_P3C3R_Ctx", NPP_BT2020HDTV, [](const Npp8u *const *sp, int ss, NppiPoint off, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)off; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_8u_ToUYVY_8u_P3C3R_Ctx(sp, ss, off, d, ds, r, cs, c); });
 }
 
+TEST(NumGen, nppiUYVP_10u_ToI444_8u_C3P3R_Ctx) {
+  num::tc::run_uyvp_to_i444("nppiUYVP_10u_ToI444_8u_C3P3R_Ctx", "nppiUYVP_10u_ToI444_8u_C3P3R_Ctx");
+}
+
+TEST(NumGen, nppiUYVP_10u_ToNV16_8u_C3P2R_Ctx) {
+  num::tc::run_uyvp_to_nv16("nppiUYVP_10u_ToNV16_8u_C3P2R_Ctx", "nppiUYVP_10u_ToNV16_8u_C3P2R_Ctx");
+}
+
+TEST(NumGen, nppiUYVP_10u_ToP208_8u_C3C3R_Ctx) {
+  num::tc::run_uyvp_to_p208("nppiUYVP_10u_ToP208_8u_C3C3R_Ctx", "nppiUYVP_10u_ToP208_8u_C3C3R_Ctx");
+}
+
 TEST(NumGen, nppiUYVP_10u_ToRGBA_16f_C3AC4R_Ctx_601JPEG) {
   num::uyvp::run_uyvp_decode<Npp16f, 1>("nppiUYVP_10u_ToRGBA_16f_C3AC4R_Ctx", NPP_BT601JPEG, num::half_round(0.5f), [](const Npp8u *s, int ss, Npp16f *d, int ds, NppiSize r, NppiColorSpace cs, Npp16f a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiUYVP_10u_ToRGBA_16f_C3AC4R_Ctx(s, ss, {0, 0}, d, ds, r, cs, (Npp32f)num::as_double(a), c); });
 }
@@ -2831,6 +2868,18 @@ TEST(NumGen, nppiUYVP_10u_ToRGB_8u_C3P3R_Ctx_2020HDTV) {
   num::uyvp::run_uyvp_decode<Npp8u, 2>("nppiUYVP_10u_ToRGB_8u_C3P3R_Ctx", NPP_BT2020HDTV, (Npp8u)0, [](const Npp8u *s, int ss, Npp8u **dp, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)dp; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVP_10u_ToRGB_8u_C3P3R_Ctx(s, ss, {0, 0}, dp, ds, r, cs, c); });
 }
 
+TEST(NumGen, nppiUYVP_10u_ToV210_10u_C3C3R_Ctx) {
+  num::tc::run_uyvp_to_v210("nppiUYVP_10u_ToV210_10u_C3C3R_Ctx", "nppiUYVP_10u_ToV210_10u_C3C3R_Ctx");
+}
+
+TEST(NumGen, nppiUYVP_10u_ToY410_10u_C3C3R_Ctx) {
+  num::tc::run_uyvp_to_y410("nppiUYVP_10u_ToY410_10u_C3C3R_Ctx", "nppiUYVP_10u_ToY410_10u_C3C3R_Ctx");
+}
+
+TEST(NumGen, nppiUYVP_10u_ToYUV444_8u_C3C3R_Ctx) {
+  num::tc::run_uyvp_to_yuv444("nppiUYVP_10u_ToYUV444_8u_C3C3R_Ctx", "nppiUYVP_10u_ToYUV444_8u_C3C3R_Ctx");
+}
+
 TEST(NumGen, nppiUYVY16_16u_ToRGB_16u_C3AC4R_Ctx_601JPEG) {
   num::uyvy::run_uyvy_dec<Npp16u, 1>("nppiUYVY16_16u_ToRGB_16u_C3AC4R_Ctx", NPP_BT601JPEG, (Npp16u)12345, [](Npp16u *s, int ss, NppiPoint off, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, Npp16u a, NppStreamContext c) { (void)ss; (void)off; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiUYVY16_16u_ToRGB_16u_C3AC4R_Ctx(s, ss, off, d, ds, r, cs, a, c); });
 }
@@ -2891,6 +2940,10 @@ TEST(NumGen, nppiUYVY_8u_ToRGB_8u_C3P3R_Ctx_2020HDTV) {
   num::uyvy::run_uyvy_dec<Npp8u, 2>("nppiUYVY_8u_ToRGB_8u_C3P3R_Ctx", NPP_BT2020HDTV, (Npp8u)0, [](Npp8u *s, int ss, NppiPoint off, Npp8u **dp, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)off; (void)dp; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVY_8u_ToRGB_8u_C3P3R_Ctx(s, ss, off, dp, ds, r, cs, c); });
 }
 
+TEST(NumGen, nppiV210_10u_ToUYVP_10u_C3C3R_Ctx) {
+  num::tc::run_v210_to_uyvp("nppiV210_10u_ToUYVP_10u_C3C3R_Ctx", "nppiV210_10u_ToUYVP_10u_C3C3R_Ctx");
+}
+
 TEST(NumGen, nppiXYZToRGB_8u_AC4R_Ctx) {
   num::cs::run_cs<num::cs::CS::XYZ2RGB, true>(
       "nppiXYZToRGB_8u_AC4R_Ctx",
@@ -2901,6 +2954,10 @@ TEST(NumGen, nppiXYZToRGB_8u_C3R_Ctx) {
   num::cs::run_cs<num::cs::CS::XYZ2RGB, false>(
       "nppiXYZToRGB_8u_C3R_Ctx",
       [](const Npp8u *a, int sa, Npp8u *d, int ds, NppiSize r, NppStreamContext c) { (void)sa; (void)ds; (void)r; (void)c; return nppiXYZToRGB_8u_C3R_Ctx(a, sa, d, ds, r, c); });
+}
+
+TEST(NumGen, nppiY410_10u_ToUYVP_10u_C3C3R_Ctx) {
+  num::tc::run_y410_to_uyvp("nppiY410_10u_ToUYVP_10u_C3C3R_Ctx", "nppiY410_10u_ToUYVP_10u_C3C3R_Ctx");
 }
 
 TEST(NumGen, nppiYCCKToCMYK_JPEG_601_8u_P4R_Ctx) {
@@ -3750,6 +3807,10 @@ TEST(NumGen, nppiYUV422ToRGB_8u_P3R_Ctx) {
   num::yuvplanar::run_yuv_inv<num::yuvplanar::Sub::S422, num::yuvplanar::In::P3, num::yuvplanar::Out::P3, false>(
       "nppiYUV422ToRGB_8u_P3R_Ctx",
       [](const Npp8u *const *sp, const Npp8u *ps, int ss, int *ssa, Npp8u *const *dp, Npp8u *pd, int ds, int *dsa, NppiSize r, NppStreamContext c) { (void)sp; (void)ps; (void)ss; (void)ssa; (void)dp; (void)pd; (void)ds; (void)dsa; (void)r; (void)c; return nppiYUV422ToRGB_8u_P3R_Ctx(sp, ssa, const_cast<Npp8u **>(dp), ds, r, c); });
+}
+
+TEST(NumGen, nppiYUV444_8u_ToUYVP_10u_C3C3R_Ctx) {
+  num::tc::run_yuv444_to_uyvp("nppiYUV444_8u_ToUYVP_10u_C3C3R_Ctx", "nppiYUV444_8u_ToUYVP_10u_C3C3R_Ctx");
 }
 
 TEST(NumGen, nppiYUVToBGRBatch_8u_C3R_Advanced_Ctx) {
