@@ -1438,8 +1438,11 @@ NppStatus runNormRel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Ste
                                          pNormP, nCh, rl.vecPath);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
+  // Only the 8u single-channel kernels return the numerator for a zero
+  // denominator; the others return the dtype maximum (measured).
+  const bool numOnZeroDenom = std::is_same_v<D, Npp8u> && nCh == 1;
   normRelFinalizeKernel<normKind(NT)>
-      <<<1, kBlock, 0, stream>>>(pDiff, pNormP, rl.blocks, nCh, normRelZeroDenomValue<D>(), pNorm);
+      <<<1, kBlock, 0, stream>>>(pDiff, pNormP, rl.blocks, nCh, normRelZeroDenomValue<D>(), numOnZeroDenom, pNorm);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
 }
@@ -1465,8 +1468,9 @@ NppStatus runNormRelMasked(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nS
       <<<blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pMask, nMaskStep, oi.width, oi.height, 0, pDiff, pNormP);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
+  const bool numOnZeroDenom = std::is_same_v<D, Npp8u>;
   normRelMaskedFinalizeKernel<normKind(NT)>
-      <<<1, kBlock, 0, stream>>>(pDiff, pNormP, blocks, normRelZeroDenomValue<D>(), pNorm);
+      <<<1, kBlock, 0, stream>>>(pDiff, pNormP, blocks, normRelZeroDenomValue<D>(), numOnZeroDenom, pNorm);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
 }
@@ -1497,8 +1501,9 @@ NppStatus runNormRelMaskedCoi(const D *pSrc1, int nSrc1Step, const D *pSrc2, int
       <<<blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pMask, nMaskStep, oi.width, oi.height, srcCh, pDiff, pNormP);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
+  const bool numOnZeroDenom = std::is_same_v<D, Npp8u>;
   normRelMaskedFinalizeKernel<normKind(NT)>
-      <<<1, kBlock, 0, stream>>>(pDiff, pNormP, blocks, normRelZeroDenomValue<D>(), pNorm);
+      <<<1, kBlock, 0, stream>>>(pDiff, pNormP, blocks, normRelZeroDenomValue<D>(), numOnZeroDenom, pNorm);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
 }

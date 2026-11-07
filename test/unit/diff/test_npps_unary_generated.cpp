@@ -2600,9 +2600,12 @@ TEST_F(NppsUnaryArithmetic, ContractNegativeLen_NonCtx) {
 }
 #endif
 
-// nppsLn_64f32f: intentional deviation from NPP 13.4, whose implementation
-// returns round(ln(x)) (0,1,1,1 for 1,2,3,4).  The API contract is the
-// natural logarithm, so validate against a CPU reference in MPP builds only.
+// nppsLn_64f32f: NVIDIA NPP 13.4 narrows the 64f input to float, computes
+// logf, rounds the result to an integer and widens it back to float (measured:
+// 0,1,1,1 for inputs 1,2,3,4).  The library reproduces that rule, so this
+// semantic test pins it against a CPU reference in MPP builds (the generated
+// differential cases for the other unary families use recorded goldens; this
+// mixed-precision entry point is validated against the formula instead).
 #if NPP_DIFF_HAS_NONCTX
 TEST_F(NppsUnaryArithmetic, nppsLn_64f32f_Semantic) {
   const NppSignalLength n = 17;
@@ -2613,6 +2616,10 @@ TEST_F(NppsUnaryArithmetic, nppsLn_64f32f_Semantic) {
   NppStatus st = nppsLn_64f32f_Ctx(da.get(), dc.get(), n, current_context());
   EXPECT_EQ(st, NPP_NO_ERROR);
   std::vector<float> got(n); dc.copyToHost(got);
-  for (size_t i = 0; i < n; ++i) EXPECT_NEAR(got[i], (float)std::log(a[i]), 1e-5f) << i;
+  for (size_t i = 0; i < n; ++i) {
+    const float lf = (float)std::log((double)(float)a[i]);
+    const float want = (float)std::nearbyint((double)lf);  // ties to even
+    EXPECT_FLOAT_EQ(got[i], want) << i;
+  }
 }
 #endif

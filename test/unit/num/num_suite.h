@@ -166,6 +166,32 @@ template <typename T> inline T sat_trunc(double v) {
 
 inline Npp16f half_round(float v) { return npp_diff::to_npp16f(v); }
 
+// Half emission with the eRoundMode flavour measured for the reference's
+// 32f -> 16f convert (RTX 5090, NPP 13.4): the value is converted straight to
+// half -- no integer rounding happens first -- and NEAR is ties-to-even,
+// FINANCIAL rounds toward +infinity, ZERO rounds toward zero.  Measured:
+// -1.2 -> 0xbccd / 0xbccc / 0xbccc and 65520 -> inf / inf / 65504.
+//
+// The directional modes step one half away from the nearest-even result (the
+// MACA __float2half_ru/rz intrinsics alias round-to-nearest, so they are not
+// used); half is sign-magnitude, so reducing |value| decrements the raw bits
+// for either sign.
+inline Npp16f half_round_mode(float v, int mode) {
+  __half_raw raw;
+  raw.x = static_cast<unsigned short>(
+      npp_diff::to_npp16f(v).fp16);
+  if (mode == NPP_RND_FINANCIAL) {
+    __half h = raw;
+    if (__half2float(h) < v) raw.x = static_cast<unsigned short>((raw.x & 0x8000u) ? raw.x - 1u : raw.x + 1u);
+  } else if (mode == NPP_RND_ZERO) {
+    __half h = raw;
+    if (std::fabs(__half2float(h)) > std::fabs(v)) raw.x = static_cast<unsigned short>(raw.x - 1u);
+  }
+  Npp16f out;
+  out.fp16 = static_cast<short>(raw.x);
+  return out;
+}
+
 template <typename T> inline T from_double_rint(double v) {
   if constexpr (std::is_same_v<T, Npp16f>) return half_round((float)v);
   else return sat_rint<T>(v);
@@ -3572,23 +3598,31 @@ void run_convert(const char *id, Call call, bool sfs, bool round_mode, bool fin_
               double v = as_double(s.hptr()[(size_t)(c.oy + y) * (s.step / sizeof(S)) +
                                             (size_t)(c.ox + x) * C + ch]);
               if (sfs) v /= (double)(1ll << sf);
-              // NPP applies eRoundMode to the value before the destination
-              // format conversion, including 32f -> 16f.
-              if (sfs || round_mode)
-                v = round_mode_host(v, mode, std::is_integral_v<S> && !fin_away);
               D r;
-              if constexpr (std::is_integral_v<D>) {
-                // Match the device cast: trunc toward zero, with NaN/Inf
-                // clamped before the 64-bit conversion.
-                if (std::isnan(v)) v = -std::numeric_limits<double>::infinity();
-                double t = v <= (double)std::numeric_limits<long long>::min()
-                               ? (double)std::numeric_limits<long long>::min()
-                               : (v >= (double)std::numeric_limits<long long>::max()
-                                      ? (double)std::numeric_limits<long long>::max()
-                                      : v);
-                r = saturate_convert<D>((double)(long long)t);
+              if constexpr (std::is_same_v<D, Npp16f>) {
+                // The reference converts straight to half with eRoundMode as
+                // the float16 rounding flavour (see half_round_mode); no
+                // integer rounding is applied first.
+                r = half_round_mode((float)v, (sfs || round_mode) ? mode : NPP_RND_NEAR);
               } else {
-                r = saturate_convert<D>(v);
+                // NPP applies eRoundMode to the value before the destination
+                // format conversion.
+                if (sfs || round_mode)
+                  v = round_mode_host(v, mode, std::is_integral_v<S> && !fin_away);
+                if constexpr (std::is_integral_v<D>) {
+                  // Match the device cast: trunc toward zero, +-Inf clamped
+                  // before the 64-bit conversion, NaN -> 0 (measured: every
+                  // 32f -> integer convert writes 0 for NaN).
+                  if (std::isnan(v)) v = 0.0;
+                  double t = v <= (double)std::numeric_limits<long long>::min()
+                                 ? (double)std::numeric_limits<long long>::min()
+                                 : (v >= (double)std::numeric_limits<long long>::max()
+                                        ? (double)std::numeric_limits<long long>::max()
+                                        : v);
+                  r = saturate_convert<D>((double)(long long)t);
+                } else {
+                  r = saturate_convert<D>(v);
+                }
               }
               const size_t off = off_bytes<D>(c.oy + y, c.ox + x, d.step, C) + (size_t)ch * sizeof(D);
               std::memcpy(want.data() + off, &r, sizeof(D));

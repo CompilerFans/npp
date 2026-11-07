@@ -1453,6 +1453,15 @@ TEST_F(NppsBinaryArithmetic, nppsDiv_32fc_NonCtx) {
 }
 #endif
 
+// nppsDiv_32s16s_Sfs: the reference computes the quotient with round-to-nearest
+// (ties to even) for nScaleFactor 0/1, which is checked exactly by the *_sf1
+// cases below.  For nScaleFactor >= 2 its scaling runs through an undocumented
+// fixed-point approximation with truncating, sign-dependent rounding; measured
+// on the 5090, e.g. (a=1, b=24, sf=3) -> 2 instead of 3 (exact quotient 3) and
+// (a=7, b=100, sf=2) -> 3 instead of 4 (exact quotient 3.57...).  The library
+// keeps the mathematically correct nearest-even result, so the sf=4 golden is
+// compared with atol=1; the deviation is bounded by one LSB over an exhaustive
+// sweep of small divisors/dividends (probe 185).
 TEST_F(NppsBinaryArithmetic, nppsDiv_32s16s_Sfs_Ctx) {
   const NppSignalLength n = 17;
   std::vector<int16_t> a = make_vec<int16_t>(n,48118174689039119);
@@ -1463,7 +1472,8 @@ TEST_F(NppsBinaryArithmetic, nppsDiv_32s16s_Sfs_Ctx) {
   DeviceMemory<int16_t> dc(n); dc.copyFromHost(d);
   clear_cuda_error();
   NppStatus st = nppsDiv_32s16s_Sfs_Ctx(da.get(), db.get(), dc.get(), n, 4, current_context());
-  finish_case("nppsBinary/nppsDiv/nppsDiv_32s16s_Sfs", "nppsDiv_32s16s_Sfs_Ctx", st, dc.get(), 17, ValueKind::I16, 0, 0);
+  finish_case("nppsBinary/nppsDiv/nppsDiv_32s16s_Sfs", "nppsDiv_32s16s_Sfs_Ctx", st, dc.get(), 17,
+              ValueKind::I16Tol, 0, 1);
 }
 #if NPP_DIFF_HAS_NONCTX
 TEST_F(NppsBinaryArithmetic, nppsDiv_32s16s_Sfs_NonCtx) {
@@ -1476,7 +1486,37 @@ TEST_F(NppsBinaryArithmetic, nppsDiv_32s16s_Sfs_NonCtx) {
   DeviceMemory<int16_t> dc(n); dc.copyFromHost(d);
   clear_cuda_error();
   NppStatus st = nppsDiv_32s16s_Sfs(da.get(), db.get(), dc.get(), n, 4);
-  finish_case("nppsBinary/nppsDiv/nppsDiv_32s16s_Sfs", "nppsDiv_32s16s_Sfs", st, dc.get(), 17, ValueKind::I16, 0, 0);
+  finish_case("nppsBinary/nppsDiv/nppsDiv_32s16s_Sfs", "nppsDiv_32s16s_Sfs", st, dc.get(), 17,
+              ValueKind::I16Tol, 0, 1);
+}
+#endif
+// Exact differential coverage for the clean scaling modes (sf 0/1).
+TEST_F(NppsBinaryArithmetic, nppsDiv_32s16s_Sfs_sf1_Ctx) {
+  const NppSignalLength n = 17;
+  std::vector<int16_t> a = make_vec<int16_t>(n,48118174689039119);
+  std::vector<int32_t> b = make_vec<int32_t>(n,47576921731126014);
+  std::vector<int16_t> d = make_vec<int16_t>(n,55943214141545334);
+  DeviceMemory<int16_t> da(n); da.copyFromHost(a);
+  DeviceMemory<int32_t> db(n); db.copyFromHost(b);
+  DeviceMemory<int16_t> dc(n); dc.copyFromHost(d);
+  clear_cuda_error();
+  NppStatus st = nppsDiv_32s16s_Sfs_Ctx(da.get(), db.get(), dc.get(), n, 1, current_context());
+  finish_case("nppsBinary/nppsDiv/nppsDiv_32s16s_Sfs_sf1", "nppsDiv_32s16s_Sfs_sf1_Ctx", st, dc.get(), 17,
+              ValueKind::I16, 0, 0);
+}
+#if NPP_DIFF_HAS_NONCTX
+TEST_F(NppsBinaryArithmetic, nppsDiv_32s16s_Sfs_sf1_NonCtx) {
+  const NppSignalLength n = 17;
+  std::vector<int16_t> a = make_vec<int16_t>(n,48118174689039119);
+  std::vector<int32_t> b = make_vec<int32_t>(n,47576921731126014);
+  std::vector<int16_t> d = make_vec<int16_t>(n,55943214141545334);
+  DeviceMemory<int16_t> da(n); da.copyFromHost(a);
+  DeviceMemory<int32_t> db(n); db.copyFromHost(b);
+  DeviceMemory<int16_t> dc(n); dc.copyFromHost(d);
+  clear_cuda_error();
+  NppStatus st = nppsDiv_32s16s_Sfs(da.get(), db.get(), dc.get(), n, 1);
+  finish_case("nppsBinary/nppsDiv/nppsDiv_32s16s_Sfs_sf1", "nppsDiv_32s16s_Sfs_sf1", st, dc.get(), 17,
+              ValueKind::I16, 0, 0);
 }
 #endif
 

@@ -246,7 +246,11 @@ TEST(NppiDistanceTransformPbaDiff, U8To16u) {
 }
 
 TEST(NppiDistanceTransformPbaDiff, U8ToFloats) {
-  for (int pattern = 0; pattern <= 2; ++pattern) {
+  // Pattern 0 has no sites at all: the reference's PBA then produces a
+  // deterministic but arbitrary band artifact (measured: rows of
+  // sqrt((x+1)^2+1) and negative constants) rather than a distance field, so
+  // the empty-site case is outside the contract and not compared.
+  for (int pattern = 1; pattern <= 2; ++pattern) {
     const std::vector<Npp8u> src = makePattern<Npp8u>(64, 64, pattern, 0, 255);
     runNoAa<Npp8u, Npp16s, Npp32f>(
         "nppiDistanceTransformPBA_8u32f_C1R_Ctx", "8u32f/pattern" + tag(pattern) + "/pba",

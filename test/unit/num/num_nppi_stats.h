@@ -236,9 +236,14 @@ void run_nppi_reduce2(const char *id, Call call) {
         want = (nsq > 0.0) ? std::sqrt(dsq) / std::sqrt(nsq)
                            : (dsq == 0.0 ? 0.0 : (double)std::numeric_limits<S>::max());
       else
+        // The reference returns the numerator for a zero denominator only in
+        // the 8u single-channel kernels; other dtypes/channel counts return
+        // the source-dtype maximum (probed on the 5090).
         want = (ninf > 0.0) ? dinf / ninf
                             : (dinf == 0.0 ? 0.0
-                                           : (C == 1 ? dinf : (double)std::numeric_limits<S>::max()));
+                                           : ((std::is_same_v<S, Npp8u> && C == 1)
+                                                  ? dinf
+                                                  : (double)std::numeric_limits<S>::max()));
       ++cnt.compared;
       const size_t off = (size_t)ch * sizeof(Npp64f);
       if (!equal_elem<Npp64f>(out.host.data() + off, reinterpret_cast<const uint8_t *>(&want), rtol, atol)) {
@@ -2219,7 +2224,11 @@ void run_nppi_reduce2_masked(const char *id, Call call) {
       want = (nsq > 0.0) ? std::sqrt(dsq) / std::sqrt(nsq)
                          : (dsq == 0.0 ? 0.0 : (double)std::numeric_limits<S>::max());
     else
-      want = (ninf > 0.0) ? dinf / ninf : (dinf == 0.0 ? 0.0 : (double)std::numeric_limits<S>::max());
+      want = (ninf > 0.0) ? dinf / ninf
+                          : (dinf == 0.0 ? 0.0
+                                         : (std::is_same_v<S, Npp8u>
+                                                ? dinf
+                                                : (double)std::numeric_limits<S>::max()));
     ++cnt.executed;
     ++cnt.compared;
     if (!equal_elem<Npp64f>(out.host.data(), reinterpret_cast<const uint8_t *>(&want), rtol, atol)) {

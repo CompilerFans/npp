@@ -54,10 +54,48 @@ __host__ __device__ __forceinline__ Dst to_real(double v) {
   }
 }
 
+// Half bit pattern for f under eRoundMode, applied on the half grid.
+//
+// Measured on the RTX 5090 (NPP 13.4): the reference does NOT integer-round a
+// 32f source before the half conversion; it selects a float16 rounding flavour
+// instead -- NEAR is ties-to-even, FINANCIAL rounds toward +infinity and ZERO
+// rounds toward zero.  E.g. -1.2 -> 0xbccd / 0xbccc / 0xbccc, 65520 -> inf /
+// inf / 65504 (positive) and -70000 -> -inf / -65504 / -65504.
+//
+// The directional modes are derived from the nearest-even result with one
+// half step rather than with __float2half_ru/__float2half_rz: the MACA
+// toolchain aliases both intrinsics to round-to-nearest, so they cannot be
+// used to model the reference.  One step is always enough because the
+// nearest half lies within half an ulp of f.  Half values are sign-magnitude,
+// so decreasing |value| is a decrement of the raw pattern for both signs.
+__host__ __device__ __forceinline__ unsigned short half_bits_rounded(float f, NppRoundMode mode) {
+  const __half h = __float2half_rn(f);
+  unsigned short bits = *reinterpret_cast<const unsigned short *>(&h);
+  if (mode == NPP_RND_FINANCIAL) {
+    if (__half2float(h) < f) {  // next value toward +infinity
+      bits = static_cast<unsigned short>((bits & 0x8000u) ? bits - 1u : bits + 1u);
+    }
+  } else if (mode == NPP_RND_ZERO) {
+    const float hr = __half2float(h);
+    const float ah = fabsf(hr), af = fabsf(f);
+    if (ah > af) bits = static_cast<unsigned short>(bits - 1u);  // one step toward zero
+  }
+  return bits;
+}
+
+__host__ __device__ __forceinline__ Npp16f to_half_rounded(double v, NppRoundMode mode) {
+  Npp16f out;
+  out.fp16 = static_cast<short>(half_bits_rounded(static_cast<float>(v), mode));
+  return out;
+}
+
 // Saturating integer emission (no wrap).
+// NaN reaching this point (defensive only: cvt() maps it to 0 first, which is
+// the reference behaviour for every 32f -> integer convert; probe 193) is
+// emitted as 0 rather than as the destination minimum.
 template <typename Dst>
 __host__ __device__ __forceinline__ Dst saturate_int(double v) {
-  if (std::isnan(v)) v = -std::numeric_limits<double>::infinity();
+  if (std::isnan(v)) v = 0.0;
   if constexpr (std::is_same_v<Dst, Npp8s>) {
     return v <= -128.0 ? static_cast<Dst>(-128) : (v >= 127.0 ? static_cast<Dst>(127) : static_cast<Dst>(v));
   } else if constexpr (std::is_unsigned_v<Dst>) {
@@ -104,17 +142,27 @@ template <typename Src, typename Dst, bool Round, bool Scale>
 __host__ __device__ __forceinline__ Dst cvt(const Src &s, NppRoundMode mode, int sf) {
   double v = to_double(s);
   if constexpr (Scale) v *= inv_pow2(sf);
-  // NPP rounds per eRoundMode before converting the destination format,
-  // including floating destinations (32f -> 16f).
-  // The 16s->8s kernel rounds FINANCIAL ties away from zero, unlike the
-  // other integer-source conversions which use the (v+0.5) floor form.
-  constexpr bool int_fin_half_up =
-      std::is_integral_v<Src> && !(std::is_same_v<Src, Npp16s> && std::is_same_v<Dst, Npp8s>);
-  if constexpr (Round || Scale) v = round_mode(v, mode, int_fin_half_up);
-  if constexpr (IsFloatDst<Dst>::value) {
-    return to_real<Dst>(v);
+  if constexpr (std::is_same_v<Dst, Npp16f>) {
+    // Half destination: eRoundMode selects the float16 rounding flavour, so no
+    // integer rounding happens first (see to_half_rounded).
+    return to_half_rounded(v, mode);
   } else {
-    return saturate_int<Dst>(static_cast<double>(static_cast<long long>(v)));
+    // NPP rounds per eRoundMode before converting the destination format.
+    // The 16s->8s kernel rounds FINANCIAL ties away from zero, unlike the
+    // other integer-source conversions which use the (v+0.5) floor form.
+    constexpr bool int_fin_half_up =
+        std::is_integral_v<Src> && !(std::is_same_v<Src, Npp16s> && std::is_same_v<Dst, Npp8s>);
+    if constexpr (Round || Scale) v = round_mode(v, mode, int_fin_half_up);
+    if constexpr (IsFloatDst<Dst>::value) {
+      return to_real<Dst>(v);
+    } else {
+      // NPP's 32f -> integer converts write 0 for NaN in every round mode
+      // (measured on the 5090: 8u/8s/16u/16s/32u/32s all give 0, while +-inf
+      // saturate to the destination bounds).  The double-to-integer cast is
+      // undefined for NaN, so map it before the conversion.
+      if (std::isnan(v)) v = 0.0;
+      return saturate_int<Dst>(static_cast<double>(static_cast<long long>(v)));
+    }
   }
 }
 

@@ -221,13 +221,18 @@ void border_errors(const std::string &fam, const std::string &suffix, int channe
   if (dAlign > 1)
     only_status(fn, fam + "/err/stepodd" + suffix,
                 [&] { return f(s, 16, off, d, roi.width * dpx + 1, roi, 2.f, 1.f, 1.2f, 0.f, rep, buf, ctx); });
-  // offsets out of the assumed image and odd source steps are not validated
+  // Offsets out of the assumed image are not validated (status only).
   only_status(fn, fam + "/ok/offneg" + suffix,
               [&] { return f(s, 16, NppiPoint{-1, 0}, d, dstep, roi, 2.f, 1.f, 1.2f, 0.f, rep, buf, ctx); });
   only_status(fn, fam + "/ok/offbig" + suffix,
               [&] { return f(s, 16, NppiPoint{40, 0}, d, dstep, roi, 2.f, 1.f, 1.2f, 0.f, rep, buf, ctx); });
-  only_status(fn, fam + "/ok/srcstepodd" + suffix,
-              [&] { return f(s, 17, off, d, dstep, roi, 2.f, 1.f, 1.2f, 0.f, rep, buf, ctx); });
+  // An odd source step is not validated either (the call returns NO_ERROR),
+  // but the reference kernel then issues an unaligned vector load and faults
+  // asynchronously with a sticky misaligned-address error that kills the CUDA
+  // context for every later test in the process.  That is undefined behaviour
+  // outside the API contract (the docs require a step of at least
+  // width*sizeof(pixel)), so it is not pinned here: measured on NPP 13.4 with
+  // 16u/16s/32f C1 and 8u AC4, 8u C1 stays clean.
 }
 
 // GetBufferSize: null pointer -> negative radius -> non-positive sigma.

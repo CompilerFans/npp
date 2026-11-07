@@ -1021,9 +1021,13 @@ static __global__ void normRelPartialKernel(const D *pSrc1, int nSrc1Step, const
 // (RTX 5090) returns 0 when numerator and denominator norms are both zero and
 // the dtype maximum when only the denominator is zero; finite ratios are never
 // clamped (verified by the normrel zero-denominator / big-ratio goldens).
+// numOnZeroDenom selects the one measured exception: the 8u single-channel
+// kernels return the numerator instead of the dtype maximum (probed: 8u C1
+// gives 250/200/17 for those numerators, 8u C3 and every other dtype and
+// channel count saturate, e.g. 16s -> 32767, 32f -> FLT_MAX).
 template <NormKind NT>
 static __global__ void normRelFinalizeKernel(const double *pDiff, const double *pNorm, int nblocks, int nch,
-                                      double zeroDenomValue, Npp64f *pOut) {
+                                      double zeroDenomValue, bool numOnZeroDenom, Npp64f *pOut) {
   __shared__ double ds[kBlock];
   __shared__ double ns[kBlock];
   constexpr bool IsInf = (NT == NormKind::Inf);
@@ -1063,9 +1067,7 @@ static __global__ void normRelFinalizeKernel(const double *pDiff, const double *
         n = sqrt(n);
       }
       if constexpr (IsInf) {
-        // NPP's single-channel Inf NormRel returns the numerator when the
-        // denominator is 0; multi-channel variants return the dtype maximum.
-        pOut[c] = (n > 0.0) ? d / n : ((nch == 1) ? d : (d == 0.0 ? 0.0 : zeroDenomValue));
+        pOut[c] = (n > 0.0) ? d / n : (d == 0.0 ? 0.0 : (numOnZeroDenom ? d : zeroDenomValue));
       } else {
         pOut[c] = (n > 0.0) ? d / n : ((d == 0.0) ? 0.0 : zeroDenomValue);
       }
@@ -1105,7 +1107,7 @@ static __global__ void normRelMaskedKernel(const D *pSrc1, int nSrc1Step, const 
 // See normRelFinalizeKernel for the zero-denominator convention.
 template <NormKind NT>
 static __global__ void normRelMaskedFinalizeKernel(const double *pDiff, const double *pNorm, int nblocks,
-                                            double zeroDenomValue, double *pOut) {
+                                            double zeroDenomValue, bool numOnZeroDenom, double *pOut) {
   __shared__ double ds[kBlock];
   __shared__ double ns[kBlock];
   constexpr bool IsInf = (NT == NormKind::Inf);
@@ -1144,7 +1146,7 @@ static __global__ void normRelMaskedFinalizeKernel(const double *pDiff, const do
       n = sqrt(n);
     }
     if constexpr (IsInf) {
-      pOut[0] = (n > 0.0) ? d / n : d;
+      pOut[0] = (n > 0.0) ? d / n : (d == 0.0 ? 0.0 : (numOnZeroDenom ? d : zeroDenomValue));
     } else {
       pOut[0] = (n > 0.0) ? d / n : ((d == 0.0) ? 0.0 : zeroDenomValue);
     }

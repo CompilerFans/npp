@@ -48,19 +48,23 @@ __device__ __forceinline__ bool pixelGate(const Mat3 &M, NppiRect src, int x, in
 // gate only.  Explicit rot90/mirror/projective probes on 13.4 write every
 // in-range pixel, so the source ROI's forward image does not clip x; an
 // earlier left-edge-v x-span model was a small-shape measurement artifact.
-// The batch kernel additionally drops whole rows whose left-edge v falls
-// outside the source ROI (`gateRows`), which the single-image kernel does not
-// do (measured: batch n3/persp skips dst row 1, planar persp_subroi_cubic
-// still writes dst row 3 with v_row < srcROI.y).
+// The batch kernel additionally drops destination rows in PAIRS: a two-row
+// tile is skipped when the left-edge v of its FIRST row is outside
+// [src.y, src.y + height - 1].  The single-image kernel has no such gate.
+// Measured with sub-pixel translations on 13.4 (probe 187; 12x9 ROI):
+// ty=0.0001 drops rows 0-1 (v(row0) = -0.0001), ty=2.0 keeps rows 2-8
+// (v(row2) = 0), ty=2.0001 drops rows 2-3, ty=-1.9 keeps rows 0-6
+// (v(row6) = 7.9) and ty=-2.0001 drops rows 6-7 (v(row6) = 8.0001).
 __device__ __forceinline__ bool forwardGate(const Mat3 &M, const Mat3 &F, NppiRect src, int x, int y, bool gateRows,
                                             double &u, double &v) {
   (void)F;
   if (gateRows) {
+    const int rowBase = y & ~1;  // reference row of the two-row tile
     double denA, uA, vRow;
-    mapPoint(M, (double)src.x, (double)y, uA, vRow, denA);
+    mapPoint(M, (double)src.x, (double)rowBase, uA, vRow, denA);
     (void)uA;
     if (!(denA > 0.0)) return false;
-    if (vRow < (double)src.y || vRow > (double)src.y + src.height) return false;
+    if (vRow < (double)src.y || vRow > (double)src.y + src.height - 1.0) return false;
   }
   return pixelGate(M, src, x, y, u, v);
 }
