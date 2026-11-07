@@ -5,6 +5,7 @@
 **11.4**: 12112 functions
 **12.2**: 12500 functions
 **12.8**: 12536 functions
+**13.4**: 7752 functions
 
 ## Version Differences
 
@@ -62,30 +63,49 @@
 - nppiAverageErrorGetBufferHostSize_16s_C3R
 - ... and 3183 more
 
-## Module Statistics (12.8)
+### 12.8 -> 13.4
+
+- Added: 67
+- Removed: 4851
+- Changed: 0
+
+**Added:**
+- nppiFilterCannyBorder_8u_C3C1R_Ctx
+- nppiI444_8u_ToUYVP_10u_P3C3R_Ctx
+- nppiNV12ToBGR_601_8u_P2C3R_Ctx
+- nppiNV12ToBGR_8u_P2C4R_Ctx
+- nppiNV12ToBGR_BT2020_8u_P2C3R_Ctx
+- nppiNV12ToRGB_601_8u_P2C3R_Ctx
+- nppiNV12ToRGB_8u_P2C4R_Ctx
+- nppiNV12ToRGB_BT2020_8u_P2C3R_Ctx
+- nppiNV12_8u_ToUYVP_10u_P2C3R_Ctx
+- nppiNV16_8u_ToUYVP_10u_P2C3R_Ctx
+- ... and 57 more
+
+## Module Statistics (13.4)
 
 ### NPPI
 
-Total: 10768
+Total: 6860
 
 - nppi_arithmetic_and_logical_operations.h: 2137
-- nppi_color_conversion.h: 1074
-- nppi_data_exchange_and_initialization.h: 966
-- nppi_filtering_functions.h: 1895
-- nppi_geometry_transforms.h: 705
+- nppi_color_conversion.h: 615
+- nppi_data_exchange_and_initialization.h: 484
+- nppi_filtering_functions.h: 1009
+- nppi_geometry_transforms.h: 358
 - nppi_linear_transforms.h: 4
-- nppi_morphological_operations.h: 292
-- nppi_statistics_functions.h: 3246
+- nppi_morphological_operations.h: 150
+- nppi_statistics_functions.h: 1654
 - nppi_support_functions.h: 31
 - nppi_threshold_and_compare_operations.h: 418
 
 ### NPPS
 
-Total: 1768
+Total: 892
 
-- npps_arithmetic_and_logical_operations.h: 740
-- npps_conversion_functions.h: 174
-- npps_filtering_functions.h: 3
-- npps_initialization.h: 70
-- npps_statistics_functions.h: 766
+- npps_arithmetic_and_logical_operations.h: 370
+- npps_conversion_functions.h: 87
+- npps_filtering_functions.h: 2
+- npps_initialization.h: 35
+- npps_statistics_functions.h: 383
 - npps_support_functions.h: 15

@@ -1,10 +1,10 @@
 # Coverage Summary
 
-- Total API Functions: 12537
-- Function Families (plain + _Ctx share one implementation): 6499
-- Families with at least one tested variant: 6499 (100.0%)
-- Implemented: 12537 (100.0%)
-- Tested: 8604 (68.6%)
+- Total API Functions: 12604
+- Function Families (plain + _Ctx share one implementation): 6566
+- Families with at least one tested variant: 6499 (99.0%)
+- Implemented: 12537 (99.5%)
+- Tested: 8604 (68.3%)
 - Implemented but not tested: 3933
 
 ## By Module
@@ -15,13 +15,13 @@
 - Total: 2137, Impl: 2137 (100.0%), Test: 2135 (99.9%)
 
 **nppi_color_conversion.h**
-- Total: 1074, Impl: 1074 (100.0%), Test: 787 (73.3%)
+- Total: 1135, Impl: 1074 (94.6%), Test: 787 (69.3%)
 
 **nppi_data_exchange_and_initialization.h**
 - Total: 966, Impl: 966 (100.0%), Test: 675 (69.9%)
 
 **nppi_filtering_functions.h**
-- Total: 1896, Impl: 1896 (100.0%), Test: 1061 (56.0%)
+- Total: 1897, Impl: 1896 (99.9%), Test: 1061 (55.9%)
 
 **nppi_geometry_transforms.h**
 - Total: 705, Impl: 705 (100.0%), Test: 540 (76.6%)
@@ -33,7 +33,7 @@
 - Total: 292, Impl: 292 (100.0%), Test: 193 (66.1%)
 
 **nppi_statistics_functions.h**
-- Total: 3246, Impl: 3246 (100.0%), Test: 1730 (53.3%)
+- Total: 3251, Impl: 3246 (99.8%), Test: 1730 (53.2%)
 
 **nppi_support_functions.h**
 - Total: 31, Impl: 31 (100.0%), Test: 31 (100.0%)

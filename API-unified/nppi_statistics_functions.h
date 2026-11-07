@@ -34819,3 +34819,24 @@ NppStatus nppiEllipticalRadialProfile_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcS
     Npp32f nAstigmatismRatio, Npp32f nOrientationRadians, NppiProfileData *pProfileData, Npp16u nProfileSamples, NppStreamContext nppStreamCtx);
 
 #endif /* NV_NPPI_STATISTICS_FUNCTIONS_H */
+
+/* -------------------------------------------------------------------------
+ * NPP 13.4 additions (vendored from the API-13.4 header snapshot).
+ * ------------------------------------------------------------------------- */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+NppStatus nppiWMSSSIMBatchGetBufferHostSize_8u_C4R_Ctx(NppiSize oSizeROI, size_t * hpBufferSize, NppStreamContext nppStreamCtx);
+
+NppStatus nppiWMSSSIMBatch_8u_C4R_Advanced_Ctx(const NppiImageDescriptor * pSrc1BatchList, const NppiImageDescriptor * pSrc2BatchList, int nBatchSize, NppiSize oMaxSizeROI, Npp32f * pWMSSSIM, NppiBufferDescriptor * pDeviceBufferList, NppStreamContext nppStreamCtx);
+
+NppStatus nppiWMSSSIMBatch_8u_C4R_Ctx(const NppiImageDescriptor * pSrc1BatchList, const NppiImageDescriptor * pSrc2BatchList, int nBatchSize, NppiSize oSizeROI, Npp32f * pWMSSSIM, NppiBufferDescriptor * pDeviceBufferList, NppStreamContext nppStreamCtx);
+
+NppStatus nppiWMSSSIMGetBufferHostSize_8u_C4R_Ctx(NppiSize oSizeROI, size_t * hpBufferSize, NppStreamContext nppStreamCtx);
+
+NppStatus nppiWMSSSIM_8u_C4R_Ctx(const Npp8u * pSrc1, int nSrc1Step, const Npp8u * pSrc2, int nSrc2Step, NppiSize oSizeROI, Npp32f * pMSSSIM, Npp8u * pDeviceBuffer, NppStreamContext nppStreamCtx);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

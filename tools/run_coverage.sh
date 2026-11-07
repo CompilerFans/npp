@@ -21,7 +21,7 @@ symbols=$(mktemp)
 trap 'rm -f "$symbols"' EXIT
 
 echo "== analyze_api.py (11.4 / 12.2 / 12.8)"
-python3 tools/analyze_api.py --api-dir "$root" --versions 11.4 12.2 12.8 --output api_analysis
+python3 tools/analyze_api.py --api-dir "$root" --versions 11.4 12.2 12.8 13.4 --output api_analysis
 
 if [[ -f "$lib" ]]; then
   echo "== symbols from $lib"
@@ -31,13 +31,13 @@ else
   : > "$symbols"
 fi
 
-echo "== union of 11.4 / 12.2 / 12.8"
+echo "== union of 11.4 / 12.2 / 12.8 / 13.4"
 python3 - <<'PY'
 import csv
 from pathlib import Path
 
 rows = {}
-for version in ("11.4", "12.2", "12.8"):
+for version in ("11.4", "12.2", "12.8", "13.4"):
     with open(f"api_analysis/api_functions_{version}.csv") as f:
         for r in csv.DictReader(f):
             rows[r["function_name"]] = r  # later versions win on collisions
@@ -59,7 +59,7 @@ if extra:
     print(f"- In version headers but not in unified: {len(extra)}")
 PY
 
-for version in 11.4 12.2 12.8 union; do
+for version in 11.4 12.2 12.8 13.4 union; do
   echo "== coverage $version"
   python3 tools/check_coverage.py \
     --api-csv "api_analysis/api_functions_$version.csv" \

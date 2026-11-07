@@ -18454,3 +18454,16 @@ nppiCompressedMarkerLabelsUFContoursOutputGeometryLists_C1R(NppiContourPixelGeom
                                                             NppiSize oSizeROI);
 
 #endif /* NV_NPPI_FILTERING_FUNCTIONS_H */
+
+/* -------------------------------------------------------------------------
+ * NPP 13.4 additions (vendored from the API-13.4 header snapshot).
+ * ------------------------------------------------------------------------- */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+NppStatus nppiFilterCannyBorder_8u_C3C1R_Ctx(const Npp8u * pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppiDifferentialKernel eFilterType, NppiMaskSize eMaskSize, Npp16s nLowThreshold, Npp16s nHighThreshold, NppiNorm eNorm, NppiBorderType eBorderType, Npp8u * pDeviceBuffer, NppStreamContext nppStreamCtx);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

@@ -874,6 +874,17 @@ typedef struct
     Npp32f * pTwist;
 } NppiColorTwistBatchCXR;
 
+/**
+ *  Color space enumeration (NPP 13.4 addition, vendored from API-13.4)
+ */
+typedef enum
+{
+    NPP_TRANSCODE_ONLY, /**< no color space defined. used for simple transcoding. */
+    NPP_BT601JPEG,      /**< BT601 colorspace used within JPEG images covering 0..255. */
+    NPP_BT709HDTV,      /**< BT709 High Definition TV colorspace. */
+    NPP_BT2020HDTV      /**< BT2020 High Definition TV colorspace. */
+} NppiColorSpace;
+
 
 
 #ifdef __cplusplus
