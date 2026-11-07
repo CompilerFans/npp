@@ -1143,6 +1143,84 @@ def emit_p010(row: dict) -> Optional[str]:
     return "".join(out)
 
 
+def emit_uyvp(row: dict) -> Optional[str]:
+    fn = row["function_name"]
+    name = re.sub(r"\W", "_", fn)
+    CS = (("NPP_BT601JPEG", "601JPEG"), ("NPP_BT709HDTV", "709HDTV"), ("NPP_BT2020HDTV", "2020HDTV"))
+    # RGB(A) -> UYVP
+    m = re.match(r"nppiRGBA?_(8u|16u|16f)_ToUYVP_10u_(C3|AC4)(C3R|P3R)_Ctx$", fn)
+    if m:
+        dt, tok, form = m.group(1), m.group(2), m.group(3)
+        S = {"8u": "Npp8u", "16u": "Npp16u", "16f": "Npp16f"}[dt]
+        out = []
+        for cs, tag in CS:
+            if form == "P3R":
+                lam = (f"[]({S} *s, int ss, Npp8u **dp, int ds, NppiSize r, NppiColorSpace cs, "
+                       f"NppStreamContext c) "
+                       f"{{ (void)ss; (void)dp; (void)ds; (void)r; (void)cs; (void)c; "
+                       f"return {fn}(s, ss, {{0, 0}}, dp, ds, r, cs, c); }}")
+                call = f"num::uyvp::run_uyvp_encode_planar(\"{fn}\", {cs}, {lam})"
+            else:
+                mode = 2 if tok == "AC4" else 0
+                lam = (f"[]({S} *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, "
+                       f"NppStreamContext c) "
+                       f"{{ (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; "
+                       f"return {fn}(s, ss, {{0, 0}}, d, ds, r, cs, c); }}")
+                call = f"num::uyvp::run_uyvp_encode<{S}, {mode}>(\"{fn}\", {cs}, {lam})"
+            out.append(f"TEST(NumGen, {name}_{tag}) {{\n  {call};\n}}\n")
+        return "".join(out)
+    if re.match(r"nppiRGB_(8u|16u|16f)_ToUYVP_10u_P3C3R_Ctx$", fn):
+        dt = re.match(r"nppiRGB_(8u|16u|16f)_", fn).group(1)
+        S = {"8u": "Npp8u", "16u": "Npp16u", "16f": "Npp16f"}[dt]
+        out = []
+        for cs, tag in CS:
+            lam = (f"[](const {S} *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, "
+                   f"NppStreamContext c) "
+                   f"{{ (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; "
+                   f"return {fn}(sp, ss, {{0, 0}}, d, ds, r, cs, c); }}")
+            call = f"num::uyvp::run_uyvp_encode<{S}, 1>(\"{fn}\", {cs}, {lam})"
+            out.append(f"TEST(NumGen, {name}_{tag}) {{\n  {call};\n}}\n")
+        return "".join(out)
+    # UYVP -> RGB(A)
+    m = re.match(r"nppiUYVP_10u_To(RGB|RGBA)_(8u|16u|16f)_C3(C3|AC4|P3)R_Ctx$", fn)
+    if m:
+        kind, dt, mode_s = m.group(2), None, m.group(3)
+        dt = m.group(2)
+        S = {"8u": "Npp8u", "16u": "Npp16u", "16f": "Npp16f"}[dt]
+        mode = {"C3": 0, "AC4": 1, "P3": 2}[mode_s]
+        zero = "num::half_round(0.0f)" if S == "Npp16f" else f"({S})0"
+        alpha = "12345" if S == "Npp16u" else ("num::half_round(0.5f)" if S == "Npp16f" else "0x5A")
+        out = []
+        for cs, tag in CS:
+            if mode == 1:
+                if "ToRGBA_16f" in fn:
+                    lam = ("[](const Npp8u *s, int ss, Npp16f *d, int ds, NppiSize r, NppiColorSpace cs, "
+                           "Npp16f a, NppStreamContext c) "
+                           "{ (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; "
+                           f"return {fn}(s, ss, {{0, 0}}, d, ds, r, cs, (Npp32f)num::as_double(a), c); }}")
+                else:
+                    lam = (f"[](const Npp8u *s, int ss, {S} *d, int ds, NppiSize r, NppiColorSpace cs, {S} a, "
+                           f"NppStreamContext c) "
+                           f"{{ (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; "
+                           f"return {fn}(s, ss, {{0, 0}}, d, ds, r, cs, a, c); }}")
+                call = f"num::uyvp::run_uyvp_decode<{S}, 1>(\"{fn}\", {cs}, {alpha}, {lam})"
+            elif mode == 2:
+                lam = (f"[](const Npp8u *s, int ss, {S} **dp, int ds, NppiSize r, NppiColorSpace cs, "
+                       f"NppStreamContext c) "
+                       f"{{ (void)ss; (void)dp; (void)ds; (void)r; (void)cs; (void)c; "
+                       f"return {fn}(s, ss, {{0, 0}}, dp, ds, r, cs, c); }}")
+                call = f"num::uyvp::run_uyvp_decode<{S}, 2>(\"{fn}\", {cs}, {zero}, {lam})"
+            else:
+                lam = (f"[](const Npp8u *s, int ss, {S} *d, int ds, NppiSize r, NppiColorSpace cs, "
+                       f"NppStreamContext c) "
+                       f"{{ (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; "
+                       f"return {fn}(s, ss, {{0, 0}}, d, ds, r, cs, c); }}")
+                call = f"num::uyvp::run_uyvp_decode<{S}, 0>(\"{fn}\", {cs}, {zero}, {lam})"
+            out.append(f"TEST(NumGen, {name}_{tag}) {{\n  {call};\n}}\n")
+        return "".join(out)
+    return None
+
+
 def emit_nv12_twist(row: dict) -> Optional[str]:
     fn = row["function_name"]
     if "ColorTwist32f" not in fn:
@@ -1217,7 +1295,7 @@ def main() -> int:
                 or emit_ycbcr_jpeg(row) or emit_yuv_planar(row) or emit_yuv_layout(row)
                 or emit_ycbcr422(row) or emit_ycbcr420(row) or emit_ycbcr420_layout(row)
                 or emit_yuv_twist(row) or emit_color_key(row) or emit_cmyk(row) or emit_nv12(row)
-                or emit_nv12_twist(row) or emit_uyvy(row) or emit_p010(row) or emit_color_batch(row))
+                or emit_nv12_twist(row) or emit_uyvy(row) or emit_p010(row) or emit_uyvp(row) or emit_color_batch(row))
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam,
                                 reason="later color batch / unsupported"))
@@ -1245,6 +1323,7 @@ def main() -> int:
               "#include \"num_nppi_nv12.h\"\n"
               "#include \"num_nppi_uyvy.h\"\n"
               "#include \"num_nppi_p010.h\"\n"
+              "#include \"num_nppi_uyvp.h\"\n"
               "#include \"num_nppi_color_batch.h\"\n"
               "\n"
               "static const float kTwist[12] = {" + TWIST_MATRIX + "};\n"

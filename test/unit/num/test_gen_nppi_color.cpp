@@ -20,6 +20,7 @@
 #include "num_nppi_nv12.h"
 #include "num_nppi_uyvy.h"
 #include "num_nppi_p010.h"
+#include "num_nppi_uyvp.h"
 #include "num_nppi_color_batch.h"
 
 static const float kTwist[12] = {0.5f, 0.3f, 0.2f, 10.0f, -0.2f, 0.7f, 0.1f, 20.0f, 0.1f, -0.3f, 0.9f, 5.0f};
@@ -2139,6 +2140,26 @@ TEST(NumGen, nppiP016ToRGB_16u_P2C4R_Ctx_2020HDTV) {
   num::p010::run_p010<Npp16u, true>("nppiP016ToRGB_16u_P2C4R_Ctx", NPP_BT2020HDTV, (Npp16u)12345, [](const Npp16u *const *sp, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, Npp16u a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiP016ToRGB_16u_P2C4R_Ctx(sp, ss, d, ds, r, cs, a, c); });
 }
 
+TEST(NumGen, nppiRGBA_16f_ToUYVP_10u_AC4C3R_Ctx_601JPEG) {
+  num::uyvp::run_uyvp_encode<Npp16f, 2>("nppiRGBA_16f_ToUYVP_10u_AC4C3R_Ctx", NPP_BT601JPEG, [](Npp16f *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGBA_16f_ToUYVP_10u_AC4C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGBA_16f_ToUYVP_10u_AC4C3R_Ctx_709HDTV) {
+  num::uyvp::run_uyvp_encode<Npp16f, 2>("nppiRGBA_16f_ToUYVP_10u_AC4C3R_Ctx", NPP_BT709HDTV, [](Npp16f *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGBA_16f_ToUYVP_10u_AC4C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGBA_16f_ToUYVP_10u_AC4C3R_Ctx_2020HDTV) {
+  num::uyvp::run_uyvp_encode<Npp16f, 2>("nppiRGBA_16f_ToUYVP_10u_AC4C3R_Ctx", NPP_BT2020HDTV, [](Npp16f *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGBA_16f_ToUYVP_10u_AC4C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+
+TEST(NumGen, nppiRGBA_16u_ToUYVP_10u_AC4C3R_Ctx_601JPEG) {
+  num::uyvp::run_uyvp_encode<Npp16u, 2>("nppiRGBA_16u_ToUYVP_10u_AC4C3R_Ctx", NPP_BT601JPEG, [](Npp16u *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGBA_16u_ToUYVP_10u_AC4C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGBA_16u_ToUYVP_10u_AC4C3R_Ctx_709HDTV) {
+  num::uyvp::run_uyvp_encode<Npp16u, 2>("nppiRGBA_16u_ToUYVP_10u_AC4C3R_Ctx", NPP_BT709HDTV, [](Npp16u *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGBA_16u_ToUYVP_10u_AC4C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGBA_16u_ToUYVP_10u_AC4C3R_Ctx_2020HDTV) {
+  num::uyvp::run_uyvp_encode<Npp16u, 2>("nppiRGBA_16u_ToUYVP_10u_AC4C3R_Ctx", NPP_BT2020HDTV, [](Npp16u *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGBA_16u_ToUYVP_10u_AC4C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+
 TEST(NumGen, nppiRGBA_16u_ToUYVY16_16u_AC4C3R_Ctx_601JPEG) {
   num::uyvy::run_rgb_enc<Npp16u, 2>("nppiRGBA_16u_ToUYVY16_16u_AC4C3R_Ctx", NPP_BT601JPEG, [](Npp16u *s, int ss, NppiPoint off, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)off; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGBA_16u_ToUYVY16_16u_AC4C3R_Ctx(s, ss, off, d, ds, r, cs, c); });
 }
@@ -2147,6 +2168,16 @@ TEST(NumGen, nppiRGBA_16u_ToUYVY16_16u_AC4C3R_Ctx_709HDTV) {
 }
 TEST(NumGen, nppiRGBA_16u_ToUYVY16_16u_AC4C3R_Ctx_2020HDTV) {
   num::uyvy::run_rgb_enc<Npp16u, 2>("nppiRGBA_16u_ToUYVY16_16u_AC4C3R_Ctx", NPP_BT2020HDTV, [](Npp16u *s, int ss, NppiPoint off, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)off; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGBA_16u_ToUYVY16_16u_AC4C3R_Ctx(s, ss, off, d, ds, r, cs, c); });
+}
+
+TEST(NumGen, nppiRGBA_8u_ToUYVP_10u_AC4C3R_Ctx_601JPEG) {
+  num::uyvp::run_uyvp_encode<Npp8u, 2>("nppiRGBA_8u_ToUYVP_10u_AC4C3R_Ctx", NPP_BT601JPEG, [](Npp8u *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGBA_8u_ToUYVP_10u_AC4C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGBA_8u_ToUYVP_10u_AC4C3R_Ctx_709HDTV) {
+  num::uyvp::run_uyvp_encode<Npp8u, 2>("nppiRGBA_8u_ToUYVP_10u_AC4C3R_Ctx", NPP_BT709HDTV, [](Npp8u *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGBA_8u_ToUYVP_10u_AC4C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGBA_8u_ToUYVP_10u_AC4C3R_Ctx_2020HDTV) {
+  num::uyvp::run_uyvp_encode<Npp8u, 2>("nppiRGBA_8u_ToUYVP_10u_AC4C3R_Ctx", NPP_BT2020HDTV, [](Npp8u *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGBA_8u_ToUYVP_10u_AC4C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
 }
 
 TEST(NumGen, nppiRGBA_8u_ToUYVY_8u_AC4C3R_Ctx_601JPEG) {
@@ -2600,6 +2631,46 @@ TEST(NumGen, nppiRGBToYUV_8u_P3R_Ctx) {
       [](const Npp8u *const *sp, const Npp8u *ps, int ss, Npp8u *const *dp, Npp8u *pd, int ds, NppiSize r, int alpha, NppStreamContext c) { (void)sp; (void)ps; (void)ss; (void)dp; (void)pd; (void)ds; (void)r; (void)alpha; (void)c; return nppiRGBToYUV_8u_P3R_Ctx(sp, ss, const_cast<Npp8u **>(dp), ds, r, c); });
 }
 
+TEST(NumGen, nppiRGB_16f_ToUYVP_10u_C3C3R_Ctx_601JPEG) {
+  num::uyvp::run_uyvp_encode<Npp16f, 0>("nppiRGB_16f_ToUYVP_10u_C3C3R_Ctx", NPP_BT601JPEG, [](Npp16f *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_16f_ToUYVP_10u_C3C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGB_16f_ToUYVP_10u_C3C3R_Ctx_709HDTV) {
+  num::uyvp::run_uyvp_encode<Npp16f, 0>("nppiRGB_16f_ToUYVP_10u_C3C3R_Ctx", NPP_BT709HDTV, [](Npp16f *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_16f_ToUYVP_10u_C3C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGB_16f_ToUYVP_10u_C3C3R_Ctx_2020HDTV) {
+  num::uyvp::run_uyvp_encode<Npp16f, 0>("nppiRGB_16f_ToUYVP_10u_C3C3R_Ctx", NPP_BT2020HDTV, [](Npp16f *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_16f_ToUYVP_10u_C3C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+
+TEST(NumGen, nppiRGB_16f_ToUYVP_10u_P3C3R_Ctx_601JPEG) {
+  num::uyvp::run_uyvp_encode<Npp16f, 1>("nppiRGB_16f_ToUYVP_10u_P3C3R_Ctx", NPP_BT601JPEG, [](const Npp16f *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_16f_ToUYVP_10u_P3C3R_Ctx(sp, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGB_16f_ToUYVP_10u_P3C3R_Ctx_709HDTV) {
+  num::uyvp::run_uyvp_encode<Npp16f, 1>("nppiRGB_16f_ToUYVP_10u_P3C3R_Ctx", NPP_BT709HDTV, [](const Npp16f *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_16f_ToUYVP_10u_P3C3R_Ctx(sp, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGB_16f_ToUYVP_10u_P3C3R_Ctx_2020HDTV) {
+  num::uyvp::run_uyvp_encode<Npp16f, 1>("nppiRGB_16f_ToUYVP_10u_P3C3R_Ctx", NPP_BT2020HDTV, [](const Npp16f *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_16f_ToUYVP_10u_P3C3R_Ctx(sp, ss, {0, 0}, d, ds, r, cs, c); });
+}
+
+TEST(NumGen, nppiRGB_16u_ToUYVP_10u_C3C3R_Ctx_601JPEG) {
+  num::uyvp::run_uyvp_encode<Npp16u, 0>("nppiRGB_16u_ToUYVP_10u_C3C3R_Ctx", NPP_BT601JPEG, [](Npp16u *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_16u_ToUYVP_10u_C3C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGB_16u_ToUYVP_10u_C3C3R_Ctx_709HDTV) {
+  num::uyvp::run_uyvp_encode<Npp16u, 0>("nppiRGB_16u_ToUYVP_10u_C3C3R_Ctx", NPP_BT709HDTV, [](Npp16u *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_16u_ToUYVP_10u_C3C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGB_16u_ToUYVP_10u_C3C3R_Ctx_2020HDTV) {
+  num::uyvp::run_uyvp_encode<Npp16u, 0>("nppiRGB_16u_ToUYVP_10u_C3C3R_Ctx", NPP_BT2020HDTV, [](Npp16u *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_16u_ToUYVP_10u_C3C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+
+TEST(NumGen, nppiRGB_16u_ToUYVP_10u_P3C3R_Ctx_601JPEG) {
+  num::uyvp::run_uyvp_encode<Npp16u, 1>("nppiRGB_16u_ToUYVP_10u_P3C3R_Ctx", NPP_BT601JPEG, [](const Npp16u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_16u_ToUYVP_10u_P3C3R_Ctx(sp, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGB_16u_ToUYVP_10u_P3C3R_Ctx_709HDTV) {
+  num::uyvp::run_uyvp_encode<Npp16u, 1>("nppiRGB_16u_ToUYVP_10u_P3C3R_Ctx", NPP_BT709HDTV, [](const Npp16u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_16u_ToUYVP_10u_P3C3R_Ctx(sp, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGB_16u_ToUYVP_10u_P3C3R_Ctx_2020HDTV) {
+  num::uyvp::run_uyvp_encode<Npp16u, 1>("nppiRGB_16u_ToUYVP_10u_P3C3R_Ctx", NPP_BT2020HDTV, [](const Npp16u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_16u_ToUYVP_10u_P3C3R_Ctx(sp, ss, {0, 0}, d, ds, r, cs, c); });
+}
+
 TEST(NumGen, nppiRGB_16u_ToUYVY16_16u_C3C3R_Ctx_601JPEG) {
   num::uyvy::run_rgb_enc<Npp16u, 0>("nppiRGB_16u_ToUYVY16_16u_C3C3R_Ctx", NPP_BT601JPEG, [](Npp16u *s, int ss, NppiPoint off, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)off; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_16u_ToUYVY16_16u_C3C3R_Ctx(s, ss, off, d, ds, r, cs, c); });
 }
@@ -2620,6 +2691,36 @@ TEST(NumGen, nppiRGB_16u_ToUYVY16_16u_P3C3R_Ctx_2020HDTV) {
   num::uyvy::run_rgb_enc<Npp16u, 1>("nppiRGB_16u_ToUYVY16_16u_P3C3R_Ctx", NPP_BT2020HDTV, [](const Npp16u *const *sp, int ss, NppiPoint off, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)off; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_16u_ToUYVY16_16u_P3C3R_Ctx(sp, ss, off, d, ds, r, cs, c); });
 }
 
+TEST(NumGen, nppiRGB_8u_ToUYVP_10u_C3C3R_Ctx_601JPEG) {
+  num::uyvp::run_uyvp_encode<Npp8u, 0>("nppiRGB_8u_ToUYVP_10u_C3C3R_Ctx", NPP_BT601JPEG, [](Npp8u *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_8u_ToUYVP_10u_C3C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGB_8u_ToUYVP_10u_C3C3R_Ctx_709HDTV) {
+  num::uyvp::run_uyvp_encode<Npp8u, 0>("nppiRGB_8u_ToUYVP_10u_C3C3R_Ctx", NPP_BT709HDTV, [](Npp8u *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_8u_ToUYVP_10u_C3C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGB_8u_ToUYVP_10u_C3C3R_Ctx_2020HDTV) {
+  num::uyvp::run_uyvp_encode<Npp8u, 0>("nppiRGB_8u_ToUYVP_10u_C3C3R_Ctx", NPP_BT2020HDTV, [](Npp8u *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_8u_ToUYVP_10u_C3C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+
+TEST(NumGen, nppiRGB_8u_ToUYVP_10u_C3P3R_Ctx_601JPEG) {
+  num::uyvp::run_uyvp_encode_planar("nppiRGB_8u_ToUYVP_10u_C3P3R_Ctx", NPP_BT601JPEG, [](Npp8u *s, int ss, Npp8u **dp, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)dp; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_8u_ToUYVP_10u_C3P3R_Ctx(s, ss, {0, 0}, dp, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGB_8u_ToUYVP_10u_C3P3R_Ctx_709HDTV) {
+  num::uyvp::run_uyvp_encode_planar("nppiRGB_8u_ToUYVP_10u_C3P3R_Ctx", NPP_BT709HDTV, [](Npp8u *s, int ss, Npp8u **dp, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)dp; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_8u_ToUYVP_10u_C3P3R_Ctx(s, ss, {0, 0}, dp, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGB_8u_ToUYVP_10u_C3P3R_Ctx_2020HDTV) {
+  num::uyvp::run_uyvp_encode_planar("nppiRGB_8u_ToUYVP_10u_C3P3R_Ctx", NPP_BT2020HDTV, [](Npp8u *s, int ss, Npp8u **dp, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)dp; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_8u_ToUYVP_10u_C3P3R_Ctx(s, ss, {0, 0}, dp, ds, r, cs, c); });
+}
+
+TEST(NumGen, nppiRGB_8u_ToUYVP_10u_P3C3R_Ctx_601JPEG) {
+  num::uyvp::run_uyvp_encode<Npp8u, 1>("nppiRGB_8u_ToUYVP_10u_P3C3R_Ctx", NPP_BT601JPEG, [](const Npp8u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_8u_ToUYVP_10u_P3C3R_Ctx(sp, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGB_8u_ToUYVP_10u_P3C3R_Ctx_709HDTV) {
+  num::uyvp::run_uyvp_encode<Npp8u, 1>("nppiRGB_8u_ToUYVP_10u_P3C3R_Ctx", NPP_BT709HDTV, [](const Npp8u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_8u_ToUYVP_10u_P3C3R_Ctx(sp, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiRGB_8u_ToUYVP_10u_P3C3R_Ctx_2020HDTV) {
+  num::uyvp::run_uyvp_encode<Npp8u, 1>("nppiRGB_8u_ToUYVP_10u_P3C3R_Ctx", NPP_BT2020HDTV, [](const Npp8u *const *sp, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_8u_ToUYVP_10u_P3C3R_Ctx(sp, ss, {0, 0}, d, ds, r, cs, c); });
+}
+
 TEST(NumGen, nppiRGB_8u_ToUYVY_8u_C3C3R_Ctx_601JPEG) {
   num::uyvy::run_rgb_enc<Npp8u, 0>("nppiRGB_8u_ToUYVY_8u_C3C3R_Ctx", NPP_BT601JPEG, [](Npp8u *s, int ss, NppiPoint off, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)off; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_8u_ToUYVY_8u_C3C3R_Ctx(s, ss, off, d, ds, r, cs, c); });
 }
@@ -2638,6 +2739,96 @@ TEST(NumGen, nppiRGB_8u_ToUYVY_8u_P3C3R_Ctx_709HDTV) {
 }
 TEST(NumGen, nppiRGB_8u_ToUYVY_8u_P3C3R_Ctx_2020HDTV) {
   num::uyvy::run_rgb_enc<Npp8u, 1>("nppiRGB_8u_ToUYVY_8u_P3C3R_Ctx", NPP_BT2020HDTV, [](const Npp8u *const *sp, int ss, NppiPoint off, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)off; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiRGB_8u_ToUYVY_8u_P3C3R_Ctx(sp, ss, off, d, ds, r, cs, c); });
+}
+
+TEST(NumGen, nppiUYVP_10u_ToRGBA_16f_C3AC4R_Ctx_601JPEG) {
+  num::uyvp::run_uyvp_decode<Npp16f, 1>("nppiUYVP_10u_ToRGBA_16f_C3AC4R_Ctx", NPP_BT601JPEG, num::half_round(0.5f), [](const Npp8u *s, int ss, Npp16f *d, int ds, NppiSize r, NppiColorSpace cs, Npp16f a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiUYVP_10u_ToRGBA_16f_C3AC4R_Ctx(s, ss, {0, 0}, d, ds, r, cs, (Npp32f)num::as_double(a), c); });
+}
+TEST(NumGen, nppiUYVP_10u_ToRGBA_16f_C3AC4R_Ctx_709HDTV) {
+  num::uyvp::run_uyvp_decode<Npp16f, 1>("nppiUYVP_10u_ToRGBA_16f_C3AC4R_Ctx", NPP_BT709HDTV, num::half_round(0.5f), [](const Npp8u *s, int ss, Npp16f *d, int ds, NppiSize r, NppiColorSpace cs, Npp16f a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiUYVP_10u_ToRGBA_16f_C3AC4R_Ctx(s, ss, {0, 0}, d, ds, r, cs, (Npp32f)num::as_double(a), c); });
+}
+TEST(NumGen, nppiUYVP_10u_ToRGBA_16f_C3AC4R_Ctx_2020HDTV) {
+  num::uyvp::run_uyvp_decode<Npp16f, 1>("nppiUYVP_10u_ToRGBA_16f_C3AC4R_Ctx", NPP_BT2020HDTV, num::half_round(0.5f), [](const Npp8u *s, int ss, Npp16f *d, int ds, NppiSize r, NppiColorSpace cs, Npp16f a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiUYVP_10u_ToRGBA_16f_C3AC4R_Ctx(s, ss, {0, 0}, d, ds, r, cs, (Npp32f)num::as_double(a), c); });
+}
+
+TEST(NumGen, nppiUYVP_10u_ToRGB_16f_C3C3R_Ctx_601JPEG) {
+  num::uyvp::run_uyvp_decode<Npp16f, 0>("nppiUYVP_10u_ToRGB_16f_C3C3R_Ctx", NPP_BT601JPEG, num::half_round(0.0f), [](const Npp8u *s, int ss, Npp16f *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVP_10u_ToRGB_16f_C3C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiUYVP_10u_ToRGB_16f_C3C3R_Ctx_709HDTV) {
+  num::uyvp::run_uyvp_decode<Npp16f, 0>("nppiUYVP_10u_ToRGB_16f_C3C3R_Ctx", NPP_BT709HDTV, num::half_round(0.0f), [](const Npp8u *s, int ss, Npp16f *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVP_10u_ToRGB_16f_C3C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiUYVP_10u_ToRGB_16f_C3C3R_Ctx_2020HDTV) {
+  num::uyvp::run_uyvp_decode<Npp16f, 0>("nppiUYVP_10u_ToRGB_16f_C3C3R_Ctx", NPP_BT2020HDTV, num::half_round(0.0f), [](const Npp8u *s, int ss, Npp16f *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVP_10u_ToRGB_16f_C3C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+
+TEST(NumGen, nppiUYVP_10u_ToRGB_16f_C3P3R_Ctx_601JPEG) {
+  num::uyvp::run_uyvp_decode<Npp16f, 2>("nppiUYVP_10u_ToRGB_16f_C3P3R_Ctx", NPP_BT601JPEG, num::half_round(0.0f), [](const Npp8u *s, int ss, Npp16f **dp, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)dp; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVP_10u_ToRGB_16f_C3P3R_Ctx(s, ss, {0, 0}, dp, ds, r, cs, c); });
+}
+TEST(NumGen, nppiUYVP_10u_ToRGB_16f_C3P3R_Ctx_709HDTV) {
+  num::uyvp::run_uyvp_decode<Npp16f, 2>("nppiUYVP_10u_ToRGB_16f_C3P3R_Ctx", NPP_BT709HDTV, num::half_round(0.0f), [](const Npp8u *s, int ss, Npp16f **dp, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)dp; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVP_10u_ToRGB_16f_C3P3R_Ctx(s, ss, {0, 0}, dp, ds, r, cs, c); });
+}
+TEST(NumGen, nppiUYVP_10u_ToRGB_16f_C3P3R_Ctx_2020HDTV) {
+  num::uyvp::run_uyvp_decode<Npp16f, 2>("nppiUYVP_10u_ToRGB_16f_C3P3R_Ctx", NPP_BT2020HDTV, num::half_round(0.0f), [](const Npp8u *s, int ss, Npp16f **dp, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)dp; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVP_10u_ToRGB_16f_C3P3R_Ctx(s, ss, {0, 0}, dp, ds, r, cs, c); });
+}
+
+TEST(NumGen, nppiUYVP_10u_ToRGB_16u_C3AC4R_Ctx_601JPEG) {
+  num::uyvp::run_uyvp_decode<Npp16u, 1>("nppiUYVP_10u_ToRGB_16u_C3AC4R_Ctx", NPP_BT601JPEG, 12345, [](const Npp8u *s, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, Npp16u a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiUYVP_10u_ToRGB_16u_C3AC4R_Ctx(s, ss, {0, 0}, d, ds, r, cs, a, c); });
+}
+TEST(NumGen, nppiUYVP_10u_ToRGB_16u_C3AC4R_Ctx_709HDTV) {
+  num::uyvp::run_uyvp_decode<Npp16u, 1>("nppiUYVP_10u_ToRGB_16u_C3AC4R_Ctx", NPP_BT709HDTV, 12345, [](const Npp8u *s, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, Npp16u a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiUYVP_10u_ToRGB_16u_C3AC4R_Ctx(s, ss, {0, 0}, d, ds, r, cs, a, c); });
+}
+TEST(NumGen, nppiUYVP_10u_ToRGB_16u_C3AC4R_Ctx_2020HDTV) {
+  num::uyvp::run_uyvp_decode<Npp16u, 1>("nppiUYVP_10u_ToRGB_16u_C3AC4R_Ctx", NPP_BT2020HDTV, 12345, [](const Npp8u *s, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, Npp16u a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiUYVP_10u_ToRGB_16u_C3AC4R_Ctx(s, ss, {0, 0}, d, ds, r, cs, a, c); });
+}
+
+TEST(NumGen, nppiUYVP_10u_ToRGB_16u_C3C3R_Ctx_601JPEG) {
+  num::uyvp::run_uyvp_decode<Npp16u, 0>("nppiUYVP_10u_ToRGB_16u_C3C3R_Ctx", NPP_BT601JPEG, (Npp16u)0, [](const Npp8u *s, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVP_10u_ToRGB_16u_C3C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiUYVP_10u_ToRGB_16u_C3C3R_Ctx_709HDTV) {
+  num::uyvp::run_uyvp_decode<Npp16u, 0>("nppiUYVP_10u_ToRGB_16u_C3C3R_Ctx", NPP_BT709HDTV, (Npp16u)0, [](const Npp8u *s, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVP_10u_ToRGB_16u_C3C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiUYVP_10u_ToRGB_16u_C3C3R_Ctx_2020HDTV) {
+  num::uyvp::run_uyvp_decode<Npp16u, 0>("nppiUYVP_10u_ToRGB_16u_C3C3R_Ctx", NPP_BT2020HDTV, (Npp16u)0, [](const Npp8u *s, int ss, Npp16u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVP_10u_ToRGB_16u_C3C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+
+TEST(NumGen, nppiUYVP_10u_ToRGB_16u_C3P3R_Ctx_601JPEG) {
+  num::uyvp::run_uyvp_decode<Npp16u, 2>("nppiUYVP_10u_ToRGB_16u_C3P3R_Ctx", NPP_BT601JPEG, (Npp16u)0, [](const Npp8u *s, int ss, Npp16u **dp, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)dp; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVP_10u_ToRGB_16u_C3P3R_Ctx(s, ss, {0, 0}, dp, ds, r, cs, c); });
+}
+TEST(NumGen, nppiUYVP_10u_ToRGB_16u_C3P3R_Ctx_709HDTV) {
+  num::uyvp::run_uyvp_decode<Npp16u, 2>("nppiUYVP_10u_ToRGB_16u_C3P3R_Ctx", NPP_BT709HDTV, (Npp16u)0, [](const Npp8u *s, int ss, Npp16u **dp, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)dp; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVP_10u_ToRGB_16u_C3P3R_Ctx(s, ss, {0, 0}, dp, ds, r, cs, c); });
+}
+TEST(NumGen, nppiUYVP_10u_ToRGB_16u_C3P3R_Ctx_2020HDTV) {
+  num::uyvp::run_uyvp_decode<Npp16u, 2>("nppiUYVP_10u_ToRGB_16u_C3P3R_Ctx", NPP_BT2020HDTV, (Npp16u)0, [](const Npp8u *s, int ss, Npp16u **dp, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)dp; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVP_10u_ToRGB_16u_C3P3R_Ctx(s, ss, {0, 0}, dp, ds, r, cs, c); });
+}
+
+TEST(NumGen, nppiUYVP_10u_ToRGB_8u_C3AC4R_Ctx_601JPEG) {
+  num::uyvp::run_uyvp_decode<Npp8u, 1>("nppiUYVP_10u_ToRGB_8u_C3AC4R_Ctx", NPP_BT601JPEG, 0x5A, [](const Npp8u *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, Npp8u a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiUYVP_10u_ToRGB_8u_C3AC4R_Ctx(s, ss, {0, 0}, d, ds, r, cs, a, c); });
+}
+TEST(NumGen, nppiUYVP_10u_ToRGB_8u_C3AC4R_Ctx_709HDTV) {
+  num::uyvp::run_uyvp_decode<Npp8u, 1>("nppiUYVP_10u_ToRGB_8u_C3AC4R_Ctx", NPP_BT709HDTV, 0x5A, [](const Npp8u *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, Npp8u a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiUYVP_10u_ToRGB_8u_C3AC4R_Ctx(s, ss, {0, 0}, d, ds, r, cs, a, c); });
+}
+TEST(NumGen, nppiUYVP_10u_ToRGB_8u_C3AC4R_Ctx_2020HDTV) {
+  num::uyvp::run_uyvp_decode<Npp8u, 1>("nppiUYVP_10u_ToRGB_8u_C3AC4R_Ctx", NPP_BT2020HDTV, 0x5A, [](const Npp8u *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, Npp8u a, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)a; (void)c; return nppiUYVP_10u_ToRGB_8u_C3AC4R_Ctx(s, ss, {0, 0}, d, ds, r, cs, a, c); });
+}
+
+TEST(NumGen, nppiUYVP_10u_ToRGB_8u_C3C3R_Ctx_601JPEG) {
+  num::uyvp::run_uyvp_decode<Npp8u, 0>("nppiUYVP_10u_ToRGB_8u_C3C3R_Ctx", NPP_BT601JPEG, (Npp8u)0, [](const Npp8u *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVP_10u_ToRGB_8u_C3C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiUYVP_10u_ToRGB_8u_C3C3R_Ctx_709HDTV) {
+  num::uyvp::run_uyvp_decode<Npp8u, 0>("nppiUYVP_10u_ToRGB_8u_C3C3R_Ctx", NPP_BT709HDTV, (Npp8u)0, [](const Npp8u *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVP_10u_ToRGB_8u_C3C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+TEST(NumGen, nppiUYVP_10u_ToRGB_8u_C3C3R_Ctx_2020HDTV) {
+  num::uyvp::run_uyvp_decode<Npp8u, 0>("nppiUYVP_10u_ToRGB_8u_C3C3R_Ctx", NPP_BT2020HDTV, (Npp8u)0, [](const Npp8u *s, int ss, Npp8u *d, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)d; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVP_10u_ToRGB_8u_C3C3R_Ctx(s, ss, {0, 0}, d, ds, r, cs, c); });
+}
+
+TEST(NumGen, nppiUYVP_10u_ToRGB_8u_C3P3R_Ctx_601JPEG) {
+  num::uyvp::run_uyvp_decode<Npp8u, 2>("nppiUYVP_10u_ToRGB_8u_C3P3R_Ctx", NPP_BT601JPEG, (Npp8u)0, [](const Npp8u *s, int ss, Npp8u **dp, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)dp; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVP_10u_ToRGB_8u_C3P3R_Ctx(s, ss, {0, 0}, dp, ds, r, cs, c); });
+}
+TEST(NumGen, nppiUYVP_10u_ToRGB_8u_C3P3R_Ctx_709HDTV) {
+  num::uyvp::run_uyvp_decode<Npp8u, 2>("nppiUYVP_10u_ToRGB_8u_C3P3R_Ctx", NPP_BT709HDTV, (Npp8u)0, [](const Npp8u *s, int ss, Npp8u **dp, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)dp; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVP_10u_ToRGB_8u_C3P3R_Ctx(s, ss, {0, 0}, dp, ds, r, cs, c); });
+}
+TEST(NumGen, nppiUYVP_10u_ToRGB_8u_C3P3R_Ctx_2020HDTV) {
+  num::uyvp::run_uyvp_decode<Npp8u, 2>("nppiUYVP_10u_ToRGB_8u_C3P3R_Ctx", NPP_BT2020HDTV, (Npp8u)0, [](const Npp8u *s, int ss, Npp8u **dp, int ds, NppiSize r, NppiColorSpace cs, NppStreamContext c) { (void)ss; (void)dp; (void)ds; (void)r; (void)cs; (void)c; return nppiUYVP_10u_ToRGB_8u_C3P3R_Ctx(s, ss, {0, 0}, dp, ds, r, cs, c); });
 }
 
 TEST(NumGen, nppiUYVY16_16u_ToRGB_16u_C3AC4R_Ctx_601JPEG) {

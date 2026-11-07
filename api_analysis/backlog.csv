@@ -1,7 +1,4 @@
 module,group,total,real,stub,missing,missing_ctx,missing_nonctx,tested,remaining
-nppi_color_conversion.h,nppiUYVP_10u_ToRGB,8,0,0,8,8,0,0,8
-nppi_color_conversion.h,nppiRGB,11,4,0,7,7,0,4,7
-nppi_color_conversion.h,nppiRGBA,5,2,0,3,3,0,2,3
 nppi_color_conversion.h,nppiI444,1,0,0,1,1,0,0,1
 nppi_color_conversion.h,nppiNV12,1,0,0,1,1,0,0,1
 nppi_color_conversion.h,nppiNV16,1,0,0,1,1,0,0,1
@@ -11,7 +8,6 @@ nppi_color_conversion.h,nppiP210,1,0,0,1,1,0,0,1
 nppi_color_conversion.h,nppiUYVP_10u_ToI444,1,0,0,1,1,0,0,1
 nppi_color_conversion.h,nppiUYVP_10u_ToNV16,1,0,0,1,1,0,0,1
 nppi_color_conversion.h,nppiUYVP_10u_ToP208,1,0,0,1,1,0,0,1
-nppi_color_conversion.h,nppiUYVP_10u_ToRGBA,1,0,0,1,1,0,0,1
 nppi_color_conversion.h,nppiUYVP_10u_ToV210_10u_C3C3R,1,0,0,1,1,0,0,1
 nppi_color_conversion.h,nppiUYVP_10u_ToY410_10u_C3C3R,1,0,0,1,1,0,0,1
 nppi_color_conversion.h,nppiUYVP_10u_ToYUV444,1,0,0,1,1,0,0,1
@@ -129,6 +125,8 @@ nppi_color_conversion.h,nppiNV21ToBGR,2,2,0,0,0,0,2,0
 nppi_color_conversion.h,nppiNV21ToRGB,2,2,0,0,0,0,2,0
 nppi_color_conversion.h,nppiP010ToRGB,4,4,0,0,0,0,4,0
 nppi_color_conversion.h,nppiP016ToRGB,2,2,0,0,0,0,2,0
+nppi_color_conversion.h,nppiRGB,11,11,0,0,0,0,11,0
+nppi_color_conversion.h,nppiRGBA,5,5,0,0,0,0,5,0
 nppi_color_conversion.h,nppiRGBToCbYCr422,2,2,0,0,0,0,1,0
 nppi_color_conversion.h,nppiRGBToCbYCr422Gamma,2,2,0,0,0,0,1,0
 nppi_color_conversion.h,nppiRGBToGray,16,16,0,0,0,0,16,0
@@ -151,6 +149,8 @@ nppi_color_conversion.h,nppiRGBToYCrCb422,4,4,0,0,0,0,2,0
 nppi_color_conversion.h,nppiRGBToYUV,10,10,0,0,0,0,10,0
 nppi_color_conversion.h,nppiRGBToYUV420,8,8,0,0,0,0,8,0
 nppi_color_conversion.h,nppiRGBToYUV422,12,12,0,0,0,0,12,0
+nppi_color_conversion.h,nppiUYVP_10u_ToRGB,8,8,0,0,0,0,8,0
+nppi_color_conversion.h,nppiUYVP_10u_ToRGBA,1,1,0,0,0,0,1,0
 nppi_color_conversion.h,nppiUYVY,3,3,0,0,0,0,3,0
 nppi_color_conversion.h,nppiUYVY16,3,3,0,0,0,0,3,0
 nppi_color_conversion.h,nppiXYZToRGB,4,4,0,0,0,0,2,0

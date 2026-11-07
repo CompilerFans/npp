@@ -1,18 +1,18 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12604
-- Real implementations: 12570 (99.7%)
+- Real implementations: 12589 (99.9%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 0
-- Missing: 34
-- Tested: 8371 (66.4%)
-- Real and tested: 8371
+- Missing: 15
+- Tested: 8390 (66.6%)
+- Real and tested: 8390
 
 ## By module
 
 | module | total | real | stub | missing | tested |
 |---|---:|---:|---:|---:|---:|
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2135 |
-| nppi_color_conversion.h | 1135 | 1101 | 0 | 34 | 744 |
+| nppi_color_conversion.h | 1135 | 1120 | 0 | 15 | 763 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
 | nppi_filtering_functions.h | 1897 | 1897 | 0 | 0 | 1030 |
 | nppi_geometry_transforms.h | 705 | 705 | 0 | 0 | 458 |
@@ -32,9 +32,6 @@
 
 | module | group | remaining | ctx |
 |---|---|---:|---:|
-| nppi_color_conversion.h | nppiUYVP_10u_ToRGB | 8 | 8 |
-| nppi_color_conversion.h | nppiRGB | 7 | 7 |
-| nppi_color_conversion.h | nppiRGBA | 3 | 3 |
 | nppi_color_conversion.h | nppiI444 | 1 | 1 |
 | nppi_color_conversion.h | nppiNV12 | 1 | 1 |
 | nppi_color_conversion.h | nppiNV16 | 1 | 1 |
@@ -44,7 +41,6 @@
 | nppi_color_conversion.h | nppiUYVP_10u_ToI444 | 1 | 1 |
 | nppi_color_conversion.h | nppiUYVP_10u_ToNV16 | 1 | 1 |
 | nppi_color_conversion.h | nppiUYVP_10u_ToP208 | 1 | 1 |
-| nppi_color_conversion.h | nppiUYVP_10u_ToRGBA | 1 | 1 |
 | nppi_color_conversion.h | nppiUYVP_10u_ToV210_10u_C3C3R | 1 | 1 |
 | nppi_color_conversion.h | nppiUYVP_10u_ToY410_10u_C3C3R | 1 | 1 |
 | nppi_color_conversion.h | nppiUYVP_10u_ToYUV444 | 1 | 1 |
