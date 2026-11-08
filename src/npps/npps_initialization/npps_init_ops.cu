@@ -30,6 +30,25 @@ __global__ void copy_kernel(const T *src, T *dst, size_t n) {
   if (i < n) dst[i] = src[i];
 }
 
+// Scalar fallback with a capped grid: each thread sweeps kStridedLanes
+// elements with a grid stride, so an unaligned set/copy launches
+// n / (256*16) blocks instead of n / 256.  The one-element-per-thread form
+// was block-dispatch bound on MACA (measured ~68/152 GB/s versus
+// ~1.1/1.5 TB/s for the packet path).
+constexpr int kStridedLanes = 16;
+
+template <typename T>
+__global__ void set_kernel_strided(T value, T *dst, size_t n) {
+  for (size_t i = (size_t)blockIdx.x * blockDim.x + threadIdx.x; i < n; i += (size_t)gridDim.x * blockDim.x)
+    dst[i] = value;
+}
+
+template <typename T>
+__global__ void copy_kernel_strided(const T *src, T *dst, size_t n) {
+  for (size_t i = (size_t)blockIdx.x * blockDim.x + threadIdx.x; i < n; i += (size_t)gridDim.x * blockDim.x)
+    dst[i] = src[i];
+}
+
 // 16-byte packet paths: one 128-bit store/load per thread.  Used when the
 // element size divides 16 and both pointers are 16-byte aligned; the scalar
 // kernels above handle the tail and all unaligned/mixed cases.
@@ -98,8 +117,8 @@ NppStatus set(T value, T *pDst, NppSignalLength nLength, cudaStream_t stream) {
       set_kernel<<<1, (unsigned)(n - done), 0, stream>>>(value, pDst + done, n - done);
     }
   } else {
-    const size_t grid = (n + kBlockSize - 1) / kBlockSize;
-    set_kernel<<<grid, kBlockSize, 0, stream>>>(value, pDst, n);
+    const size_t grid = (n + (size_t)kBlockSize * kStridedLanes - 1) / ((size_t)kBlockSize * kStridedLanes);
+    set_kernel_strided<<<grid, kBlockSize, 0, stream>>>(value, pDst, n);
   }
   return checkCudaKernelError();
 }
@@ -122,8 +141,8 @@ NppStatus copy(const T *pSrc, T *pDst, NppSignalLength nLength, cudaStream_t str
       copy_kernel<T><<<1, (unsigned)(n - done), 0, stream>>>(pSrc + done, pDst + done, n - done);
     }
   } else {
-    const size_t grid = (n + kBlockSize - 1) / kBlockSize;
-    copy_kernel<<<grid, kBlockSize, 0, stream>>>(pSrc, pDst, n);
+    const size_t grid = (n + (size_t)kBlockSize * kStridedLanes - 1) / ((size_t)kBlockSize * kStridedLanes);
+    copy_kernel_strided<<<grid, kBlockSize, 0, stream>>>(pSrc, pDst, n);
   }
   return checkCudaKernelError();
 }
@@ -137,7 +156,11 @@ NppStatus zero(T *pDst, NppSignalLength nLength, cudaStream_t stream) {
   return (e == cudaSuccess) ? NPP_NO_ERROR: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-// nppsSet dtypes: 16s 16sc 16u 32s 32sc 32u 64f 64fc 64s 64sc 8s
+// nppsSet dtypes: 8u 32f 32fc (the entry points in npps_set.cpp) plus
+// 16s 16sc 16u 32s 32sc 32u 64f 64fc 64s 64sc 8s.
+template NppStatus set<Npp8u>(Npp8u, Npp8u *, NppSignalLength, cudaStream_t);
+template NppStatus set<Npp32f>(Npp32f, Npp32f *, NppSignalLength, cudaStream_t);
+template NppStatus set<Npp32fc>(Npp32fc, Npp32fc *, NppSignalLength, cudaStream_t);
 template NppStatus set<Npp16s>(Npp16s, Npp16s *, NppSignalLength, cudaStream_t);
 template NppStatus set<Npp16sc>(Npp16sc, Npp16sc *, NppSignalLength, cudaStream_t);
 template NppStatus set<Npp16u>(Npp16u, Npp16u *, NppSignalLength, cudaStream_t);

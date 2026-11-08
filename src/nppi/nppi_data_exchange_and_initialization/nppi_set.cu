@@ -3,17 +3,27 @@
 #include <cstdint>
 #include <cstring>
 
+// Scalar fallbacks: each thread fills kSetLanes elements strided by
+// blockDim.x, so one 32x8 block covers 512 consecutive elements.  The
+// one-element-per-thread form created one block per 256 bytes and was
+// block-dispatch bound on MACA (measured ~68 GB/s versus ~1.1 TB/s for the
+// packet path).
+constexpr int kSetLanes = 16;
+
 template <typename T>
 __global__ void nppiSet_C1R_kernel(T nValue, T *pDst, int nDstStep, int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height) {
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (y >= height) {
     return;
   }
 
-  T *dstRow = reinterpret_cast<T *>(reinterpret_cast<char *>(pDst) + y * nDstStep);
-  dstRow[x] = nValue;
+  T *dstRow = reinterpret_cast<T *>(reinterpret_cast<char *>(pDst) + (size_t)y * nDstStep);
+  int x = blockIdx.x * blockDim.x * kSetLanes + threadIdx.x;
+#pragma unroll
+  for (int k = 0; k < kSetLanes; ++k, x += blockDim.x) {
+    if (x < width)
+      dstRow[x] = nValue;
+  }
 }
 
 template <typename T, int CHANNELS>
@@ -23,19 +33,22 @@ struct NppiSetValue {
 
 template <typename T, int CHANNELS>
 __global__ void nppiSet_CxR_kernel(NppiSetValue<T, CHANNELS> value, T *pDst, int nDstStep, int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height) {
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (y >= height) {
     return;
   }
 
-  T *dstRow = reinterpret_cast<T *>(reinterpret_cast<char *>(pDst) + y * nDstStep);
-  int idx = x * CHANNELS;
-
+  T *dstRow = reinterpret_cast<T *>(reinterpret_cast<char *>(pDst) + (size_t)y * nDstStep);
+  int x = blockIdx.x * blockDim.x * kSetLanes + threadIdx.x;
 #pragma unroll
-  for (int c = 0; c < CHANNELS; ++c) {
-    dstRow[idx + c] = value.v[c];
+  for (int k = 0; k < kSetLanes; ++k, x += blockDim.x) {
+    if (x >= width)
+      continue;
+    int idx = x * CHANNELS;
+#pragma unroll
+    for (int c = 0; c < CHANNELS; ++c) {
+      dstRow[idx + c] = value.v[c];
+    }
   }
 }
 
@@ -85,12 +98,14 @@ NppStatus launchSetScalar(T nValue, T *pDst, int nDstStep, NppiSize oSizeROI, Np
     const int packetsPerRow = (int)(rowBytes / 16);
     const int tailStart = packetsPerRow * elemsPerPacket;
     dim3 blockSize(16, 16);
-    dim3 gridSize((unsigned)(packetsPerRow + 1), (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+    dim3 gridSize((unsigned)((packetsPerRow + 1 + blockSize.x - 1) / blockSize.x),
+                  (oSizeROI.height + blockSize.y - 1) / blockSize.y);
     nppiSet_C1R_vec_kernel<T><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
         packet, nValue, pDst, nDstStep, oSizeROI.width, oSizeROI.height, packetsPerRow, tailStart);
   } else {
-    dim3 blockSize(16, 16);
-    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+    dim3 blockSize(32, 8);
+    dim3 gridSize((oSizeROI.width + blockSize.x * kSetLanes - 1) / (blockSize.x * kSetLanes),
+                  (oSizeROI.height + blockSize.y - 1) / blockSize.y);
     nppiSet_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(nValue, pDst, nDstStep, oSizeROI.width,
                                                                           oSizeROI.height);
   }
@@ -106,8 +121,9 @@ NppStatus launchSetVector(const T *aValue, T *pDst, int nDstStep, NppiSize oSize
     value.v[c] = aValue[c];
   }
 
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 blockSize(32, 8);
+  dim3 gridSize((oSizeROI.width + blockSize.x * kSetLanes - 1) / (blockSize.x * kSetLanes),
+                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiSet_CxR_kernel<T, CHANNELS><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(value, pDst, nDstStep,
                                                                                       oSizeROI.width, oSizeROI.height);

@@ -3,21 +3,28 @@
 #include <cuda_runtime.h>
 #include "npp_kernel_utils.h"
 
-// Generic multi-channel copy kernel template
+// Scalar fallback for unaligned layouts.  Each thread copies kCopyLanes
+// elements strided by blockDim.x, so a 32x8 block covers 512 consecutive
+// elements instead of 32.  The previous one-element-per-thread 16x16 launch
+// created one block per 256 bytes, which is block-dispatch bound on MACA
+// (measured ~150 GB/s versus ~1.5 TB/s for the packet path).
+constexpr int kCopyLanes = 16;
+
 template <typename T, int CHANNELS>
 __global__ void nppiCopy_kernel(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
+  const int rowElems = width * CHANNELS;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (y >= height)
     return;
 
-  const T *src_row = (const T *)((const char *)pSrc + y * nSrcStep);
-  T *dst_row = (T *)((char *)pDst + y * nDstStep);
+  const T *src_row = (const T *)((const char *)pSrc + (size_t)y * nSrcStep);
+  T *dst_row = (T *)((char *)pDst + (size_t)y * nDstStep);
 
+  int x = blockIdx.x * blockDim.x * kCopyLanes + threadIdx.x;
 #pragma unroll
-  for (int c = 0; c < CHANNELS; c++) {
-    dst_row[x * CHANNELS + c] = src_row[x * CHANNELS + c];
+  for (int k = 0; k < kCopyLanes; ++k, x += blockDim.x) {
+    if (x < rowElems)
+      dst_row[x] = src_row[x];
   }
 }
 
@@ -179,10 +186,10 @@ __global__ void nppiCopy_PxCxR_kernel(NppiCopyPointers<T, CHANNELS> pSrc, int nS
 // move elements with plain offsets instead, which compiles correctly on
 // both CUDA and MACA.
 //
-// The executors launch these kernels only when every base pointer is 16B
-// aligned and both steps are multiples of 16; anything else (unaligned plane
-// pointers, odd steps, oversized images) keeps the scalar fallback kernels
-// above, so results and status codes are unchanged for those inputs.
+// The grid-stride kernels below are used for every layout: they move elements
+// with plain offsets, so base-pointer alignment and odd steps do not change
+// the path.  The one-element-per-thread fallbacks above remain only for
+// images whose packet count exceeds 31 bits.
 template <typename T, int CHANNELS>
 __global__ void nppiCopy_CxPxR_kernel_vec(const T *pSrc, int nSrcStep, NppiCopyPointers<T, CHANNELS> pDst, int nDstStep,
                                           int width, int height) {
@@ -224,9 +231,9 @@ NppStatus nppiCopy_impl(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, Nppi
                         NppStreamContext nppStreamCtx) {
   // 128-bit vectorized flat copy when the layout permits 16-byte accesses
   // (base pointers 16B-aligned, row steps multiples of 16 bytes, at least one
-  // full packet per row, packet count fits in 31 bits); scalar
-  // one-pixel-per-thread kernel otherwise. Both kernels
-  // copy exactly width*CHANNELS elements per row, so results are identical.
+  // full packet per row, packet count fits in 31 bits); a strided scalar
+  // kernel otherwise. Both kernels copy exactly width*CHANNELS elements per
+  // row, so results are identical.
   constexpr int E = npp_kernel::vecElemsPerPacket<T>();
   const size_t vecPackets = npp_kernel::vecPacketCount<T>(oSizeROI.width, CHANNELS, oSizeROI.height);
   if (npp_kernel::vecAligned2(pSrc, nSrcStep, pDst, nDstStep) &&
@@ -235,8 +242,10 @@ NppStatus nppiCopy_impl(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, Nppi
     nppiCopy_kernel_vec<T, CHANNELS><<<grid, npp_kernel::kVecBlock, 0, nppStreamCtx.hStream>>>(
         pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
   } else {
-    dim3 blockSize(16, 16);
-    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+    const int rowElems = oSizeROI.width * CHANNELS;
+    dim3 blockSize(32, 8);
+    dim3 gridSize((rowElems + blockSize.x * kCopyLanes - 1) / (blockSize.x * kCopyLanes),
+                  (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
     nppiCopy_kernel<T, CHANNELS><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
                                                                                    oSizeROI.width, oSizeROI.height);
@@ -338,27 +347,14 @@ NppStatus nppiCopy_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pD
 
 } // extern "C"
 
-// True when the packed base pointer, every plane base pointer and both row
-// steps permit 16-byte packet access. Steps are already
-// validated to be positive by the wrappers.
-template <typename T, int CHANNELS>
-static bool planarCopyVecReady(const void *pPacked, int nPackedStep, const NppiCopyPointers<T, CHANNELS> &planes,
-                               int nPlaneStep) {
-  uintptr_t ptrs = reinterpret_cast<uintptr_t>(pPacked);
-  for (int c = 0; c < CHANNELS; ++c) {
-    ptrs |= reinterpret_cast<uintptr_t>(planes.p[c]);
-  }
-  return (ptrs & 15u) == 0u && (((unsigned)nPackedStep | (unsigned)nPlaneStep) & 15u) == 0u;
-}
-
 // Packed -> planar copy (C3P3R / C4P4R) for every data type.
 //
 // Empty ROIs have always reached the kernel launch with a zero grid
 // dimension, which the runtime rejects, so NPP_CUDA_KERNEL_EXECUTION_ERROR
 // is the pinned status for that case (module keeps it instead of
-// turning empty ROIs into silent no-ops). Aligned layouts take the 128-bit
-// transpose kernel; everything else keeps the historical scalar fallback
-// kernels with their original launch configurations.
+// turning empty ROIs into silent no-ops). Every layout takes the grid-stride
+// kernel; the one-element-per-thread kernels remain only for the 31-bit
+// packet-count guard.
 template <typename T, int CHANNELS>
 NppStatus nppiCopy_CxPxR_impl(const T *pSrc, int nSrcStep, T *const pDst[], int nDstStep, NppiSize oSizeROI,
                               NppStreamContext nppStreamCtx) {
@@ -377,8 +373,7 @@ NppStatus nppiCopy_CxPxR_impl(const T *pSrc, int nSrcStep, T *const pDst[], int 
   // above 32 GiB of traffic for every element type).
   const size_t pixels = (size_t)oSizeROI.width * (size_t)oSizeROI.height;
   const size_t units = ((size_t)oSizeROI.width + P - 1) / P * (size_t)oSizeROI.height;
-  if (pixels < ((size_t)1 << 31) && units < ((size_t)1 << 31) &&
-      planarCopyVecReady<T, CHANNELS>(pSrc, nSrcStep, dst, nDstStep)) {
+  if (pixels < ((size_t)1 << 31) && units < ((size_t)1 << 31)) {
     nppiCopy_CxPxR_kernel_vec<T, CHANNELS>
         <<<npp_kernel::vecGridSize(units), npp_kernel::kVecBlock, 0, nppStreamCtx.hStream>>>(
             pSrc, nSrcStep, dst, nDstStep, oSizeROI.width, oSizeROI.height);
@@ -418,8 +413,7 @@ NppStatus nppiCopy_PxCxR_impl(T *const pSrc[], int nSrcStep, T *pDst, int nDstSt
 
   const size_t pixels = (size_t)oSizeROI.width * (size_t)oSizeROI.height;
   const size_t units = ((size_t)oSizeROI.width + P - 1) / P * (size_t)oSizeROI.height;
-  if (pixels < ((size_t)1 << 31) && units < ((size_t)1 << 31) &&
-      planarCopyVecReady<T, CHANNELS>(pDst, nDstStep, src, nSrcStep)) {
+  if (pixels < ((size_t)1 << 31) && units < ((size_t)1 << 31)) {
     nppiCopy_PxCxR_kernel_vec<T, CHANNELS>
         <<<npp_kernel::vecGridSize(units), npp_kernel::kVecBlock, 0, nppStreamCtx.hStream>>>(
             src, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
