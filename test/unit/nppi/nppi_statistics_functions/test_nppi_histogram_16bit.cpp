@@ -80,7 +80,7 @@ protected:
 #ifdef USE_NVIDIA_NPP_TESTS
     size_t bufferSize;
 #else
-    int bufferSize;
+    NPP_BUFFER_SIZE_TYPE bufferSize;
 #endif
     ASSERT_EQ(nppiHistogramEvenGetBufferSize_16u_C1R(oSizeROI, nLevels, &bufferSize), NPP_SUCCESS);
     ASSERT_EQ(cudaMalloc(&d_buffer, bufferSize), cudaSuccess);
@@ -106,7 +106,7 @@ TEST_F(HistogramEven16BitTest, BufferSize_16u_C1R_Basic) {
 #ifdef USE_NVIDIA_NPP_TESTS
   size_t bufferSize;
 #else
-  int bufferSize;
+  NPP_BUFFER_SIZE_TYPE bufferSize;
 #endif
 
   // Test basic buffer size calculation
@@ -123,7 +123,7 @@ TEST_F(HistogramEven16BitTest, BufferSize_16s_C1R_Basic) {
 #ifdef USE_NVIDIA_NPP_TESTS
   size_t bufferSize;
 #else
-  int bufferSize;
+  NPP_BUFFER_SIZE_TYPE bufferSize;
 #endif
 
   EXPECT_EQ(nppiHistogramEvenGetBufferSize_16s_C1R(oSizeROI, nLevels, &bufferSize), NPP_SUCCESS);
@@ -221,7 +221,7 @@ TEST_F(HistogramEven16BitTest, SmallLevelsOptimization) {
 #ifdef USE_NVIDIA_NPP_TESTS
   size_t bufferSize;
 #else
-  int bufferSize;
+  NPP_BUFFER_SIZE_TYPE bufferSize;
 #endif
   ASSERT_EQ(nppiHistogramEvenGetBufferSize_16u_C1R(oSizeROI, smallLevels, &bufferSize), NPP_SUCCESS);
   ASSERT_EQ(cudaMalloc(&d_buffer, bufferSize), cudaSuccess);

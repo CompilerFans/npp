@@ -25,7 +25,7 @@ Result run(const std::vector<Npp16u> &src, NppiNorm norm, NppiWatershedSegmentBo
   Npp16u *dSrc = nullptr;
   Npp32u *dLabels = nullptr;
   Npp8u *dBuffer = nullptr;
-  size_t bufferSize = 0;
+  NPP_BUFFER_SIZE_TYPE bufferSize = 0;
   EXPECT_EQ(nppiSegmentWatershedGetBufferSize_16u_C1R({W, H}, &bufferSize), NPP_NO_ERROR);
   cudaMalloc(&dSrc, src.size() * sizeof(Npp16u));
   cudaMalloc(&dLabels, src.size() * sizeof(Npp32u));
@@ -125,7 +125,7 @@ TEST(NppiWatershed, Contract) {
   Npp16u *dSrc = nullptr;
   Npp32u *dLabels = nullptr;
   Npp8u *dBuffer = nullptr;
-  size_t bufferSize = 0;
+  NPP_BUFFER_SIZE_TYPE bufferSize = 0;
   nppiSegmentWatershedGetBufferSize_16u_C1R({W, H}, &bufferSize);
   cudaMalloc(&dSrc, img.size() * sizeof(Npp16u));
   cudaMalloc(&dLabels, img.size() * sizeof(Npp32u));

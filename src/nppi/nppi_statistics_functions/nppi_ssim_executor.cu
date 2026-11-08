@@ -39,6 +39,7 @@ __device__ double blockReduceDouble(double val) {
     if (threadIdx.x < s) shared[threadIdx.x] += shared[threadIdx.x + s];
     __syncthreads();
   }
+  __syncthreads();
   return shared[0];
 }
 

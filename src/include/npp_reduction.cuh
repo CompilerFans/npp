@@ -38,6 +38,7 @@ template <typename Acc> __device__ Acc blockReduce(Acc val) {
     }
     __syncthreads();
   }
+  __syncthreads();
   return shared[0];
 }
 
@@ -470,6 +471,7 @@ static __global__ void finalizeOutKernel(const Acc *pPartial, int nblocks, int n
       Acc v = shared[0];
       pOut[c] = Divide ? static_cast<Acc>(static_cast<double>(v) / total): v;
     }
+    __syncthreads();
   }
 }
 
@@ -703,6 +705,7 @@ template <bool IsInf> __device__ double normBlockReduce(double val) {
     }
     __syncthreads();
   }
+  __syncthreads();
   return shared[0];
 }
 

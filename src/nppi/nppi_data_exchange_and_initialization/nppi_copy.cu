@@ -375,8 +375,10 @@ NppStatus nppiCopy_CxPxR_impl(const T *pSrc, int nSrcStep, T *const pDst[], int 
   // Units of P pixels per row; the kernel indexes them with 32-bit math, so
   // only take the vectorized path when the count fits in 31 bits (at or
   // above 32 GiB of traffic for every element type).
+  const size_t pixels = (size_t)oSizeROI.width * (size_t)oSizeROI.height;
   const size_t units = ((size_t)oSizeROI.width + P - 1) / P * (size_t)oSizeROI.height;
-  if (units < ((size_t)1 << 31) && planarCopyVecReady<T, CHANNELS>(pSrc, nSrcStep, dst, nDstStep)) {
+  if (pixels < ((size_t)1 << 31) && units < ((size_t)1 << 31) &&
+      planarCopyVecReady<T, CHANNELS>(pSrc, nSrcStep, dst, nDstStep)) {
     nppiCopy_CxPxR_kernel_vec<T, CHANNELS>
         <<<npp_kernel::vecGridSize(units), npp_kernel::kVecBlock, 0, nppStreamCtx.hStream>>>(
             pSrc, nSrcStep, dst, nDstStep, oSizeROI.width, oSizeROI.height);
@@ -414,8 +416,10 @@ NppStatus nppiCopy_PxCxR_impl(T *const pSrc[], int nSrcStep, T *pDst, int nDstSt
     src.p[c] = pSrc[c];
   }
 
+  const size_t pixels = (size_t)oSizeROI.width * (size_t)oSizeROI.height;
   const size_t units = ((size_t)oSizeROI.width + P - 1) / P * (size_t)oSizeROI.height;
-  if (units < ((size_t)1 << 31) && planarCopyVecReady<T, CHANNELS>(pDst, nDstStep, src, nSrcStep)) {
+  if (pixels < ((size_t)1 << 31) && units < ((size_t)1 << 31) &&
+      planarCopyVecReady<T, CHANNELS>(pDst, nDstStep, src, nSrcStep)) {
     nppiCopy_PxCxR_kernel_vec<T, CHANNELS>
         <<<npp_kernel::vecGridSize(units), npp_kernel::kVecBlock, 0, nppStreamCtx.hStream>>>(
             src, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height);

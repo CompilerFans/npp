@@ -695,6 +695,7 @@ TEST_F(NppiCrossCorrDiff, Contract_Buffers) {
 // dstArea is the Full dst area ((Ws+tw-1)*(Hs+th-1)); Same and Valid use
 // Ws*Hs and ignore the template completely.  Full rejects negative template
 // dimensions; zero dimensions flow through the arithmetic.
+#if NPP_BUFFER_SIZE_IS_SIZE_T || NPP_HEADER_UNIFIED
 TEST_F(NppiCrossCorrDiff, ScratchBufferSize_Values) {
   size_t sz = 0;
   {
@@ -777,7 +778,9 @@ TEST_F(NppiCrossCorrDiff, ScratchBufferSize_Values) {
     c.finish();
   }
 }
+#endif
 
+#if NPP_BUFFER_SIZE_IS_SIZE_T || NPP_HEADER_UNIFIED
 TEST_F(NppiCrossCorrDiff, ScratchBufferSize_Errors) {
   size_t sz = 0x5A5A5A5A5A5A5A5AULL;
   {
@@ -830,12 +833,14 @@ TEST_F(NppiCrossCorrDiff, ScratchBufferSize_Errors) {
     c.finish();
   }
 }
+#endif
 
 // ======================== buffer size sufficiency ===========================
 // The Advanced scratch buffer must be usable at exactly the queried size, and
 // the non-Advanced NormLevel device buffer at exactly the
 // nppiFullNormLevelGetBufferHostSize size (the query itself is recorded as a
 // differential case).
+#if NPP_BUFFER_SIZE_IS_SIZE_T || NPP_HEADER_UNIFIED
 TEST_F(NppiCrossCorrDiff, Scratch_Sufficiency) {
   size_t sz = 0;
   {
@@ -879,6 +884,7 @@ TEST_F(NppiCrossCorrDiff, Scratch_Sufficiency) {
                           "xcorr/full/nl/32f/AC4R_exactbuf_6x5_t2x2", CCMode::Full, NppiSize{6, 5}, NppiSize{2, 2},
                           4, 0x463, &nppiCrossCorrFull_NormLevel_32f_AC4R_Ctx, nlBuf.get());
 }
+#endif
 
 #if NPP_DIFF_HAS_NONCTX
 // Non-Ctx entry points reuse the Ctx goldens (identical data, steps and ids).

@@ -226,9 +226,11 @@ protected:
       const Npp8u contour = h_contours[i];
       const NppiContourPixelDirectionInfo &info = h_dirImage[i];
 
+#if NPP_HEADER_UNIFIED || NPP_HEADER_MAJOR < 12
       for (int j = 0; j < 4; ++j) {
         EXPECT_EQ(info.aContourInteriorDirection1[j], 0u) << "legacy-only unified field must stay zero at pixel " << i;
       }
+#endif
 
       // The contours image marks traced contour pixels with 0 and everything
       // else (region interior, background, outside the ROI) with 255.
@@ -293,10 +295,12 @@ protected:
     expectPointEqual(lhs.nSouthWest1, rhs.nSouthWest1, "nSouthWest1", index);
     expectPointEqual(lhs.nSouth1, rhs.nSouth1, "nSouth1", index);
     expectPointEqual(lhs.nSouthEast1, rhs.nSouthEast1, "nSouthEast1", index);
+#if NPP_HEADER_UNIFIED || NPP_HEADER_MAJOR < 12
     for (int j = 0; j < 4; ++j) {
       EXPECT_EQ(lhs.aContourInteriorDirection1[j], rhs.aContourInteriorDirection1[j])
           << "aContourInteriorDirection1[" << j << "] mismatch at pixel " << index;
     }
+#endif
     EXPECT_EQ(lhs.nTest1EastConnected, rhs.nTest1EastConnected) << "nTest1EastConnected mismatch at pixel " << index;
     EXPECT_EQ(lhs.nTest1NorthEastConnected, rhs.nTest1NorthEastConnected)
         << "nTest1NorthEastConnected mismatch at pixel " << index;

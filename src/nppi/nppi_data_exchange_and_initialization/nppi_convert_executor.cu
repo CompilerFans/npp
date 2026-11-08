@@ -205,7 +205,6 @@ NppStatus run(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, NppiSize o
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, mode, sf);
   const cudaError_t lerr = cudaGetLastError();
   if (lerr != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  cudaStreamSynchronize(stream);
   return finish_launch();
 }
 

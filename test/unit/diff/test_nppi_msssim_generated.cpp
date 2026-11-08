@@ -54,7 +54,7 @@ void value_case(const std::string &id, const char *fname, int w, int h, int kind
 #ifdef USE_NVIDIA_NPP_TESTS
   size_t bufferSize = 0;
 #else
-  int bufferSize = 0;
+  NPP_BUFFER_SIZE_TYPE bufferSize = 0;
 #endif
   nppiMSSSIMGetBufferHostSize_8u_C1R_Ctx({w, h}, &bufferSize, current_context());
   DeviceMemory<Npp8u> buffer(bufferSize > 0 ? bufferSize : 1);
@@ -97,7 +97,7 @@ TEST(NppiMsssimDiff, Contract) {
 #ifdef USE_NVIDIA_NPP_TESTS
   size_t bufferSize = 0;
 #else
-  int bufferSize = 0;
+  NPP_BUFFER_SIZE_TYPE bufferSize = 0;
 #endif
   nppiMSSSIMGetBufferHostSize_8u_C1R_Ctx({w, h}, &bufferSize, current_context());
   DeviceMemory<Npp8u> buffer(bufferSize > 0 ? bufferSize : 1);

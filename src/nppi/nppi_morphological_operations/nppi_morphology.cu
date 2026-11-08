@@ -1525,8 +1525,6 @@ __global__ void nppiErode_32f_C4R_kernel_opt(const Npp32f *__restrict__ pSrc, in
   const int tile_y = blockIdx.y * blockDim.y;
   const int out_x = tile_x + tx;
   const int out_y = tile_y + ty;
-  if (out_x >= width || out_y >= height)
-    return;
 
   const int TILE_WIDTH = blockDim.x + maskWidth - 1;
   const int TILE_HEIGHT = blockDim.y + maskHeight - 1;
@@ -1580,8 +1578,10 @@ __global__ void nppiErode_32f_C4R_kernel_opt(const Npp32f *__restrict__ pSrc, in
     }
   }
 
-  float4 *dst_row = reinterpret_cast<float4 *>((char *)pDst + out_y * nDstStep);
-  dst_row[out_x] = minVal;
+  if (out_x < width && out_y < height) {
+    float4 *dst_row = reinterpret_cast<float4 *>((char *)pDst + out_y * nDstStep);
+    dst_row[out_x] = minVal;
+  }
 }
 
 __global__ void nppiDilate_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
@@ -2109,8 +2109,6 @@ __global__ void nppiDilate_32f_C4R_kernel_opt(const Npp32f *__restrict__ pSrc, i
   const int tile_y = blockIdx.y * blockDim.y;
   const int out_x = tile_x + tx;
   const int out_y = tile_y + ty;
-  if (out_x >= width || out_y >= height)
-    return;
 
   const int TILE_WIDTH = blockDim.x + maskWidth - 1;
   const int TILE_HEIGHT = blockDim.y + maskHeight - 1;
@@ -2164,8 +2162,10 @@ __global__ void nppiDilate_32f_C4R_kernel_opt(const Npp32f *__restrict__ pSrc, i
     }
   }
 
-  float4 *dst_row = reinterpret_cast<float4 *>((char *)pDst + out_y * nDstStep);
-  dst_row[out_x] = maxVal;
+  if (out_x < width && out_y < height) {
+    float4 *dst_row = reinterpret_cast<float4 *>((char *)pDst + out_y * nDstStep);
+    dst_row[out_x] = maxVal;
+  }
 }
 
 //=============================================================================

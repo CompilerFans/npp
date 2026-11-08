@@ -97,6 +97,7 @@ void runHogBuffer(const char *key, int cell, int block, int bins, int windowW, i
   c.finish();
 }
 
+#if NPP_BUFFER_SIZE_IS_SIZE_T || NPP_HEADER_UNIFIED
 void runWatershed(int w, int h) {
   size_t size = static_cast<size_t>(-12345);
   clear_cuda_error();
@@ -107,7 +108,9 @@ void runWatershed(int w, int h) {
   c.host_output<size_t>(&size, 1, ValueKind::U64);
   c.finish();
 }
+#endif
 
+#if NPP_BUFFER_SIZE_IS_SIZE_T || NPP_HEADER_UNIFIED
 void runPbaAa(int w, int h) {
   size_t size = static_cast<size_t>(-12345);
   clear_cuda_error();
@@ -118,6 +121,7 @@ void runPbaAa(int w, int h) {
   c.host_output<size_t>(&size, 1, ValueKind::U64);
   c.finish();
 }
+#endif
 
 }  // namespace
 
@@ -203,6 +207,7 @@ TEST(NppiFilteringSizeDiff, HogBuffer) {
   runHogBuffer("too_many_cells", 16, 32, 9, 512, 512, single, 1, 512, 512);
 }
 
+#if NPP_BUFFER_SIZE_IS_SIZE_T || NPP_HEADER_UNIFIED
 TEST(NppiFilteringSizeDiff, Watershed) {
   const int values[] = {-2, -1, 0, 1, 2, 3, 7, 8, 9, 17, 31, 32, 33, 64, 100};
   for (int w : values) {
@@ -211,7 +216,9 @@ TEST(NppiFilteringSizeDiff, Watershed) {
     }
   }
 }
+#endif
 
+#if NPP_BUFFER_SIZE_IS_SIZE_T || NPP_HEADER_UNIFIED
 TEST(NppiFilteringSizeDiff, PbaAntialiasing) {
   const int values[] = {-2, -1, 0, 1, 2, 3, 7, 8, 9, 17, 31, 32, 33, 64, 100};
   for (int w : values) {
@@ -220,3 +227,4 @@ TEST(NppiFilteringSizeDiff, PbaAntialiasing) {
     }
   }
 }
+#endif

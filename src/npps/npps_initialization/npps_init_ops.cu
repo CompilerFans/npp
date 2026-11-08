@@ -9,6 +9,7 @@
 
 #include <cuda_runtime.h>
 #include <cstdint>
+#include <cstring>
 
 namespace npps {
 namespace init {
@@ -28,6 +29,42 @@ __global__ void copy_kernel(const T *src, T *dst, size_t n) {
   size_t i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i < n) dst[i] = src[i];
 }
+
+// 16-byte packet paths: one 128-bit store/load per thread.  Used when the
+// element size divides 16 and both pointers are 16-byte aligned; the scalar
+// kernels above handle the tail and all unaligned/mixed cases.
+__global__ void set_kernel_vec(uint4 value, uint4 *dst, size_t nPackets) {
+  size_t i = (size_t)blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < nPackets) dst[i] = value;
+}
+
+__global__ void copy_kernel_vec(const uint4 *src, uint4 *dst, size_t nPackets) {
+  size_t i = (size_t)blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < nPackets) dst[i] = src[i];
+}
+
+template <typename T>
+struct Pack16 {
+  uint4 packet;
+  size_t elems;
+};
+
+template <typename T>
+inline bool make_pack16(T value, Pack16<T> &out) {
+  constexpr size_t kSize = sizeof(T);
+  if constexpr ((kSize & (kSize - 1)) != 0 || kSize > 16) {
+    return false;
+  } else {
+    alignas(16) unsigned char bytes[16];
+    const unsigned char *v = reinterpret_cast<const unsigned char *>(&value);
+    for (size_t i = 0; i < 16; ++i) bytes[i] = v[i % kSize];
+    std::memcpy(&out.packet, bytes, 16);
+    out.elems = 16 / kSize;
+    return true;
+  }
+}
+
+inline bool aligned16(const void *p) { return (reinterpret_cast<uintptr_t>(p) & 15u) == 0u; }
 
 // Kernel-launch error check moved to the shared header npp_kernel_utils.h;
 // re-exported here so the executors below keep using the unqualified name.
@@ -51,8 +88,19 @@ NppStatus set(T value, T *pDst, NppSignalLength nLength, cudaStream_t stream) {
   NppStatus st = validate(pDst, nLength);
   if (st != NPP_NO_ERROR) return st;
   const size_t n = static_cast<size_t>(nLength);
-  const size_t grid = (n + kBlockSize - 1) / kBlockSize;
-  set_kernel<<<grid, kBlockSize, 0, stream>>>(value, pDst, n);
+  Pack16<T> pack{};
+  const size_t packets = (n * sizeof(T)) / 16;
+  if (packets > 0 && aligned16(pDst) && make_pack16(value, pack)) {
+    const size_t grid = (packets + npp_kernel::kVecBlock - 1) / npp_kernel::kVecBlock;
+    set_kernel_vec<<<grid, npp_kernel::kVecBlock, 0, stream>>>(pack.packet, reinterpret_cast<uint4 *>(pDst), packets);
+    const size_t done = packets * pack.elems;
+    if (done < n) {
+      set_kernel<<<1, (unsigned)(n - done), 0, stream>>>(value, pDst + done, n - done);
+    }
+  } else {
+    const size_t grid = (n + kBlockSize - 1) / kBlockSize;
+    set_kernel<<<grid, kBlockSize, 0, stream>>>(value, pDst, n);
+  }
   return checkCudaKernelError();
 }
 
@@ -63,8 +111,20 @@ NppStatus copy(const T *pSrc, T *pDst, NppSignalLength nLength, cudaStream_t str
   st = validate(pDst, nLength);
   if (st != NPP_NO_ERROR) return st;
   const size_t n = static_cast<size_t>(nLength);
-  const size_t grid = (n + kBlockSize - 1) / kBlockSize;
-  copy_kernel<<<grid, kBlockSize, 0, stream>>>(pSrc, pDst, n);
+  constexpr size_t kSize = sizeof(T);
+  const size_t packets = (n * kSize) / 16;
+  if (packets > 0 && kSize <= 16 && (kSize & (kSize - 1)) == 0 && aligned16(pSrc) && aligned16(pDst)) {
+    const size_t grid = (packets + npp_kernel::kVecBlock - 1) / npp_kernel::kVecBlock;
+    copy_kernel_vec<<<grid, npp_kernel::kVecBlock, 0, stream>>>(reinterpret_cast<const uint4 *>(pSrc),
+                                                                reinterpret_cast<uint4 *>(pDst), packets);
+    const size_t done = packets * (16 / kSize);
+    if (done < n) {
+      copy_kernel<T><<<1, (unsigned)(n - done), 0, stream>>>(pSrc + done, pDst + done, n - done);
+    }
+  } else {
+    const size_t grid = (n + kBlockSize - 1) / kBlockSize;
+    copy_kernel<<<grid, kBlockSize, 0, stream>>>(pSrc, pDst, n);
+  }
   return checkCudaKernelError();
 }
 

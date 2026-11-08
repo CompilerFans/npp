@@ -14,7 +14,7 @@ namespace nppi {
 namespace c3conv {
 namespace {
 
-constexpr int kBlockX = 128;
+constexpr int kBlockX = 32;
 constexpr int kBlockY = 8;
 
 __device__ __forceinline__ int trunc_u8(float v) {

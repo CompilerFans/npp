@@ -13,7 +13,7 @@ namespace nppi {
 namespace c3color {
 namespace {
 
-constexpr int kBlockX = 128;
+constexpr int kBlockX = 32;
 constexpr int kBlockY = 8;
 
 inline dim3 gridFor(int w, int h) {

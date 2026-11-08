@@ -41,10 +41,19 @@ endif()
 # Differential tests (record on NVIDIA NPP, verify on MPP).  Only Ctx entry
 # points are referenced by generated tests, so the target builds against the
 # reference NPP 13 headers as well.
+# The differential recordings were captured with the NPP 13 size_t buffer-size
+# ABI, so the target is only meaningful for header sets that expose it (12.3+
+# and the unified contract, which keeps both entry points).
+set(NPP_DIFF_TESTS_ENABLED TRUE)
+if(NOT USE_NVIDIA_NPP AND NOT NPP_HEADER_UNIFIED)
+    if(NPP_HEADER_MAJOR LESS 12 OR (NPP_HEADER_MAJOR EQUAL 12 AND NPP_HEADER_MINOR LESS 3))
+        set(NPP_DIFF_TESTS_ENABLED FALSE)
+    endif()
+endif()
 file(GLOB_RECURSE DIFF_TEST_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/diff/test_*_generated.cpp
 )
-if(DIFF_TEST_SOURCES)
+if(DIFF_TEST_SOURCES AND NPP_DIFF_TESTS_ENABLED)
     npp_create_test_target(diff_tests "${DIFF_TEST_SOURCES}" npp)
     target_include_directories(diff_tests
         PRIVATE

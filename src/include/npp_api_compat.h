@@ -107,7 +107,7 @@ typedef struct {
 
 #if NPP_HEADER_MAJOR >= 13
 /* NPP 13 headers are context-only, but libnppc still exports the managed
- * stream entry points used by the classic wrappers. */
+ * stream and device property entry points used by the classic wrappers. */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -116,6 +116,11 @@ NppStatus nppSetStream(cudaStream_t hStream);
 NppStatus nppGetStreamContext(NppStreamContext *pNppStreamContext);
 unsigned int nppGetStreamNumSMs(void);
 unsigned int nppGetStreamMaxThreadsPerSM(void);
+int nppGetGpuNumSMs(void);
+int nppGetMaxThreadsPerBlock(void);
+int nppGetMaxThreadsPerSM(void);
+int nppGetGpuDeviceProperties(int *pMaxThreadsPerSM, int *pMaxThreadsPerBlock, int *pNumberOfSMs);
+const char *nppGetGpuName(void);
 #ifdef __cplusplus
 }
 #endif

@@ -7,7 +7,7 @@
 #ifdef USE_NVIDIA_NPP_TESTS
 using BufferSizeType = size_t;
 #else
-using BufferSizeType = int;
+using BufferSizeType = NPP_BUFFER_SIZE_TYPE;
 #endif
 
 class NppiHistogramBufferSizeTest : public ::testing::Test {

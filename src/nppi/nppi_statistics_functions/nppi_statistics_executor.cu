@@ -105,6 +105,7 @@ template <typename D, bool IsMin> __device__ D blockReduceExtreme(D val) {
     }
     __syncthreads();
   }
+  __syncthreads();
   return shared[0];
 }
 

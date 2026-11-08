@@ -1,5 +1,7 @@
 #include "npp.h"
 #include <cuda_runtime.h>
+#include <cstdint>
+#include <cstring>
 
 template <typename T>
 __global__ void nppiSet_C1R_kernel(T nValue, T *pDst, int nDstStep, int width, int height) {
@@ -37,14 +39,61 @@ __global__ void nppiSet_CxR_kernel(NppiSetValue<T, CHANNELS> value, T *pDst, int
   }
 }
 
+// Row-wise 16-byte fill for C1 when the destination base and row stride are
+// 16-byte aligned.  Threads with px < packetsPerRow write one uint4; the
+// single px == packetsPerRow thread fills the sub-packet tail.
+template <typename T>
+__global__ void nppiSet_C1R_vec_kernel(uint4 value, T scalar, T *pDst, int nDstStep, int width, int height,
+                                       int packetsPerRow, int tailStart) {
+  const int px = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (y >= height || px > packetsPerRow) return;
+  T *dstRow = reinterpret_cast<T *>(reinterpret_cast<char *>(pDst) + y * nDstStep);
+  if (px < packetsPerRow) {
+    reinterpret_cast<uint4 *>(dstRow)[px] = value;
+  } else {
+    for (int x = tailStart; x < width; ++x) dstRow[x] = scalar;
+  }
+}
+
+template <typename T>
+inline bool make_set_packet(T value, uint4 &packet, int &elemsPerPacket) {
+  constexpr size_t kSize = sizeof(T);
+  if constexpr ((kSize & (kSize - 1)) != 0 || kSize > 16) {
+    (void)value;
+    (void)packet;
+    (void)elemsPerPacket;
+    return false;
+  } else {
+    alignas(16) unsigned char bytes[16];
+    const unsigned char *v = reinterpret_cast<const unsigned char *>(&value);
+    for (size_t i = 0; i < 16; ++i) bytes[i] = v[i % kSize];
+    std::memcpy(&packet, bytes, 16);
+    elemsPerPacket = (int)(16 / kSize);
+    return true;
+  }
+}
+
 template <typename T>
 NppStatus launchSetScalar(T nValue, T *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiSet_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(nValue, pDst, nDstStep, oSizeROI.width,
-                                                                        oSizeROI.height);
-
+  const size_t rowBytes = (size_t)oSizeROI.width * sizeof(T);
+  uint4 packet{};
+  int elemsPerPacket = 0;
+  const bool vec = rowBytes >= 16 && ((uintptr_t)pDst & 15u) == 0u && (nDstStep & 15) == 0 &&
+                   make_set_packet(nValue, packet, elemsPerPacket);
+  if (vec) {
+    const int packetsPerRow = (int)(rowBytes / 16);
+    const int tailStart = packetsPerRow * elemsPerPacket;
+    dim3 blockSize(16, 16);
+    dim3 gridSize((unsigned)(packetsPerRow + 1), (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+    nppiSet_C1R_vec_kernel<T><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        packet, nValue, pDst, nDstStep, oSizeROI.width, oSizeROI.height, packetsPerRow, tailStart);
+  } else {
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+    nppiSet_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(nValue, pDst, nDstStep, oSizeROI.width,
+                                                                          oSizeROI.height);
+  }
   return cudaGetLastError() == cudaSuccess ? NPP_SUCCESS: NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 

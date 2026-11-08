@@ -460,6 +460,52 @@ NppStatus nppiYUV422ToRGB_8u_ColorTwist32f_P3C3R_Ctx(const Npp8u * const pSrc[3]
 NppStatus nppiYUV422ToRGB_8u_ColorTwist32f_P3R_Ctx(const Npp8u * const pSrc[3], int aSrcStep[3], Npp8u * pDst[3], int aDstStep[3], NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx);
 NppStatus nppiYUV444_8u_ToUYVP_10u_C3C3R_Ctx(const Npp8u* pSrc, int nSrcStep, NppiPoint oSrcOffset, Npp8u* pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 
+NppStatus nppiCompressedMarkerLabelsUFContoursOutputGeometryLists_C1R(NppiContourPixelGeometryInfo * pContoursPixelGeometryListsHost, NppiCompressedMarkerLabelsInfo * pMarkerLabelsInfoListHost, Npp8u * pContoursGeometryImageHost, Npp32s nContoursGeometryImageStep, Npp32u * pContoursPixelCountsListHost, Npp32u * pContoursPixelsFoundListHost, Npp32u * pContoursPixelsStartingOffsetHost, Npp32u nMaxMarkerLabelID, Npp32u nFirstContourGeometryListID, Npp32u nLastContourGeometryListID, Npp32u bOutputInCounterclockwiseOrder, NppiSize oSizeROI);
+
+/* NPP 12 cross-correlation and filter scratch-size entry points. */
+NppStatus nppiCrossCorrFull_NormLevel_64f_AC4R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep, Npp8u * pDeviceBuffer);
+NppStatus nppiCrossCorrFull_NormLevel_64f_C1R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep, Npp8u * pDeviceBuffer);
+NppStatus nppiCrossCorrFull_NormLevel_64f_C3R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep, Npp8u * pDeviceBuffer);
+NppStatus nppiCrossCorrFull_NormLevel_64f_C4R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep, Npp8u * pDeviceBuffer);
+NppStatus nppiCrossCorrFull_NormLevel_GetAdvancedScratchBufferSize(NppiSize oSrcRoiSize, NppiSize oTplRoiSize, int nSizeofDstData, int nSrcChannels, NPP_BUFFER_SIZE_TYPE * hpBufferSize);
+NppStatus nppiCrossCorrFull_Norm_64f_AC4R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep);
+NppStatus nppiCrossCorrFull_Norm_64f_C1R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep);
+NppStatus nppiCrossCorrFull_Norm_64f_C3R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep);
+NppStatus nppiCrossCorrFull_Norm_64f_C4R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep);
+NppStatus nppiCrossCorrSame_NormLevel_64f_AC4R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep, Npp8u * pDeviceBuffer);
+NppStatus nppiCrossCorrSame_NormLevel_64f_C1R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep, Npp8u * pDeviceBuffer);
+NppStatus nppiCrossCorrSame_NormLevel_64f_C3R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep, Npp8u * pDeviceBuffer);
+NppStatus nppiCrossCorrSame_NormLevel_64f_C4R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep, Npp8u * pDeviceBuffer);
+NppStatus nppiCrossCorrSame_NormLevel_GetAdvancedScratchBufferSize(NppiSize oSrcRoiSize, NppiSize oTplRoiSize, int nSizeofDstData, int nSrcChannels, NPP_BUFFER_SIZE_TYPE * hpBufferSize);
+NppStatus nppiCrossCorrSame_Norm_64f_AC4R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep);
+NppStatus nppiCrossCorrSame_Norm_64f_C1R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep);
+NppStatus nppiCrossCorrSame_Norm_64f_C3R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep);
+NppStatus nppiCrossCorrSame_Norm_64f_C4R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep);
+NppStatus nppiCrossCorrValid_64f_C1R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep);
+NppStatus nppiCrossCorrValid_NormLevel_64f_AC4R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep, Npp8u * pDeviceBuffer);
+NppStatus nppiCrossCorrValid_NormLevel_64f_C1R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep, Npp8u * pDeviceBuffer);
+NppStatus nppiCrossCorrValid_NormLevel_64f_C3R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep, Npp8u * pDeviceBuffer);
+NppStatus nppiCrossCorrValid_NormLevel_64f_C4R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep, Npp8u * pDeviceBuffer);
+NppStatus nppiCrossCorrValid_NormLevel_GetAdvancedScratchBufferSize(NppiSize oSrcRoiSize, NppiSize oTplRoiSize, int nSizeofDstData, int nSrcChannels, NPP_BUFFER_SIZE_TYPE * hpBufferSize);
+NppStatus nppiCrossCorrValid_Norm_64f_AC4R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep);
+NppStatus nppiCrossCorrValid_Norm_64f_C1R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep);
+NppStatus nppiCrossCorrValid_Norm_64f_C3R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep);
+NppStatus nppiCrossCorrValid_Norm_64f_C4R(const Npp64f * pSrc, int nSrcStep, NppiSize oSrcRoiSize, const Npp64f * pTpl, int nTplStep, NppiSize oTplRoiSize, Npp64f * pDst, int nDstStep);
+NppStatus nppiFilterBoxBorderAdvancedGetDeviceBufferSize(NppiSize oSizeROI, int nChannels, NPP_BUFFER_SIZE_TYPE * hpBufferSize);
+NppStatus nppiFilterBoxBorderAdvancedGetDeviceBufferSize_64(NppiSize oSizeROI, int nChannels, NPP_BUFFER_SIZE_TYPE * hpBufferSize);
+NppStatus nppiFullNormLevelGetBufferHostSize_64f_AC4R(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE * hpBufferSize);
+NppStatus nppiFullNormLevelGetBufferHostSize_64f_C1R(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE * hpBufferSize);
+NppStatus nppiFullNormLevelGetBufferHostSize_64f_C3R(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE * hpBufferSize);
+NppStatus nppiFullNormLevelGetBufferHostSize_64f_C4R(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE * hpBufferSize);
+NppStatus nppiSameNormLevelGetBufferHostSize_64f_AC4R(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE * hpBufferSize);
+NppStatus nppiSameNormLevelGetBufferHostSize_64f_C1R(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE * hpBufferSize);
+NppStatus nppiSameNormLevelGetBufferHostSize_64f_C3R(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE * hpBufferSize);
+NppStatus nppiSameNormLevelGetBufferHostSize_64f_C4R(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE * hpBufferSize);
+NppStatus nppiValidNormLevelGetBufferHostSize_64f_AC4R(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE * hpBufferSize);
+NppStatus nppiValidNormLevelGetBufferHostSize_64f_C1R(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE * hpBufferSize);
+NppStatus nppiValidNormLevelGetBufferHostSize_64f_C3R(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE * hpBufferSize);
+NppStatus nppiValidNormLevelGetBufferHostSize_64f_C4R(NppiSize oSizeROI, NPP_BUFFER_SIZE_TYPE * hpBufferSize);
+
 #ifdef __cplusplus
 }
 #endif
@@ -528,6 +574,12 @@ inline NppStatus nppiHistogramRangeGetBufferSize_32f_C1R_Ctx(NppiSize oSizeROI, 
 inline NppStatus nppiHistogramRangeGetBufferSize_32f_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], NPP_BUFFER_SIZE_TYPE * hpBufferSize, NppStreamContext nppStreamCtx) { return nppiHistogramRangeGetBufferSize_32f_C3R_Ctx(oSizeROI, nLevels, hpBufferSize); }
 inline NppStatus nppiHistogramRangeGetBufferSize_32f_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], NPP_BUFFER_SIZE_TYPE * hpBufferSize, NppStreamContext nppStreamCtx) { return nppiHistogramRangeGetBufferSize_32f_C4R_Ctx(oSizeROI, nLevels, hpBufferSize); }
 inline NppStatus nppiHistogramRangeGetBufferSize_32f_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], NPP_BUFFER_SIZE_TYPE * hpBufferSize, NppStreamContext nppStreamCtx) { return nppiHistogramRangeGetBufferSize_32f_AC4R_Ctx(oSizeROI, nLevels, hpBufferSize); }
+#endif
+
+#if defined(__cplusplus) && !defined(MPP_EXPORTS)
+/* Full-signature NPP 12+ overloads absent from the 11.4 headers. */
+NppStatus nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx(Npp32u * pCompressedMarkerLabels, Npp32s nCompressedMarkerLabelsStep, NppiSize oSizeROI, unsigned int nMaxMarkerLabelID, NppiCompressedMarkerLabelsInfo * pMarkerLabelsInfoList, Npp8u * pContoursImage, Npp32s nContoursImageStep, NppiContourPixelDirectionInfo * pContoursDirectionImage, Npp32s nContoursDirectionImageStep, NppiContourTotalsInfo * pContoursTotalsInfoHost, Npp32u * pContoursPixelCountsListDev, Npp32u * pContoursPixelCountsListHost, Npp32u * pContoursPixelStartingOffsetDev, Npp32u * pContoursPixelStartingOffsetHost, NppStreamContext nppStreamCtx);
+NppStatus nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx(NppiCompressedMarkerLabelsInfo * pMarkerLabelsInfoListDev, NppiCompressedMarkerLabelsInfo * pMarkerLabelsInfoListHost, NppiContourPixelDirectionInfo * pContoursDirectionImageDev, Npp32s nContoursDirectionImageStep, NppiContourPixelGeometryInfo * pContoursPixelGeometryListsDev, NppiContourPixelGeometryInfo * pContoursPixelGeometryListsHost, Npp8u * pContoursGeometryImageHost, Npp32s nContoursGeometryImageStep, Npp32u * pContoursPixelCountsListDev, Npp32u * pContoursPixelsFoundListDev, Npp32u * pContoursPixelsFoundListHost, Npp32u * pContoursPixelsStartingOffsetDev, Npp32u * pContoursPixelsStartingOffsetHost, Npp32u nTotalImagePixelContourCount, Npp32u nMaxMarkerLabelID, Npp32u nFirstContourGeometryListID, Npp32u nLastContourGeometryListID, NppiContourBlockSegment * pContoursBlockSegmentListDev, NppiContourBlockSegment * pContoursBlockSegmentListHost, Npp32u bOutputInCounterclockwiseOrder, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 #endif
 
 #endif

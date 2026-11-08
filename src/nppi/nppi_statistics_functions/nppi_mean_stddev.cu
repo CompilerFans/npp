@@ -1,7 +1,7 @@
 #include "nppdefs.h"
 #include <cuda_runtime.h>
 
-#if defined(__MACACC__)
+#if defined(__MACACC__) || defined(__MACA__)
 // warp size 64
 #define WARP_SIZE 64
 #define SHFL_MASK 0xFFFFFFFFFFFFFFFFULL
@@ -32,7 +32,8 @@ __device__ __forceinline__ double blockReduceSum(double val) {
   __syncthreads();
 
   // Read from shared memory only if that warp existed
-  val = (threadIdx.x < blockDim.x / WARP_SIZE) ? shared[lane]: 0;
+  const int nWarps = (blockDim.x + WARP_SIZE - 1) / WARP_SIZE;
+  val = (threadIdx.x < nWarps) ? shared[lane]: 0;
 
   if (wid == 0)
     val = warpReduceSum(val);

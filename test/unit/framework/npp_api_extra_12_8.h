@@ -77,6 +77,8 @@ NppStatus nppiY410_10u_ToUYVP_10u_C3C3R_Ctx(const Npp16u* pSrc, int nSrcStep, Np
 NppStatus nppiYUV420ToNV12_8u_P3P2R_Ctx(const Npp8u* const pSrc[3], const int aSrcStep[3], Npp8u* pDst[2], int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 NppStatus nppiYUV444_8u_ToUYVP_10u_C3C3R_Ctx(const Npp8u* pSrc, int nSrcStep, NppiPoint oSrcOffset, Npp8u* pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 
+NppStatus nppiCompressedMarkerLabelsUFContoursOutputGeometryLists_C1R(NppiContourPixelGeometryInfo * pContoursPixelGeometryListsHost, NppiCompressedMarkerLabelsInfo * pMarkerLabelsInfoListHost, Npp8u * pContoursGeometryImageHost, Npp32s nContoursGeometryImageStep, Npp32u * pContoursPixelCountsListHost, Npp32u * pContoursPixelsFoundListHost, Npp32u * pContoursPixelsStartingOffsetHost, Npp32u nMaxMarkerLabelID, Npp32u nFirstContourGeometryListID, Npp32u nLastContourGeometryListID, Npp32u bOutputInCounterclockwiseOrder, NppiSize oSizeROI);
+
 #ifdef __cplusplus
 }
 #endif
@@ -84,6 +86,13 @@ NppStatus nppiYUV444_8u_ToUYVP_10u_C3C3R_Ctx(const Npp8u* pSrc, int nSrcStep, Np
 #if defined(__cplusplus) && !defined(MPP_EXPORTS)
 /* C++ forwarders for entry points whose selected header has no stream-
  * context parameter. */
+#endif
+
+#if defined(__cplusplus) && !defined(MPP_EXPORTS)
+/* NPP 13.4 contour entry points and legacy overloads kept available for the
+ * shared test suite. */
+NppStatus nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx(Npp32u * pCompressedMarkerLabels, Npp32s nCompressedMarkerLabelsStep, NppiSize oSizeROI, unsigned int nMaxMarkerLabelID, NppiCompressedMarkerLabelsInfo * pMarkerLabelsInfoList, Npp8u * pContoursImage, Npp32s nContoursImageStep, NppiContourPixelDirectionInfo * pContoursDirectionImage, Npp32s nContoursDirectionImageStep, NppiContourTotalsInfo * pContoursTotalsInfoHost, Npp32u * pContoursPixelCountsListDev, Npp32u * pContoursPixelCountsListHost, Npp32u * pContoursPixelStartingOffsetHost, NppStreamContext nppStreamCtx);
+NppStatus nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx(NppiCompressedMarkerLabelsInfo * pMarkerLabelsInfoListDev, NppiCompressedMarkerLabelsInfo * pMarkerLabelsInfoListHost, NppiContourPixelDirectionInfo * pContoursDirectionImageDev, Npp32s nContoursDirectionImageStep, NppiContourPixelGeometryInfo * pContoursPixelGeometryListsHost, Npp32u * pContoursPixelCountsListHost, Npp32u * pContoursPixelsFoundListHost, Npp32u * pContoursPixelsStartingOffsetHost, Npp32u nMaxMarkerLabelID, Npp32u nFirstContourGeometryListID, Npp32u nLastContourGeometryListID, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 #endif
 
 #endif

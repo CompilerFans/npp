@@ -7,7 +7,7 @@
  * Optimized implementation using shared memory tiling
  */
 
-#define TILE_SIZE 32 // Tile size for shared memory optimization
+#define TILE_SIZE 16 // Tile size for shared memory optimization
 
 /**
  * Template CUDA kernel for transposing single-channel images

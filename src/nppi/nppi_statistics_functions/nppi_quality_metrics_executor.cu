@@ -20,6 +20,7 @@ template <typename Acc> __device__ Acc block_reduce(Acc val) {
     if (threadIdx.x < s) shared[threadIdx.x] += shared[threadIdx.x + s];
     __syncthreads();
   }
+  __syncthreads();
   return shared[0];
 }
 

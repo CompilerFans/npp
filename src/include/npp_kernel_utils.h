@@ -30,6 +30,9 @@ namespace npp_kernel {
 // template parameter so callers can deviate from the 16x16 default without
 // duplicating the grid computation.
 template <int BlockX = 16, int BlockY = 16> struct BlockConfig {
+  static_assert(BlockX > 0 && BlockY > 0 && BlockX * BlockY <= 256,
+                "BlockConfig is capped at 256 threads: larger blocks trigger the "
+                "large-block recompile path on MACA");
   static constexpr int kBlockX = BlockX;
   static constexpr int kBlockY = BlockY;
 
